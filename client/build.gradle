@@ -1,0 +1,34 @@
+plugins {
+    id "com.moowork.node" version "1.2.0"
+}
+
+
+node {
+    version = '8.7.0'
+    yarnVersion = '1.2.1'
+    download = true
+}
+
+task bootRun(type: YarnTask, dependsOn: 'yarn') {
+    group = 'application'
+    description = 'Run the client app'
+    args = ['run', 'start']
+}
+
+task build(type: YarnTask, dependsOn: 'yarn') {
+    group = 'build'
+    description = 'Build the client bundle'
+    args = ['run', 'build']
+}
+
+task clean(type: Delete) {
+    group = 'build'
+    description = 'Clean the client bundle'
+    delete 'build'
+}
+
+task test(type: YarnTask, dependsOn: 'yarn') {
+    group = 'verification'
+    description = 'Run the client tests'
+    args = ['run', 'test']
+}

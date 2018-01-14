@@ -1,0 +1,19 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  jackson:
+    serialization:
+      indent_output: true
+      write_dates_as_timestamps: false
+      write_durations_as_timestamps: false
+
+endpoints:
+  health:
+    sensitive: false
+
+app:
+  graph:
+    osm:
+      path: ${GRAPH_OSM_PATH:/home/thiago/Downloads/belgium-latest.osm.pbf}
+      location: ${GRAPH_OSM_LOCATION:/tmp/gh-tmp}

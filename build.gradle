@@ -1,0 +1,71 @@
+plugins {
+    id "com.palantir.docker" version "0.13.0"
+    id "com.palantir.docker-run" version "0.13.0"
+}
+
+subprojects {
+    version '0.2.5'
+    group 'com.github.pintowar'
+
+    apply plugin: 'idea'
+
+    repositories {
+        mavenLocal()
+        maven { url "https://repo.grails.org/grails/core" }
+        mavenCentral()
+    }
+}
+
+ext {
+    jarFileName = 'app.jar'
+}
+
+task copyClientResources(dependsOn: ':client:build') { 
+    group = 'build'
+    description = 'Copy client resources into server'
+    doLast {
+        copy {
+            from project(':client').buildDir.absolutePath
+            into "${project(':server').buildDir}/resources/main/public"
+        }
+    }
+}
+
+task assembleServerAndClient(dependsOn: ['copyClientResources', ':server:assemble']) {  
+    group = 'build'
+    description = 'Build combined server & client JAR'
+
+    doLast {
+        copy {
+            from fileTree(dir: "${project(':server').buildDir}/libs/") 
+            into "$rootDir/build/"
+        }
+
+        logger.quiet "JAR generated at $rootDir/build/. It combines the server and client projects."
+    }
+}
+
+task clean(type: Delete) {
+    group = 'build'
+    description = 'Clean the client bundle'
+    delete 'build'
+}
+
+task(":server:assemble").mustRunAfter(copyClientResources)
+
+docker {
+    name "opta-router:${project(":server").version}"
+    tags project(":server").version, 'latest'
+    dependsOn tasks.assembleServerAndClient
+    files "$rootDir/build/$jarFileName"
+}
+
+dockerRun {
+    name 'opta-router'
+    image "opta-router:${project(":server").version}"
+    ports '8080'
+    clean true
+    daemonize false
+    //env 'GRAPH_OSM_PATH' : ''
+    //env 'GRAPH_OSM_LOCATION' : ''
+}
