@@ -1,7 +1,6 @@
 export class WsWidget {
 
-    constructor(chart, map, form) {
-        this.chart = chart;
+    constructor(map, form) {
         this.map = map;
         this.form = form;
         this.eventDefinition()
@@ -9,22 +8,25 @@ export class WsWidget {
 
 
     eventDefinition() {
-        const widgets = [this.chart, this.map]
+        const widgets = [this.map]
         const form = this.form
 
         const socket = new SockJS('/stomp')
         const client = Stomp.over(socket)
         client.debug = null
         let self = this
-        client.connect({}, function() {
-            client.subscribe("/topic/solution", function(message) {
+        client.connect({}, function(frame) {
+            console.log('Connected: ' + frame)
+            client.subscribe("/user/queue/solution", function(message) {
                 const data = JSON.parse(message.body)
                 widgets.forEach(it => it.plotPath(data))
             });
 
-            client.subscribe("/topic/status", function(message) {
+            client.subscribe("/user/queue/status", function(message) {
                 form.setStatus(message.body)
             });
+
+            form.enable()
         });
     }
 

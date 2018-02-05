@@ -1,9 +1,15 @@
 import {SAMPLES} from './data'
 
 export class FormWidget {
-    constructor(chart, map) {
-        this.chart = chart;
-        this.map = map;
+    constructor(map) {
+        this.map = map
+        this.pathBtn = $('#path-btn')
+        this.terminateBtn = $('#terminate-btn')
+        this.destroyBtn = $('#destroy-btn')
+        this.detailedBtn = $('#detailed-btn')
+        this.buttons = [this.pathBtn, this.terminateBtn, this.destroyBtn, this.detailedBtn]
+
+        this.disable()
         this.sampleLoader('belgium')
         this.eventDefinition()
     }
@@ -13,7 +19,6 @@ export class FormWidget {
         const loader = $('#' + sample + '-sample-loader')
         loader.popover({trigger: 'hover', content: 'Load ' + sample + ' sample'})
         loader.on('click', () => {
-            $('#map-area').val(sample)
             $('#data-input').val(JSON.stringify(SAMPLES[sample], null, 2))
         })
     }
@@ -25,30 +30,28 @@ export class FormWidget {
     }
 
     eventDefinition() {
-        const widgets = [this.chart, this.map]
+        const widgets = [this.map]
         $('#data-form').submit(e => e.preventDefault())
 
-        $('#path-btn').on('click', (evt) => {
+        this.pathBtn.on('click', (evt) => {
             this.solvePath(widgets)
         })
 
-        $('#points-btn').on('click', (evt => {
-            try {
-                const data = JSON.parse($('#data-input').val())
-                widgets.forEach(it => it.plotDots(data))
-            } catch(e) {
-                widgets.forEach(it => it.clear())
-            }
-        }))
-
-        $('#terminate-btn').on('click', (evt => {
+        this.terminateBtn.on('click', (evt => {
             $.ajax({
                 url: '/terminate',
                 success: (data => console.log(data) ),
             })
         }))
 
-        $('#detailed-btn').on('click', (evt => {
+        this.destroyBtn.on('click', (evt => {
+            $.ajax({
+                url: '/clean',
+                success: (data => console.log(data) ),
+            })
+        }))
+
+        this.detailedBtn.on('click', (evt => {
             const active = $(evt.target).attr('class').indexOf('active') <= 0
             $.ajax({
                 url: `/detailed-path/${active}`,
@@ -56,6 +59,13 @@ export class FormWidget {
                 method: 'PUT'
             })
         }))
+
+        $.ajax({
+            url: '/instance',
+            success: (data => {
+                if(!!data) $('#data-input').val(JSON.stringify(data, null, 2))
+            })
+        })
     }
 
     setStatus(msg) {
@@ -79,7 +89,7 @@ export class FormWidget {
         $.ajax({
             url: '/solution',
             success: (data => {
-                [this.chart, this.map].forEach(it => it.plotPath(data) )
+                [this.map].forEach(it => it.plotPath(data) )
             })
         })
     }
@@ -99,5 +109,13 @@ export class FormWidget {
             type: 'POST',
             url: '/solve'
         })
+    }
+
+    enable() {
+        this.buttons.forEach( btn => btn.removeAttr( "disabled" ) )
+    }
+
+    disable() {
+        this.buttons.forEach( btn => btn.attr("disabled", "disabled") )
     }
 }

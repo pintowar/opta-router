@@ -11,6 +11,7 @@ import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.optaplanner.examples.vehiclerouting.domain.location.DistanceType
 import org.optaplanner.examples.vehiclerouting.domain.location.RoadLocation
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 data class Instance @JsonCreator constructor(
         @JsonProperty("id") val id: String,
@@ -39,7 +40,7 @@ data class Instance @JsonCreator constructor(
         }.toMap()
 
         locs.forEachIndexed { idxa, a ->
-            a.travelDistanceMap = locs.mapIndexed { idxb, b -> b to dist.time(idxa, idxb) }
+            a.travelDistanceMap = locs.mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
                     .filter { (b, _) -> a != b }.toMap()
         }
         sol.locationList = locs
@@ -61,7 +62,7 @@ data class Instance @JsonCreator constructor(
             v
         }
         sol.distanceType = DistanceType.ROAD_DISTANCE
-        sol.distanceUnitOfMeasurement = "sec"
+        sol.distanceUnitOfMeasurement = "m"
         return sol
     }
 }
@@ -80,12 +81,12 @@ data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List
 data class VrpSolution(val routes: List<Route>) {
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
-    fun getTotalTime() = routes.map { it.time }.fold(BigDecimal(0)) { a, b -> a + b }
+    fun getTotalTime() = routes.map { it.time }.max() ?: 0
 }
 
 fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolution {
     val vehicles = this.vehicleList
-    val routes = if (vehicles != null) vehicles.map { v ->
+    val routes = vehicles?.map { v ->
         val origin = Point(v.depot.location.id, v.depot.location.latitude, v.depot.location.longitude, v.depot.location.name, 0)
 
         var dist = BigDecimal(0)
@@ -94,20 +95,25 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
         var customer = v.nextCustomer
         while (customer != null) {
             points += Point(customer.id, customer.location.latitude, customer.location.longitude, customer.location.name, customer.demand)
-            dist += BigDecimal(customer.distanceFromPreviousStandstill)
+            dist += BigDecimal(customer.distanceFromPreviousStandstill.toDouble() / (1000 * 1000))
             toOrigin = customer.location.getDistanceTo(v.depot.location)
             customer = customer.nextCustomer
         }
-        dist += BigDecimal(toOrigin)
+        dist = (dist + BigDecimal(toOrigin / (1000 * 1000))).setScale(2, RoundingMode.HALF_UP)
+        var time = dist
         var rep = (listOf(origin) + points + listOf(origin))
         if (graph != null) {
-            rep = rep.windowed(2, 1, false)
-                    .flatMap { (a, b) -> graph.simplePath(a.toPair(), b.toPair()).points }
-                    .mapIndexed { idx, it -> Point(lat = it.lat, lon = it.lon, id = idx.toLong(), demand = 0, name = "None") }
+            val aux = rep.windowed(2, 1, false)
+                    .map { (a, b) -> graph.simplePath(a.toPair(), b.toPair()) }
+            rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
+                Point(lat = it.lat, lon = it.lon, id = idx.toLong(), demand = 0, name = "None")
+            }
+            dist = BigDecimal(aux.sumByDouble { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
+            time = BigDecimal(aux.sumByDouble { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
         }
 
-        Route(dist, dist / BigDecimal(60), rep)
-    } else emptyList()
+        Route(dist, time, rep)
+    } ?: emptyList()
 
     return VrpSolution(routes)
 }

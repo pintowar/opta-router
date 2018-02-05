@@ -4,7 +4,7 @@ plugins {
 }
 
 subprojects {
-    version '0.2.5'
+    version '0.3.0'
     group 'com.github.pintowar'
 
     apply plugin: 'idea'
@@ -54,15 +54,15 @@ task clean(type: Delete) {
 task(":server:assemble").mustRunAfter(copyClientResources)
 
 docker {
-    name "opta-router:${project(":server").version}"
+    name "pintowar/opta-router:${project(":server").version}"
     tags project(":server").version, 'latest'
     dependsOn tasks.assembleServerAndClient
     files "$rootDir/build/$jarFileName"
 }
 
 dockerRun {
-    name 'opta-router'
-    image "opta-router:${project(":server").version}"
+    name 'pintowar/opta-router'
+    image "pintowar/opta-router:${project(":server").version}"
     ports '8080'
     clean true
     daemonize false

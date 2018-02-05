@@ -12,29 +12,18 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
-import springfox.documentation.builders.PathSelectors
-import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.spi.DocumentationType
-import springfox.documentation.spring.web.plugins.Docket
-import springfox.documentation.swagger2.annotations.EnableSwagger2
 import java.io.IOException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import javax.servlet.http.HttpServletRequest
 
 
-@EnableSwagger2
 @EnableAsync
 @SpringBootApplication
 class Application {
-
-    @Bean
-    fun api() = Docket(DocumentationType.SWAGGER_2)
-            .select()
-            .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.ant("/solve"))
-            .build()
 
     @Bean
     fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
@@ -46,7 +35,7 @@ class Application {
                     .importOrLoad())
 
     @Bean
-    fun asyncExecutor(): Executor {
+    fun taskExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
         executor.corePoolSize = 2
         executor.maxPoolSize = 2
@@ -56,12 +45,23 @@ class Application {
         return executor
     }
 
+    @Bean
+    fun sessionWebSocket() = ConcurrentHashMap<String, String>()
+
+}
+
+@ControllerAdvice
+class GlobalExceptionHandler {
+
+    /**
+     * This Exception Handler is defined to prevent the annoying ClientAbortException (IOException: Broken pipe)
+     * to be logged.
+     */
     @ExceptionHandler(IOException::class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    fun webSocketExceptionHandler(e: IOException, request: HttpServletRequest) =
-            if (ExceptionUtils.getRootCauseMessage(e).toLowerCase().contains("broken pipe")) null
-            else HttpEntity<String>(e.message)
-
+    fun exceptionHandler(e: IOException, request: HttpServletRequest) =
+            if (!ExceptionUtils.getRootCauseMessage(e).toLowerCase().contains("broken pipe"))
+                HttpEntity<String>(e.message) else null
 }
 
 fun main(args: Array<String>) {

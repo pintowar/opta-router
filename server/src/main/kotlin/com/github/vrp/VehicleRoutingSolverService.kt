@@ -2,6 +2,7 @@ package com.github.opta
 
 import com.github.util.GraphWrapper
 import com.github.vrp.Instance
+import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
 import com.github.vrp.dist.PathDistance
 import org.optaplanner.core.api.solver.Solver
@@ -9,7 +10,9 @@ import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.config.solver.termination.TerminationConfig
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.slf4j.LoggerFactory
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessageSendingOperations
+import org.springframework.messaging.simp.SimpMessageType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.*
@@ -17,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PreDestroy
 
 @Service
-class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate: SimpMessageSendingOperations) {
+class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket: ConcurrentHashMap<String, String>, val messagingTemplate: SimpMessageSendingOperations) {
 
     private val solverFactory: SolverFactory<VehicleRoutingSolution> = SolverFactory.createFromXmlResource(SOLVER_CONFIG)
 
@@ -25,6 +28,7 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate
     private val sessionSolverMap = HashMap<String, Solver<VehicleRoutingSolution>>()
     private val sessionStatusMap = ConcurrentHashMap<String, String>()
     private val sessionDetailedView = ConcurrentHashMap<String, Boolean>()
+    private val sessionInstance = ConcurrentHashMap<String, Instance>()
 
     private val calculatingDistances = "calculating distances"
     private val distancesCalculated = "distances calculated"
@@ -46,16 +50,34 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate
         }
     }
 
-    fun statusChange(status: String, sessionId: String) {
-        sessionStatusMap[sessionId] = status
-        messagingTemplate.convertAndSend("/topic/status", status)
+    fun sendMessageToUser(sessionId: String, destination: String, payload: Any) {
+        val headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE)
+        val wsSession = sessionWebSocket[sessionId]
+        headerAccessor.sessionId = wsSession
+        headerAccessor.setLeaveMutable(true)
+        messagingTemplate.convertAndSendToUser(wsSession, destination, payload, headerAccessor.messageHeaders)
     }
 
-    fun showStatus(sessionId: String) : String = sessionStatusMap.getOrDefault(sessionId, "")
+    fun statusChange(status: String, sessionId: String) {
+        sessionStatusMap[sessionId] = status
+        sendMessageToUser(sessionId, "/queue/status", status)
+
+    }
+
+    fun solutionChange(sessionId: String, bestSolution: VehicleRoutingSolution, sol: VrpSolution? = null) {
+        if (terminated != sessionStatusMap[sessionId]) {
+            sessionSolutionMap[sessionId] = bestSolution
+            if (sol != null) sendMessageToUser(sessionId, "/queue/solution", sol)
+        }
+    }
+
+    fun showStatus(sessionId: String): String = sessionStatusMap.getOrDefault(sessionId, "")
 
     fun changeDetailedView(sessionId: String, enabled: Boolean) {
         sessionDetailedView[sessionId] = enabled
     }
+
+    fun currentInstance(sessionId: String) = sessionInstance[sessionId]
 
     fun isViewDetailed(sessionId: String) = sessionDetailedView.getOrDefault(sessionId, false)
 
@@ -67,7 +89,8 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate
             val points = instance.stops.map { it.toPair() }
             val method = PathDistance(points, graph)
             solution = instance.toSolution(method)
-            sessionSolutionMap.put(sessionId, solution)
+            sessionInstance[sessionId] = instance
+            sessionSolutionMap[sessionId] = solution
             statusChange(distancesCalculated, sessionId)
         }
         return solution
@@ -82,18 +105,18 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate
             val sol = bestSolution.convertSolution(if (isViewDetailed(sessionId)) graph else null)
             LOGGER.info("Best distance so far: " + sol.getTotalDistance())
             synchronized(this@VehicleRoutingSolverService) {
-                sessionSolutionMap.put(sessionId, bestSolution)
-                messagingTemplate.convertAndSend("/topic/solution", sol)
+                solutionChange(sessionId, bestSolution, sol)
                 statusChange(running, sessionId)
             }
         }
+
         if (!sessionSolverMap.containsKey(sessionId)) {
-            sessionSolverMap.put(sessionId, solver)
+            sessionSolverMap[sessionId] = solver
             val solution = retrieveOrCreateSolution(sessionId)
 
             val bestSolution = solver.solve(solution)
             synchronized(this@VehicleRoutingSolverService) {
-                sessionSolutionMap.put(sessionId, bestSolution)
+                solutionChange(sessionId, bestSolution)
                 sessionSolverMap.remove(sessionId)
                 statusChange(terminated, sessionId)
             }
@@ -103,13 +126,20 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val messagingTemplate
     @Synchronized
     fun terminateEarly(sessionId: String): Boolean {
         val solver = sessionSolverMap.remove(sessionId)
-        sessionStatusMap[sessionId] = terminated
-        if (solver != null) {
+        statusChange(terminated, sessionId)
+        return if (solver != null) {
             solver.terminateEarly()
-            return true
-        } else {
-            return false
-        }
+            true
+        } else false
+    }
+
+    @Synchronized
+    fun clean(sessionId: String) {
+        sessionSolverMap.remove(sessionId)?.terminateEarly()
+        sessionSolutionMap.remove(sessionId)
+        sessionDetailedView.remove(sessionId)
+        sessionInstance.remove(sessionId)
+        statusChange(terminated, sessionId)
     }
 
     companion object {

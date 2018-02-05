@@ -1,8 +1,8 @@
 plugins {
-    id "org.springframework.boot" version "1.5.9.RELEASE"
-    id "org.jetbrains.kotlin.jvm" version "1.2.10"
+    id "org.springframework.boot" version "1.5.10.RELEASE"
+    id "org.jetbrains.kotlin.jvm" version "1.2.21"
 //    id "org.jetbrains.kotlin.plugin.allopen" version "1.2.10"
-    id "org.jetbrains.kotlin.plugin.spring" version "1.2.10"
+    id "org.jetbrains.kotlin.plugin.spring" version "1.2.21"
 }
 
 apply plugin: 'kotlin'
@@ -46,9 +46,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-actuator"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8"
     compile "org.jetbrains.kotlin:kotlin-reflect"
-
-    compile "io.springfox:springfox-swagger2:2.7.0"
-    compile "io.springfox:springfox-swagger-ui:2.7.0"
 
     compile "com.fasterxml.jackson.core:jackson-annotations"
     compile "com.fasterxml.jackson.core:jackson-core"

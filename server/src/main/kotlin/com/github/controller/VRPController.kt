@@ -5,7 +5,6 @@ import com.github.util.GraphWrapper
 import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
-import io.swagger.annotations.ApiOperation
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -14,11 +13,9 @@ import javax.servlet.http.HttpServletRequest
 @RestController
 class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWrapper) {
 
-    @ApiOperation(value = "Reorder points for (near) optimum route", notes = "Reorder points for (near) optimum route")
     @PostMapping("/solve", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solve(@RequestBody json: Instance, req: HttpServletRequest): Map<String, String> {
         solver.solve(req.session.id, json)
-
         return mapOf("status" to solver.showStatus(req.session.id))
     }
 
@@ -26,6 +23,11 @@ class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWra
     fun status(req: HttpServletRequest): Map<String, String> {
         return mapOf("status" to solver.showStatus(req.session.id),
                 "detailed-path" to solver.isViewDetailed(req.session.id).toString())
+    }
+
+    @GetMapping("/instance", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun instance(req: HttpServletRequest): Instance? {
+        return solver.currentInstance(req.session.id)
     }
 
     @GetMapping("/solution", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -40,10 +42,15 @@ class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWra
         return mapOf("status" to solver.showStatus(req.session.id))
     }
 
-    @GetMapping(value = "/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun terminateEarly(req: HttpServletRequest): Map<String, String> {
         solver.terminateEarly(req.session.id)
         return mapOf("status" to solver.showStatus(req.session.id))
     }
 
+    @GetMapping("/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun clean(req: HttpServletRequest): Map<String, String> {
+        solver.clean(req.session.id)
+        return mapOf("status" to solver.showStatus(req.session.id))
+    }
 }

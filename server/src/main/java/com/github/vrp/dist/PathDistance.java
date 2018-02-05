@@ -32,8 +32,8 @@ public class PathDistance implements Distance {
                 if (i != j) {
                     Pair<Double, Double> b = locations.get(j);
                     PathWrapper path = graph.simplePath(a, b);
-                    this.distMatrix[i][j] = path.getDistance() / 1000;
-                    this.timeMatrix[i][j] = path.getTime() / 1000;
+                    this.distMatrix[i][j] = path.getDistance();
+                    this.timeMatrix[i][j] = path.getTime();
                 } else {
                     this.distMatrix[i][j] = 0.0;
                     this.timeMatrix[i][j] = 0;

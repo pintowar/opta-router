@@ -31,7 +31,7 @@
         </ol>
 
         <div class="row">
-          <div class="col-lg-12">
+          <div class="col-lg-6">
             <div class="card mb-3">
               <div class="card-header">
                 <i class="fa fa-pencil"></i> Data Form
@@ -40,41 +40,20 @@
               <div class="card-body">
                 <div id="alert-area"></div>
                 <form id="data-form">
-                  <div class="row">
-                    <div class="col-lg-4">
-                      <div class="input-group">
-                        <input type="text" class="form-control form-control-sm" id="map-area" placeholder="Area">
-                      </div>
-                    </div>
-                  </div>
                   <div class="form-group">
                     <label for="data-input">JSON Data</label>
-                    <textarea class="form-control form-control-sm" id="data-input" rows="6"></textarea>
+                    <textarea class="form-control form-control-sm" id="data-input" rows="16"></textarea>
                   </div>
-                  <button type="submit" id="points-btn" class="btn btn-primary">Points</button>
-                  <button type="submit" id="path-btn" class="btn btn-primary">Path</button>
-                  <button type="submit" id="terminate-btn" class="btn btn-primary">Terminate</button>
 
+                  <button type="submit" id="path-btn" class="btn btn-success">Path</button>
+                  <button type="submit" id="terminate-btn" class="btn btn-warning">Terminate</button>
+                  <button type="submit" id="destroy-btn" class="btn btn-danger">Destroy</button>
                   <button type="submit" id="detailed-btn" class="btn btn-info" data-toggle="button" aria-pressed="false">Detailed Path</button>
                 </form>
               </div>
               <div class="card-footer small text-muted">
-                <span id="running-status" class="badge badge-pill badge-success"></span>
+                <span id="running-status" class="badge badge-pill badge-primary"></span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="card mb-3">
-              <div class="card-header">
-                <i class="fa fa-globe"></i> Map Path Plot
-              </div>
-              <div class="card-body">
-                <div id="mapid"></div>
-              </div>
-              <div class="card-footer small text-muted" id="map-path-dist"></div>
             </div>
           </div>
 
@@ -84,9 +63,9 @@
                 <i class="fa fa-globe"></i> Path Plot
               </div>
               <div class="card-body">
-                <canvas id="canvas"></canvas>
+                <div id="mapid"></div>
               </div>
-              <div class="card-footer small text-muted" id="path-dist"></div>
+              <div class="card-footer small text-muted" id="map-path-dist"></div>
             </div>
           </div>
         </div>
@@ -108,7 +87,6 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
     <!-- Page level plugin JavaScript-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
