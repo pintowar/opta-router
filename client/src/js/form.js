@@ -17,16 +17,15 @@ export class FormWidget {
     sampleLoader(sample) {
         $('.alert').alert('close')
         const loader = $('#' + sample + '-sample-loader')
-        loader.popover({trigger: 'hover', content: 'Load ' + sample + ' sample'})
         loader.on('click', () => {
             $('#data-input').val(JSON.stringify(SAMPLES[sample], null, 2))
         })
     }
 
     showError(msg) {
-        const template = $($('#alert-template').html());
+        const template = $($('#alert-template').html())
         template.find('#alert-msg').text(msg)
-        $('#alert-area').append(template);
+        $('#alert-area').append(template)
     }
 
     eventDefinition() {

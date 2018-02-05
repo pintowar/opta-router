@@ -1,3 +1,3 @@
 # Opta Router Boot
 
-Sample VRP Application using Optaplanner + Graphhopper + Spring Boot + Websockets
+Sample VRP Application using Kotlin + Optaplanner + Graphhopper + Spring Boot + Websockets
