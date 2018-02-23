@@ -2,6 +2,11 @@
 
 Sample VRP Application using Kotlin + Optaplanner + Graphhopper + Spring Boot + Websockets
 
+This sample application uses the belgium map to calculate distances between points. The map can be found on this [link](http://download.geofabrik.de/europe/belgium-latest.osm.pbf). Download it and point the Env `GRAPH_OSM_PATH` to it's path, in order to run the application.
+The `GRAPH_OSM_LOCATION` Env must point to a temporary folder, in order to Graphhopper folder.
+
+Both Envs can be customized on the `application.yml` file.
+
 ## Run in development mode
 
 This project is divided in 2 sub modules:
@@ -36,12 +41,12 @@ To build a jar that contains both server and client modules assembled on the sam
 
     gradle assembleServerAndClient
 
-This will generate a jar named `app.jar` on the `build` folder. To run the generated app, then run `java -jar app.jar`.
+This will generate a jar named `app.jar` on the `build` folder. To run the generated app, then run `GRAPH_OSM_PATH=<path_to_osm_map> GRAPH_OSM_LOCATION=<path_to_graphhopper_folder> java -jar app.jar`.
 
 ## Docker
 
-Run the opta-router image:
+A full packaged docker image (with belgium map) can be found at Dockerhub. To run the opta-router image:
 
-    docker run -p 8080:8080 -v /tmp/gh-tmp:/tmp/gh-tmp pintowar/opta-router
+    docker run -p 8080:8080 pintowar/opta-router
 
 Point your browser to `http://localhost:8080`.
