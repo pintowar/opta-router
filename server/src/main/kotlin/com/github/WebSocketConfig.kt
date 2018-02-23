@@ -25,6 +25,8 @@ class WebSocketConfig : AbstractWebSocketMessageBrokerConfigurer() {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
+        val inter = HttpSessionHandshakeInterceptor()
+        inter.isCreateSession = true
         registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS()
                 .setInterceptors(HttpSessionHandshakeInterceptor())
     }

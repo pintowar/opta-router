@@ -6,12 +6,14 @@ import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
+import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletRequest
 
 @RestController
-class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWrapper) {
+class ActionController(val solver: VehicleRoutingSolverService, val graph: GraphWrapper) {
 
     @PostMapping("/solve", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solve(@RequestBody json: Instance, req: HttpServletRequest): Map<String, String> {
@@ -33,7 +35,8 @@ class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWra
     @GetMapping("/solution", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solution(req: HttpServletRequest): VrpSolution {
         val solution = solver.retrieveOrCreateSolution(req.session.id)
-        return (solution ?: VehicleRoutingSolution()).convertSolution(if (solver.isViewDetailed(req.session.id)) graph else null)
+        return (solution
+                ?: VehicleRoutingSolution()).convertSolution(if (solver.isViewDetailed(req.session.id)) graph else null)
     }
 
     @PutMapping("/detailed-path/{status}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -52,5 +55,19 @@ class VRPController(val solver: VehicleRoutingSolverService, val graph: GraphWra
     fun clean(req: HttpServletRequest): Map<String, String> {
         solver.clean(req.session.id)
         return mapOf("status" to solver.showStatus(req.session.id))
+    }
+}
+
+@Controller
+class HomeController {
+
+    @GetMapping("/")
+    fun index(req: HttpServletRequest): String {
+        LOGGER.info("Session ID: {}", req.session.id)
+        return "index.html"
+    }
+
+    companion object {
+        internal val LOGGER = LoggerFactory.getLogger(VehicleRoutingSolverService::class.java)
     }
 }
