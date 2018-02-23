@@ -2,13 +2,21 @@ package com.github.vrp.dist
 
 import com.github.util.GraphWrapper
 
-
+/**
+ * Interface to calculate the distance and time between two points.
+ */
 interface Distance {
     fun distance(i: Int, j: Int): Double
 
     fun time(i: Int, j: Int): Double
 }
 
+/**
+ * Calculates the distance of all points found in locations, based on the OSM map provided.
+ *
+ * @param locations list of points.
+ * @param graph the wrapper used to calculate
+ */
 class PathDistance(private val locations: List<Pair<Double, Double>>, graph: GraphWrapper) : Distance {
     private val n = this.locations.size
     private var distMatrix: Array<DoubleArray>? = null
@@ -37,15 +45,29 @@ class PathDistance(private val locations: List<Pair<Double, Double>>, graph: Gra
         }
     }
 
+    /**
+     * This method returns the distance of the path.
+     *
+     * @return distance in meter
+     */
     override fun distance(i: Int, j: Int): Double {
         return distMatrix!![i][j]
     }
 
+    /**
+     * @return time in millis
+     */
     override fun time(i: Int, j: Int): Double {
         return timeMatrix!![i][j].toDouble()
     }
 }
 
+/**
+ * Calculates the distance of all points found in locations, based on a simple Euclidean distance.
+ *
+ * @param locations list of points.
+ * @param avgSpeed average speed o calculate the time between points.
+ */
 class EuclideanDistance(private val locations: List<Pair<Double, Double>>, private val avgSpeed: Double = 60.0) : Distance {
     private val n = this.locations.size
     private val distMatrixSize = n * (n - 1) / 2
@@ -73,6 +95,11 @@ class EuclideanDistance(private val locations: List<Pair<Double, Double>>, priva
         return Math.sqrt(Math.pow(firstX - secondX, 2.0) + Math.pow(firstY - secondY, 2.0))
     }
 
+    /**
+     * This method returns the distance of the path.
+     *
+     * @return
+     */
     override fun distance(i: Int, j: Int): Double {
         return if (i == j)
             0.0
@@ -82,6 +109,9 @@ class EuclideanDistance(private val locations: List<Pair<Double, Double>>, priva
             distMatrix[calcIdx(j, i)]
     }
 
+    /**
+     * @return time
+     */
     override fun time(i: Int, j: Int): Double {
         return this.distance(i, j) / this.avgSpeed
     }

@@ -12,6 +12,9 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletRequest
 
+/**
+ * The Controller that contains all REST functions to be used on the application.
+ */
 @RestController
 class ActionController(val solver: VehicleRoutingSolverService, val graph: GraphWrapper) {
 
@@ -58,16 +61,19 @@ class ActionController(val solver: VehicleRoutingSolverService, val graph: Graph
     }
 }
 
+/**
+ *  The Controller that will render (an creates the user session) the main page.
+ */
 @Controller
 class HomeController {
 
     @GetMapping("/")
     fun index(req: HttpServletRequest): String {
-        LOGGER.info("Session ID: {}", req.session.id)
+        LOGGER.info("Session ID: {}", req.session.id) // Creates the user session.
         return "index.html"
     }
 
     companion object {
-        internal val LOGGER = LoggerFactory.getLogger(VehicleRoutingSolverService::class.java)
+        internal val LOGGER = LoggerFactory.getLogger(HomeController::class.java)
     }
 }

@@ -13,7 +13,9 @@ import org.springframework.web.socket.messaging.SessionConnectEvent
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor
 import java.util.concurrent.ConcurrentHashMap
 
-
+/**
+ * This class contains the WS configuration.
+ */
 @Configuration
 @EnableWebSocketMessageBroker
 class WebSocketConfig : AbstractWebSocketMessageBrokerConfigurer() {
@@ -25,13 +27,16 @@ class WebSocketConfig : AbstractWebSocketMessageBrokerConfigurer() {
     }
 
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        val inter = HttpSessionHandshakeInterceptor()
-        inter.isCreateSession = true
         registry.addEndpoint("/stomp").setAllowedOrigins("*").withSockJS()
                 .setInterceptors(HttpSessionHandshakeInterceptor())
     }
 }
 
+/**
+ * This event listener associates the Socket Session ID to the Http Session ID at the connection event of the WebSocket.
+ * The association is stored at the sessionWebSocket ConcurrentHashMap. This association is needed for personalized
+ * notification via WS.
+ */
 @Service
 class StompConnectEventListener(val sessionWebSocket: ConcurrentHashMap<String, String>) : ApplicationListener<SessionConnectEvent> {
 
