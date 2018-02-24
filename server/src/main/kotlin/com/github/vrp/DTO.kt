@@ -13,6 +13,9 @@ import org.optaplanner.examples.vehiclerouting.domain.location.RoadLocation
 import java.math.BigDecimal
 import java.math.RoundingMode
 
+/**
+ * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
+ */
 data class Instance @JsonCreator constructor(
         @JsonProperty("id") val id: String,
         @JsonProperty("nLocations") val nLocations: Int,
@@ -21,6 +24,12 @@ data class Instance @JsonCreator constructor(
         @JsonProperty("stops") val stops: List<Point>,
         @JsonProperty("depots") val depots: List<Long>
 ) {
+    /**
+     * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
+     *
+     * @param dist distance calculator instance.
+     * @return solution representation used by the solver.
+     */
     fun toSolution(dist: Distance): VehicleRoutingSolution {
         val sol = VehicleRoutingSolution()
         sol.id = 0
@@ -67,6 +76,9 @@ data class Instance @JsonCreator constructor(
     }
 }
 
+/**
+ * DTO class with the representation of locations.
+ */
 data class Point @JsonCreator constructor(
         @JsonProperty("id") val id: Long,
         @JsonProperty("lat") val lat: Double,
@@ -76,14 +88,27 @@ data class Point @JsonCreator constructor(
     fun toPair() = lat to lon
 }
 
+/**
+ * Route representation containing the route distance, time and list of points.
+ */
 data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Point>)
 
+/**
+ * DTO class with the representation of the VRP solution.
+ * This class is used as the application output data representation.
+ */
 data class VrpSolution(val routes: List<Route>) {
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
     fun getTotalTime() = routes.map { it.time }.max() ?: 0
 }
 
+/**
+ * Convert the solver VRP Solution representation into the DTO representation.
+ *
+ * @param graph graphwrapper to calculate the distance/time took to complete paths.
+ * @return the DTO solution representation.
+ */
 fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->

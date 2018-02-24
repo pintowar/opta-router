@@ -19,6 +19,15 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PreDestroy
 
+/**
+ * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions
+ * storages. It also sends notifications to the WebSocket queue of the proper user (just for the one that executed the
+ * application).
+ *
+ * @param graph the graphhopper wrapper to help calculate distances between points.
+ * @param sessionWebSocket the ConcurrentHashMap that associates the Socket Session ID to the Http Session ID.
+ * @param messagingTemplate template to send messages to websocket queue.
+ */
 @Service
 class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket: ConcurrentHashMap<String, String>, val messagingTemplate: SimpMessageSendingOperations) {
 
@@ -42,6 +51,9 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         solverFactory.solverConfig.terminationConfig = terminationConfig
     }
 
+    /**
+     * Terminates the solvers, in case of application termination.
+     */
     @PreDestroy
     @Synchronized
     fun destroy() {
@@ -50,6 +62,13 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         }
     }
 
+    /**
+     * Send a message (payload) to a specific user (identified by sessionID) on a specified destination (queue or topic).
+     *
+     * @param sessionId user Http Session ID.
+     * @param destination queue/topic name.
+     * @param payload message to send.
+     */
     fun sendMessageToUser(sessionId: String, destination: String, payload: Any) {
         val headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE)
         val wsSession = sessionWebSocket[sessionId]
@@ -58,12 +77,26 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         messagingTemplate.convertAndSendToUser(wsSession, destination, payload, headerAccessor.messageHeaders)
     }
 
+    /**
+     * Change and notify the status of the solver.
+     *
+     * @param status the new status to inform.
+     * @param sessionId user Http Session ID.
+     */
     fun statusChange(status: String, sessionId: String) {
         sessionStatusMap[sessionId] = status
         sendMessageToUser(sessionId, "/queue/status", status)
 
     }
 
+    /**
+     * Update the solution storage and notify the solution queue if DTO solution is informed,
+     * for the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     * @param bestSolution best solution so far.
+     * @param sol DTO solution representation.
+     */
     fun solutionChange(sessionId: String, bestSolution: VehicleRoutingSolution, sol: VrpSolution? = null) {
         if (terminated != sessionStatusMap[sessionId]) {
             sessionSolutionMap[sessionId] = bestSolution
@@ -71,16 +104,45 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         }
     }
 
+    /**
+     * Solver status of the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     */
     fun showStatus(sessionId: String): String = sessionStatusMap.getOrDefault(sessionId, "")
 
+    /**
+     * Store if "detailed view" mode is enabled or not for the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     * @param enabled view mode.
+     */
     fun changeDetailedView(sessionId: String, enabled: Boolean) {
         sessionDetailedView[sessionId] = enabled
     }
 
+    /**
+     * Shows instance stored for the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     */
     fun currentInstance(sessionId: String) = sessionInstance[sessionId]
 
+    /**
+     * Shows if "detailed view" mode is enabled or not for the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     */
     fun isViewDetailed(sessionId: String) = sessionDetailedView.getOrDefault(sessionId, false)
 
+    /**
+     * Retrieve or create, update status and associates to a user (identified by sessionID) a
+     * VRP Solution representation.
+     *
+     * @param sessionId user Http Session ID.
+     * @param instance VRP problem instance.
+     * @return solver's VRP Solution representation
+     */
     @Synchronized
     fun retrieveOrCreateSolution(sessionId: String, instance: Instance? = null): VehicleRoutingSolution? {
         var solution: VehicleRoutingSolution? = sessionSolutionMap[sessionId]
@@ -96,9 +158,15 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         return solution
     }
 
+    /**
+     * Solves asynchronously the informed instance for the specific user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     * @param instance VRP problem instance.
+     */
     @Async
-    fun solve(sessionId: String, json: Instance) {
-        retrieveOrCreateSolution(sessionId, json)
+    fun solve(sessionId: String, instance: Instance) {
+        retrieveOrCreateSolution(sessionId, instance)
         val solver = solverFactory.buildSolver()
         solver.addEventListener { event ->
             val bestSolution = event.newBestSolution
@@ -123,6 +191,11 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         }
     }
 
+    /**
+     * Stops the specified solver (associated by the user sessionID) and change the solver status.
+     *
+     * @param sessionId user Http Session ID.
+     */
     @Synchronized
     fun terminateEarly(sessionId: String): Boolean {
         val solver = sessionSolverMap.remove(sessionId)
@@ -133,6 +206,11 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         } else false
     }
 
+    /**
+     * Removes all information associated to the user (identified by sessionID).
+     *
+     * @param sessionId user Http Session ID.
+     */
     @Synchronized
     fun clean(sessionId: String) {
         sessionSolverMap.remove(sessionId)?.terminateEarly()

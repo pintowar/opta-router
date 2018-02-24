@@ -25,6 +25,9 @@ import javax.servlet.http.HttpServletRequest
 @SpringBootApplication
 class Application {
 
+    /**
+     * The creation of the Graphhopper Wrapper.
+     */
     @Bean
     fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
                     @Value("\${app.graph.osm.location}") location: String) =
@@ -34,6 +37,10 @@ class Application {
                     .setEnableInstructions(false)
                     .importOrLoad())
 
+    /**
+     * The creation of the Thread Pool Task Executor, to run the optimization process in background.
+     * @see com.github.opta.VehicleRoutingSolverService
+     */
     @Bean
     fun taskExecutor(): Executor {
         val executor = ThreadPoolTaskExecutor()
@@ -45,6 +52,11 @@ class Application {
         return executor
     }
 
+    /**
+     * Creates a ConcurrentHashMap that associates the Socket Session ID to the Http Session ID.
+     * @see StompConnectEventListener
+     * @see com.github.opta.VehicleRoutingSolverService
+     */
     @Bean
     fun sessionWebSocket() = ConcurrentHashMap<String, String>()
 
