@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <title>VRP Viewer</title>
     <!-- Bootstrap core CSS-->
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <!-- Custom fonts for this template-->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" rel="stylesheet" type="text/css">
@@ -45,11 +45,27 @@
                     <textarea class="form-control form-control-sm" id="data-input" rows="16"></textarea>
                   </div>
 
-                  <button type="submit" id="path-btn" class="btn btn-success">Path</button>
+                  <button type="submit" id="path-btn" class="btn btn-success">Solve</button>
                   <button type="submit" id="terminate-btn" class="btn btn-warning">Terminate</button>
                   <button type="submit" id="destroy-btn" class="btn btn-danger">Destroy</button>
                   <button type="submit" id="detailed-btn" class="btn btn-info" data-toggle="button" aria-pressed="false">Detailed Path</button>
                 </form>
+                <label>
+                  <a data-toggle="collapse" href="#instructions" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Instructions
+                  </a>
+                </label>
+
+                <div class="collapse" id="instructions">
+                  <div class="card card-body">
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item">Solve: start solving the inputed instance.</li>
+                      <li class="list-group-item">Terminate: stops the solver.</li>
+                      <li class="list-group-item">Destroy: stops and removes the best solution so far.</li>
+                      <li class="list-group-item">Detailed Path: shows a detailed path of the solution (recommended to use on terminated solvers).</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
               <div class="card-footer small text-muted">
                 <span id="running-status" class="badge badge-pill badge-primary"></span>

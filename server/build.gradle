@@ -32,8 +32,8 @@ repositories {
 }
 
 dependencies {
-    compile "org.optaplanner:optaplanner-core:7.5.0.Final"
-    compile("org.optaplanner:optaplanner-examples:7.5.0.Final") {
+    compile "org.optaplanner:optaplanner-core:7.6.0.Final"
+    compile("org.optaplanner:optaplanner-examples:7.6.0.Final") {
         exclude group: "com.sun.xml.bind"
     }
 
