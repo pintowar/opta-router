@@ -2,6 +2,7 @@ package com.github
 
 import com.github.util.GraphWrapper
 import com.graphhopper.reader.osm.GraphHopperOSM
+import com.graphhopper.routing.util.CarFlagEncoder
 import com.graphhopper.routing.util.EncodingManager
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
@@ -30,12 +31,26 @@ class Application {
      */
     @Bean
     fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
-                    @Value("\${app.graph.osm.location}") location: String) =
-            GraphWrapper(GraphHopperOSM().forServer().setDataReaderFile(path)
-                    .setGraphHopperLocation(location)
-                    .setEncodingManager(EncodingManager("car"))
-                    .setEnableInstructions(false)
-                    .importOrLoad())
+                    @Value("\${app.graph.osm.location}") location: String): GraphWrapper {
+//        val gh = GraphHopperOSM().forServer().setDataReaderFile(path)
+//                .setGraphHopperLocation(location)
+//                .setEncodingManager(EncodingManager("car"))
+//                .setEnableInstructions(false)
+//                .importOrLoad()
+        val em = EncodingManager.start().setEnableInstructions(false).add(CarFlagEncoder()).build()
+
+        val gh = GraphHopperOSM().forServer().setDataReaderFile(path)
+                .setGraphHopperLocation(location)
+                .setCHEnabled(true)
+                .setMinNetworkSize(200, 200)
+                .setEncodingManager(em)
+
+        gh.chFactoryDecorator.preparationThreads = Runtime.getRuntime().availableProcessors()
+        gh.chFactoryDecorator.weightingsAsStrings = listOf("fastest", "shortest")
+
+        return GraphWrapper(gh.importOrLoad())
+    }
+
 
     /**
      * The creation of the Thread Pool Task Executor, to run the optimization process in background.
