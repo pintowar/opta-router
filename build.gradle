@@ -51,7 +51,7 @@ task clean(type: Delete) {
     delete 'build'
 }
 
-task(":server:assemble").mustRunAfter(copyClientResources)
+tasks.getByPath(":server:assemble").mustRunAfter(copyClientResources)
 
 docker {
     name "pintowar/opta-router:${project(":server").version}"
