@@ -32,11 +32,6 @@ class Application {
     @Bean
     fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
                     @Value("\${app.graph.osm.location}") location: String): GraphWrapper {
-//        val gh = GraphHopperOSM().forServer().setDataReaderFile(path)
-//                .setGraphHopperLocation(location)
-//                .setEncodingManager(EncodingManager("car"))
-//                .setEnableInstructions(false)
-//                .importOrLoad()
         val em = EncodingManager.start().setEnableInstructions(false).add(CarFlagEncoder()).build()
 
         val gh = GraphHopperOSM().forServer().setDataReaderFile(path)
