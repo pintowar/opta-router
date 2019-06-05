@@ -5,11 +5,11 @@ import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
 import com.github.vrp.dist.PathDistance
+import mu.KLogging
 import org.optaplanner.core.api.solver.Solver
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.config.solver.termination.TerminationConfig
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
-import org.slf4j.LoggerFactory
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
 import org.springframework.messaging.simp.SimpMessageSendingOperations
 import org.springframework.messaging.simp.SimpMessageType
@@ -30,6 +30,10 @@ import javax.annotation.PreDestroy
  */
 @Service
 class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket: ConcurrentHashMap<String, String>, val messagingTemplate: SimpMessageSendingOperations) {
+
+    companion object : KLogging() {
+        private val SOLVER_CONFIG = "org/optaplanner/examples/vehiclerouting/solver/vehicleRoutingSolverConfig.xml"
+    }
 
     private val solverFactory: SolverFactory<VehicleRoutingSolution> = SolverFactory.createFromXmlResource(SOLVER_CONFIG)
 
@@ -71,7 +75,7 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
      */
     fun sendMessageToUser(sessionId: String, destination: String, payload: Any) {
         val headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE)
-        val wsSession = sessionWebSocket[sessionId]
+        val wsSession = sessionWebSocket[sessionId]!!
         headerAccessor.sessionId = wsSession
         headerAccessor.setLeaveMutable(true)
         messagingTemplate.convertAndSendToUser(wsSession, destination, payload, headerAccessor.messageHeaders)
@@ -171,7 +175,7 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         solver.addEventListener { event ->
             val bestSolution = event.newBestSolution
             val sol = bestSolution.convertSolution(if (isViewDetailed(sessionId)) graph else null)
-            LOGGER.info("Best distance so far: " + sol.getTotalDistance())
+            logger.info("Best distance so far: " + sol.getTotalDistance())
             synchronized(this@VehicleRoutingSolverService) {
                 solutionChange(sessionId, bestSolution, sol)
                 statusChange(running, sessionId)
@@ -218,13 +222,6 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         sessionDetailedView.remove(sessionId)
         sessionInstance.remove(sessionId)
         statusChange(terminated, sessionId)
-    }
-
-    companion object {
-
-        private val SOLVER_CONFIG = "org/optaplanner/examples/vehiclerouting/solver/vehicleRoutingSolverConfig.xml"
-
-        internal val LOGGER = LoggerFactory.getLogger(VehicleRoutingSolverService::class.java)
     }
 
 }

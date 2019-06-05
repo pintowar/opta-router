@@ -1,30 +1,30 @@
 plugins {
-    id "org.springframework.boot" version "1.5.10.RELEASE"
+    id "org.springframework.boot" version "2.1.5.RELEASE"
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
     id "org.jetbrains.kotlin.jvm" version "1.3.31"
-//    id "org.jetbrains.kotlin.plugin.allopen" version "1.2.10"
     id "org.jetbrains.kotlin.plugin.spring" version "1.3.31"
 }
 
-apply plugin: 'kotlin'
-apply plugin: 'kotlin-spring'
 apply plugin: 'idea'
 
-jar {
-    archiveName = rootProject.jarFileName
-}
-
-springBoot {
-    executable = true
+bootJar {
+    archiveFileName = rootProject.jarFileName
 }
 
 sourceCompatibility = 1.8
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
 }
 
 compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions {
+        freeCompilerArgs = ['-Xjsr305=strict']
+        jvmTarget = '1.8'
+    }
 }
 
 repositories {
@@ -34,6 +34,7 @@ repositories {
 ext {
     optaplannerVersion = '7.22.0.Final'
     ghVersion = '0.12.0'
+    kloggingVersion = '1.5.9'
 }
 
 dependencies {
@@ -41,15 +42,16 @@ dependencies {
         exclude group: "com.google.protobuf"
         exclude group: "com.sun.xml.bind"
     }
-    
+
     implementation("com.graphhopper:graphhopper-reader-osm:$ghVersion")
 
-    implementation("org.springframework.boot:spring-boot-starter-websocket") {
+    implementation ("org.springframework.boot:spring-boot-starter-websocket") {
         exclude module: 'spring-boot-starter-logging'
     }
     implementation "org.springframework.boot:spring-boot-actuator"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "io.github.microutils:kotlin-logging:$kloggingVersion"
 
     implementation "com.fasterxml.jackson.core:jackson-annotations"
     implementation "com.fasterxml.jackson.core:jackson-core"
@@ -61,9 +63,3 @@ dependencies {
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
-
-tasks.withType(JavaExec) {
-    systemProperty "java.library.path", file("/usr/local/lib")
-}
-
-

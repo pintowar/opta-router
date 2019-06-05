@@ -5,8 +5,8 @@ import com.github.util.GraphWrapper
 import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
+import mu.KLogging
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
-import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -67,13 +67,11 @@ class ActionController(val solver: VehicleRoutingSolverService, val graph: Graph
 @Controller
 class HomeController {
 
+    companion object : KLogging()
+
     @GetMapping("/")
     fun index(req: HttpServletRequest): String {
-        LOGGER.info("Session ID: {}", req.session.id) // Creates the user session.
+        logger.info("Session ID: {}", req.session.id) // Creates the user session.
         return "index.html"
-    }
-
-    companion object {
-        internal val LOGGER = LoggerFactory.getLogger(HomeController::class.java)
     }
 }

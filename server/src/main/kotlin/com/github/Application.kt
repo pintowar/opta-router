@@ -57,7 +57,7 @@ class Application {
         executor.corePoolSize = 2
         executor.maxPoolSize = 2
         executor.setQueueCapacity(500)
-        executor.threadNamePrefix = "VrpSolver-"
+        executor.setThreadNamePrefix("VrpSolver-")
         executor.initialize()
         return executor
     }
@@ -83,7 +83,7 @@ class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     fun exceptionHandler(e: IOException, request: HttpServletRequest) =
             if (!ExceptionUtils.getRootCauseMessage(e).toLowerCase().contains("broken pipe"))
-                HttpEntity<String>(e.message) else null
+                HttpEntity(e.message ?: "Broken Pipe!!") else null
 }
 
 fun main(args: Array<String>) {
