@@ -2,9 +2,12 @@ plugins {
     id "com.palantir.docker" version "0.22.0"
 }
 
+version '0.4.0'
+group 'com.github.pintowar'
+
 subprojects {
-    version '0.4.0'
-    group 'com.github.pintowar'
+    version project.version
+    group project.group
 
     apply plugin: 'idea'
 
@@ -19,7 +22,7 @@ ext {
     jarFileName = 'app.jar'
 }
 
-task copyClientResources(dependsOn: ':client:build') { 
+task copyClientResources(dependsOn: ':client:build') {
     group = 'build'
     description = 'Copy client resources into server'
     doLast {
@@ -30,13 +33,13 @@ task copyClientResources(dependsOn: ':client:build') {
     }
 }
 
-task assembleServerAndClient(dependsOn: ['copyClientResources', ':server:assemble']) {  
+task assembleServerAndClient(dependsOn: ['copyClientResources', ':server:assemble']) {
     group = 'build'
     description = 'Build combined server & client JAR'
 
     doLast {
         copy {
-            from fileTree(dir: "${project(':server').buildDir}/libs/") 
+            from fileTree(dir: "${project(':server').buildDir}/libs/")
             into "$rootDir/build/"
         }
 
@@ -54,7 +57,7 @@ tasks.getByPath(":server:assemble").mustRunAfter(copyClientResources)
 
 docker {
     name "pintowar/${project.name}:$version"
-    tag 'current', "pintowar/${project.name}:${version}"
+    tag 'current', "pintowar/${project.name}:$version"
     tag 'latest', "pintowar/${project.name}:latest"
     dependsOn tasks.assembleServerAndClient
     buildArgs([BUILD_VERSION: version])

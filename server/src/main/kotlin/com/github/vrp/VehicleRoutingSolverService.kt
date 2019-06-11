@@ -175,9 +175,8 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         solver.addEventListener { event ->
             val bestSolution = event.newBestSolution
             val showDetailedPath = isViewDetailed(sessionId)
-            logger.info("Detailed path: {}",  showDetailedPath)
             val sol = bestSolution.convertSolution(if (showDetailedPath) graph else null)
-            logger.info("Best distance so far: {}",  sol.getTotalDistance())
+            logger.info("Best distance so far: {}", sol.getTotalDistance())
             synchronized(this@VehicleRoutingSolverService) {
                 solutionChange(sessionId, bestSolution, sol)
                 statusChange(running, sessionId)
