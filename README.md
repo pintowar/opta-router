@@ -23,7 +23,7 @@ This command will run a Spring Boot application on port `8080`.
 
 To run the client module, make sure you have node and yarn installed on your system, then run on client folder:
 
-    yarn start
+    yarn serve
 
 Point your browser to `http://localhost:3000`. This module will run on port `3000`, but will proxy remote calls to port `8080`.
 
