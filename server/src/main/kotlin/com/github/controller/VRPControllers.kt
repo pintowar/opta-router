@@ -60,18 +60,3 @@ class ActionController(val solver: VehicleRoutingSolverService, val graph: Graph
         return mapOf("status" to solver.showStatus(req.session.id))
     }
 }
-
-/**
- *  The Controller that will render (an creates the user session) the main page.
- */
-@Controller
-class HomeController {
-
-    companion object : KLogging()
-
-    @GetMapping("/")
-    fun index(req: HttpServletRequest): String {
-        logger.info("Session ID: {}", req.session.id) // Creates the user session.
-        return "index.html"
-    }
-}

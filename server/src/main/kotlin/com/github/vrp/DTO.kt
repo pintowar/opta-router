@@ -35,7 +35,7 @@ data class Instance @JsonCreator constructor(
         sol.id = 0
         sol.name = this.id
         val locs = this.stops.map {
-            val loc = RoadLocation(it.id, it.lat, it.lon)
+            val loc = RoadLocation(it.id, it.lat, it.lng)
             loc.name = it.name
             loc
         }
@@ -82,10 +82,10 @@ data class Instance @JsonCreator constructor(
 data class Point @JsonCreator constructor(
         @JsonProperty("id") val id: Long,
         @JsonProperty("lat") val lat: Double,
-        @JsonProperty("lon") val lon: Double,
+        @JsonProperty("lng") val lng: Double,
         @JsonProperty("name") val name: String,
         @JsonProperty("demand") val demand: Int) {
-    fun toPair() = lat to lon
+    fun toPair() = lat to lng
 }
 
 /**
@@ -131,7 +131,7 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
             val aux = rep.windowed(2, 1, false)
                     .map { (a, b) -> graph.simplePath(a.toPair(), b.toPair()) }
             rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
-                Point(lat = it.lat, lon = it.lon, id = idx.toLong(), demand = 0, name = "None")
+                Point(lat = it.lat, lng = it.lon, id = idx.toLong(), demand = 0, name = "None")
             }
             dist = BigDecimal(aux.sumByDouble { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
             time = BigDecimal(aux.sumByDouble { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)

@@ -1,10 +1,9 @@
 plugins {
-    id "com.palantir.docker" version "0.13.0"
-    id "com.palantir.docker-run" version "0.13.0"
+    id "com.palantir.docker" version "0.22.0"
 }
 
 subprojects {
-    version '0.3.5'
+    version '0.4.0'
     group 'com.github.pintowar'
 
     apply plugin: 'idea'
@@ -54,18 +53,10 @@ task clean(type: Delete) {
 tasks.getByPath(":server:assemble").mustRunAfter(copyClientResources)
 
 docker {
-    name "pintowar/opta-router:${project(":server").version}"
-    tags project(":server").version, 'latest'
+    name "pintowar/${project.name}:$version"
+    tag 'current', "pintowar/${project.name}:${version}"
+    tag 'latest', "pintowar/${project.name}:latest"
     dependsOn tasks.assembleServerAndClient
+    buildArgs([BUILD_VERSION: version])
     files "$rootDir/build/$jarFileName"
-}
-
-dockerRun {
-    name 'pintowar/opta-router'
-    image "pintowar/opta-router:${project(":server").version}"
-    ports '8080'
-    clean true
-    daemonize false
-    //env 'GRAPH_OSM_PATH' : ''
-    //env 'GRAPH_OSM_LOCATION' : ''
 }

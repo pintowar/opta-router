@@ -1,28 +1,59 @@
 {
-  "name": "opta-router-ui",
+  "name": "opta-router-client",
   "version": "0.1.0",
-  "description": "",
+  "private": true,
   "scripts": {
-    "start": "webpack-dev-server",
-    "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": " <>",
-  "license": "",
-  "devDependencies": {
-    "autoprefixer": "^6.3.6",
-    "babel-core": "^6.7.7",
-    "babel-loader": "^6.2.4",
-    "babel-preset-es2015": "^6.24.1",
-    "colors": "^1.1.0",
-    "doiuse": "^2.3.0",
-    "extract-text-webpack-plugin": "^1.0.1",
-    "webpack": "^1.8.11",
-    "webpack-dev-server": "^1.8.2",
-    "wordwrap": "1.0.0",
-    "html-webpack-plugin": "^2.30.1"
+    "serve": "vue-cli-service serve --port=3000",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "color-rainbow": "0.0.0"
-  }
+    "axios": "^0.19.0",
+    "color-rainbow": "^0.0.0",
+    "core-js": "^2.6.5",
+    "leaflet": "^1.5.1",
+    "sockjs-client": "^1.3.0",
+    "stompjs": "^2.3.3",
+    "vue": "^2.6.10",
+    "vue-json-editor": "^1.3.1",
+    "vue2-leaflet": "^2.1.1",
+    "vuejs-logger": "^1.5.3",
+    "vuetify": "^1.5.5"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-eslint": "^3.8.0",
+    "@vue/cli-service": "^3.8.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "vue-cli-plugin-vuetify": "^0.5.0",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.0.5"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
 }
