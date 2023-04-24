@@ -42,7 +42,6 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
             SolverConfig
                     .createFromXmlResource(SOLVER_CONFIG)
                     .withRandomType(RandomType.MERSENNE_TWISTER)
-                    .withTerminationSpentLimit(Duration.ofMinutes(2L))
     )
 
     private val sessionSolutionMap = HashMap<String, VehicleRoutingSolution>()
