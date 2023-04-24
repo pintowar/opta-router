@@ -20,7 +20,7 @@ repositories {
     mavenCentral()
 }
 
-val optaplannerVersion = "7.22.0.Final"
+val optaplannerVersion = "9.37.0.Final"
 val ghVersion = "0.12.0"
 val kloggingVersion = "1.5.9"
 
@@ -31,6 +31,7 @@ dependencies {
     }
 
     implementation("com.graphhopper:graphhopper-reader-osm:$ghVersion")
+//    implementation("com.graphhopper:graphhopper-core:7.0")
 
     implementation("org.springframework.boot:spring-boot-starter-websocket") {
         exclude(module = "spring-boot-starter-logging")

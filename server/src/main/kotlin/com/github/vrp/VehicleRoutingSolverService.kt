@@ -9,6 +9,8 @@ import jakarta.annotation.PreDestroy
 import mu.KLogging
 import org.optaplanner.core.api.solver.Solver
 import org.optaplanner.core.api.solver.SolverFactory
+import org.optaplanner.core.config.solver.SolverConfig
+import org.optaplanner.core.config.solver.random.RandomType
 import org.optaplanner.core.config.solver.termination.TerminationConfig
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor
@@ -16,6 +18,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations
 import org.springframework.messaging.simp.SimpMessageType
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -32,10 +35,15 @@ import java.util.concurrent.ConcurrentHashMap
 class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket: ConcurrentHashMap<String, String>, val messagingTemplate: SimpMessageSendingOperations) {
 
     companion object : KLogging() {
-        private val SOLVER_CONFIG = "org/optaplanner/examples/vehiclerouting/solver/vehicleRoutingSolverConfig.xml"
+        private val SOLVER_CONFIG = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"
     }
 
-    private val solverFactory: SolverFactory<VehicleRoutingSolution> = SolverFactory.createFromXmlResource(SOLVER_CONFIG)
+    private val solverFactory: SolverFactory<VehicleRoutingSolution> = SolverFactory.create(
+            SolverConfig
+                    .createFromXmlResource(SOLVER_CONFIG)
+                    .withRandomType(RandomType.MERSENNE_TWISTER)
+                    .withTerminationSpentLimit(Duration.ofMinutes(2L))
+    )
 
     private val sessionSolutionMap = HashMap<String, VehicleRoutingSolution>()
     private val sessionSolverMap = HashMap<String, Solver<VehicleRoutingSolution>>()
@@ -47,13 +55,6 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
     private val distancesCalculated = "distances calculated"
     private val running = "running"
     private val terminated = "terminated"
-
-    init {
-        // Always terminate a solver after 2 minutes
-        val terminationConfig = TerminationConfig()
-        terminationConfig.minutesSpentLimit = 2L
-        solverFactory.solverConfig.terminationConfig = terminationConfig
-    }
 
     /**
      * Terminates the solvers, in case of application termination.
