@@ -1,9 +1,12 @@
 package com.github
 
 import com.github.util.GraphWrapper
-import com.graphhopper.reader.osm.GraphHopperOSM
-import com.graphhopper.routing.util.CarFlagEncoder
+import com.graphhopper.GraphHopper
+import com.graphhopper.config.CHProfile
+import com.graphhopper.config.Profile
 import com.graphhopper.routing.util.EncodingManager
+import com.graphhopper.routing.util.VehicleEncodedValues
+import com.graphhopper.util.PMap
 import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
@@ -32,16 +35,23 @@ class Application {
     @Bean
     fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
                     @Value("\${app.graph.osm.location}") location: String): GraphWrapper {
-        val em = EncodingManager.start().setEnableInstructions(false).add(CarFlagEncoder()).build()
+//        val em = EncodingManager.start().add(VehicleEncodedValues.car(PMap())).build()
+        val profs = listOf("shortest", "fastest").map {
+            Profile("car_$it").apply {
+                vehicle = "car"
+                weighting = it
+            }
+        }
 
-        val gh = GraphHopperOSM().forServer().setDataReaderFile(path)
-                .setGraphHopperLocation(location)
-                .setCHEnabled(true)
-                .setMinNetworkSize(200, 200)
-                .setEncodingManager(em)
+        val gh = GraphHopper().apply {
+            osmFile = path
+            graphHopperLocation = location
+            profiles = profs
+            chPreparationHandler.preparationThreads = Runtime.getRuntime().availableProcessors()
+            chPreparationHandler.setCHProfiles(profs.map { CHProfile(it.name) })
 
-        gh.chFactoryDecorator.preparationThreads = Runtime.getRuntime().availableProcessors()
-        gh.chFactoryDecorator.weightingsAsStrings = listOf("fastest", "shortest")
+            setMinNetworkSize(200)
+        }
 
         return GraphWrapper(gh.importOrLoad())
     }

@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -7,12 +8,16 @@ plugins {
     kotlin("plugin.spring") version "1.8.20"
 }
 
-java.sourceCompatibility = JavaVersion.VERSION_17
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+        jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
@@ -21,7 +26,7 @@ repositories {
 }
 
 val optaplannerVersion = "9.37.0.Final"
-val ghVersion = "0.12.0"
+val ghVersion = "7.0"
 val kloggingVersion = "1.5.9"
 
 dependencies {
@@ -30,8 +35,7 @@ dependencies {
         exclude(group = "com.sun.xml.bind")
     }
 
-    implementation("com.graphhopper:graphhopper-reader-osm:$ghVersion")
-//    implementation("com.graphhopper:graphhopper-core:7.0")
+    implementation("com.graphhopper:graphhopper-core:$ghVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-websocket") {
         exclude(module = "spring-boot-starter-logging")
