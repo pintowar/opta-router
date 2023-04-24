@@ -4,6 +4,7 @@ import com.github.util.GraphWrapper
 import com.graphhopper.reader.osm.GraphHopperOSM
 import com.graphhopper.routing.util.CarFlagEncoder
 import com.graphhopper.routing.util.EncodingManager
+import jakarta.servlet.http.HttpServletRequest
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
-import javax.servlet.http.HttpServletRequest
 
 
 @EnableAsync
@@ -82,7 +82,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(IOException::class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     fun exceptionHandler(e: IOException, request: HttpServletRequest) =
-            if (!ExceptionUtils.getRootCauseMessage(e).toLowerCase().contains("broken pipe"))
+            if (!ExceptionUtils.getRootCauseMessage(e).lowercase().contains("broken pipe"))
                 HttpEntity(e.message ?: "Broken Pipe!!") else null
 }
 

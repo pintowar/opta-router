@@ -5,12 +5,12 @@ import com.github.util.GraphWrapper
 import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
+import jakarta.servlet.http.HttpServletRequest
 import mu.KLogging
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletRequest
 
 /**
  * The Controller that contains all REST functions to be used on the application.

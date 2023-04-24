@@ -5,6 +5,7 @@ import com.github.vrp.Instance
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
 import com.github.vrp.dist.PathDistance
+import jakarta.annotation.PreDestroy
 import mu.KLogging
 import org.optaplanner.core.api.solver.Solver
 import org.optaplanner.core.api.solver.SolverFactory
@@ -17,7 +18,6 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import javax.annotation.PreDestroy
 
 /**
  * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions

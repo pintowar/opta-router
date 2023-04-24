@@ -100,7 +100,7 @@ data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List
 data class VrpSolution(val routes: List<Route>) {
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
-    fun getTotalTime() = routes.map { it.time }.max() ?: 0
+    fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
 /**
@@ -133,8 +133,8 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
             rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
                 Point(lat = it.lat, lng = it.lon, id = idx.toLong(), demand = 0, name = "None")
             }
-            dist = BigDecimal(aux.sumByDouble { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
-            time = BigDecimal(aux.sumByDouble { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
+            dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
+            time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
         }
 
         Route(dist, time, rep)
