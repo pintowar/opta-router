@@ -119,7 +119,7 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
         var rep = (listOf(origin) + points + listOf(origin))
         if (graph != null) {
             val aux = rep.windowed(2, 1, false)
-                    .map { (a, b) -> graph.simplePath(a.toPair(), b.toPair()) }
+                    .map { (a, b) -> graph.detailedSimplePath(a.toPair(), b.toPair()) }
             rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
                 Point(lat = it.lat, lng = it.lon, id = idx.toLong(), demand = 0, name = "None")
             }
