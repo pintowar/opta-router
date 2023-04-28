@@ -31,8 +31,7 @@ data class Instance @JsonCreator constructor(
      * @return solution representation used by the solver.
      */
     fun toSolution(dist: Distance): VehicleRoutingSolution {
-        val sol = VehicleRoutingSolution()
-        sol.id = 0
+        val sol = VehicleRoutingSolution(0)
         sol.name = this.id
         val locs = this.stops.map {
             val loc = RoadLocation(it.id, it.lat, it.lng)
@@ -41,12 +40,10 @@ data class Instance @JsonCreator constructor(
         }
         val idxLocs = locs.map { it.id to it }.toMap()
 
-        val deps = this.depots.distinct().map {
-            val d = Depot()
-            d.id = it
-            d.location = idxLocs[it]
+        val deps = this.depots.distinct().associate {
+            val d = Depot(it, idxLocs[it])
             d.id to d
-        }.toMap()
+        }
 
         locs.forEachIndexed { idxa, a ->
             a.travelDistanceMap = locs.mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
@@ -55,20 +52,12 @@ data class Instance @JsonCreator constructor(
         sol.locationList = locs
         val depsLocs = deps.map { it.value.location.id }.toSet()
         sol.customerList = this.stops.mapIndexed { idx, it ->
-            val c = Customer()
-            c.id = it.id
-            c.demand = it.demand
-            c.location = sol.locationList[idx]
-            c
+            Customer(it.id, sol.locationList[idx], it.demand)
         }.filter { !depsLocs.contains(it.location.id) }
         sol.depotList = deps.values.toList()
 
         sol.vehicleList = this.depots.mapIndexed { idx, it ->
-            val v = Vehicle()
-            v.id = idx.toLong()
-            v.capacity = this.capacity
-            v.depot = deps[it]
-            v
+            Vehicle(idx.toLong(), this.capacity, deps[it])
         }
         sol.distanceType = DistanceType.ROAD_DISTANCE
         sol.distanceUnitOfMeasurement = "m"
@@ -98,9 +87,14 @@ data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List
  * This class is used as the application output data representation.
  */
 data class VrpSolution(val routes: List<Route>) {
+
+    companion object {
+        val EMPTY = VrpSolution(emptyList())
+    }
+
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
-    fun getTotalTime() = routes.map { it.time }.max() ?: 0
+    fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
 /**
@@ -117,7 +111,8 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
         var dist = BigDecimal(0)
         var points = emptyList<Point>()
         var toOrigin = 0L
-        var customer = v.nextCustomer
+//        var customer = v.nextCustomer
+        var customer = v.customers.firstOrNull()
         while (customer != null) {
             points += Point(customer.id, customer.location.latitude, customer.location.longitude, customer.location.name, customer.demand)
             dist += BigDecimal(customer.distanceFromPreviousStandstill.toDouble() / (1000 * 1000))
@@ -129,12 +124,12 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
         var rep = (listOf(origin) + points + listOf(origin))
         if (graph != null) {
             val aux = rep.windowed(2, 1, false)
-                    .map { (a, b) -> graph.simplePath(a.toPair(), b.toPair()) }
+                    .map { (a, b) -> graph.detailedSimplePath(a.toPair(), b.toPair()) }
             rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
                 Point(lat = it.lat, lng = it.lon, id = idx.toLong(), demand = 0, name = "None")
             }
-            dist = BigDecimal(aux.sumByDouble { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
-            time = BigDecimal(aux.sumByDouble { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
+            dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
+            time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
         }
 
         Route(dist, time, rep)
@@ -142,3 +137,5 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
 
     return VrpSolution(routes)
 }
+
+data class Status(val status: String, val detailedPath: Boolean = false)
