@@ -32,6 +32,9 @@ out/
 # Sonarlint plugin
 .idea/sonarlint
 
+.vscode/*
+.DS_Store
+
 ### Gradle ###
 .gradle
 build/

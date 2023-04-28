@@ -72,14 +72,6 @@ class Application {
         return executor
     }
 
-    /**
-     * Creates a ConcurrentHashMap that associates the Socket Session ID to the Http Session ID.
-     * @see StompConnectEventListener
-     * @see com.github.opta.VehicleRoutingSolverService
-     */
-    @Bean
-    fun sessionWebSocket() = ConcurrentHashMap<String, String>()
-
 }
 
 @ControllerAdvice

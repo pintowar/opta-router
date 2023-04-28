@@ -45,12 +45,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.github.microutils:kotlin-logging:$kloggingVersion")
 
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
+
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-databind")
 //    runtime "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
 //    runtime "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.9.2")
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
     runtimeOnly("org.slf4j:jcl-over-slf4j:1.7.25")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

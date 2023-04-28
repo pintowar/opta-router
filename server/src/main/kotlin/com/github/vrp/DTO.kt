@@ -87,6 +87,11 @@ data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List
  * This class is used as the application output data representation.
  */
 data class VrpSolution(val routes: List<Route>) {
+
+    companion object {
+        val EMPTY = VrpSolution(emptyList())
+    }
+
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
@@ -132,3 +137,5 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
 
     return VrpSolution(routes)
 }
+
+data class Status(val status: String, val detailedPath: Boolean = false)

@@ -1,7 +1,9 @@
 package com.github.opta
 
+import com.github.WebSocketNotification
 import com.github.util.GraphWrapper
 import com.github.vrp.Instance
+import com.github.vrp.Status
 import com.github.vrp.VrpSolution
 import com.github.vrp.convertSolution
 import com.github.vrp.dist.PathDistance
@@ -28,11 +30,9 @@ import java.util.concurrent.ConcurrentHashMap
  * application).
  *
  * @param graph the graphhopper wrapper to help calculate distances between points.
- * @param sessionWebSocket the ConcurrentHashMap that associates the Socket Session ID to the Http Session ID.
- * @param messagingTemplate template to send messages to websocket queue.
  */
 @Service
-class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket: ConcurrentHashMap<String, String>, val messagingTemplate: SimpMessageSendingOperations) {
+class VehicleRoutingSolverService(val graph: GraphWrapper, val webSocketNotification: WebSocketNotification) {
 
     companion object : KLogging() {
         private val SOLVER_CONFIG = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"
@@ -73,39 +73,10 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
      * @param destination queue/topic name.
      * @param payload message to send.
      */
-    fun sendMessageToUser(sessionId: String, destination: String, payload: Any) {
-        val headerAccessor = SimpMessageHeaderAccessor.create(SimpMessageType.MESSAGE)
-        val wsSession = sessionWebSocket[sessionId]!!
-        headerAccessor.sessionId = wsSession
-        headerAccessor.setLeaveMutable(true)
-        messagingTemplate.convertAndSendToUser(wsSession, destination, payload, headerAccessor.messageHeaders)
-    }
-
-    /**
-     * Change and notify the status of the solver.
-     *
-     * @param status the new status to inform.
-     * @param sessionId user Http Session ID.
-     */
-    fun statusChange(status: String, sessionId: String) {
-        sessionStatusMap[sessionId] = status
-        sendMessageToUser(sessionId, "/queue/status", status)
-
-    }
-
-    /**
-     * Update the solution storage and notify the solution queue if DTO solution is informed,
-     * for the specific user (identified by sessionID).
-     *
-     * @param sessionId user Http Session ID.
-     * @param bestSolution best solution so far.
-     * @param sol DTO solution representation.
-     */
-    fun solutionChange(sessionId: String, bestSolution: VehicleRoutingSolution, sol: VrpSolution? = null) {
-        if (terminated != sessionStatusMap[sessionId]) {
-            sessionSolutionMap[sessionId] = bestSolution
-            if (sol != null) sendMessageToUser(sessionId, "/queue/solution", sol)
-        }
+    fun sendMessageToUser(sessionId: String, status: String, solution: VehicleRoutingSolution? = null, detailed: Boolean = false) {
+        val showDetailedPath = isViewDetailed(sessionId)
+        val sol = solution?.convertSolution(if (showDetailedPath) graph else null) ?: VrpSolution.EMPTY
+        webSocketNotification.notifyUserInvestmentChange(sessionId, Status(status, detailed), sol)
     }
 
     /**
@@ -151,13 +122,13 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
     fun retrieveOrCreateSolution(sessionId: String, instance: Instance? = null): VehicleRoutingSolution? {
         var solution: VehicleRoutingSolution? = sessionSolutionMap[sessionId]
         if (solution == null && instance != null) {
-            statusChange(calculatingDistances, sessionId)
+            sendMessageToUser(sessionId, calculatingDistances)
             val points = instance.stops.map { it.toPair() }
             val method = PathDistance(points, graph)
             solution = instance.toSolution(method)
             sessionInstance[sessionId] = instance
             sessionSolutionMap[sessionId] = solution
-            statusChange(distancesCalculated, sessionId)
+            sendMessageToUser(sessionId, distancesCalculated, solution)
         }
         return solution
     }
@@ -174,12 +145,9 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         val solver = solverFactory.buildSolver()
         solver.addEventListener { event ->
             val bestSolution = event.newBestSolution
-            val showDetailedPath = isViewDetailed(sessionId)
-            val sol = bestSolution.convertSolution(if (showDetailedPath) graph else null)
-            logger.info("Best distance so far: {}", sol.getTotalDistance())
+            logger.info("Best score so far: {}", bestSolution.score)
             synchronized(this@VehicleRoutingSolverService) {
-                solutionChange(sessionId, bestSolution, sol)
-                statusChange(running, sessionId)
+                sendMessageToUser(sessionId, running, bestSolution)
             }
         }
 
@@ -189,9 +157,8 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
 
             val bestSolution = solver.solve(solution)
             synchronized(this@VehicleRoutingSolverService) {
-                solutionChange(sessionId, bestSolution)
                 sessionSolverMap.remove(sessionId)
-                statusChange(terminated, sessionId)
+                sendMessageToUser(sessionId, terminated, bestSolution)
             }
         }
     }
@@ -204,7 +171,7 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
     @Synchronized
     fun terminateEarly(sessionId: String): Boolean {
         val solver = sessionSolverMap.remove(sessionId)
-        statusChange(terminated, sessionId)
+        sendMessageToUser(sessionId, terminated)
         return if (solver != null) {
             solver.terminateEarly()
             true
@@ -222,7 +189,7 @@ class VehicleRoutingSolverService(val graph: GraphWrapper, val sessionWebSocket:
         sessionSolutionMap.remove(sessionId)
         sessionDetailedView.remove(sessionId)
         sessionInstance.remove(sessionId)
-        statusChange(terminated, sessionId)
+        sendMessageToUser(sessionId, terminated)
     }
 
 }

@@ -16,6 +16,10 @@ management:
   security:
     enabled: false
 
+springdoc:
+  api-docs:
+    enabled: true
+
 app:
   graph:
     osm:
