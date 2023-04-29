@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { components } from "./generated/api";
 type Instance = components["schemas"]["Instance"];
-type Status = components["schemas"]["Status"];
+type Status = components["schemas"]["SolverState"];
 type VrpSolution = components["schemas"]["VrpSolution"];
 
 const defaultHeaders = {
@@ -11,71 +11,84 @@ const defaultHeaders = {
     },
 };
 
-async function getSessionId(): Promise<string> {
-    const { data, status } = await axios.get<string>(
-        "/api/session-id"
+async function getInstances(): Promise<Instance[]> {
+    const { data, status } = await axios.get<Instance[]>(
+        "/api/instances"
     )
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve session id");
+    return status === 200 ? data : Promise.reject("Failed to retrieve instances");
+}
+
+async function getInstance(id: number): Promise<Instance | null> {
+    try {
+        const { data, status } = await axios.get<Instance>(
+            `/api/instances/${id}/show`
+        )
+    
+        return status === 200 ? data : Promise.reject("Failed to retrieve instance");
+    } catch (e) {
+        return Promise.resolve(null);
+    }
+    
 }
 
 async function solve(instance: Instance): Promise<Status> {
     const { data, status } = await axios.post<Status>(
-        "/api/solve", 
+        `/api/solver/${instance.id}/solve`, 
         instance,
         defaultHeaders
     )
     return status === 200 ? data : Promise.reject(`Failed to solve instance ${instance.id}`);
 }
 
-async function status(): Promise<Status> {
-    const { data, status } = await axios.get<Status>(
-        "/api/status", 
-        defaultHeaders
-    )
+// async function status(): Promise<Status> {
+//     const { data, status } = await axios.get<Status>(
+//         "/api/status", 
+//         defaultHeaders
+//     )
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve solver status");
-}
+//     return status === 200 ? data : Promise.reject("Failed to retrieve solver status");
+// }
 
-async function instance(): Promise<Instance> {
-    const { data, status } = await axios.get<Instance>(
-        "/api/instance", 
-        defaultHeaders
-    )
+// async function instance(): Promise<Instance> {
+//     const { data, status } = await axios.get<Instance>(
+//         "/api/instance", 
+//         defaultHeaders
+//     )
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve solving instance");
-}
+//     return status === 200 ? data : Promise.reject("Failed to retrieve solving instance");
+// }
 
-async function solution(): Promise<VrpSolution> {
-    const { data, status } = await axios.get<VrpSolution>(
-        "/api/solution", 
-        defaultHeaders
-    )
+// async function solution(): Promise<VrpSolution> {
+//     const { data, status } = await axios.get<VrpSolution>(
+//         "/api/solution", 
+//         defaultHeaders
+//     )
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve current solution");
-}
+//     return status === 200 ? data : Promise.reject("Failed to retrieve current solution");
+// }
 
-async function detailedPath(detailed: boolean): Promise<Status> {
+async function detailedPath(id: number, detailed: boolean): Promise<Status> {
     const { data, status } = await axios.put<Status>(
-        `/api/detailed-path/${detailed}`, 
+        `/api/solver/${id}/detailed-path/${detailed}`, 
         defaultHeaders
     )
 
     return status === 200 ? data : Promise.reject("Failed to change detailed-path option");
 }
 
-async function terminate(): Promise<Status> {
+async function terminate(id: number,): Promise<Status> {
     const { data, status } = await axios.get<Status>(
-        "/api/terminate", 
+        `/api/solver/${id}/terminate`, 
         defaultHeaders
     )
 
     return status === 200 ? data : Promise.reject("Failed to terminate solver");
 }
 
-async function destroy(): Promise<Status> {
+async function destroy(id: number,): Promise<Status> {
     const { data, status } = await axios.get<Status>(
-        "/api/clean", 
+        `/api/solver/${id}/clean`, 
         defaultHeaders
     )
 
@@ -84,4 +97,4 @@ async function destroy(): Promise<Status> {
 
 export type { Instance, Status, VrpSolution }
 
-export { getSessionId, solve, terminate, destroy, status, detailedPath }
+export { getInstances, getInstance, solve, terminate, destroy, status, detailedPath }

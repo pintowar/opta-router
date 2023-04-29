@@ -1,7 +1,8 @@
-package com.github
+package com.github.service.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.vrp.Status
+import com.github.service.NotificationService
+import com.github.vrp.SolverState
 import com.github.vrp.VrpSolution
 import mu.KLogging
 import org.springframework.stereotype.Component
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 
 @Component
-class WebSocketNotification(private val mapper: ObjectMapper) : TextWebSocketHandler() {
+class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(), NotificationService {
 
     companion object : KLogging()
 
@@ -36,8 +37,7 @@ class WebSocketNotification(private val mapper: ObjectMapper) : TextWebSocketHan
     }
 
     private fun sessionIdFromSession(session: WebSocketSession): String {
-        val path = session.uri!!.path
-        return path.substring(path.lastIndexOf('/') + 1)
+        return session.attributes["HTTP.SESSION.ID"]!!.toString()
     }
 
     private fun broadcast(data: String) {
@@ -54,13 +54,13 @@ class WebSocketNotification(private val mapper: ObjectMapper) : TextWebSocketHan
         }
     }
 
-    fun notifyUserInvestmentChange(sessionId: String, status: Status?, newBestSolution: VrpSolution) {
+    override fun broadcastSolution(solverState: SolverState?, newBestSolution: VrpSolution) {
         val data = mapOf(
-//                "id" to newBestSolution.getId(),
+//                "id" to newBestSolution.id,
                 "solution" to newBestSolution,
-                "status" to status
+                "status" to solverState
         )
-        logger.info("{}, {}", status, newBestSolution.getTotalDistance().toString())
-        notifyUser(sessionId, mapper.writeValueAsString(data))
+        logger.info("{}, {}", solverState, newBestSolution.getTotalDistance().toString())
+        broadcast(mapper.writeValueAsString(data))
     }
 }

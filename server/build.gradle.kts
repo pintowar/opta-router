@@ -34,6 +34,8 @@ dependencies {
         exclude(group = "com.google.protobuf")
         exclude(group = "com.sun.xml.bind")
     }
+    implementation("org.optaplanner:optaplanner-spring-boot-starter:$optaplannerVersion")
+
 
     implementation("com.graphhopper:graphhopper-core:$ghVersion")
 

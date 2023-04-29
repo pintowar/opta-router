@@ -5,26 +5,23 @@
 
 
 export interface paths {
-  "/detailed-path/{status}": {
+  "/api/solver/{id}/detailed-path/{status}": {
     put: operations["detailedPath"];
   };
-  "/solve": {
+  "/api/solver/{id}/solve": {
     post: operations["solve"];
   };
-  "/terminate": {
+  "/api/solver/{id}/terminate": {
     get: operations["terminateEarly"];
   };
-  "/status": {
-    get: operations["status"];
-  };
-  "/solution": {
-    get: operations["solution"];
-  };
-  "/instance": {
-    get: operations["instance"];
-  };
-  "/clean": {
+  "/api/solver/{id}/clean": {
     get: operations["clean"];
+  };
+  "/api/instances/{id}/show": {
+    get: operations["show"];
+  };
+  "/api/instances/": {
+    get: operations["index"];
   };
 }
 
@@ -32,12 +29,14 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    Status: {
+    SolverState: {
       status: string;
       detailedPath: boolean;
     };
     Instance: {
-      id: string;
+      /** Format: int64 */
+      id: number;
+      name: string;
       /** Format: int32 */
       nLocations?: number;
       /** Format: int32 */
@@ -62,16 +61,6 @@ export interface components {
       /** Format: int32 */
       demand: number;
     };
-    Route: {
-      distance: number;
-      time: number;
-      order: (components["schemas"]["Point"])[];
-    };
-    VrpSolution: {
-      routes: (components["schemas"]["Route"])[];
-      totalDistance: number;
-      totalTime: Record<string, never>;
-    };
   };
   responses: never;
   parameters: never;
@@ -87,6 +76,7 @@ export interface operations {
   detailedPath: {
     parameters: {
       path: {
+        id: number;
         status: boolean;
       };
     };
@@ -94,18 +84,17 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Status"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
+          "application/json": components["schemas"]["SolverState"];
         };
       };
     };
   };
   solve: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
     requestBody: {
       content: {
         "application/json": components["schemas"]["Instance"];
@@ -115,66 +104,47 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Status"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
+          "application/json": components["schemas"]["SolverState"];
         };
       };
     };
   };
   terminateEarly: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Status"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
+          "application/json": components["schemas"]["SolverState"];
         };
       };
     };
   };
-  status: {
+  clean: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Status"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
+          "application/json": components["schemas"]["SolverState"];
         };
       };
     };
   };
-  solution: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["VrpSolution"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
-        };
+  show: {
+    parameters: {
+      path: {
+        id: number;
       };
     };
-  };
-  instance: {
     responses: {
       /** @description OK */
       200: {
@@ -182,26 +152,14 @@ export interface operations {
           "application/json": components["schemas"]["Instance"];
         };
       };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
-        };
-      };
     };
   };
-  clean: {
+  index: {
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Status"];
-        };
-      };
-      /** @description Service Unavailable */
-      503: {
-        content: {
-          "*/*": string;
+          "application/json": (components["schemas"]["Instance"])[];
         };
       };
     };

@@ -8,6 +8,12 @@ spring:
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
 
+optaplanner:
+  solver-config-xml: org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml
+  solver:
+    termination:
+      spent-limit: 2m
+
 endpoints:
   health:
     sensitive: false

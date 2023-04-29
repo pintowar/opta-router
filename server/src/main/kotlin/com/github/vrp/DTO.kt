@@ -1,7 +1,5 @@
 package com.github.vrp
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.util.GraphWrapper
 import com.github.vrp.dist.Distance
 import org.optaplanner.examples.vehiclerouting.domain.Customer
@@ -16,13 +14,14 @@ import java.math.RoundingMode
 /**
  * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
  */
-data class Instance @JsonCreator constructor(
-        @JsonProperty("id") val id: String,
-        @JsonProperty("nLocations") val nLocations: Int,
-        @JsonProperty("nVehicles") val nVehicles: Int,
-        @JsonProperty("capacity") val capacity: Int,
-        @JsonProperty("stops") val stops: List<Point>,
-        @JsonProperty("depots") val depots: List<Long>
+data class Instance(
+        val id: Long,
+        val name: String,
+        val nLocations: Int,
+        val nVehicles: Int,
+        val capacity: Int,
+        val stops: List<Point>,
+        val depots: List<Long>
 ) {
     /**
      * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
@@ -31,23 +30,28 @@ data class Instance @JsonCreator constructor(
      * @return solution representation used by the solver.
      */
     fun toSolution(dist: Distance): VehicleRoutingSolution {
-        val sol = VehicleRoutingSolution(0)
-        sol.name = this.id
+        val sol = VehicleRoutingSolution(id)
+        sol.name = this.name
         val locs = this.stops.map {
             val loc = RoadLocation(it.id, it.lat, it.lng)
             loc.name = it.name
             loc
         }
-        val idxLocs = locs.map { it.id to it }.toMap()
+        val idxLocs = locs.associateBy { it.id }
 
-        val deps = this.depots.distinct().associate {
-            val d = Depot(it, idxLocs[it])
-            d.id to d
-        }
+//        val deps = this.depots.distinct().map {
+//            Depot(it, idxLocs[it])
+//        }.associateBy { it.id }
+
+        val deps = this.depots.distinct().mapIndexed { idx, it ->
+            Depot(it, locs[idx])
+        }.associateBy { it.id }
 
         locs.forEachIndexed { idxa, a ->
-            a.travelDistanceMap = locs.mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
-                    .filter { (b, _) -> a != b }.toMap()
+            a.travelDistanceMap = locs
+                    .mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
+                    .filter { (b, _) -> a != b }
+                    .toMap()
         }
         sol.locationList = locs
         val depsLocs = deps.map { it.value.location.id }.toSet()
@@ -68,12 +72,13 @@ data class Instance @JsonCreator constructor(
 /**
  * DTO class with the representation of locations.
  */
-data class Point @JsonCreator constructor(
-        @JsonProperty("id") val id: Long,
-        @JsonProperty("lat") val lat: Double,
-        @JsonProperty("lng") val lng: Double,
-        @JsonProperty("name") val name: String,
-        @JsonProperty("demand") val demand: Int) {
+data class Point(
+        val id: Long,
+        val lat: Double,
+        val lng: Double,
+        val name: String,
+        val demand: Int
+) {
     fun toPair() = lat to lng
 }
 
@@ -98,6 +103,11 @@ data class VrpSolution(val routes: List<Route>) {
 }
 
 /**
+ * DTO class with the representation of solver status data.
+ */
+data class SolverState(val status: String, val detailedPath: Boolean = false)
+
+/**
  * Convert the solver VRP Solution representation into the DTO representation.
  *
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
@@ -111,7 +121,6 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
         var dist = BigDecimal(0)
         var points = emptyList<Point>()
         var toOrigin = 0L
-//        var customer = v.nextCustomer
         var customer = v.customers.firstOrNull()
         while (customer != null) {
             points += Point(customer.id, customer.location.latitude, customer.location.longitude, customer.location.name, customer.demand)
@@ -137,5 +146,3 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
 
     return VrpSolution(routes)
 }
-
-data class Status(val status: String, val detailedPath: Boolean = false)

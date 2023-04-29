@@ -1,42 +1,43 @@
 <script lang="ts" setup>
-import { ref, onBeforeMount, onBeforeUnmount, watchEffect } from 'vue';
+import { useRoute } from 'vue-router'
+import { ref, onBeforeUnmount, watchEffect } from 'vue';
 
 import { Instance, VrpSolution } from "../api";
-import { getSessionId, solve, terminate, destroy, detailedPath } from "../api";
+import { solve, terminate, destroy, detailedPath, getInstance } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 
-const instance = ref<Instance | null>(null);
+const route = useRoute();
+const webCli = creatWSCli();
+
+const instance = ref<Instance | null>(await getInstance(+route.params.id));
 const solution = ref<VrpSolution | null>(null);
 const isPathDetailed = ref<boolean>(false);
 
 const solverStatus = ref<string>("");
-const session = ref<string | null>(null);
 
-const webCli = ref<WebSocket | null>(null);
+onBeforeUnmount(() => {
+  webCli.close()
+});
 
-onBeforeMount(async () => {
-  session.value = await getSessionId();
+watchEffect(async () => {
+  if (instance.value) {
+    await detailedPath(instance.value?.id, isPathDetailed.value)
+  }
+});
 
-  const cli = new WebSocket(`ws://${location.host}/solution-state/${session.value}`)
+function creatWSCli() {
+  const cli = new WebSocket(`ws://${location.host}/solution-state`)
   cli.onopen = () => console.info("Connected to the web socket")
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution as VrpSolution;
     solverStatus.value = payload.status.status as string;
   };
+  cli.onclose = () => console.info("Disconnected from the web socket")
 
-  webCli.value = cli
-});
-
-onBeforeUnmount(() => {
-  webCli.value?.close()
-});
-
-watchEffect(async () => {
-  const status = await detailedPath(isPathDetailed.value)
-  // isPathDetailed.value = status.detailedPath
-});
+  return cli;
+}
 
 async function solveAction() {
   if (instance.value !== null) {
@@ -46,29 +47,33 @@ async function solveAction() {
 }
 
 async function terminateAction() {
-  const { status } = await terminate()
-  solverStatus.value = status;
+  if (instance.value) {
+    const { status } = await terminate(instance.value.id)
+    solverStatus.value = status;
+  }
 }
 
 async function destroyAction() {
-  const { status } = await destroy()
-  solverStatus.value = status;
+  if (instance.value) {
+    const { status } = await destroy(instance.value.id)
+    solverStatus.value = status;
+  }
 }
 
 </script>
 
 <template>
-  <main class="flex flex-row space-x-4 px-4 py-4">
+  <div class="grid grid-cols-2 gap-4 px-4 py-4">
     <CardEditor 
       v-model:instance="instance"
       v-model:detailed="isPathDetailed"
       :solver-status="solverStatus" 
-      extra-class="basis-1/2" 
+      extra-class="" 
       @on-solve="solveAction"
       @on-terminate="terminateAction"
       @on-destroy="destroyAction"
     />
 
-    <CardMap :instance="instance" :solution="solution" extra-class="basis-1/2"/>
-  </main>
+    <CardMap :instance="instance" :solution="solution" extra-class=""/>
+  </div>
 </template>
