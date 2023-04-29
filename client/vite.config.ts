@@ -11,7 +11,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-      "/solution-state": {
+      "/ws/solution-state": {
         target: "ws://localhost:8080/",
         changeOrigin: true,
         secure: false,

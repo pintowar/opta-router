@@ -15,7 +15,7 @@ internal class WebSocketConfig(private val handler: WebSocketHandler) : WebSocke
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         val webSocketInterceptor = HttpSessionHandshakeInterceptor().apply { isCreateSession = true }
 
-        registry.addHandler(handler, "/solution-state")
+        registry.addHandler(handler, "/ws/solution-state/*")
                 .addInterceptors(webSocketInterceptor)
                 .setAllowedOrigins("*")
     }

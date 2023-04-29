@@ -27,7 +27,7 @@ watchEffect(async () => {
 });
 
 function creatWSCli() {
-  const cli = new WebSocket(`ws://${location.host}/solution-state`)
+  const cli = new WebSocket(`ws://${location.host}/ws/solution-state/${route.params.id}`)
   cli.onopen = () => console.info("Connected to the web socket")
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);

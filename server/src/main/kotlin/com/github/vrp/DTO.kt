@@ -107,6 +107,8 @@ data class VrpSolution(val routes: List<Route>) {
  */
 data class SolverState(val status: String, val detailedPath: Boolean = false)
 
+data class VrpSolutionState(val instanceId: Long, val solution: VrpSolution, val state: SolverState)
+
 /**
  * Convert the solver VRP Solution representation into the DTO representation.
  *

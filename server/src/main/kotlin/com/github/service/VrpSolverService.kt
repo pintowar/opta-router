@@ -3,6 +3,7 @@ package com.github.service
 import com.github.util.GraphWrapper
 import com.github.vrp.Instance
 import com.github.vrp.SolverState
+import com.github.vrp.VrpSolutionState
 import com.github.vrp.convertSolution
 import com.github.vrp.dist.PathDistance
 import jakarta.annotation.PreDestroy
@@ -48,8 +49,11 @@ class VrpSolverService(
         vrpRepository.currentSolution(instanceId)?.let { solution ->
             val currentState = vrpRepository.currentState(instanceId)!!
             notificationService.broadcastSolution(
-                    currentState,
-                    solution.convertSolution(if (currentState.detailedPath) graph else null)
+                    VrpSolutionState(
+                            instanceId,
+                            solution.convertSolution(if (currentState.detailedPath) graph else null),
+                            currentState
+                    )
             )
         }
     }

@@ -2,14 +2,14 @@ package com.github.service.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.service.NotificationService
-import com.github.vrp.SolverState
-import com.github.vrp.VrpSolution
+import com.github.vrp.VrpSolutionState
 import mu.KLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
+import org.springframework.web.util.UriTemplate
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
@@ -40,27 +40,27 @@ class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(
         return session.attributes["HTTP.SESSION.ID"]!!.toString()
     }
 
-    private fun broadcast(data: String) {
-        sessions.keys.forEach { sessionId ->
-            notifyUser(sessionId, data)
+    private fun broadcast(data: VrpSolutionState) {
+        val textData = mapper.writeValueAsString(data)
+        sessions.forEach { (_, session) ->
+            notifyUser(session, data.instanceId, textData)
         }
     }
 
-    private fun notifyUser(sessionId: String, data: String) {
+    private fun notifyUser(session: WebSocketSession, instanceId: Long, data: String) {
         try {
-            sessions[sessionId]!!.sendMessage(TextMessage(data))
+            val template = UriTemplate("/ws/solution-state/{instanceId}")
+            val uriInstanceId = template.match(session.uri!!.path)["instanceId"]
+            if ("$instanceId" == uriInstanceId) {
+                session.sendMessage(TextMessage(data))
+            }
         } catch (e: IOException) {
             logger.error("Could not send message message through web socket!", e)
         }
     }
 
-    override fun broadcastSolution(solverState: SolverState?, newBestSolution: VrpSolution) {
-        val data = mapOf(
-//                "id" to newBestSolution.id,
-                "solution" to newBestSolution,
-                "status" to solverState
-        )
-        logger.info("{}, {}", solverState, newBestSolution.getTotalDistance().toString())
-        broadcast(mapper.writeValueAsString(data))
+    override fun broadcastSolution(data: VrpSolutionState) {
+        logger.info("{}, {}", data.state, data.solution.getTotalDistance().toString())
+        broadcast(data)
     }
 }
