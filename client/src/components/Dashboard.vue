@@ -32,7 +32,7 @@ function creatWSCli() {
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution as VrpSolution;
-    solverStatus.value = payload.status.status as string;
+    solverStatus.value = payload.state.status as string;
   };
   cli.onclose = () => console.info("Disconnected from the web socket")
 
