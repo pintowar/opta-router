@@ -1,6 +1,6 @@
-package io.github.pintowar.opta.router.service.impl
+package io.github.pintowar.opta.router.repository.impl
 
-import io.github.pintowar.opta.router.service.VrpRepository
+import io.github.pintowar.opta.router.repository.VrpRepository
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
@@ -57,7 +57,12 @@ class VrpRepositoryDummy : VrpRepository {
         val instance = createInstance(instanceId)
         return if (instance != null) {
             val distance = currentDistance(instanceId)!!
-            currentSolution(instanceId)!!.toSolverSolution(instance, distance)
+            val solution = currentSolution(instanceId)
+            return if (solution?.isEmpty() != true) {
+                solution!!.toSolverSolution(instance, distance)
+            } else {
+                null
+            }
         } else {
             null
         }
