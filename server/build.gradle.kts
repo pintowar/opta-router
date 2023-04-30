@@ -1,13 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import com.gorylenko.GitPropertiesPluginExtension
 
 plugins {
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.git.properties)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.jib)
 }
 
 java {
@@ -17,6 +19,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -63,43 +66,6 @@ tasks {
             }
         }
     }
-
-    named<BootBuildImage>("bootBuildImage") {
-        val isSnapshot = "${project.version}".endsWith("-SNAPSHOT")
-        val imgName = "pintowar/${rootProject.name}"
-        val latestTag = if (!isSnapshot) listOf("latest") else emptyList()
-        val tagNames = (listOf("${project.version}") + latestTag).map { "${imgName}:$it" }
-
-        imageName.set(imgName)
-        tags.set(tagNames)
-        verboseLogging.set(true)
-
-
-        buildpacks.set(
-            listOf(
-                "gcr.io/paketo-buildpacks/adoptium",
-                "urn:cnb:builder:paketo-buildpacks/java"
-            )
-        )
-        environment.putAll(
-            mapOf(
-                "BP_JVM_TYPE" to "JDK",
-//                "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-Duser.timezone=UTC -Djava.security.egd=file:/dev/./urandom"
-//                "GRAPH_OSM_PATH" to "/opt/pbf/belgium-latest.osm.pbf",
-            )
-        )
-
-        publish.set(!isSnapshot)
-//        docker {
-//            publishRegistry {
-//                username.set()
-//                password.set()
-//                url.set()
-//                email.set()
-//            }
-//        }
-
-    }
 }
 
 spotless {
@@ -107,5 +73,32 @@ spotless {
         ktlint()
             .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
 //    licenseHeaderFile()
+    }
+}
+
+configure<GitPropertiesPluginExtension> {
+    dotGitDirectory.set(file("${project.rootDir}/.git"))
+    dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+    dateFormatTimeZone = "GMT"
+}
+
+jib {
+    val isSnapshot = "${project.version}".endsWith("-SNAPSHOT")
+    from {
+        image = "eclipse-temurin:17-jdk-alpine"
+    }
+    to {
+        image = "pintowar/${rootProject.name}"
+        tags = setOf("${project.version}") + (if (isSnapshot) setOf("snapshot") else setOf("latest"))
+        auth {
+            username = project.findProperty("docker.user")?.toString() ?: System.getenv("DOCKER_USER")
+            password = project.findProperty("docker.pass")?.toString() ?: System.getenv("DOCKER_PASS")
+        }
+    }
+    container {
+        mainClass = "com.github.ApplicationKt"
+        jvmFlags = listOf("-Duser.timezone=UTC", "-Djava.security.egd=file:/dev/./urandom")
+        ports = listOf("8080")
+        creationTime.set("USE_CURRENT_TIMESTAMP")
     }
 }

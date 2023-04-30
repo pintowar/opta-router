@@ -9,7 +9,10 @@ jackson = "2.14.2" # 2.15.0
 optaplanner = "9.37.0.Final"
 graphhopper = "7.0"
 sfl4j = "2.0.7"
-gradle-node = "3.1.1"
+gradle-node = "4.0.0"
+gradle-jib = "3.3.1"
+gradle-git = "2.4.1"
+gradle-release = "3.0.2"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -17,7 +20,10 @@ spring-dependency = { id = "io.spring.dependency-management", version.ref = "spr
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gradle-git" }
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
+jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
+release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
