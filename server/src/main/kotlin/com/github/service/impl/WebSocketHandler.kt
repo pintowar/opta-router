@@ -43,7 +43,7 @@ class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(
     private fun broadcast(data: VrpSolutionState) {
         val textData = mapper.writeValueAsString(data)
         sessions.forEach { (_, session) ->
-            notifyUser(session, data.instanceId, textData)
+            notifyUser(session, data.solution.instanceId, textData)
         }
     }
 

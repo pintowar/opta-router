@@ -2,6 +2,7 @@ package com.github.vrp
 
 import com.github.util.GraphWrapper
 import com.github.vrp.dist.Distance
+import com.github.vrp.dist.PathDistance
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle
@@ -33,15 +34,8 @@ data class Instance(
         val sol = VehicleRoutingSolution(id)
         sol.name = this.name
         val locs = this.stops.map {
-            val loc = RoadLocation(it.id, it.lat, it.lng)
-            loc.name = it.name
-            loc
+            RoadLocation(it.id, it.lat, it.lng).apply { name = it.name }
         }
-        val idxLocs = locs.associateBy { it.id }
-
-//        val deps = this.depots.distinct().map {
-//            Depot(it, idxLocs[it])
-//        }.associateBy { it.id }
 
         val deps = this.depots.distinct().mapIndexed { idx, it ->
             Depot(it, locs[idx])
@@ -85,21 +79,35 @@ data class Point(
 /**
  * Route representation containing the route distance, time and list of points.
  */
-data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Point>)
+data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Point>, val customerIds: List<Long>)
 
 /**
  * DTO class with the representation of the VRP solution.
  * This class is used as the application output data representation.
  */
-data class VrpSolution(val routes: List<Route>) {
+data class VrpSolution(val instanceId: Long, val routes: List<Route>) {
 
     companion object {
-        val EMPTY = VrpSolution(emptyList())
+        fun emptyFromInstanceId(instanceId: Long) = VrpSolution(instanceId, emptyList())
     }
 
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
+
+    fun toSolverSolution(instance: Instance, distances: Distance): VehicleRoutingSolution {
+        val solution = instance.toSolution(distances)
+        val keys = solution.customerList.associateBy { it.id }
+
+        routes.forEach { route ->
+            val customers = route.customerIds.map { keys[it] }
+            customers.forEachIndexed { idx, customer ->
+                if (idx > 0) customer?.previousCustomer = customers[idx - 1]
+                if (idx < customers.size - 1) customer?.nextCustomer = customers[idx + 1]
+            }
+        }
+        return solution
+    }
 }
 
 /**
@@ -107,7 +115,7 @@ data class VrpSolution(val routes: List<Route>) {
  */
 data class SolverState(val status: String, val detailedPath: Boolean = false)
 
-data class VrpSolutionState(val instanceId: Long, val solution: VrpSolution, val state: SolverState)
+data class VrpSolutionState(val solution: VrpSolution, val state: SolverState)
 
 /**
  * Convert the solver VRP Solution representation into the DTO representation.
@@ -115,7 +123,7 @@ data class VrpSolutionState(val instanceId: Long, val solution: VrpSolution, val
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolution {
+fun VehicleRoutingSolution.toDTO(graph: GraphWrapper? = null): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
         val origin = Point(v.depot.location.id, v.depot.location.latitude, v.depot.location.longitude, v.depot.location.name, 0)
@@ -143,8 +151,8 @@ fun VehicleRoutingSolution.convertSolution(graph: GraphWrapper? = null): VrpSolu
             time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
         }
 
-        Route(dist, time, rep)
+        Route(dist, time, rep, points.map { it.id })
     } ?: emptyList()
 
-    return VrpSolution(routes)
+    return VrpSolution(this.id, routes)
 }

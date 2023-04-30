@@ -1,10 +1,7 @@
 package com.github.service
 
 import com.github.util.GraphWrapper
-import com.github.vrp.Instance
-import com.github.vrp.SolverState
-import com.github.vrp.VrpSolutionState
-import com.github.vrp.convertSolution
+import com.github.vrp.*
 import com.github.vrp.dist.PathDistance
 import jakarta.annotation.PreDestroy
 import mu.KLogging
@@ -45,13 +42,17 @@ class VrpSolverService(
                 .forEach(solverManager::terminateEarly)
     }
 
+    fun wrapperForInstance(solution: VehicleRoutingSolution): VrpSolution {
+        val currentState = vrpRepository.currentState(solution.id)
+        return solution.toDTO(if (currentState?.detailedPath == true) graph else null)
+    }
+
     fun broadcastSolution(instanceId: Long) {
         vrpRepository.currentSolution(instanceId)?.let { solution ->
             val currentState = vrpRepository.currentState(instanceId)!!
             notificationService.broadcastSolution(
                     VrpSolutionState(
-                            instanceId,
-                            solution.convertSolution(if (currentState.detailedPath) graph else null),
+                            solution,
                             currentState
                     )
             )
@@ -60,7 +61,8 @@ class VrpSolverService(
 
     fun showStatus(instanceId: Long): String =
             if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING)
-                vrpRepository.currentState(instanceId)?.status ?: SolverStatus.NOT_SOLVING.name
+                vrpRepository.currentState(instanceId)?.status
+                        ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
             else solverManager.getSolverStatus(instanceId).name
 
     fun updateDetailedView(instanceId: Long, enabled: Boolean) {
@@ -68,14 +70,17 @@ class VrpSolverService(
     }
 
     fun retrieveOrCreateSolution(instance: Instance): VehicleRoutingSolution {
-        val current = vrpRepository.currentSolution(instance.id)
+        val current = vrpRepository.currentSolverSolution(instance.id)
         if (current != null) return current
 
-//            sendMessageToUser(sessionId, calculatingDistances)
+        vrpRepository.createSolution(instance, SolverState(calculatingDistances))
+        broadcastSolution(instance.id)
+
         val points = instance.stops.map { it.toPair() }
         val pathDistance = PathDistance(points, graph)
         val solution = instance.toSolution(pathDistance)
-        vrpRepository.createSolution(instance, solution, SolverState(distancesCalculated))
+
+        vrpRepository.updateSolution(wrapperForInstance(solution), distancesCalculated, pathDistance)
         broadcastSolution(instance.id)
         return solution
 
@@ -88,11 +93,11 @@ class VrpSolverService(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        vrpRepository.updateSolution(sol, running)
+                        vrpRepository.updateSolution(wrapperForInstance(sol), running)
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        vrpRepository.updateSolution(sol, terminated)
+                        vrpRepository.updateSolution(wrapperForInstance(sol), terminated)
                         broadcastSolution(instance.id)
                     },
                     { it: Long, exp: Throwable ->

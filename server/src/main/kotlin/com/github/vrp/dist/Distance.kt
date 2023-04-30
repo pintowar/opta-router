@@ -116,3 +116,9 @@ class EuclideanDistance(private val locations: List<Pair<Double, Double>>, priva
         return this.distance(i, j) / this.avgSpeed
     }
 }
+
+class EmptyDistance() : Distance {
+    override fun distance(i: Int, j: Int): Double = 0.0
+
+    override fun time(i: Int, j: Int): Double = 0.0
+}
