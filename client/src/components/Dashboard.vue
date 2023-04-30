@@ -24,7 +24,6 @@ onBeforeUnmount(() => {
 
 watchEffect(async () => {
   if (instance.value) {
-    console.log("zaz", solverState.value);
     const state = await detailedPath(instance.value?.id, solverState.value?.detailedPath || false)
     if (solverState.value)
       solverState.value.detailedPath = state?.detailedPath || false;
@@ -59,7 +58,6 @@ async function terminateAction() {
   if (instance.value) {
     const state = await terminate(instance.value.id)
     if (solverState.value) {
-      console.log(state)
       solverState.value = state;
     } else {
       solverState.value = { status: "", detailedPath: false }

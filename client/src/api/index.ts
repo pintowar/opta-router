@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { components } from "./generated/api";
 type Instance = components["schemas"]["Instance"];
 type SolverState = components["schemas"]["SolverState"];
