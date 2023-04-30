@@ -10,12 +10,11 @@ import { ref, toRefs, computed, watchEffect } from "vue";
 import { Instance, VrpSolution } from "../api";
 
 const props = defineProps<{
-  extraClass: string;
   instance: Instance | null;
   solution: VrpSolution | null;
 }>();
 
-const { instance, solution, extraClass } = toRefs(props);
+const { instance, solution } = toRefs(props);
 
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
@@ -25,8 +24,6 @@ const maxZoom = 18;
 
 const layerUrl = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
 const layerOptions = { subdomains: ["a", "b", "c"] };
-
-const classNames = computed(() => `card bg-base-200 shadow-xl ${extraClass.value}`);
 
 const polylines = computed(() => {
   const routes = solution.value?.routes || [];
@@ -58,7 +55,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div :class="classNames">
+  <div class="card bg-base-200 shadow-xl">
     <div class="card-body">
       <h2 class="card-title">Map Viewer</h2>
 
