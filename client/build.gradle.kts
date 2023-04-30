@@ -37,5 +37,4 @@ tasks {
         delete(project.buildDir)
         delete("${project.projectDir}/coverage")
     }
-
 }

@@ -2,7 +2,6 @@ package com.github.vrp
 
 import com.github.util.GraphWrapper
 import com.github.vrp.dist.Distance
-import com.github.vrp.dist.PathDistance
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle
@@ -16,13 +15,13 @@ import java.math.RoundingMode
  * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
  */
 data class Instance(
-        val id: Long,
-        val name: String,
-        val nLocations: Int,
-        val nVehicles: Int,
-        val capacity: Int,
-        val stops: List<Point>,
-        val depots: List<Long>
+    val id: Long,
+    val name: String,
+    val nLocations: Int,
+    val nVehicles: Int,
+    val capacity: Int,
+    val stops: List<Point>,
+    val depots: List<Long>
 ) {
     /**
      * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
@@ -43,9 +42,9 @@ data class Instance(
 
         locs.forEachIndexed { idxa, a ->
             a.travelDistanceMap = locs
-                    .mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
-                    .filter { (b, _) -> a != b }
-                    .toMap()
+                .mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
+                .filter { (b, _) -> a != b }
+                .toMap()
         }
         sol.locationList = locs
         val depsLocs = deps.map { it.value.location.id }.toSet()
@@ -67,11 +66,11 @@ data class Instance(
  * DTO class with the representation of locations.
  */
 data class Point(
-        val id: Long,
-        val lat: Double,
-        val lng: Double,
-        val name: String,
-        val demand: Int
+    val id: Long,
+    val lat: Double,
+    val lng: Double,
+    val name: String,
+    val demand: Int
 ) {
     fun toPair() = lat to lng
 }
@@ -126,14 +125,26 @@ data class VrpSolutionState(val solution: VrpSolution, val state: SolverState)
 fun VehicleRoutingSolution.toDTO(graph: GraphWrapper? = null): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
-        val origin = Point(v.depot.location.id, v.depot.location.latitude, v.depot.location.longitude, v.depot.location.name, 0)
+        val origin = Point(
+            v.depot.location.id,
+            v.depot.location.latitude,
+            v.depot.location.longitude,
+            v.depot.location.name,
+            0
+        )
 
         var dist = BigDecimal(0)
         var points = emptyList<Point>()
         var toOrigin = 0L
         var customer = v.customers.firstOrNull()
         while (customer != null) {
-            points += Point(customer.id, customer.location.latitude, customer.location.longitude, customer.location.name, customer.demand)
+            points += Point(
+                customer.id,
+                customer.location.latitude,
+                customer.location.longitude,
+                customer.location.name,
+                customer.demand
+            )
             dist += BigDecimal(customer.distanceFromPreviousStandstill.toDouble() / (1000 * 1000))
             toOrigin = customer.location.getDistanceTo(v.depot.location)
             customer = customer.nextCustomer
@@ -143,7 +154,7 @@ fun VehicleRoutingSolution.toDTO(graph: GraphWrapper? = null): VrpSolution {
         var rep = (listOf(origin) + points + listOf(origin))
         if (graph != null) {
             val aux = rep.windowed(2, 1, false)
-                    .map { (a, b) -> graph.detailedSimplePath(a.toPair(), b.toPair()) }
+                .map { (a, b) -> graph.detailedSimplePath(a.toPair(), b.toPair()) }
             rep = aux.flatMap { it.points }.mapIndexed { idx, it ->
                 Point(lat = it.lat, lng = it.lon, id = idx.toLong(), demand = 0, name = "None")
             }

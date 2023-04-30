@@ -20,7 +20,7 @@ class VrpRepositoryDummy : VrpRepository {
 
     override fun createSolution(instance: Instance, solverState: SolverState) {
         solutionIdMap[instance.id] =
-                PersistenceUnit(instance, VrpSolution.emptyFromInstanceId(instance.id), solverState, EmptyDistance())
+            PersistenceUnit(instance, VrpSolution.emptyFromInstanceId(instance.id), solverState, EmptyDistance())
     }
 
     override fun updateSolution(sol: VrpSolution, status: String, distance: Distance?) {
@@ -58,7 +58,9 @@ class VrpRepositoryDummy : VrpRepository {
         return if (instance != null) {
             val distance = currentDistance(instanceId)!!
             currentSolution(instanceId)!!.toSolverSolution(instance, distance)
-        } else null
+        } else {
+            null
+        }
     }
 
     override fun currentState(instanceId: Long): SolverState? {
@@ -79,8 +81,8 @@ class VrpRepositoryDummy : VrpRepository {
 }
 
 private data class PersistenceUnit(
-        val instance: Instance,
-        val vrpSolution: VrpSolution,
-        val state: SolverState,
-        val distance: Distance
+    val instance: Instance,
+    val vrpSolution: VrpSolution,
+    val state: SolverState,
+    val distance: Distance
 )

@@ -3,6 +3,7 @@ kotlin = "1.8.20"
 kotlin-logging = "3.0.5"
 spring-boot = "3.0.6"
 spring-dependency = "1.1.0"
+spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2" # 2.15.0
 optaplanner = "9.37.0.Final"
@@ -14,6 +15,7 @@ spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency = { id = "io.spring.dependency-management", version.ref = "spring-dependency" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless"}
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }

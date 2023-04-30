@@ -7,7 +7,6 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor
 
-
 @Configuration
 @EnableWebSocket
 internal class WebSocketConfig(private val handler: WebSocketHandler) : WebSocketConfigurer {
@@ -16,7 +15,7 @@ internal class WebSocketConfig(private val handler: WebSocketHandler) : WebSocke
         val webSocketInterceptor = HttpSessionHandshakeInterceptor().apply { isCreateSession = true }
 
         registry.addHandler(handler, "/ws/solution-state/*")
-                .addInterceptors(webSocketInterceptor)
-                .setAllowedOrigins("*")
+            .addInterceptors(webSocketInterceptor)
+            .setAllowedOrigins("*")
     }
 }

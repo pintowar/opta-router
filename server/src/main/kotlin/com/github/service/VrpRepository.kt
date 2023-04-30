@@ -27,5 +27,4 @@ interface VrpRepository {
     fun createInstance(instanceId: Long): Instance?
 
     fun removeSolution(instanceId: Long)
-
 }

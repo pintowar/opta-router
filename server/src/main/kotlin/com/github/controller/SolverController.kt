@@ -6,8 +6,13 @@ import com.github.vrp.SolverState
 import com.github.vrp.VrpSolutionState
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
-
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * The Controller that contains all REST functions to be used on the application.
@@ -58,5 +63,4 @@ class SolverController(val solver: VrpSolverService) {
             ?.let { ResponseEntity.ok(it) }
             ?: ResponseEntity.notFound().build()
     }
-
 }

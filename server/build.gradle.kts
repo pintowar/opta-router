@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.spring.dependency)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spotless)
 }
 
 java {
@@ -60,5 +61,13 @@ tasks {
                 logger.quiet("Cli Resources: move from $origin to $dest")
             }
         }
+    }
+}
+
+spotless {
+    kotlin {
+        ktlint()
+            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
+        //        licenseHeaderFile()
     }
 }
