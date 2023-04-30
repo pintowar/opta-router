@@ -12,12 +12,13 @@
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.9.0",
     "axios": "^1.3.6",
+    "json-editor-vue": "^0.10.6",
     "leaflet": "^1.9.3",
     "rainbow-color": "^2.0.0",
     "theme-change": "^2.5.0",
+    "vanilla-jsoneditor": "^0.17.1",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6",
-    "vue3-ts-jsoneditor": "^2.8.6"
+    "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.3",

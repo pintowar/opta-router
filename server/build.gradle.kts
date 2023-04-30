@@ -14,13 +14,6 @@ java {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    compilerOptions {
-        freeCompilerArgs.set(listOf("-Xjsr305=strict"))
-        jvmTarget.set(JvmTarget.JVM_17)
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -54,4 +47,30 @@ dependencies {
     runtimeOnly("org.slf4j:jcl-over-slf4j:2.0.7")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+tasks {
+    withType<KotlinCompile> {
+        compilerOptions {
+            freeCompilerArgs.set(listOf("-Xjsr305=strict"))
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
+    if (project.hasProperty("prod")) {
+        processResources {
+            val webCli = ":client"
+            dependsOn("$webCli:build")
+
+            doLast {
+                val origin = project(webCli).buildDir.absolutePath
+                val dest = "${project.buildDir.absolutePath}/resources/main/public"
+                copy {
+                    from(origin)
+                    into(dest)
+                }
+                logger.quiet("Cli Resources: move from $origin to $dest")
+            }
+        }
+    }
 }

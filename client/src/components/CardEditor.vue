@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import VueJsoneditor from "vue3-ts-jsoneditor";
+import JsonEditorVue from 'json-editor-vue'
 import { ref, toRefs, computed, watch, watchEffect } from "vue";
 
 import { Instance, SolverState } from "../api";
@@ -61,10 +61,10 @@ watch(isDetailedPath, () => {
         </div>
       </div>
 
-      <vue-jsoneditor
+      <json-editor-vue
         height="400"
         mode="tree"
-        v-model:json="editorContent"
+        v-model="editorContent"
         :darkTheme="true"
       />
 
