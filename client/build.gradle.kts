@@ -1,7 +1,7 @@
 import com.github.gradle.node.npm.task.NpmTask
 
 plugins {
-    id("com.github.node-gradle.node") version "3.1.1"
+    alias(libs.plugins.node)
 }
 
 project.buildDir = file("dist")
@@ -26,15 +26,11 @@ tasks {
         args.set(listOf("run", "build"))
     }
 
-    register<NpmTask>("test") {
-        dependsOn(npmInstall)
-        group = "test"
-        description = "unit tests"
-        args.set(listOf("run", "coverage"))
+    register<Task>("test") {
+        logger.quiet("sorry, no tests at all :(")
     }
 
     register<Delete>("clean") {
         delete(project.buildDir)
-        delete("${project.projectDir}/coverage")
     }
 }

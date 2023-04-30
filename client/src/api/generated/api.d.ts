@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
   "/api/solver/{id}/detailed-path/{status}": {
     put: operations["detailedPath"];
@@ -46,8 +45,8 @@ export interface components {
       nVehicles?: number;
       /** Format: int32 */
       capacity: number;
-      stops: (components["schemas"]["Point"])[];
-      depots: (number)[];
+      stops: components["schemas"]["Point"][];
+      depots: number[];
       /** Format: int32 */
       nlocations: number;
       /** Format: int32 */
@@ -67,13 +66,13 @@ export interface components {
     Route: {
       distance: number;
       time: number;
-      order: (components["schemas"]["Point"])[];
-      customerIds: (number)[];
+      order: components["schemas"]["Point"][];
+      customerIds: number[];
     };
     VrpSolution: {
       /** Format: int64 */
       instanceId: number;
-      routes: (components["schemas"]["Route"])[];
+      routes: components["schemas"]["Route"][];
       totalDistance: number;
       totalTime: Record<string, never>;
     };
@@ -92,7 +91,6 @@ export interface components {
 export type external = Record<string, never>;
 
 export interface operations {
-
   detailedPath: {
     parameters: {
       path: {
@@ -179,7 +177,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": (components["schemas"]["Instance"])[];
+          "application/json": components["schemas"]["Instance"][];
         };
       };
     };

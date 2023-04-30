@@ -68,6 +68,6 @@ spotless {
     kotlin {
         ktlint()
             .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
-        //        licenseHeaderFile()
+//    licenseHeaderFile()
     }
 }
