@@ -1,7 +1,7 @@
-package com.github.vrp
+package io.github.pintowar.opta.router.vrp
 
-import com.github.util.GraphWrapper
-import com.github.vrp.dist.Distance
+import io.github.pintowar.opta.router.util.GraphWrapper
+import io.github.pintowar.opta.router.vrp.dist.Distance
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle

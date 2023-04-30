@@ -1,11 +1,11 @@
-package com.github.service.impl
+package io.github.pintowar.opta.router.service.impl
 
-import com.github.service.VrpRepository
-import com.github.vrp.Instance
-import com.github.vrp.SolverState
-import com.github.vrp.VrpSolution
-import com.github.vrp.dist.Distance
-import com.github.vrp.dist.EmptyDistance
+import io.github.pintowar.opta.router.service.VrpRepository
+import io.github.pintowar.opta.router.vrp.Instance
+import io.github.pintowar.opta.router.vrp.SolverState
+import io.github.pintowar.opta.router.vrp.VrpSolution
+import io.github.pintowar.opta.router.vrp.dist.Distance
+import io.github.pintowar.opta.router.vrp.dist.EmptyDistance
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap

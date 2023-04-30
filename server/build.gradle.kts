@@ -1,6 +1,6 @@
+import com.gorylenko.GitPropertiesPluginExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.gorylenko.GitPropertiesPluginExtension
 
 plugins {
     alias(libs.plugins.spring.boot)
@@ -96,7 +96,7 @@ jib {
         }
     }
     container {
-        mainClass = "com.github.ApplicationKt"
+        mainClass = "io.github.pintowar.opta.router.ApplicationKt"
         jvmFlags = listOf("-Duser.timezone=UTC", "-Djava.security.egd=file:/dev/./urandom")
         ports = listOf("8080")
         creationTime.set("USE_CURRENT_TIMESTAMP")

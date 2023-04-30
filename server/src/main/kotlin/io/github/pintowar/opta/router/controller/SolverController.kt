@@ -1,9 +1,9 @@
-package com.github.controller
+package io.github.pintowar.opta.router.controller
 
-import com.github.service.VrpSolverService
-import com.github.vrp.Instance
-import com.github.vrp.SolverState
-import com.github.vrp.VrpSolutionState
+import io.github.pintowar.opta.router.service.VrpSolverService
+import io.github.pintowar.opta.router.vrp.Instance
+import io.github.pintowar.opta.router.vrp.SolverState
+import io.github.pintowar.opta.router.vrp.VrpSolutionState
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

@@ -1,7 +1,7 @@
-package com.github.controller
+package io.github.pintowar.opta.router.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.vrp.Instance
+import io.github.pintowar.opta.router.vrp.Instance
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType

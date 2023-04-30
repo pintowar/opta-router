@@ -45,7 +45,7 @@ This will generate a jar named `app.jar` on the `build` folder. To run the gener
 
 ## Docker
 
-A full packaged docker image can be found at Dockerhub. In order to run the sample, you have to download the belgim OSM map and add the envs config mentioned above. 
+A full packaged docker image can be found at Dockerhub. In order to run the sample, you have to download the belgim OSM map and add the envs config mentioned above.
 
 To run a working sample of opta-router image, run the following commands:
 

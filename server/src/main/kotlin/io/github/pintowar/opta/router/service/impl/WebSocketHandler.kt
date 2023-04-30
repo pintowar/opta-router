@@ -1,8 +1,8 @@
-package com.github.service.impl
+package io.github.pintowar.opta.router.service.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.service.NotificationService
-import com.github.vrp.VrpSolutionState
+import io.github.pintowar.opta.router.service.NotificationService
+import io.github.pintowar.opta.router.vrp.VrpSolutionState
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus

@@ -1,4 +1,4 @@
-package com.github.util
+package io.github.pintowar.opta.router.util
 
 import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper

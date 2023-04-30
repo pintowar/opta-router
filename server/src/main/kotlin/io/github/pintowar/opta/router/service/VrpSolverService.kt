@@ -1,12 +1,12 @@
-package com.github.service
+package io.github.pintowar.opta.router.service
 
-import com.github.util.GraphWrapper
-import com.github.vrp.Instance
-import com.github.vrp.SolverState
-import com.github.vrp.VrpSolution
-import com.github.vrp.VrpSolutionState
-import com.github.vrp.dist.PathDistance
-import com.github.vrp.toDTO
+import io.github.pintowar.opta.router.util.GraphWrapper
+import io.github.pintowar.opta.router.vrp.Instance
+import io.github.pintowar.opta.router.vrp.SolverState
+import io.github.pintowar.opta.router.vrp.VrpSolution
+import io.github.pintowar.opta.router.vrp.VrpSolutionState
+import io.github.pintowar.opta.router.vrp.dist.PathDistance
+import io.github.pintowar.opta.router.vrp.toDTO
 import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverManager

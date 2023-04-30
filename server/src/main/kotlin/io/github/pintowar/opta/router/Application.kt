@@ -1,18 +1,16 @@
-package com.github
+package io.github.pintowar.opta.router
 
-import com.github.util.GraphWrapper
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
+import io.github.pintowar.opta.router.util.GraphWrapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.util.concurrent.Executor
 
-@EnableAsync
 @SpringBootApplication
 class Application {
 
