@@ -2,10 +2,10 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.0.6"
-    id("io.spring.dependency-management") version "1.1.0"
-    kotlin("jvm") version "1.8.20"
-    kotlin("plugin.spring") version "1.8.20"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
 }
 
 java {
@@ -18,35 +18,23 @@ repositories {
     mavenCentral()
 }
 
-val optaplannerVersion = "9.37.0.Final"
-val ghVersion = "7.0"
-val kloggingVersion = "3.0.5"
-
 dependencies {
-    implementation("org.optaplanner:optaplanner-examples:$optaplannerVersion") {
+    implementation(libs.bundles.kotlin)
+    implementation(libs.bundles.spring) {
+        exclude(module = "spring-boot-starter-logging")
+    }
+    implementation(libs.springdoc.openapi)
+
+    implementation(libs.bundles.optaplanner) {
         exclude(group = "com.google.protobuf")
         exclude(group = "com.sun.xml.bind")
     }
-    implementation("org.optaplanner:optaplanner-spring-boot-starter:$optaplannerVersion")
-    implementation("com.graphhopper:graphhopper-core:$ghVersion")
+    implementation(libs.graphhopper.core)
 
-    implementation("org.springframework.boot:spring-boot-starter-websocket") {
-        exclude(module = "spring-boot-starter-logging")
-    }
-    implementation("org.springframework.boot:spring-boot-actuator")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("io.github.microutils:kotlin-logging:$kloggingVersion")
+    implementation(libs.bundles.jackson)
+    runtimeOnly(libs.slf4j)
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
-
-    implementation("com.fasterxml.jackson.core:jackson-annotations")
-    implementation("com.fasterxml.jackson.core:jackson-core")
-    implementation("com.fasterxml.jackson.core:jackson-databind")
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
-    runtimeOnly("org.slf4j:jcl-over-slf4j:2.0.7")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(libs.spring.test)
 }
 
 tasks {
