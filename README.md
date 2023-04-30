@@ -23,7 +23,7 @@ This command will run a Spring Boot application on port `8080`.
 
 To run the client module, make sure you have node and yarn installed on your system, then run on client folder:
 
-    yarn serve
+    npm run dev
 
 Point your browser to `http://localhost:3000`. This module will run on port `3000`, but will proxy remote calls to port `8080`.
 
@@ -45,8 +45,15 @@ This will generate a jar named `app.jar` on the `build` folder. To run the gener
 
 ## Docker
 
-A full packaged docker image (with belgium map) can be found at Dockerhub. To run the opta-router image:
+A full packaged docker image can be found at Dockerhub. In order to run the sample, you have to download the belgim OSM map and add the envs config mentioned above. 
 
-    docker run -p 8080:8080 pintowar/opta-router
+To run a working sample of opta-router image, run the following commands:
+
+```shell
+mkdir -p /tmp/osm/gh-tmp
+wget http://download.geofabrik.de/europe/belgium-latest.osm.pbf -P /tmp/osm
+
+docker run --rm -e GRAPH_OSM_PATH=/tmp/osm/belgium-latest.osm.pbf -e GRAPH_OSM_LOCATION=/tmp/osm/gh-tmp -v /tmp/osm:/tmp/osm -p 8080:8080 pintowar/opta-router
+```
 
 Point your browser to `http://localhost:8080`.
