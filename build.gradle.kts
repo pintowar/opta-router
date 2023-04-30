@@ -1,7 +1,10 @@
+import net.researchgate.release.ReleaseExtension
+
 plugins {
     base
     id("idea")
     alias(libs.plugins.spotless)
+    alias(libs.plugins.release)
 }
 
 allprojects {
@@ -10,6 +13,7 @@ allprojects {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -24,4 +28,15 @@ spotless {
         target("**/*.gradle.kts")
         ktlint()
     }
+}
+
+configure<ReleaseExtension> {
+    tagTemplate.set("v\$version")
+    with(git) {
+        requireBranch.set("master")
+    }
+}
+
+tasks.afterReleaseBuild {
+    dependsOn(":jib")
 }

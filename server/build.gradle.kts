@@ -1,12 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.gorylenko.GitPropertiesPluginExtension
 
 plugins {
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.git.properties)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.jib)
 }
 
 java {
@@ -16,6 +19,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -69,5 +73,32 @@ spotless {
         ktlint()
             .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
 //    licenseHeaderFile()
+    }
+}
+
+configure<GitPropertiesPluginExtension> {
+    dotGitDirectory.set(file("${project.rootDir}/.git"))
+    dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+    dateFormatTimeZone = "GMT"
+}
+
+jib {
+    val isSnapshot = "${project.version}".endsWith("-SNAPSHOT")
+    from {
+        image = "eclipse-temurin:17-jdk-alpine"
+    }
+    to {
+        image = "pintowar/${rootProject.name}"
+        tags = setOf("${project.version}") + (if (isSnapshot) setOf("snapshot") else setOf("latest"))
+        auth {
+            username = project.findProperty("docker.user")?.toString() ?: System.getenv("DOCKER_USER")
+            password = project.findProperty("docker.pass")?.toString() ?: System.getenv("DOCKER_PASS")
+        }
+    }
+    container {
+        mainClass = "com.github.ApplicationKt"
+        jvmFlags = listOf("-Duser.timezone=UTC", "-Djava.security.egd=file:/dev/./urandom")
+        ports = listOf("8080")
+        creationTime.set("USE_CURRENT_TIMESTAMP")
     }
 }
