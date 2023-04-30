@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
     id("org.springframework.boot") version "3.0.6"
@@ -72,5 +73,41 @@ tasks {
                 logger.quiet("Cli Resources: move from $origin to $dest")
             }
         }
+    }
+
+    named<BootBuildImage>("bootBuildImage") {
+        val isSnapshot = "${project.version}".endsWith("-SNAPSHOT")
+        val imgName = "pintowar/${rootProject.name}"
+        val latestTag = if (!isSnapshot) listOf("latest") else emptyList()
+        val tagNames = (listOf("${project.version}") + latestTag).map { "${imgName}:$it" }
+
+        imageName.set(imgName)
+        tags.set(tagNames)
+        verboseLogging.set(true)
+
+
+        buildpacks.set(
+            listOf(
+                "gcr.io/paketo-buildpacks/adoptium",
+                "urn:cnb:builder:paketo-buildpacks/java"
+            )
+        )
+        environment.putAll(
+            mapOf(
+                "BP_JVM_TYPE" to "JDK",
+//                "BPE_APPEND_JAVA_TOOL_OPTIONS" to "-Duser.timezone=UTC -Djava.security.egd=file:/dev/./urandom"
+//                "GRAPH_OSM_PATH" to "/opt/pbf/belgium-latest.osm.pbf",
+            )
+        )
+
+        publish.set(!isSnapshot)
+//        docker {
+//            publishRegistry {
+//                username.set()
+//                password.set()
+//                url.set()
+//                email.set()
+//            }
+//        }
     }
 }
