@@ -1,0 +1,51 @@
+[versions]
+kotlin = "1.8.20"
+kotlin-logging = "3.0.5"
+spring-boot = "3.0.6"
+spring-dependency = "1.1.0"
+spotless = "6.18.0"
+springdoc = "2.1.0"
+jackson = "2.14.2" # 2.15.0
+optaplanner = "9.37.0.Final"
+graphhopper = "7.0"
+sfl4j = "2.0.7"
+gradle-node = "3.1.1"
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency = { id = "io.spring.dependency-management", version.ref = "spring-dependency" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
+
+[libraries]
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
+
+spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring-boot" }
+spring-actuator = { module = "org.springframework.boot:spring-boot-actuator", version.ref = "spring-boot" }
+spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
+
+springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+
+optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
+optaplanner-boot = { module = "org.optaplanner:optaplanner-spring-boot-starter", version.ref = "optaplanner" }
+
+graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
+
+slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
+
+
+
+[bundles]
+kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
+spring = ["spring-websocket", "spring-actuator"]
+optaplanner = ["optaplanner-examples", "optaplanner-boot"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]

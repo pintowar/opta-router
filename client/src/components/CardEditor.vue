@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import JsonEditorVue from 'json-editor-vue'
+import JsonEditorVue from "json-editor-vue";
 import { ref, toRefs, computed, watch, watchEffect } from "vue";
 
 import { Instance, SolverState } from "../api";
@@ -12,11 +12,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'onSolve'): void,
-  (e: 'onTerminate'): void,
-  (e: 'onDestroy'): void,
-  (e: 'update:instance', val: Instance | null): void,
-  (e: 'update:solverState', val: SolverState | null): void
+  (e: "onSolve"): void;
+  (e: "onTerminate"): void;
+  (e: "onDestroy"): void;
+  (e: "update:instance", val: Instance | null): void;
+  (e: "update:solverState", val: SolverState | null): void;
 }>();
 
 const { instance, solverState, isWsConnected, extraClass } = toRefs(props);
@@ -26,7 +26,7 @@ const editorSolverState = ref<SolverState | null>(solverState.value);
 const isDetailedPath = ref<boolean>(solverState.value?.detailedPath || false);
 
 const classNames = computed(() => `card bg-base-200 shadow-xl ${extraClass.value}`);
-const badgeColor = computed(() => `badge-${isWsConnected ? 'success' : 'error'}`)
+const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
 
 watchEffect(() => {
   emit("update:instance", editorContent.value);
@@ -38,17 +38,16 @@ watch(isDetailedPath, () => {
 
   emit("update:solverState", newSolverState);
 });
-
 </script>
 
 <template>
   <div :class="classNames">
     <div class="card-body">
       <h2 class="card-title">Route Definition</h2>
-      
+
       <div class="form-control flex flex-row space-x-2">
-        <span class="label-text">Show Detailed Path</span> 
-        <input type="checkbox" class="toggle" v-model="isDetailedPath" />
+        <span class="label-text">Show Detailed Path</span>
+        <input v-model="isDetailedPath" type="checkbox" class="toggle" />
         <div class="grow align-middle">
           <div class="flex justify-end space-x-2">
             <div>
@@ -61,17 +60,12 @@ watch(isDetailedPath, () => {
         </div>
       </div>
 
-      <json-editor-vue
-        height="400"
-        mode="tree"
-        v-model="editorContent"
-        :darkTheme="true"
-      />
+      <json-editor-vue v-model="editorContent" mode="tree" />
 
       <div class="card-actions">
-        <button @click="$emit('onSolve')" class="btn btn-success">Solve</button>
-        <button @click="$emit('onTerminate')" class="btn btn-warning">Terminate</button>
-        <button @click="$emit('onDestroy')" class="btn btn-error">Destroy</button>
+        <button class="btn btn-success" @click="$emit('onSolve')">Solve</button>
+        <button class="btn btn-warning" @click="$emit('onTerminate')">Terminate</button>
+        <button class="btn btn-error" @click="$emit('onDestroy')">Destroy</button>
       </div>
     </div>
   </div>

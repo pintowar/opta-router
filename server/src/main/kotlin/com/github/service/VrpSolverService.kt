@@ -1,8 +1,12 @@
 package com.github.service
 
 import com.github.util.GraphWrapper
-import com.github.vrp.*
+import com.github.vrp.Instance
+import com.github.vrp.SolverState
+import com.github.vrp.VrpSolution
+import com.github.vrp.VrpSolutionState
 import com.github.vrp.dist.PathDistance
+import com.github.vrp.toDTO
 import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverManager
@@ -60,10 +64,12 @@ class VrpSolverService(
     }
 
     fun showStatus(instanceId: Long): String =
-        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING)
+        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING) {
             vrpRepository.currentState(instanceId)?.status
                 ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
-        else solverManager.getSolverStatus(instanceId).name
+        } else {
+            solverManager.getSolverStatus(instanceId).name
+        }
 
     fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
 
@@ -106,7 +112,6 @@ class VrpSolverService(
                 }
             )
         }
-
     }
 
     fun terminateEarly(instanceId: Long): Boolean {
@@ -115,7 +120,9 @@ class VrpSolverService(
             vrpRepository.updateStatus(instanceId, terminated)
             broadcastSolution(instanceId)
             true
-        } else false
+        } else {
+            false
+        }
     }
 
     /**
@@ -130,5 +137,4 @@ class VrpSolverService(
             vrpRepository.removeSolution(instanceId)
         }
     }
-
 }

@@ -68,7 +68,10 @@ class PathDistance(private val locations: List<Pair<Double, Double>>, graph: Gra
  * @param locations list of points.
  * @param avgSpeed average speed o calculate the time between points.
  */
-class EuclideanDistance(private val locations: List<Pair<Double, Double>>, private val avgSpeed: Double = 60.0) : Distance {
+class EuclideanDistance(
+    private val locations: List<Pair<Double, Double>>,
+    private val avgSpeed: Double = 60.0
+) : Distance {
     private val n = this.locations.size
     private val distMatrixSize = n * (n - 1) / 2
     private val distMatrix = createDistMatrix()
@@ -101,12 +104,13 @@ class EuclideanDistance(private val locations: List<Pair<Double, Double>>, priva
      * @return
      */
     override fun distance(i: Int, j: Int): Double {
-        return if (i == j)
+        return if (i == j) {
             0.0
-        else if (i < j)
+        } else if (i < j) {
             distMatrix[calcIdx(i, j)]
-        else
+        } else {
             distMatrix[calcIdx(j, i)]
+        }
     }
 
     /**

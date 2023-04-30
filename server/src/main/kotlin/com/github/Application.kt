@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.util.concurrent.Executor
 
-
 @EnableAsync
 @SpringBootApplication
 class Application {
@@ -21,8 +20,10 @@ class Application {
      * The creation of the Graphhopper Wrapper.
      */
     @Bean
-    fun graphHopper(@Value("\${app.graph.osm.path}") path: String,
-                    @Value("\${app.graph.osm.location}") location: String): GraphWrapper {
+    fun graphHopper(
+        @Value("\${app.graph.osm.path}") path: String,
+        @Value("\${app.graph.osm.location}") location: String
+    ): GraphWrapper {
 //        val em = EncodingManager.start().add(VehicleEncodedValues.car(PMap())).build()
         val profs = listOf("shortest").map {
             Profile("car_$it").apply {
@@ -44,7 +45,6 @@ class Application {
         return GraphWrapper(gh.importOrLoad())
     }
 
-
     /**
      * The creation of the Thread Pool Task Executor, to run the optimization process in background.
      * @see com.github.opta.VehicleRoutingSolverService
@@ -59,7 +59,6 @@ class Application {
         executor.initialize()
         return executor
     }
-
 }
 
 fun main(args: Array<String>) {
