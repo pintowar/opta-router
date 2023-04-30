@@ -2,20 +2,21 @@
 import { useRoute } from 'vue-router'
 import { ref, onBeforeUnmount, watchEffect } from 'vue';
 
-import { Instance, VrpSolution } from "../api";
-import { solve, terminate, destroy, detailedPath, getInstance } from "../api";
+import { Instance, SolverState, VrpSolution } from "../api";
+import { solve, terminate, destroy, detailedPath, getInstance, getSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 
 const route = useRoute();
-const webCli = creatWSCli();
 
 const instance = ref<Instance | null>(await getInstance(+route.params.id));
-const solution = ref<VrpSolution | null>(null);
-const isPathDetailed = ref<boolean>(false);
-const isWsConnected = ref<boolean>(false);
 
-const solverStatus = ref<string>("");
+const solutionState = await getSolutionState(+route.params.id);
+const solverState = ref<SolverState | null>(solutionState?.state || null);
+const solution = ref<VrpSolution | null>(solutionState?.solution || null);
+
+const isWsConnected = ref<boolean>(false);
+const webCli = creatWSCli();
 
 onBeforeUnmount(() => {
   webCli.close()
@@ -23,8 +24,11 @@ onBeforeUnmount(() => {
 
 watchEffect(async () => {
   if (instance.value) {
-    await detailedPath(instance.value?.id, isPathDetailed.value)
-  }
+    console.log("zaz", solverState.value);
+    const state = await detailedPath(instance.value?.id, solverState.value?.detailedPath || false)
+    if (solverState.value)
+      solverState.value.detailedPath = state?.detailedPath || false;
+    }
 });
 
 function creatWSCli() {
@@ -32,8 +36,8 @@ function creatWSCli() {
   cli.onopen = () => isWsConnected.value = true
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
-    solution.value = payload.solution as VrpSolution;
-    solverStatus.value = payload.state.status as string;
+    solution.value = payload.solution;
+    solverState.value = payload.state;
   };
   cli.onclose = () => isWsConnected.value = true
 
@@ -42,34 +46,46 @@ function creatWSCli() {
 
 async function solveAction() {
   if (instance.value !== null) {
-    const { status } = await solve(instance.value)
-    solverStatus.value = status;
+    const state = await solve(instance.value)
+    if (solverState.value) {
+      solverState.value = state;
+    } else {
+      solverState.value = { status: "", detailedPath: false }
+    }
   }
 }
 
 async function terminateAction() {
   if (instance.value) {
-    const { status } = await terminate(instance.value.id)
-    solverStatus.value = status;
+    const state = await terminate(instance.value.id)
+    if (solverState.value) {
+      console.log(state)
+      solverState.value = state;
+    } else {
+      solverState.value = { status: "", detailedPath: false }
+    }
   }
 }
 
 async function destroyAction() {
   if (instance.value) {
-    const { status } = await destroy(instance.value.id)
-    solverStatus.value = status;
+    const state = await destroy(instance.value.id)
+    if (solverState.value) {
+      solverState.value = state;
+    } else {
+      solverState.value = { status: "", detailedPath: false }
+    }
   }
 }
-
 </script>
 
 <template>
   <div class="grid grid-cols-2 gap-4 px-4 py-4">
     <CardEditor 
       v-model:instance="instance"
-      v-model:detailed="isPathDetailed"
+      v-model:solver-state="solverState"
       :is-ws-connected="isWsConnected"
-      :solver-status="solverStatus" 
+      
       extra-class="" 
       @on-solve="solveAction"
       @on-terminate="terminateAction"

@@ -3,7 +3,7 @@ package com.github.service.impl
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.service.NotificationService
 import com.github.vrp.VrpSolutionState
-import mu.KLogging
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -13,11 +13,10 @@ import org.springframework.web.util.UriTemplate
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
+private val logger = KotlinLogging.logger {}
 
 @Component
 class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(), NotificationService {
-
-    companion object : KLogging()
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
 

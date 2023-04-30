@@ -4,11 +4,13 @@ import com.github.util.GraphWrapper
 import com.github.vrp.*
 import com.github.vrp.dist.PathDistance
 import jakarta.annotation.PreDestroy
-import mu.KLogging
+import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverManager
 import org.optaplanner.core.api.solver.SolverStatus
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.stereotype.Service
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions
@@ -19,13 +21,11 @@ import org.springframework.stereotype.Service
  */
 @Service
 class VrpSolverService(
-        val graph: GraphWrapper,
-        val solverManager: SolverManager<VehicleRoutingSolution, Long>,
-        val vrpRepository: VrpRepository,
-        val notificationService: NotificationService
+    val graph: GraphWrapper,
+    val solverManager: SolverManager<VehicleRoutingSolution, Long>,
+    val vrpRepository: VrpRepository,
+    val notificationService: NotificationService
 ) {
-
-    companion object : KLogging()
 
     private val calculatingDistances = "calculating distances"
     private val distancesCalculated = "distances calculated"
@@ -38,8 +38,8 @@ class VrpSolverService(
     @PreDestroy
     fun destroy() {
         vrpRepository
-                .listAllSolutionIds()
-                .forEach(solverManager::terminateEarly)
+            .listAllSolutionIds()
+            .forEach(solverManager::terminateEarly)
     }
 
     fun wrapperForInstance(solution: VehicleRoutingSolution): VrpSolution {
@@ -48,22 +48,24 @@ class VrpSolverService(
     }
 
     fun broadcastSolution(instanceId: Long) {
-        vrpRepository.currentSolution(instanceId)?.let { solution ->
+        currentSolutionState(instanceId)
+            ?.let(notificationService::broadcastSolution)
+    }
+
+    fun currentSolutionState(instanceId: Long): VrpSolutionState? {
+        return vrpRepository.currentSolution(instanceId)?.let { solution ->
             val currentState = vrpRepository.currentState(instanceId)!!
-            notificationService.broadcastSolution(
-                    VrpSolutionState(
-                            solution,
-                            currentState
-                    )
-            )
+            VrpSolutionState(solution, currentState)
         }
     }
 
     fun showStatus(instanceId: Long): String =
-            if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING)
-                vrpRepository.currentState(instanceId)?.status
-                        ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
-            else solverManager.getSolverStatus(instanceId).name
+        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING)
+            vrpRepository.currentState(instanceId)?.status
+                ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
+        else solverManager.getSolverStatus(instanceId).name
+
+    fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
 
     fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         vrpRepository.updateDetailedView(instanceId, enabled)
@@ -83,26 +85,25 @@ class VrpSolverService(
         vrpRepository.updateSolution(wrapperForInstance(solution), distancesCalculated, pathDistance)
         broadcastSolution(instance.id)
         return solution
-
     }
 
     fun asyncSolve(instance: Instance) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
             val solution = retrieveOrCreateSolution(instance)
             solverManager.solveAndListen(
-                    solution.id,
-                    { it: Long -> if (it == solution.id) solution else null },
-                    { sol: VehicleRoutingSolution ->
-                        vrpRepository.updateSolution(wrapperForInstance(sol), running)
-                        broadcastSolution(instance.id)
-                    },
-                    { sol: VehicleRoutingSolution ->
-                        vrpRepository.updateSolution(wrapperForInstance(sol), terminated)
-                        broadcastSolution(instance.id)
-                    },
-                    { it: Long, exp: Throwable ->
-                        logger.warn(exp) { "Problem while solving problemId $it! ${exp.message}" }
-                    }
+                solution.id,
+                { it: Long -> if (it == solution.id) solution else null },
+                { sol: VehicleRoutingSolution ->
+                    vrpRepository.updateSolution(wrapperForInstance(sol), running)
+                    broadcastSolution(instance.id)
+                },
+                { sol: VehicleRoutingSolution ->
+                    vrpRepository.updateSolution(wrapperForInstance(sol), terminated)
+                    broadcastSolution(instance.id)
+                },
+                { it: Long, exp: Throwable ->
+                    logger.warn(exp) { "Problem while solving problemId $it! ${exp.message}" }
+                }
             )
         }
 

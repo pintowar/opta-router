@@ -14,14 +14,17 @@ export interface paths {
   "/api/solver/{id}/terminate": {
     get: operations["terminateEarly"];
   };
+  "/api/solver/{id}/solution-state": {
+    get: operations["solutionState"];
+  };
   "/api/solver/{id}/clean": {
     get: operations["clean"];
   };
+  "/api/instances": {
+    get: operations["index"];
+  };
   "/api/instances/{id}/show": {
     get: operations["show"];
-  };
-  "/api/instances/": {
-    get: operations["index"];
   };
 }
 
@@ -60,6 +63,23 @@ export interface components {
       name: string;
       /** Format: int32 */
       demand: number;
+    };
+    Route: {
+      distance: number;
+      time: number;
+      order: (components["schemas"]["Point"])[];
+      customerIds: (number)[];
+    };
+    VrpSolution: {
+      /** Format: int64 */
+      instanceId: number;
+      routes: (components["schemas"]["Route"])[];
+      totalDistance: number;
+      totalTime: Record<string, never>;
+    };
+    VrpSolutionState: {
+      solution: components["schemas"]["VrpSolution"];
+      state: components["schemas"]["SolverState"];
     };
   };
   responses: never;
@@ -124,6 +144,21 @@ export interface operations {
       };
     };
   };
+  solutionState: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VrpSolutionState"];
+        };
+      };
+    };
+  };
   clean: {
     parameters: {
       path: {
@@ -139,6 +174,16 @@ export interface operations {
       };
     };
   };
+  index: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": (components["schemas"]["Instance"])[];
+        };
+      };
+    };
+  };
   show: {
     parameters: {
       path: {
@@ -150,16 +195,6 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["Instance"];
-        };
-      };
-    };
-  };
-  index: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": (components["schemas"]["Instance"])[];
         };
       };
     };

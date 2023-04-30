@@ -27,7 +27,7 @@ repositories {
 
 val optaplannerVersion = "9.37.0.Final"
 val ghVersion = "7.0"
-val kloggingVersion = "1.5.9"
+val kloggingVersion = "3.0.5"
 
 dependencies {
     implementation("org.optaplanner:optaplanner-examples:$optaplannerVersion") {
@@ -35,15 +35,13 @@ dependencies {
         exclude(group = "com.sun.xml.bind")
     }
     implementation("org.optaplanner:optaplanner-spring-boot-starter:$optaplannerVersion")
-
-
     implementation("com.graphhopper:graphhopper-core:$ghVersion")
 
     implementation("org.springframework.boot:spring-boot-starter-websocket") {
         exclude(module = "spring-boot-starter-logging")
     }
     implementation("org.springframework.boot:spring-boot-actuator")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("io.github.microutils:kotlin-logging:$kloggingVersion")
 
@@ -52,10 +50,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-annotations")
     implementation("com.fasterxml.jackson.core:jackson-core")
     implementation("com.fasterxml.jackson.core:jackson-databind")
-//    runtime "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"
-//    runtime "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
-    runtimeOnly("org.slf4j:jcl-over-slf4j:1.7.25")
+    runtimeOnly("org.slf4j:jcl-over-slf4j:2.0.7")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
