@@ -1,5 +1,7 @@
 package io.github.pintowar.opta.router.service
 
+import io.github.pintowar.opta.router.repository.InstanceRepository
+import io.github.pintowar.opta.router.repository.VrpRepository
 import io.github.pintowar.opta.router.util.GraphWrapper
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
@@ -28,9 +30,11 @@ class VrpSolverService(
     val graph: GraphWrapper,
     val solverManager: SolverManager<VehicleRoutingSolution, Long>,
     val vrpRepository: VrpRepository,
+    val instanceRepository: InstanceRepository,
     val notificationService: NotificationService
 ) {
 
+    private val notSolved = "not solved"
     private val calculatingDistances = "calculating distances"
     private val distancesCalculated = "distances calculated"
     private val running = "running"
@@ -56,20 +60,30 @@ class VrpSolverService(
             ?.let(notificationService::broadcastSolution)
     }
 
+    fun retrieveOrCreateSolution(instance: Instance): VrpSolution {
+        val current = vrpRepository.currentSolution(instance.id)
+        return if (current != null) current else {
+            vrpRepository.createSolution(instance, SolverState(notSolved))
+            vrpRepository.currentSolution(instance.id)!!
+        }
+    }
+
     fun currentSolutionState(instanceId: Long): VrpSolutionState? {
-        return vrpRepository.currentSolution(instanceId)?.let { solution ->
+        val instance = instanceRepository.getById(instanceId) ?: return null
+
+        return retrieveOrCreateSolution(instance).let { solution ->
             val currentState = vrpRepository.currentState(instanceId)!!
             VrpSolutionState(solution, currentState)
         }
     }
 
-    fun showStatus(instanceId: Long): String =
-        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING) {
-            vrpRepository.currentState(instanceId)?.status
-                ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
-        } else {
-            solverManager.getSolverStatus(instanceId).name
-        }
+//    fun showStatus(instanceId: Long): String =
+//        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING) {
+//            vrpRepository.currentState(instanceId)?.status
+//                ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
+//        } else {
+//            solverManager.getSolverStatus(instanceId).name
+//        }
 
     fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
 
@@ -77,7 +91,7 @@ class VrpSolverService(
         vrpRepository.updateDetailedView(instanceId, enabled)
     }
 
-    fun retrieveOrCreateSolution(instance: Instance): VehicleRoutingSolution {
+    fun calculateDistanceMatrix(instance: Instance): VehicleRoutingSolution {
         val current = vrpRepository.currentSolverSolution(instance.id)
         if (current != null) return current
 
@@ -95,7 +109,7 @@ class VrpSolverService(
 
     fun asyncSolve(instance: Instance) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
-            val solution = retrieveOrCreateSolution(instance)
+            val solution = calculateDistanceMatrix(instance)
             solverManager.solveAndListen(
                 solution.id,
                 { it: Long -> if (it == solution.id) solution else null },

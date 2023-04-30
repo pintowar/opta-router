@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.service
+package io.github.pintowar.opta.router.repository
 
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState

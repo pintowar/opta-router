@@ -52,9 +52,7 @@ class SolverController(val solver: VrpSolverService) {
     @GetMapping("{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.clean(id)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(SolverState("not solved", false))
     }
 
     @GetMapping("{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])

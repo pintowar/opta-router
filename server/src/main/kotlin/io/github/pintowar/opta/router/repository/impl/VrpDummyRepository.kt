@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 @Component
-class VrpRepositoryDummy : VrpRepository {
+class VrpDummyRepository : VrpRepository {
 
     private val solutionIdMap: ConcurrentMap<Long, PersistenceUnit> = ConcurrentHashMap()
 

@@ -90,6 +90,8 @@ data class VrpSolution(val instanceId: Long, val routes: List<Route>) {
         fun emptyFromInstanceId(instanceId: Long) = VrpSolution(instanceId, emptyList())
     }
 
+    fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
+
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
