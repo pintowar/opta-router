@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import JsonEditorVue from "json-editor-vue";
-import { ref, toRefs, computed, watch, watchEffect } from "vue";
+import { toRefs, computed } from "vue";
 
 import { Instance } from "../api";
 
@@ -21,18 +21,17 @@ const emit = defineEmits<{
 
 const { instance, status, isDetailedPath, isWsConnected } = toRefs(props);
 
-const editorContent = ref<Instance | null>(instance.value);
-const editorDetailedPath = ref<boolean>(isDetailedPath.value);
+const editorContent = computed({
+  get: () => instance.value,
+  set: (val) => emit("update:instance", val),
+});
+
+const editorDetailedPath = computed({
+  get: () => isDetailedPath.value,
+  set: (val) => emit("update:isDetailedPath", val),
+});
 
 const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
-
-watchEffect(() => {
-  emit("update:instance", editorContent.value);
-});
-
-watchEffect(() => {
-  emit("update:isDetailedPath", editorDetailedPath.value);
-});
 </script>
 
 <template>
@@ -55,7 +54,7 @@ watchEffect(() => {
         </div>
       </div>
 
-      <json-editor-vue v-model="editorContent" mode="tree" class="jse-theme-dark"/>
+      <json-editor-vue v-model="editorContent" mode="tree" class="jse-theme-dark" />
 
       <div class="card-actions">
         <button class="btn btn-success" @click="$emit('onSolve')">Solve</button>
