@@ -8,6 +8,7 @@ const props = defineProps<{
   extraClass: string;
   instance: Instance | null;
   detailed: boolean;
+  isWsConnected: boolean;
   solverStatus: string;
 }>();
 
@@ -19,7 +20,7 @@ const emit = defineEmits<{
   (e: 'update:detailed', val: boolean): void
 }>();
 
-const { instance, detailed, solverStatus, extraClass } = toRefs(props);
+const { instance, detailed, isWsConnected, solverStatus, extraClass } = toRefs(props);
 
 const editorContent = ref<Instance | null>(instance.value);
 const editorDetailed = ref<boolean>(detailed.value);
@@ -42,12 +43,23 @@ watchEffect(() => {
         <h2 class="card-title">Route Definition</h2>
         
         <div class="flex space-x-2">
-          <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
+          
         </div>
 
-        <div class="form-control flex-row space-x-2">
+        <div class="form-control flex flex-row space-x-2">
           <span class="label-text">Show Detailed Path</span> 
           <input type="checkbox" class="toggle" v-model="editorDetailed" />
+          <div class="grow align-middle">
+            <div class="flex justify-end space-x-2">
+              <div>
+                <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
+              </div>
+              <div class="tooltip" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
+                <div :class="`badge badge-${isWsConnected ? 'success' : 'error'}`">WS</div>
+              </div>
+            </div>
+            
+          </div>
         </div>
 
         <vue-jsoneditor

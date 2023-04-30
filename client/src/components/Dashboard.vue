@@ -13,6 +13,7 @@ const webCli = creatWSCli();
 const instance = ref<Instance | null>(await getInstance(+route.params.id));
 const solution = ref<VrpSolution | null>(null);
 const isPathDetailed = ref<boolean>(false);
+const isWsConnected = ref<boolean>(false);
 
 const solverStatus = ref<string>("");
 
@@ -28,13 +29,13 @@ watchEffect(async () => {
 
 function creatWSCli() {
   const cli = new WebSocket(`ws://${location.host}/ws/solution-state/${route.params.id}`)
-  cli.onopen = () => console.info("Connected to the web socket")
+  cli.onopen = () => isWsConnected.value = true
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution as VrpSolution;
     solverStatus.value = payload.state.status as string;
   };
-  cli.onclose = () => console.info("Disconnected from the web socket")
+  cli.onclose = () => isWsConnected.value = true
 
   return cli;
 }
@@ -67,6 +68,7 @@ async function destroyAction() {
     <CardEditor 
       v-model:instance="instance"
       v-model:detailed="isPathDetailed"
+      :is-ws-connected="isWsConnected"
       :solver-status="solverStatus" 
       extra-class="" 
       @on-solve="solveAction"
