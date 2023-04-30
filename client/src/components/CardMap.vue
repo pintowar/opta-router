@@ -81,7 +81,7 @@ watchEffect(() => {
             :lat-lngs="item.points"
             :visible="item.visible"
             :color="item.color"
-            :fillOpacity="item.opacity"
+            :fill-opacity="item.opacity"
           >
             <l-popup :content="item.content" />
           </l-polyline>

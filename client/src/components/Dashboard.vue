@@ -78,7 +78,7 @@ async function destroyAction() {
 
 <template>
   <div class="grid grid-cols-2 gap-4 px-4 py-4">
-    <CardEditor
+    <card-editor
       v-model:instance="instance"
       v-model:solver-state="solverState"
       :is-ws-connected="isWsConnected"
@@ -88,6 +88,6 @@ async function destroyAction() {
       @on-destroy="destroyAction"
     />
 
-    <CardMap :instance="instance" :solution="solution" extra-class="" />
+    <card-map :instance="instance" :solution="solution" extra-class="" />
   </div>
 </template>

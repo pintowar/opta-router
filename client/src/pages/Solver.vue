@@ -6,7 +6,7 @@ import Dashboard from "../components/Dashboard.vue";
   <suspense>
     <template #default>
       <main>
-        <Dashboard />
+        <dashboard />
       </main>
     </template>
     <template #fallback>

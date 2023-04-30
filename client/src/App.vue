@@ -2,8 +2,6 @@
 import { themeChange } from "theme-change";
 import { ref, onMounted } from "vue";
 
-import { svg } from "leaflet";
-
 const themes = ["black", "cupcake", "dark", "dracula", "light", "pastel"];
 const selectedTheme = ref(themes[0]);
 
@@ -33,31 +31,11 @@ onMounted(() => themeChange(true));
         </svg>
       </a>
       <select v-model="selectedTheme" class="select w-full max-w-xs" data-choose-theme>
-        <option v-for="theme in themes" :value="theme">{{ theme }}</option>
+        <option v-for="theme in themes" :key="theme" :value="theme">{{ theme }}</option>
       </select>
     </div>
   </header>
 
-  <!-- <router-view v-slot="{ Component }">
-    <template v-if="Component">
-      <transition name="fade">
-        <keep-alive>
-          <suspense>
-            <template #default>
-              <component :is="Component" />
-            </template>
-            <template #fallback>
-              <main class="flex items-center justify-center h-full">
-                  <div class="mt-32">
-                      <button class="btn btn-ghost loading">Loading</button>
-                  </div>
-              </main>
-            </template>
-          </suspense>
-        </keep-alive>
-      </transition>
-    </template>
-  </router-view> -->
   <router-view></router-view>
 
   <footer class="footer items-center p-4 bg-neutral text-neutral-content fixed bottom-0">
