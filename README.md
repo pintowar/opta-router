@@ -7,6 +7,17 @@ The `GRAPH_OSM_LOCATION` Env must point to a temporary folder, in order to Graph
 
 Both Envs can be customized on the `application.yml` file.
 
+## Screenshots
+
+Portfolio List
+
+![image](https://user-images.githubusercontent.com/354264/235455148-886a25ab-78b3-4e3e-afbb-54fae311dff7.png)
+
+Solver View
+
+![image](https://user-images.githubusercontent.com/354264/235455414-ea1df27b-66eb-485c-be52-8a9caccb3c25.png)
+
+
 ## Run in development mode
 
 This project is divided in 2 sub modules:
