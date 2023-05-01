@@ -1,5 +1,10 @@
 # Opta Router Boot
 
+![master status](https://github.com/pintowar/opta-router/actions/workflows/master.yml/badge.svg?branch=master)
+
+![GitHub tag (latest)](https://img.shields.io/github/v/tag/pintowar/opta-router)
+![GitHub license](https://img.shields.io/github/license/pintowar/opta-router)
+
 Sample VRP Application using Kotlin + Optaplanner + Graphhopper + Spring Boot + Websockets
 
 This sample application uses the belgium map to calculate distances between points. The map can be found on this [link](http://download.geofabrik.de/europe/belgium-latest.osm.pbf). Download it and point the Env `GRAPH_OSM_PATH` to it's path, in order to run the application.
