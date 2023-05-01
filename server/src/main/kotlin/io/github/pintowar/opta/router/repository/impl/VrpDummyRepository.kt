@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.repository.VrpRepository
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
-import io.github.pintowar.opta.router.vrp.matrix.Matrix
 import io.github.pintowar.opta.router.vrp.matrix.EmptyMatrix
+import io.github.pintowar.opta.router.vrp.matrix.Matrix
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap

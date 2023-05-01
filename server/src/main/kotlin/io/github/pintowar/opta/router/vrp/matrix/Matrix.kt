@@ -8,4 +8,3 @@ interface Matrix {
 
     fun time(i: Int, j: Int): Double
 }
-
