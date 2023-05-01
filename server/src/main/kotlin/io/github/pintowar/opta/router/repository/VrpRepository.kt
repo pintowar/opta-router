@@ -17,6 +17,8 @@ interface VrpRepository {
 
     fun updateDetailedView(instanceId: Long, showDetailedView: Boolean)
 
+    fun currentInstance(instanceId: Long): Instance?
+
     fun currentSolution(instanceId: Long): VrpSolution?
 
     fun currentDistance(instanceId: Long): Distance?

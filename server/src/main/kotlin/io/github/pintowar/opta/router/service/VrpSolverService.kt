@@ -84,8 +84,15 @@ class VrpSolverService(
     fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         vrpRepository.updateDetailedView(instanceId, enabled)
 
-//        vrpRepository.updateSolution(wrapperForInstance(sol), running)
-//        broadcastSolution(instanceId)
+        val sol = vrpRepository.currentInstance(instanceId)?.let { instance ->
+            toSolverSolution(instance, vrpRepository.currentSolution(instanceId)!!)
+        }
+        val currentStatus = vrpRepository.currentState(instanceId)?.status
+
+        if (sol != null && currentStatus != null) {
+            vrpRepository.updateSolution(wrapperForInstance(sol), currentStatus)
+            broadcastSolution(instanceId)
+        }
     }
 
     fun toSolverSolution(instance: Instance, solution: VrpSolution): VehicleRoutingSolution {

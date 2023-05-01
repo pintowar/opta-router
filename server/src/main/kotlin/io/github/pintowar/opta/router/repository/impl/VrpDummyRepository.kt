@@ -48,6 +48,10 @@ class VrpDummyRepository : VrpRepository {
         }
     }
 
+    override fun currentInstance(instanceId: Long): Instance? {
+        return solutionIdMap[instanceId]?.instance
+    }
+
     override fun currentSolution(instanceId: Long): VrpSolution? {
         return solutionIdMap[instanceId]?.vrpSolution
     }
