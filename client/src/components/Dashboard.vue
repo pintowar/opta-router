@@ -3,7 +3,7 @@ import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
 import { Instance, VrpSolution } from "../api";
-import { solve, terminate, destroy, detailedPath, getInstance, getSolutionState } from "../api";
+import { solve, terminate, clean, detailedPath, getInstance, getSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 
@@ -27,11 +27,6 @@ watch(isDetailedPath, async () => {
   if (instance.value) {
     const state = await detailedPath(instance.value?.id, isDetailedPath.value || false);
     isDetailedPath.value = state?.detailedPath || false;
-
-    const newSolution = await getSolutionState(+route.params.id);
-    if (newSolution?.solution) {
-      solution.value = newSolution?.solution;
-    }
   }
 });
 
@@ -64,9 +59,9 @@ async function terminateAction() {
   }
 }
 
-async function destroyAction() {
+async function cleanAction() {
   if (instance.value) {
-    const state = await destroy(instance.value.id);
+    const state = await clean(instance.value.id);
     status.value = state?.status || null;
     isDetailedPath.value = state?.detailedPath || false;
   }
@@ -82,7 +77,7 @@ async function destroyAction() {
       :is-ws-connected="isWsConnected"
       @on-solve="solveAction"
       @on-terminate="terminateAction"
-      @on-destroy="destroyAction"
+      @on-destroy="cleanAction"
     />
 
     <card-map :instance="instance" :solution="solution" />

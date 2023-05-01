@@ -73,10 +73,10 @@ async function terminate(id: number): Promise<SolverState | null> {
   }
 }
 
-async function destroy(id: number): Promise<SolverState | null> {
+async function clean(id: number): Promise<SolverState | null> {
   try {
     const { data, status } = await axios.get<SolverState>(`/api/solver/${id}/clean`, defaultHeaders);
-    return status === 200 ? data : Promise.reject("Failed to destroy actual solution");
+    return status === 200 ? data : Promise.reject("Failed to clear actual solution");
   } catch (e) {
     return Promise.resolve(null);
   }
@@ -84,4 +84,4 @@ async function destroy(id: number): Promise<SolverState | null> {
 
 export type { Instance, SolverState, VrpSolution, VrpSolutionState };
 
-export { getInstances, getInstance, solve, terminate, destroy, detailedPath, getSolutionState };
+export { getInstances, getInstance, solve, terminate, clean, detailedPath, getSolutionState };
