@@ -25,17 +25,25 @@ class InstanceDummyRepository(private val mapper: ObjectMapper) : InstanceReposi
 
     private fun readInstances(resource: Resource): List<Instance> {
         val sample = mapper.readValue(resource.getContentAsString(StandardCharsets.UTF_8), Instance::class.java)
-        val subSamples = sample.stops.windowed(10, 10).mapIndexed { idx, it ->
-            Instance(
-                id = sample.id + 1 + idx,
-                name = "sub-sample-${1 + idx}",
-                capacity = sample.capacity / 5,
-                depots = listOf(0L, 0L),
-                nVehicles = 2,
-                nLocations = 10,
-                stops = it
-            )
-        }
+
+        val subSamples = listOf(2, 5)
+            .flatMapIndexed { i, splitBy ->
+                val stopSamples = sample.stops.windowed(sample.stops.size / splitBy, sample.stops.size / splitBy)
+
+                stopSamples.mapIndexed { j, stop ->
+                    val baseIdx = i * stopSamples.size
+                    Instance(
+                        id = baseIdx + sample.id + 1 + j,
+                        name = "sub-sample-${baseIdx + 1 + j}",
+                        capacity = sample.capacity / splitBy,
+                        depots = List(sample.depots.size / splitBy) { 0 },
+                        nVehicles = sample.nVehicles / splitBy,
+                        nLocations = sample.nLocations / splitBy,
+                        stops = stop
+                    )
+                }
+            }
+
         return listOf(sample) + subSamples
     }
 }

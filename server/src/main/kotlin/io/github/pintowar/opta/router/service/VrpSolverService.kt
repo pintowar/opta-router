@@ -83,6 +83,9 @@ class VrpSolverService(
 
     fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         vrpRepository.updateDetailedView(instanceId, enabled)
+
+//        vrpRepository.updateSolution(wrapperForInstance(sol), running)
+//        broadcastSolution(instanceId)
     }
 
     fun toSolverSolution(instance: Instance, solution: VrpSolution): VehicleRoutingSolution {
@@ -153,8 +156,8 @@ class VrpSolverService(
             solverManager.terminateEarly(instanceId)
             vrpRepository.updateStatus(instanceId, notSolved)
             vrpRepository.updateDetailedView(instanceId, false)
-            broadcastSolution(instanceId)
             vrpRepository.clearSolution(instanceId)
+            broadcastSolution(instanceId)
         }
     }
 }
