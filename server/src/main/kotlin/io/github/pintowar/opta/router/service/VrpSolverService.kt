@@ -7,7 +7,7 @@ import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
 import io.github.pintowar.opta.router.vrp.VrpSolutionState
-import io.github.pintowar.opta.router.vrp.dist.PathDistance
+import io.github.pintowar.opta.router.vrp.matrix.PathMatrix
 import io.github.pintowar.opta.router.vrp.toDTO
 import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
@@ -108,7 +108,7 @@ class VrpSolverService(
         broadcastSolution(instance.id)
 
         val points = instance.stops.map { it.toPair() }
-        val pathDistance = PathDistance(points, graph)
+        val pathDistance = PathMatrix(points, graph)
         val solution = instance.toSolution(pathDistance)
 
         vrpRepository.updateSolution(wrapperForInstance(solution), distancesCalculated, pathDistance)

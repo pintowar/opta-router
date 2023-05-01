@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router
+package io.github.pintowar.opta.router.config
 
 import io.github.pintowar.opta.router.service.impl.WebSocketHandler
 import org.springframework.context.annotation.Configuration

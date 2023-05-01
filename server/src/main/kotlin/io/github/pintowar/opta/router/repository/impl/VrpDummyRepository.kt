@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.repository.VrpRepository
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
-import io.github.pintowar.opta.router.vrp.dist.Distance
-import io.github.pintowar.opta.router.vrp.dist.EmptyDistance
+import io.github.pintowar.opta.router.vrp.matrix.Matrix
+import io.github.pintowar.opta.router.vrp.matrix.EmptyMatrix
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -19,15 +19,15 @@ class VrpDummyRepository : VrpRepository {
 
     override fun createSolution(instance: Instance, solverState: SolverState) {
         solutionIdMap[instance.id] =
-            PersistenceUnit(instance, VrpSolution.emptyFromInstanceId(instance.id), solverState, EmptyDistance())
+            PersistenceUnit(instance, VrpSolution.emptyFromInstanceId(instance.id), solverState, EmptyMatrix())
     }
 
-    override fun updateSolution(sol: VrpSolution, status: String, distance: Distance?) {
+    override fun updateSolution(sol: VrpSolution, status: String, matrix: Matrix?) {
         val pu = solutionIdMap[sol.instanceId]
         if (pu != null) {
             val newState = pu.state.copy(status = status)
             solutionIdMap[sol.instanceId] = pu.copy(vrpSolution = sol, state = newState).let {
-                if (distance != null) it.copy(distance = distance) else it
+                if (matrix != null) it.copy(matrix = matrix) else it
             }
         }
     }
@@ -56,8 +56,8 @@ class VrpDummyRepository : VrpRepository {
         return solutionIdMap[instanceId]?.vrpSolution
     }
 
-    override fun currentDistance(instanceId: Long): Distance? {
-        return solutionIdMap[instanceId]?.distance
+    override fun currentDistance(instanceId: Long): Matrix? {
+        return solutionIdMap[instanceId]?.matrix
     }
 
     override fun currentState(instanceId: Long): SolverState? {
@@ -80,5 +80,5 @@ private data class PersistenceUnit(
     val instance: Instance,
     val vrpSolution: VrpSolution,
     val state: SolverState,
-    val distance: Distance
+    val matrix: Matrix
 )

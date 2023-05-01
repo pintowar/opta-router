@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.vrp
 
 import io.github.pintowar.opta.router.util.GraphWrapper
-import io.github.pintowar.opta.router.vrp.dist.Distance
+import io.github.pintowar.opta.router.vrp.matrix.Matrix
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle
@@ -29,7 +29,7 @@ data class Instance(
      * @param dist distance calculator instance.
      * @return solution representation used by the solver.
      */
-    fun toSolution(dist: Distance): VehicleRoutingSolution {
+    fun toSolution(dist: Matrix): VehicleRoutingSolution {
         val sol = VehicleRoutingSolution(id)
         sol.name = this.name
         val locs = this.stops.map {
@@ -96,7 +96,7 @@ data class VrpSolution(val instanceId: Long, val routes: List<Route>) {
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 
-    fun toSolverSolution(instance: Instance, distances: Distance): VehicleRoutingSolution {
+    fun toSolverSolution(instance: Instance, distances: Matrix): VehicleRoutingSolution {
         val solution = instance.toSolution(distances)
         val keys = solution.customerList.associateBy { it.id }
 
