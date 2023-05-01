@@ -38,5 +38,5 @@ configure<ReleaseExtension> {
 }
 
 tasks.afterReleaseBuild {
-    dependsOn(":jib")
+    dependsOn(":server:jib")
 }

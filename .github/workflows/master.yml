@@ -1,4 +1,4 @@
-name: JWebConsole Master CI
+name: OptaRouter Master CI
 on:
   push:
     # Sequence of patterns matched against refs/heads
