@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { ref, onBeforeUnmount, watchEffect } from "vue";
+import { ref, onBeforeUnmount, watch } from "vue";
 
 import { Instance, VrpSolution } from "../api";
 import { solve, terminate, destroy, detailedPath, getInstance, getSolutionState } from "../api";
@@ -23,10 +23,15 @@ onBeforeUnmount(() => {
   webCli.close();
 });
 
-watchEffect(async () => {
+watch(isDetailedPath, async () => {
   if (instance.value) {
     const state = await detailedPath(instance.value?.id, isDetailedPath.value || false);
     isDetailedPath.value = state?.detailedPath || false;
+
+    const newSolution = await getSolutionState(+route.params.id);
+    if (newSolution?.solution) {
+      solution.value = newSolution?.solution;
+    }
   }
 });
 
@@ -37,7 +42,6 @@ function creatWSCli() {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution;
     status.value = payload.state?.status;
-    isDetailedPath.value = payload.state?.detailedPath;
   };
   cli.onclose = () => (isWsConnected.value = true);
 

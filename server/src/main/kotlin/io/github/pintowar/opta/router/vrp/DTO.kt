@@ -100,12 +100,14 @@ data class VrpSolution(val instanceId: Long, val routes: List<Route>) {
         val solution = instance.toSolution(distances)
         val keys = solution.customerList.associateBy { it.id }
 
-        routes.forEach { route ->
+        routes.forEachIndexed { rIdx, route ->
             val customers = route.customerIds.map { keys[it] }
             customers.forEachIndexed { idx, customer ->
                 if (idx > 0) customer?.previousCustomer = customers[idx - 1]
                 if (idx < customers.size - 1) customer?.nextCustomer = customers[idx + 1]
+                customer?.vehicle = solution.vehicleList[rIdx]
             }
+            solution.vehicleList[rIdx].customers = customers
         }
         return solution
     }

@@ -10,7 +10,6 @@ import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import org.springframework.web.util.UriTemplate
-import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
@@ -53,8 +52,8 @@ class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(
             if ("$instanceId" == uriInstanceId) {
                 session.sendMessage(TextMessage(data))
             }
-        } catch (e: IOException) {
-            logger.error("Could not send message message through web socket!", e)
+        } catch (e: Exception) {
+            logger.warn("Could not send message message through web socket!", e)
         }
     }
 

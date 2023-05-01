@@ -6,7 +6,6 @@ import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
 import io.github.pintowar.opta.router.vrp.dist.Distance
 import io.github.pintowar.opta.router.vrp.dist.EmptyDistance
-import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -53,19 +52,8 @@ class VrpDummyRepository : VrpRepository {
         return solutionIdMap[instanceId]?.vrpSolution
     }
 
-    override fun currentSolverSolution(instanceId: Long): VehicleRoutingSolution? {
-        val instance = createInstance(instanceId)
-        return if (instance != null) {
-            val distance = currentDistance(instanceId)!!
-            val solution = currentSolution(instanceId)
-            return if (solution?.isEmpty() != true) {
-                solution!!.toSolverSolution(instance, distance)
-            } else {
-                null
-            }
-        } else {
-            null
-        }
+    override fun currentDistance(instanceId: Long): Distance? {
+        return solutionIdMap[instanceId]?.distance
     }
 
     override fun currentState(instanceId: Long): SolverState? {
@@ -76,12 +64,11 @@ class VrpDummyRepository : VrpRepository {
         return solutionIdMap[instanceId]?.instance
     }
 
-    override fun removeSolution(instanceId: Long) {
-        solutionIdMap.remove(instanceId)
-    }
-
-    private fun currentDistance(instanceId: Long): Distance? {
-        return solutionIdMap[instanceId]?.distance
+    override fun clearSolution(instanceId: Long) {
+        val pu = solutionIdMap[instanceId]
+        if (pu != null) {
+            solutionIdMap[instanceId] = pu.copy(vrpSolution = VrpSolution.emptyFromInstanceId(instanceId))
+        }
     }
 }
 

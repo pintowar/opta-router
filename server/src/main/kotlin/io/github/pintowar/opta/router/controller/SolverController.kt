@@ -41,7 +41,7 @@ class SolverController(val solver: VrpSolverService) {
             ?: ResponseEntity.notFound().build()
     }
 
-    @GetMapping("{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.terminateEarly(id)
         return solver.showState(id)
@@ -49,13 +49,15 @@ class SolverController(val solver: VrpSolverService) {
             ?: ResponseEntity.notFound().build()
     }
 
-    @GetMapping("{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.clean(id)
-        return ResponseEntity.ok(SolverState("not solved", false))
+        return solver.showState(id)
+            ?.let { ResponseEntity.ok(it) }
+            ?: ResponseEntity.notFound().build()
     }
 
-    @GetMapping("{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutionState(@PathVariable id: Long): ResponseEntity<VrpSolutionState> {
         return solver.currentSolutionState(id)
             ?.let { ResponseEntity.ok(it) }

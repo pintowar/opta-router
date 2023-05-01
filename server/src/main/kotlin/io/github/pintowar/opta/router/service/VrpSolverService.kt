@@ -62,7 +62,9 @@ class VrpSolverService(
 
     fun retrieveOrCreateSolution(instance: Instance): VrpSolution {
         val current = vrpRepository.currentSolution(instance.id)
-        return if (current != null) current else {
+        return if (current != null) {
+            current
+        } else {
             vrpRepository.createSolution(instance, SolverState(notSolved))
             vrpRepository.currentSolution(instance.id)!!
         }
@@ -77,25 +79,22 @@ class VrpSolverService(
         }
     }
 
-//    fun showStatus(instanceId: Long): String =
-//        if (solverManager.getSolverStatus(instanceId) == SolverStatus.NOT_SOLVING) {
-//            vrpRepository.currentState(instanceId)?.status
-//                ?: SolverStatus.NOT_SOLVING.name.lowercase().trim().split("_").joinToString(" ")
-//        } else {
-//            solverManager.getSolverStatus(instanceId).name
-//        }
-
     fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
 
     fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         vrpRepository.updateDetailedView(instanceId, enabled)
     }
 
-    fun calculateDistanceMatrix(instance: Instance): VehicleRoutingSolution {
-        val current = vrpRepository.currentSolverSolution(instance.id)
-        if (current != null) return current
+    fun toSolverSolution(instance: Instance, solution: VrpSolution): VehicleRoutingSolution {
+        val distance = vrpRepository.currentDistance(instance.id)!!
+        return solution.toSolverSolution(instance, distance)
+    }
 
-        vrpRepository.createSolution(instance, SolverState(calculatingDistances))
+    fun calculateDistanceMatrix(instance: Instance): VehicleRoutingSolution {
+        val current = vrpRepository.currentSolution(instance.id)
+        if (current != null && !current.isEmpty()) return toSolverSolution(instance, current)
+
+        vrpRepository.updateSolution(current!!, calculatingDistances)
         broadcastSolution(instance.id)
 
         val points = instance.stops.map { it.toPair() }
@@ -110,22 +109,27 @@ class VrpSolverService(
     fun asyncSolve(instance: Instance) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
             val solution = calculateDistanceMatrix(instance)
-            solverManager.solveAndListen(
-                solution.id,
-                { it: Long -> if (it == solution.id) solution else null },
-                { sol: VehicleRoutingSolution ->
-                    vrpRepository.updateSolution(wrapperForInstance(sol), running)
-                    broadcastSolution(instance.id)
-                },
-                { sol: VehicleRoutingSolution ->
-                    vrpRepository.updateSolution(wrapperForInstance(sol), terminated)
-                    broadcastSolution(instance.id)
-                },
-                { it: Long, exp: Throwable ->
-                    logger.warn(exp) { "Problem while solving problemId $it! ${exp.message}" }
-                }
-            )
+            try {
+                solverManager.solveAndListen(
+                    solution.id,
+                    { it: Long -> if (it == solution.id) solution else null },
+                    { sol: VehicleRoutingSolution ->
+                        vrpRepository.updateSolution(wrapperForInstance(sol), running)
+                        broadcastSolution(instance.id)
+                    },
+                    { sol: VehicleRoutingSolution ->
+                        vrpRepository.updateSolution(wrapperForInstance(sol), terminated)
+                        broadcastSolution(instance.id)
+                    },
+                    { it: Long, exp: Throwable ->
+                        logger.warn(exp) { "Problem while solving problemId $it! ${exp.message}" }
+                    }
+                )
+            } catch (e: IllegalStateException) {
+                logger.warn(e) { "Instance ${instance.id} is already being solved." }
+            }
         }
+        vrpRepository.updateStatus(instance.id, running)
     }
 
     fun terminateEarly(instanceId: Long): Boolean {
@@ -147,8 +151,10 @@ class VrpSolverService(
         val current = vrpRepository.currentSolution(instanceId)
         if (current != null) {
             solverManager.terminateEarly(instanceId)
+            vrpRepository.updateStatus(instanceId, notSolved)
+            vrpRepository.updateDetailedView(instanceId, false)
             broadcastSolution(instanceId)
-            vrpRepository.removeSolution(instanceId)
+            vrpRepository.clearSolution(instanceId)
         }
     }
 }

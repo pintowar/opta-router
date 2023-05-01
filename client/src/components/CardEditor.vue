@@ -59,7 +59,7 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
       <div class="card-actions">
         <button class="btn btn-success" @click="$emit('onSolve')">Solve</button>
         <button class="btn btn-warning" @click="$emit('onTerminate')">Terminate</button>
-        <button class="btn btn-error" @click="$emit('onDestroy')">Destroy</button>
+        <button class="btn btn-error" @click="$emit('onDestroy')">Clear</button>
       </div>
     </div>
   </div>
@@ -69,6 +69,7 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
 .jse-contents {
   max-height: 400px;
 }
+
 .jse-theme-dark {
   /* over all fonts, sizes, and colors */
   --jse-theme-color: #2f6dd0;

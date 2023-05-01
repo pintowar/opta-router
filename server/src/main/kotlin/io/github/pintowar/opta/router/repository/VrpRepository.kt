@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
 import io.github.pintowar.opta.router.vrp.dist.Distance
-import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 
 interface VrpRepository {
 
@@ -20,11 +19,11 @@ interface VrpRepository {
 
     fun currentSolution(instanceId: Long): VrpSolution?
 
-    fun currentSolverSolution(instanceId: Long): VehicleRoutingSolution?
+    fun currentDistance(instanceId: Long): Distance?
 
     fun currentState(instanceId: Long): SolverState?
 
     fun createInstance(instanceId: Long): Instance?
 
-    fun removeSolution(instanceId: Long)
+    fun clearSolution(instanceId: Long)
 }
