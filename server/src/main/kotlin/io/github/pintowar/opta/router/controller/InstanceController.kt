@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.controller
 
-import io.github.pintowar.opta.router.repository.InstanceRepository
-import io.github.pintowar.opta.router.vrp.Instance
+import io.github.pintowar.opta.router.core.domain.ports.InstanceRepository
+import io.github.pintowar.opta.router.core.domain.models.Instance
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping

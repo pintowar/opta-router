@@ -1,8 +1,8 @@
-package io.github.pintowar.opta.router.service.impl
+package io.github.pintowar.opta.router.adapters.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.service.NotificationService
-import io.github.pintowar.opta.router.vrp.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 private val logger = KotlinLogging.logger {}
 
 @Component
-class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(), NotificationService {
+class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(), BroadcastService {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
 

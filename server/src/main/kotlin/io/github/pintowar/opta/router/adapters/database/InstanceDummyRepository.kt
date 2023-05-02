@@ -1,8 +1,8 @@
-package io.github.pintowar.opta.router.repository.impl
+package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.repository.InstanceRepository
-import io.github.pintowar.opta.router.vrp.Instance
+import io.github.pintowar.opta.router.core.domain.ports.InstanceRepository
+import io.github.pintowar.opta.router.core.domain.models.Instance
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component

@@ -1,13 +1,12 @@
-package io.github.pintowar.opta.router.service
+package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.repository.InstanceRepository
-import io.github.pintowar.opta.router.repository.VrpRepository
-import io.github.pintowar.opta.router.vrp.Instance
-import io.github.pintowar.opta.router.vrp.SolverState
-import io.github.pintowar.opta.router.vrp.VrpSolution
-import io.github.pintowar.opta.router.vrp.VrpSolutionState
-import io.github.pintowar.opta.router.vrp.matrix.PathMatrix
-import io.github.pintowar.opta.router.vrp.toDTO
+import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.matrix.GeoMatrix
+import io.github.pintowar.opta.router.core.domain.models.toDTO
+import io.github.pintowar.opta.router.core.domain.ports.*
 import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverManager
@@ -25,13 +24,13 @@ private val logger = KotlinLogging.logger {}
  * @param graph the graphhopper wrapper to help calculate distances between points.
  */
 @Service
-class VrpSolverService(
+class OptaSolverService(
     val graph: GeoService,
     val solverManager: SolverManager<VehicleRoutingSolution, Long>,
     val vrpRepository: VrpRepository,
     val instanceRepository: InstanceRepository,
-    val notificationService: NotificationService
-) {
+    val broadcastService: BroadcastService
+): VrpSolverService {
 
     private val notSolved = "not solved"
     private val calculatingDistances = "calculating distances"
@@ -56,7 +55,7 @@ class VrpSolverService(
 
     fun broadcastSolution(instanceId: Long) {
         currentSolutionState(instanceId)
-            ?.let(notificationService::broadcastSolution)
+            ?.let(broadcastService::broadcastSolution)
     }
 
     fun retrieveOrCreateSolution(instance: Instance): VrpSolution {
@@ -69,7 +68,7 @@ class VrpSolverService(
         }
     }
 
-    fun currentSolutionState(instanceId: Long): VrpSolutionState? {
+    override fun currentSolutionState(instanceId: Long): VrpSolutionState? {
         val instance = instanceRepository.getById(instanceId) ?: return null
 
         return retrieveOrCreateSolution(instance).let { solution ->
@@ -78,9 +77,9 @@ class VrpSolverService(
         }
     }
 
-    fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
+    override fun showState(instanceId: Long): SolverState? = vrpRepository.currentState(instanceId)
 
-    fun updateDetailedView(instanceId: Long, enabled: Boolean) {
+    override fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         vrpRepository.updateDetailedView(instanceId, enabled)
 
         val sol = vrpRepository.currentInstance(instanceId)?.let { instance ->
@@ -107,7 +106,7 @@ class VrpSolverService(
         broadcastSolution(instance.id)
 
         val points = instance.stops.map { it.coordinate }
-        val pathDistance = PathMatrix(points, graph)
+        val pathDistance = GeoMatrix(points, graph)
         val solution = instance.toSolution(pathDistance)
 
         vrpRepository.updateSolution(wrapperForInstance(solution), distancesCalculated, pathDistance)
@@ -115,7 +114,7 @@ class VrpSolverService(
         return solution
     }
 
-    fun asyncSolve(instance: Instance) {
+    override fun asyncSolve(instance: Instance) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
             val solution = calculateDistanceMatrix(instance)
             try {
@@ -141,7 +140,7 @@ class VrpSolverService(
         vrpRepository.updateStatus(instance.id, running)
     }
 
-    fun terminateEarly(instanceId: Long): Boolean {
+    override fun terminateEarly(instanceId: Long): Boolean {
         return if (solverManager.getSolverStatus(instanceId) != SolverStatus.NOT_SOLVING) {
             solverManager.terminateEarly(instanceId)
             vrpRepository.updateStatus(instanceId, terminated)
@@ -156,7 +155,7 @@ class VrpSolverService(
      * Removes all information associated to the user (identified by sessionID).
      *
      */
-    fun clean(instanceId: Long) {
+    override fun clean(instanceId: Long) {
         val current = vrpRepository.currentSolution(instanceId)
         if (current != null) {
             solverManager.terminateEarly(instanceId)

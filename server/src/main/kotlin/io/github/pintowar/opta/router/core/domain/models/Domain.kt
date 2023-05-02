@@ -1,7 +1,7 @@
-package io.github.pintowar.opta.router.vrp
+package io.github.pintowar.opta.router.core.domain.models
 
-import io.github.pintowar.opta.router.service.GeoService
-import io.github.pintowar.opta.router.vrp.matrix.Matrix
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle

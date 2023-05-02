@@ -1,11 +1,11 @@
-package io.github.pintowar.opta.router.repository.impl
+package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.repository.VrpRepository
-import io.github.pintowar.opta.router.vrp.Instance
-import io.github.pintowar.opta.router.vrp.SolverState
-import io.github.pintowar.opta.router.vrp.VrpSolution
-import io.github.pintowar.opta.router.vrp.matrix.EmptyMatrix
-import io.github.pintowar.opta.router.vrp.matrix.Matrix
+import io.github.pintowar.opta.router.core.domain.ports.VrpRepository
+import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.matrix.EmptyMatrix
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
