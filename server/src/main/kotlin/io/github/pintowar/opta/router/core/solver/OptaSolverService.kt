@@ -5,7 +5,6 @@ import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.models.matrix.GeoMatrix
-import io.github.pintowar.opta.router.core.domain.models.toDTO
 import io.github.pintowar.opta.router.core.domain.ports.*
 import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
@@ -105,7 +104,7 @@ class OptaSolverService(
         vrpRepository.updateSolution(current!!, calculatingDistances)
         broadcastSolution(instance.id)
 
-        val points = instance.stops.map { it.coordinate }
+        val points = instance.stops.map { it.toCoordinate() }
         val pathDistance = GeoMatrix(points, graph)
         val solution = instance.toSolution(pathDistance)
 

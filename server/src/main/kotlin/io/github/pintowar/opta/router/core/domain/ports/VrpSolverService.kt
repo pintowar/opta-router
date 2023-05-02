@@ -7,13 +7,13 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 interface VrpSolverService {
     fun asyncSolve(instance: Instance)
 
-    fun showState(id: Long): SolverState?
+    fun showState(instanceId: Long): SolverState?
 
-    fun updateDetailedView(id: Long, status: Boolean)
+    fun updateDetailedView(instanceId: Long, enabled: Boolean)
 
-    fun terminateEarly(id: Long): Boolean
+    fun terminateEarly(instanceId: Long): Boolean
 
-    fun currentSolutionState(id: Long): VrpSolutionState?
+    fun currentSolutionState(instanceId: Long): VrpSolutionState?
 
-    fun clean(id: Long)
+    fun clean(instanceId: Long)
 }
