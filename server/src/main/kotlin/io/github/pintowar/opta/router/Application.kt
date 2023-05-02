@@ -3,7 +3,8 @@ package io.github.pintowar.opta.router
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
-import io.github.pintowar.opta.router.util.GraphWrapper
+import io.github.pintowar.opta.router.service.GeoService
+import io.github.pintowar.opta.router.service.impl.GraphHopperGeoService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -21,14 +22,13 @@ class Application {
     fun graphHopper(
         @Value("\${app.graph.osm.path}") path: String,
         @Value("\${app.graph.osm.location}") location: String
-    ): GraphWrapper {
-//        val em = EncodingManager.start().add(VehicleEncodedValues.car(PMap())).build()
-        val profs = listOf("shortest").map {
-            Profile("car_$it").apply {
-                vehicle = "car"
-                weighting = it
+    ): GeoService {
+        val profs = listOf(
+            Profile(GraphHopperGeoService.PROFILE).apply {
+                vehicle = GraphHopperGeoService.VEHICLE
+                weighting = GraphHopperGeoService.WEIGHTING
             }
-        }
+        )
 
         val gh = GraphHopper().apply {
             osmFile = path
@@ -40,7 +40,7 @@ class Application {
             setMinNetworkSize(200)
         }
 
-        return GraphWrapper(gh.importOrLoad())
+        return GraphHopperGeoService(gh.importOrLoad())
     }
 
     /**

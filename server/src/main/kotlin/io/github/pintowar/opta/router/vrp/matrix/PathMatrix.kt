@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.vrp.matrix
 
-import io.github.pintowar.opta.router.util.GraphWrapper
+import io.github.pintowar.opta.router.service.GeoService
+import io.github.pintowar.opta.router.vrp.Coordinate
 
 /**
  * Calculates the distance of all points found in locations, based on the OSM map provided.
@@ -8,7 +9,7 @@ import io.github.pintowar.opta.router.util.GraphWrapper
  * @param locations list of points.
  * @param graph the wrapper used to calculate
  */
-class PathMatrix(private val locations: List<Pair<Double, Double>>, graph: GraphWrapper) : Matrix {
+class PathMatrix(private val locations: List<Coordinate>, graph: GeoService) : Matrix {
     private val n = this.locations.size
     private var distMatrix: Array<DoubleArray>? = null
     private var timeMatrix: Array<LongArray>? = null
@@ -17,7 +18,7 @@ class PathMatrix(private val locations: List<Pair<Double, Double>>, graph: Graph
         createDistMatrix(graph)
     }
 
-    private fun createDistMatrix(graph: GraphWrapper) {
+    private fun createDistMatrix(graph: GeoService) {
         this.distMatrix = Array(this.n) { DoubleArray(this.n) }
         this.timeMatrix = Array(this.n) { LongArray(this.n) }
         for (i in 0 until this.n) {

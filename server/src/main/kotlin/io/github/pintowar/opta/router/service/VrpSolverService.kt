@@ -2,7 +2,6 @@ package io.github.pintowar.opta.router.service
 
 import io.github.pintowar.opta.router.repository.InstanceRepository
 import io.github.pintowar.opta.router.repository.VrpRepository
-import io.github.pintowar.opta.router.util.GraphWrapper
 import io.github.pintowar.opta.router.vrp.Instance
 import io.github.pintowar.opta.router.vrp.SolverState
 import io.github.pintowar.opta.router.vrp.VrpSolution
@@ -27,7 +26,7 @@ private val logger = KotlinLogging.logger {}
  */
 @Service
 class VrpSolverService(
-    val graph: GraphWrapper,
+    val graph: GeoService,
     val solverManager: SolverManager<VehicleRoutingSolution, Long>,
     val vrpRepository: VrpRepository,
     val instanceRepository: InstanceRepository,
@@ -107,7 +106,7 @@ class VrpSolverService(
         vrpRepository.updateSolution(current!!, calculatingDistances)
         broadcastSolution(instance.id)
 
-        val points = instance.stops.map { it.toPair() }
+        val points = instance.stops.map { it.coordinate }
         val pathDistance = PathMatrix(points, graph)
         val solution = instance.toSolution(pathDistance)
 
