@@ -10,12 +10,12 @@ import { ref, toRefs, computed, watchEffect } from "vue";
 import { Instance, VrpSolution } from "../api";
 
 const props = defineProps<{
-  instance: Instance | null;
   solution: VrpSolution | null;
 }>();
 
-const { instance, solution } = toRefs(props);
+const { solution } = toRefs(props);
 
+const instance = ref<Instance | null>(solution.value?.instance || null);
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
 const zoom = ref(3);

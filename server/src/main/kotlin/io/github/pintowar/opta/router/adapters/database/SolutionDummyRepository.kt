@@ -1,26 +1,38 @@
 package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.core.domain.ports.InstanceRepository
+import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
 import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.matrix.GeoMatrix
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 
 @Component
-class InstanceDummyRepository(private val mapper: ObjectMapper) : InstanceRepository {
+class SolutionDummyRepository(
+    private val geoService: GeoService,
+    private val mapper: ObjectMapper
+) : SolutionRepository {
 
-    private val instances: Map<Long, Instance> = ClassPathResource("/instances/sample.json")
+    private val solutions: Map<Long, PersistSolution> = ClassPathResource("/instances/sample.json")
         .let(::readInstances)
-        .associateBy { it.id }
+        .map { PersistSolution(VrpSolution.emptyFromInstance(it), geoService) }
+        .associateBy { it.vrpSolution.instance.id }
 
-    override fun listAll(): List<Instance> {
-        return instances.values.sortedBy { it.id }
+    override fun listAll(): List<VrpSolution> {
+        return solutions.values.map { it.vrpSolution }.sortedBy { it.instance.id }
     }
 
-    override fun getById(id: Long): Instance? {
-        return instances[id]
+    override fun getByInstanceId(instanceId: Long): VrpSolution? {
+        return solutions[instanceId]?.vrpSolution
+    }
+
+    override fun getByMatrixInstanceId(instanceId: Long): Matrix? {
+        return solutions[instanceId]?.matrix
     }
 
     private fun readInstances(resource: Resource): List<Instance> {
@@ -45,5 +57,18 @@ class InstanceDummyRepository(private val mapper: ObjectMapper) : InstanceReposi
             }
 
         return listOf(sample) + subSamples
+    }
+}
+
+private data class PersistSolution(
+    val vrpSolution: VrpSolution,
+    private val geoService: GeoService
+
+) {
+    val matrix: Matrix by lazy {
+        GeoMatrix(
+            vrpSolution.instance.stops.map { it.toCoordinate() },
+            geoService
+        )
     }
 }

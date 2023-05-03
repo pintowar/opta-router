@@ -13,16 +13,16 @@ const defaultHeaders = {
 };
 
 async function getInstances(): Promise<Instance[]> {
-  const { data, status } = await axios.get<Instance[]>("/api/instances");
+  const { data, status } = await axios.get<VrpSolution[]>("/api/solutions");
 
-  return status === 200 ? data : Promise.reject("Failed to retrieve instances");
+  return status === 200 ? data.map((it) => it.instance) : Promise.reject("Failed to retrieve instances");
 }
 
-async function getInstance(id: number): Promise<Instance | null> {
+async function getSolution(id: number): Promise<VrpSolution | null> {
   try {
-    const { data, status } = await axios.get<Instance>(`/api/instances/${id}/show`);
+    const { data, status } = await axios.get<VrpSolution>(`/api/solutions/by-instance-id/${id}/show`);
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve instance");
+    return status === 200 ? data : Promise.reject("Failed to retrieve solution");
   } catch (e) {
     return Promise.resolve(null);
   }
@@ -84,4 +84,4 @@ async function clean(id: number): Promise<SolverState | null> {
 
 export type { Instance, SolverState, VrpSolution, VrpSolutionState };
 
-export { getInstances, getInstance, solve, terminate, clean, detailedPath, getSolutionState };
+export { getInstances, getSolution, solve, terminate, clean, detailedPath, getSolutionState };

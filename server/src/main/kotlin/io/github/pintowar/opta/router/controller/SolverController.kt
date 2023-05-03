@@ -29,33 +29,25 @@ class SolverController(val solver: VrpSolverService) {
     )
     fun solve(@PathVariable id: Long, @RequestBody instance: Instance): ResponseEntity<SolverState> {
         solver.asyncSolve(instance)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @PutMapping("/{id}/detailed-path/{status}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun detailedPath(@PathVariable id: Long, @PathVariable status: Boolean): ResponseEntity<SolverState> {
         solver.updateDetailedView(id, status)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.terminateEarly(id)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.clean(id)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])

@@ -1,34 +1,36 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.core.domain.ports.VrpRepository
 import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.matrix.EmptyMatrix
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
+import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
+import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
 import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 @Component
-class VrpDummyRepository : VrpRepository {
+class SolverDummyRepository(
+    private val solutionRepository: SolutionRepository
+) : SolverRepository {
 
     private val solutionIdMap: ConcurrentMap<Long, PersistenceUnit> = ConcurrentHashMap()
 
     override fun listAllSolutionIds(): Set<Long> = solutionIdMap.keys
 
-    override fun createSolution(instance: Instance, solverState: SolverState) {
-        solutionIdMap[instance.id] =
-            PersistenceUnit(instance, VrpSolution.emptyFromInstanceId(instance.id), solverState, EmptyMatrix())
+    override fun createSolution(instance: Instance, solverState: SolverState): VrpSolution {
+        return PersistenceUnit(VrpSolution.emptyFromInstance(instance), solverState).also {
+            solutionIdMap[instance.id] = it
+        }.vrpSolution
+
     }
 
-    override fun updateSolution(sol: VrpSolution, status: String, matrix: Matrix?) {
-        val pu = solutionIdMap[sol.instanceId]
+    override fun updateSolution(sol: VrpSolution, status: String) {
+        val pu = solutionIdMap[sol.instance.id]
         if (pu != null) {
             val newState = pu.state.copy(status = status)
-            solutionIdMap[sol.instanceId] = pu.copy(vrpSolution = sol, state = newState).let {
-                if (matrix != null) it.copy(matrix = matrix) else it
-            }
+            solutionIdMap[sol.instance.id] = pu.copy(vrpSolution = sol, state = newState)
         }
     }
 
@@ -48,37 +50,27 @@ class VrpDummyRepository : VrpRepository {
         }
     }
 
-    override fun currentInstance(instanceId: Long): Instance? {
-        return solutionIdMap[instanceId]?.instance
-    }
-
     override fun currentSolution(instanceId: Long): VrpSolution? {
         return solutionIdMap[instanceId]?.vrpSolution
-    }
-
-    override fun currentDistance(instanceId: Long): Matrix? {
-        return solutionIdMap[instanceId]?.matrix
     }
 
     override fun currentState(instanceId: Long): SolverState? {
         return solutionIdMap[instanceId]?.state
     }
 
-    override fun createInstance(instanceId: Long): Instance? {
-        return solutionIdMap[instanceId]?.instance
+    override fun currentMatrix(instanceId: Long): Matrix? {
+        return solutionRepository.getByMatrixInstanceId(instanceId)
     }
 
     override fun clearSolution(instanceId: Long) {
         val pu = solutionIdMap[instanceId]
         if (pu != null) {
-            solutionIdMap[instanceId] = pu.copy(vrpSolution = VrpSolution.emptyFromInstanceId(instanceId))
+            solutionIdMap[instanceId] = pu.copy(vrpSolution = VrpSolution.emptyFromInstance(pu.vrpSolution.instance))
         }
     }
 }
 
 private data class PersistenceUnit(
-    val instance: Instance,
     val vrpSolution: VrpSolution,
-    val state: SolverState,
-    val matrix: Matrix
+    val state: SolverState
 )
