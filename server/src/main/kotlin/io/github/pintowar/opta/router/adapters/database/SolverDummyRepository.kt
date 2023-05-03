@@ -23,7 +23,6 @@ class SolverDummyRepository(
         return PersistenceUnit(VrpSolution.emptyFromInstance(instance), solverState).also {
             solutionIdMap[instance.id] = it
         }.vrpSolution
-
     }
 
     override fun updateSolution(sol: VrpSolution, status: String) {

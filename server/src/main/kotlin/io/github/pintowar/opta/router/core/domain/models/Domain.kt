@@ -52,7 +52,6 @@ data class VrpSolution(val instance: Instance, val routes: List<Route>) {
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
-
 }
 
 /**

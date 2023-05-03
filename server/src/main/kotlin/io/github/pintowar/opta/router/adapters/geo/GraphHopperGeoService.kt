@@ -3,9 +3,9 @@ package io.github.pintowar.opta.router.adapters.geo
 import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper
 import com.graphhopper.util.Parameters
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.Path
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import java.util.*
 
 /**

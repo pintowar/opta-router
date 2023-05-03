@@ -15,7 +15,6 @@ import org.optaplanner.examples.vehiclerouting.domain.location.RoadLocation
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-
 /**
  * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
  *
@@ -70,13 +69,37 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
     return solution
 }
 
+fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
+    val newRoutes = this.routes.mapIndexed { idx, route ->
+        val aux = if (detailed) {
+            route.order
+                .windowed(2, 1, false)
+                .map { (a, b) -> graph.detailedSimplePath(a.toCoordinate(), b.toCoordinate()) }
+        } else {
+            val depot = listOf(this.instance.stops[this.instance.depots[idx].toInt()].id)
+            val stopKeys = this.instance.stops.associateBy { it.id }
+            (depot + route.customerIds + depot).map { stopKeys[it]!!.toCoordinate() }
+                .windowed(2, 1, false)
+                .map { (a, b) -> graph.simplePath(a, b) }
+        }
+        val rep = aux.flatMap { it.coordinates }.mapIndexed { idx, it ->
+            Location(lat = it.lat, lng = it.lng, id = idx.toLong(), demand = 0, name = "None")
+        }
+        val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
+        val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
+
+        Route(dist, time, rep, route.customerIds)
+    }
+    return this.copy(routes = newRoutes)
+}
+
 /**
  * Convert the solver VRP Solution representation into the DTO representation.
  *
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.toDTO(instance: Instance, graph: GeoService? = null): VrpSolution {
+fun VehicleRoutingSolution.toDTO(instance: Instance, graph: GeoService, detailed: Boolean): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
         val origin = v.depot.location.let { Location(it.id, it.latitude, it.longitude, it.name, 0) }
@@ -98,20 +121,10 @@ fun VehicleRoutingSolution.toDTO(instance: Instance, graph: GeoService? = null):
             customer = customer.nextCustomer
         }
         dist = (dist + BigDecimal(toOrigin / (1000 * 1000))).setScale(2, RoundingMode.HALF_UP)
-        var time = dist
-        var rep = (listOf(origin) + locations + listOf(origin))
-        if (graph != null) {
-            val aux = rep.windowed(2, 1, false)
-                .map { (a, b) -> graph.detailedSimplePath(a.toCoordinate(), b.toCoordinate()) }
-            rep = aux.flatMap { it.coordinates }.mapIndexed { idx, it ->
-                Location(lat = it.lat, lng = it.lng, id = idx.toLong(), demand = 0, name = "None")
-            }
-            dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
-            time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
-        }
+        val rep = (listOf(origin) + locations + listOf(origin))
 
-        Route(dist, time, rep, locations.map { it.id })
+        Route(dist, dist, rep, locations.map { it.id })
     } ?: emptyList()
 
-    return VrpSolution(instance, routes)
+    return VrpSolution(instance, routes).pathPlotted(graph, detailed)
 }

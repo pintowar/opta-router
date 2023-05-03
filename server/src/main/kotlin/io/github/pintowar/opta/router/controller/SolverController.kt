@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.controller
 
-import io.github.pintowar.opta.router.core.solver.OptaSolverService
 import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState

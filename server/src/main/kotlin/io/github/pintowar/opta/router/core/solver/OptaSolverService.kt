@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
-import io.github.pintowar.opta.router.core.domain.models.matrix.GeoMatrix
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
@@ -34,8 +33,6 @@ class OptaSolverService(
 ) : VrpSolverService {
 
     private val notSolved = "not solved"
-    private val calculatingDistances = "calculating distances"
-    private val distancesCalculated = "distances calculated"
     private val running = "running"
     private val terminated = "terminated"
 
@@ -52,7 +49,7 @@ class OptaSolverService(
     fun wrapperForInstance(solution: VehicleRoutingSolution): VrpSolution {
         val currentState = solverRepository.currentState(solution.id)
         val currentSolution = solverRepository.currentSolution(solution.id)
-        return solution.toDTO(currentSolution!!.instance, if (currentState?.detailedPath == true) graph else null)
+        return solution.toDTO(currentSolution!!.instance, graph, currentState?.detailedPath == true)
     }
 
     fun broadcastSolution(instanceId: Long) {
@@ -72,12 +69,10 @@ class OptaSolverService(
     override fun updateDetailedView(instanceId: Long, enabled: Boolean) {
         solverRepository.updateDetailedView(instanceId, enabled)
 
-        val matrix = solverRepository.currentMatrix(instanceId)!!
-        val sol = solverRepository.currentSolution(instanceId)?.toSolverSolution(matrix)
+        val newSol = solverRepository.currentSolution(instanceId)?.pathPlotted(graph, enabled)
         val currentStatus = solverRepository.currentState(instanceId)?.status
-
-        if (sol != null && currentStatus != null) {
-            solverRepository.updateSolution(wrapperForInstance(sol), currentStatus)
+        if (newSol != null && currentStatus != null) {
+            solverRepository.updateSolution(newSol, currentStatus)
             broadcastSolution(instanceId)
         }
     }

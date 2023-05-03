@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models.matrix
 
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
 
 /**
  * Calculates the distance of all points found in locations, based on the OSM map provided.
