@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.adapters.database
 import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
@@ -41,20 +42,18 @@ class SolverDummyRepository(
         }
     }
 
-    override fun updateDetailedView(instanceId: Long, showDetailedView: Boolean) {
-        val pu = solutionIdMap[instanceId]
-        if (pu != null && pu.state.detailedPath != showDetailedView) {
-            val newState = pu.state.copy(detailedPath = showDetailedView)
-            solutionIdMap[instanceId] = pu.copy(state = newState)
+    override fun updateDetailedView(instanceId: Long, showDetailedView: Boolean): VrpSolutionState? {
+        return solutionIdMap[instanceId]?.let {
+            val newState = it.state.copy(detailedPath = showDetailedView)
+            solutionIdMap[instanceId] = it.copy(state = newState)
+            VrpSolutionState(it.vrpSolution, newState)
         }
     }
 
-    override fun currentSolution(instanceId: Long): VrpSolution? {
-        return solutionIdMap[instanceId]?.vrpSolution
-    }
-
-    override fun currentState(instanceId: Long): SolverState? {
-        return solutionIdMap[instanceId]?.state
+    override fun currentSolutionState(instanceId: Long): VrpSolutionState? {
+        return solutionIdMap[instanceId]?.let {
+            VrpSolutionState(it.vrpSolution, it.state)
+        }
     }
 
     override fun currentMatrix(instanceId: Long): Matrix? {

@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.core.domain.ports
 import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 
 interface SolverRepository {
@@ -15,11 +16,9 @@ interface SolverRepository {
 
     fun updateStatus(instanceId: Long, status: String)
 
-    fun updateDetailedView(instanceId: Long, showDetailedView: Boolean)
+    fun updateDetailedView(instanceId: Long, showDetailedView: Boolean): VrpSolutionState?
 
-    fun currentSolution(instanceId: Long): VrpSolution?
-
-    fun currentState(instanceId: Long): SolverState?
+    fun currentSolutionState(instanceId: Long): VrpSolutionState?
 
     fun currentMatrix(instanceId: Long): Matrix?
 
