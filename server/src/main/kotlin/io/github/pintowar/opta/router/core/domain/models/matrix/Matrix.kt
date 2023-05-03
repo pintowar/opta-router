@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.vrp.matrix
+package io.github.pintowar.opta.router.core.domain.models.matrix
 
 /**
  * Interface to calculate the distance and time between two points.

@@ -3,6 +3,7 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/solver/{id}/detailed-path/{status}": {
     put: operations["detailedPath"];
@@ -19,10 +20,10 @@ export interface paths {
   "/api/solver/{id}/clean": {
     get: operations["clean"];
   };
-  "/api/instances": {
+  "/api/solutions": {
     get: operations["index"];
   };
-  "/api/instances/{id}/show": {
+  "/api/solutions/by-instance-id/{id}/show": {
     get: operations["show"];
   };
 }
@@ -45,14 +46,14 @@ export interface components {
       nVehicles?: number;
       /** Format: int32 */
       capacity: number;
-      stops: components["schemas"]["Point"][];
-      depots: number[];
-      /** Format: int32 */
-      nlocations: number;
+      stops: (components["schemas"]["Location"])[];
+      depots: (number)[];
       /** Format: int32 */
       nvehicles: number;
+      /** Format: int32 */
+      nlocations: number;
     };
-    Point: {
+    Location: {
       /** Format: int64 */
       id: number;
       /** Format: double */
@@ -66,13 +67,13 @@ export interface components {
     Route: {
       distance: number;
       time: number;
-      order: components["schemas"]["Point"][];
-      customerIds: number[];
+      order: (components["schemas"]["Location"])[];
+      customerIds: (number)[];
     };
     VrpSolution: {
-      /** Format: int64 */
-      instanceId: number;
-      routes: components["schemas"]["Route"][];
+      instance: components["schemas"]["Instance"];
+      routes: (components["schemas"]["Route"])[];
+      empty: boolean;
       totalDistance: number;
       totalTime: Record<string, never>;
     };
@@ -91,6 +92,7 @@ export interface components {
 export type external = Record<string, never>;
 
 export interface operations {
+
   detailedPath: {
     parameters: {
       path: {
@@ -177,7 +179,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Instance"][];
+          "application/json": (components["schemas"]["VrpSolution"])[];
         };
       };
     };
@@ -192,7 +194,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Instance"];
+          "application/json": components["schemas"]["VrpSolution"];
         };
       };
     };

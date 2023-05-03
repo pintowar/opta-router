@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.vrp.matrix
+package io.github.pintowar.opta.router.core.domain.models.matrix
 
 /**
  * Calculates the distance of all points found in locations, based on a simple Euclidean distance.

@@ -1,6 +1,6 @@
 package io.github.pintowar.opta.router.config
 
-import io.github.pintowar.opta.router.service.impl.WebSocketHandler
+import io.github.pintowar.opta.router.adapters.handler.WebSocketHandler
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.socket.config.annotation.EnableWebSocket
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer

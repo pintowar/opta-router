@@ -3,16 +3,16 @@ import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
 import { Instance, VrpSolution } from "../api";
-import { solve, terminate, clean, detailedPath, getInstance, getSolutionState } from "../api";
+import { solve, terminate, clean, detailedPath, getSolution, getSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 
 const route = useRoute();
 
-const instance = ref<Instance | null>(await getInstance(+route.params.id));
-
+const solution = ref<VrpSolution | null>(await getSolution(+route.params.id));
+const instance = ref<Instance | null>(solution.value?.instance || null);
 const solutionState = await getSolutionState(+route.params.id);
-const solution = ref<VrpSolution | null>(solutionState?.solution || null);
+
 const status = ref<string | null>(solutionState?.state?.status || null);
 const isDetailedPath = ref<boolean>(solutionState?.state?.detailedPath || false);
 
@@ -80,6 +80,6 @@ async function cleanAction() {
       @on-destroy="cleanAction"
     />
 
-    <card-map :instance="instance" :solution="solution" />
+    <card-map :solution="solution" />
   </div>
 </template>

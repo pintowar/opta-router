@@ -1,9 +1,9 @@
 package io.github.pintowar.opta.router.controller
 
-import io.github.pintowar.opta.router.service.VrpSolverService
-import io.github.pintowar.opta.router.vrp.Instance
-import io.github.pintowar.opta.router.vrp.SolverState
-import io.github.pintowar.opta.router.vrp.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,33 +28,25 @@ class SolverController(val solver: VrpSolverService) {
     )
     fun solve(@PathVariable id: Long, @RequestBody instance: Instance): ResponseEntity<SolverState> {
         solver.asyncSolve(instance)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @PutMapping("/{id}/detailed-path/{status}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun detailedPath(@PathVariable id: Long, @PathVariable status: Boolean): ResponseEntity<SolverState> {
         solver.updateDetailedView(id, status)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.terminateEarly(id)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
         solver.clean(id)
-        return solver.showState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])

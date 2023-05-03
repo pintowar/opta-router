@@ -3,8 +3,8 @@ package io.github.pintowar.opta.router
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
-import io.github.pintowar.opta.router.service.GeoService
-import io.github.pintowar.opta.router.service.impl.GraphHopperGeoService
+import io.github.pintowar.opta.router.adapters.geo.GraphHopperGeoService
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
