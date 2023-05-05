@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import jakarta.annotation.PreDestroy
@@ -26,15 +26,10 @@ private val logger = KotlinLogging.logger {}
  */
 @Service
 class OptaSolverService(
-    val graph: GeoService,
     val solverManager: SolverManager<VehicleRoutingSolution, Long>,
     val solverRepository: SolverRepository,
     val broadcastService: BroadcastService
 ) : VrpSolverService {
-
-    private val notSolved = "not solved"
-    private val running = "running"
-    private val terminated = "terminated"
 
     /**
      * Terminates the solvers, in case of application termination.
@@ -46,9 +41,9 @@ class OptaSolverService(
             .forEach(solverManager::terminateEarly)
     }
 
-    fun wrapperForInstance(solution: VehicleRoutingSolution): VrpSolution {
+    fun wrapperForInstance(solution: VehicleRoutingSolution, matrix: Matrix): VrpSolution {
         val current = solverRepository.currentSolutionState(solution.id)!!
-        return solution.toDTO(current.solution.instance, graph, current.state.detailedPath)
+        return solution.toDTO(current.solution.instance, matrix)
     }
 
     fun broadcastSolution(instanceId: Long) {
@@ -60,22 +55,15 @@ class OptaSolverService(
         solverRepository.currentSolutionState(instanceId)
 
     override fun showState(instanceId: Long): SolverState =
-        currentSolutionState(instanceId)?.state ?: SolverState(notSolved)
+        currentSolutionState(instanceId)?.state ?: SolverState.NOT_SOLVED
 
     override fun updateDetailedView(instanceId: Long, enabled: Boolean) {
-        solverRepository.updateDetailedView(instanceId, enabled)?.also {
-            solverRepository.updateSolution(
-                it.solution.pathPlotted(graph, enabled),
-                it.state.status
-            )
-            broadcastSolution(instanceId)
-        }
+        broadcastSolution(instanceId)
     }
 
     override fun asyncSolve(instance: Instance) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
-            val currentSolution = solverRepository.currentSolutionState(instance.id)?.solution
-                ?: solverRepository.createSolution(instance, SolverState(notSolved, false))
+            val currentSolution = solverRepository.currentSolutionState(instance.id)!!.solution
             val currentMatrix = solverRepository.currentMatrix(instance.id) ?: return
 
             val solution = currentSolution.toSolverSolution(currentMatrix)
@@ -84,11 +72,11 @@ class OptaSolverService(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.updateSolution(wrapperForInstance(sol), running)
+                        solverRepository.updateSolution(wrapperForInstance(sol, currentMatrix), SolverState.RUNNING)
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.updateSolution(wrapperForInstance(sol), terminated)
+                        solverRepository.updateSolution(wrapperForInstance(sol, currentMatrix), SolverState.TERMINATED)
                         broadcastSolution(instance.id)
                     },
                     { it: Long, exp: Throwable ->
@@ -99,13 +87,13 @@ class OptaSolverService(
                 logger.warn(e) { "Instance ${instance.id} is already being solved." }
             }
         }
-        solverRepository.updateStatus(instance.id, running)
+        solverRepository.updateStatus(instance.id, SolverState.RUNNING)
     }
 
     override fun terminateEarly(instanceId: Long): Boolean {
         return if (solverManager.getSolverStatus(instanceId) != SolverStatus.NOT_SOLVING) {
             solverManager.terminateEarly(instanceId)
-            solverRepository.updateStatus(instanceId, terminated)
+            solverRepository.updateStatus(instanceId, SolverState.TERMINATED)
             broadcastSolution(instanceId)
             true
         } else {
@@ -121,8 +109,7 @@ class OptaSolverService(
         val current = solverRepository.currentSolutionState(instanceId)?.solution
         if (current != null) {
             solverManager.terminateEarly(instanceId)
-            solverRepository.updateStatus(instanceId, notSolved)
-            solverRepository.updateDetailedView(instanceId, false)
+            solverRepository.updateStatus(instanceId, SolverState.NOT_SOLVED)
             solverRepository.clearSolution(instanceId)
             broadcastSolution(instanceId)
         }

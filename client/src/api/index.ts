@@ -1,9 +1,10 @@
 import axios from "axios";
 import { components } from "./generated/api";
 type Instance = components["schemas"]["Instance"];
-type SolverState = components["schemas"]["SolverState"];
 type VrpSolution = components["schemas"]["VrpSolution"];
 type VrpSolutionState = components["schemas"]["VrpSolutionState"];
+type PanelSolutionState = components["schemas"]["PanelSolutionState"];
+type SolverState = "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
 const defaultHeaders = {
   headers: {
@@ -41,9 +42,9 @@ async function solve(instance: Instance): Promise<SolverState | null> {
   }
 }
 
-async function getSolutionState(id: number): Promise<VrpSolutionState | null> {
+async function getPanelSolutionState(id: number): Promise<PanelSolutionState | null> {
   try {
-    const { data, status } = await axios.get<VrpSolutionState>(`/api/solver/${id}/solution-state`, defaultHeaders);
+    const { data, status } = await axios.get<PanelSolutionState>(`/api/solver/${id}/solution-state`, defaultHeaders);
 
     return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
   } catch (e) {
@@ -84,4 +85,4 @@ async function clean(id: number): Promise<SolverState | null> {
 
 export type { Instance, SolverState, VrpSolution, VrpSolutionState };
 
-export { getInstances, getSolution, solve, terminate, clean, detailedPath, getSolutionState };
+export { getInstances, getSolution, solve, terminate, clean, detailedPath, getPanelSolutionState };
