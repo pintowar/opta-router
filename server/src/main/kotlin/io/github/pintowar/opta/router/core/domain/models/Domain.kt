@@ -35,7 +35,12 @@ data class Path(val distance: Double, val time: Long, val coordinates: List<Coor
 /**
  * Route representation containing the route distance, time and list of points.
  */
-data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Location>, val customerIds: List<Long>)
+data class Route(
+    val distance: BigDecimal,
+    val time: BigDecimal,
+    val order: List<Coordinate>,
+    val customerIds: List<Long>
+)
 
 /**
  * DTO class with the representation of the VRP solution.
@@ -54,9 +59,10 @@ data class VrpSolution(val instance: Instance, val routes: List<Route>) {
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
-/**
- * DTO class with the representation of solver status data.
- */
-data class SolverState(val status: String, val detailedPath: Boolean = false)
+enum class SolverState {
+    NOT_SOLVED, RUNNING, TERMINATED
+}
 
 data class VrpSolutionState(val solution: VrpSolution, val state: SolverState)
+
+data class SolverPanel(val isDetailedPath: Boolean = false)

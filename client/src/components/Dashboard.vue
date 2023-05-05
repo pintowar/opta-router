@@ -3,18 +3,19 @@ import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
 import { Instance, VrpSolution } from "../api";
-import { solve, terminate, clean, detailedPath, getSolution, getSolutionState } from "../api";
+import { solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 
 const route = useRoute();
 
-const solution = ref<VrpSolution | null>(await getSolution(+route.params.id));
+const solutionState = await getPanelSolutionState(+route.params.id);
+// const solution = ref<VrpSolution | null>(await getSolution(+route.params.id));
+const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
 const instance = ref<Instance | null>(solution.value?.instance || null);
-const solutionState = await getSolutionState(+route.params.id);
 
-const status = ref<string | null>(solutionState?.state?.status || null);
-const isDetailedPath = ref<boolean>(solutionState?.state?.detailedPath || false);
+const status = ref<string | null>(solutionState?.solutionState?.state || null);
+const isDetailedPath = ref<boolean>(solutionState?.solverPanel?.isDetailedPath || false);
 
 const isWsConnected = ref<boolean>(false);
 const webCli = creatWSCli();
@@ -25,8 +26,7 @@ onBeforeUnmount(() => {
 
 watch(isDetailedPath, async () => {
   if (instance.value) {
-    const state = await detailedPath(instance.value?.id, isDetailedPath.value || false);
-    isDetailedPath.value = state?.detailedPath || false;
+    await detailedPath(instance.value?.id, isDetailedPath.value || false);
   }
 });
 
@@ -36,7 +36,7 @@ function creatWSCli() {
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution;
-    status.value = payload.state?.status;
+    status.value = payload.state;
   };
   cli.onclose = () => (isWsConnected.value = true);
 
@@ -46,24 +46,21 @@ function creatWSCli() {
 async function solveAction() {
   if (instance.value !== null) {
     const state = await solve(instance.value);
-    status.value = state?.status || null;
-    isDetailedPath.value = state?.detailedPath || false;
+    status.value = state || null;
   }
 }
 
 async function terminateAction() {
   if (instance.value) {
     const state = await terminate(instance.value.id);
-    status.value = state?.status || null;
-    isDetailedPath.value = state?.detailedPath || false;
+    status.value = state || null;
   }
 }
 
 async function cleanAction() {
   if (instance.value) {
     const state = await clean(instance.value.id);
-    status.value = state?.status || null;
-    isDetailedPath.value = state?.detailedPath || false;
+    status.value = state || null;
   }
 }
 </script>

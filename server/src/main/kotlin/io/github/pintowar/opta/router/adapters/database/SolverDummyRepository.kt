@@ -20,39 +20,31 @@ class SolverDummyRepository(
 
     override fun listAllSolutionIds(): Set<Long> = solutionIdMap.keys
 
-    override fun createSolution(instance: Instance, solverState: SolverState): VrpSolution {
-        return PersistenceUnit(VrpSolution.emptyFromInstance(instance), solverState).also {
-            solutionIdMap[instance.id] = it
-        }.vrpSolution
+    private fun createSolution(instance: Instance): VrpSolutionState {
+        val pu = PersistenceUnit(VrpSolution.emptyFromInstance(instance), SolverState.NOT_SOLVED)
+        solutionIdMap[instance.id] = pu
+        return VrpSolutionState(pu.vrpSolution, SolverState.NOT_SOLVED)
     }
 
-    override fun updateSolution(sol: VrpSolution, status: String) {
+    override fun updateSolution(sol: VrpSolution, solverState: SolverState) {
         val pu = solutionIdMap[sol.instance.id]
         if (pu != null) {
-            val newState = pu.state.copy(status = status)
-            solutionIdMap[sol.instance.id] = pu.copy(vrpSolution = sol, state = newState)
+            solutionIdMap[sol.instance.id] = pu.copy(vrpSolution = sol, state = solverState)
         }
     }
 
-    override fun updateStatus(instanceId: Long, status: String) {
+    override fun updateStatus(instanceId: Long, solverState: SolverState) {
         val pu = solutionIdMap[instanceId]
-        if (pu != null && pu.state.status != status) {
-            val newState = pu.state.copy(status = status)
-            solutionIdMap[instanceId] = pu.copy(state = newState)
-        }
-    }
-
-    override fun updateDetailedView(instanceId: Long, showDetailedView: Boolean): VrpSolutionState? {
-        return solutionIdMap[instanceId]?.let {
-            val newState = it.state.copy(detailedPath = showDetailedView)
-            solutionIdMap[instanceId] = it.copy(state = newState)
-            VrpSolutionState(it.vrpSolution, newState)
+        if (pu != null && pu.state != solverState) {
+            solutionIdMap[instanceId] = pu.copy(state = solverState)
         }
     }
 
     override fun currentSolutionState(instanceId: Long): VrpSolutionState? {
         return solutionIdMap[instanceId]?.let {
             VrpSolutionState(it.vrpSolution, it.state)
+        } ?: solutionRepository.getByInstanceId(instanceId)?.let { sol ->
+            createSolution(sol.instance)
         }
     }
 

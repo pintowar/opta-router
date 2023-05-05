@@ -12,7 +12,10 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 internal class WebSocketConfig(private val handler: WebSocketHandler) : WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        val webSocketInterceptor = HttpSessionHandshakeInterceptor().apply { isCreateSession = true }
+        val webSocketInterceptor = HttpSessionHandshakeInterceptor().apply {
+            isCreateSession = true
+            isCopyAllAttributes = true
+        }
 
         registry.addHandler(handler, "/ws/solution-state/*")
             .addInterceptors(webSocketInterceptor)
