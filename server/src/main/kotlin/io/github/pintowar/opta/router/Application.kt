@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.Bean
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
-import java.util.concurrent.Executor
+import java.util.concurrent.ConcurrentHashMap
 
 @SpringBootApplication
 class Application {
@@ -45,7 +44,7 @@ class Application {
     }
 
     @Bean
-    fun sessionPanel(): MutableMap<String, SolverPanel> = mutableMapOf()
+    fun sessionPanel(): MutableMap<String, SolverPanel> = ConcurrentHashMap()
 }
 
 fun main(args: Array<String>) {

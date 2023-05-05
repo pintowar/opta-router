@@ -6,11 +6,16 @@ import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
-import io.github.pintowar.opta.router.core.solver.pathPlotted
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * The Controller that contains all REST functions to be used on the application.
@@ -63,7 +68,7 @@ class SolverController(
         val panel = sessionPanel[session.id] ?: SolverPanel()
 
         return solver.currentSolutionState(id)?.let {
-            val sol = (if (panel.isDetailedPath) it.solution.pathPlotted(geoService, true) else it.solution)
+            val sol = (if (panel.isDetailedPath) geoService.detailedPaths(it.solution) else it.solution)
             PanelSolutionState(panel, it.copy(solution = sol))
         }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }

@@ -1,8 +1,10 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Coordinate
+import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import org.optaplanner.examples.vehiclerouting.domain.Customer
 import org.optaplanner.examples.vehiclerouting.domain.Depot
 import org.optaplanner.examples.vehiclerouting.domain.Vehicle
@@ -64,28 +66,6 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
         solution.vehicleList[rIdx].customers = customers
     }
     return solution
-}
-
-fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
-    val newRoutes = this.routes.mapIndexed { idx, route ->
-        val aux = if (detailed) {
-            route.order
-                .windowed(2, 1, false)
-                .map { (a, b) -> graph.detailedSimplePath(a, b) }
-        } else {
-            val depot = listOf(this.instance.stops[this.instance.depots[idx].toInt()].id)
-            val stopKeys = this.instance.stops.associateBy { it.id }
-            (depot + route.customerIds + depot).map { stopKeys[it]!!.toCoordinate() }
-                .windowed(2, 1, false)
-                .map { (a, b) -> graph.simplePath(a, b) }
-        }
-        val rep = aux.flatMap { it.coordinates }.map { Coordinate(it.lat, it.lng) }
-        val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
-        val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
-
-        Route(dist, time, rep, route.customerIds)
-    }
-    return this.copy(routes = newRoutes)
 }
 
 /**
