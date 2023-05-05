@@ -1,9 +1,6 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.Instance
-import io.github.pintowar.opta.router.core.domain.models.Location
-import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import org.optaplanner.examples.vehiclerouting.domain.Customer
@@ -74,7 +71,7 @@ fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
         val aux = if (detailed) {
             route.order
                 .windowed(2, 1, false)
-                .map { (a, b) -> graph.detailedSimplePath(a.toCoordinate(), b.toCoordinate()) }
+                .map { (a, b) -> graph.detailedSimplePath(a, b) }
         } else {
             val depot = listOf(this.instance.stops[this.instance.depots[idx].toInt()].id)
             val stopKeys = this.instance.stops.associateBy { it.id }
@@ -82,9 +79,7 @@ fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
                 .windowed(2, 1, false)
                 .map { (a, b) -> graph.simplePath(a, b) }
         }
-        val rep = aux.flatMap { it.coordinates }.mapIndexed { cIdx, it ->
-            Location(lat = it.lat, lng = it.lng, id = cIdx.toLong(), demand = 0, name = "None")
-        }
+        val rep = aux.flatMap { it.coordinates }.map { Coordinate(it.lat, it.lng) }
         val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
         val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
 
@@ -103,22 +98,19 @@ fun VehicleRoutingSolution.toDTO(instance: Instance, matrix: Matrix): VrpSolutio
     val vehicles = this.vehicleList
     val locationIdx = this.locationList.mapIndexed { idx, it -> it.id to idx }.toMap()
     val routes = vehicles?.map { v ->
-        val origin = v.depot.location.let { Location(it.id, it.latitude, it.longitude, it.name, 0) }
+        val origin = v.depot.location.let { Coordinate(it.latitude, it.longitude) }
 
         var dist = 0.0
         var time = 0.0
-        var locations = emptyList<Location>()
+        var locations = emptyList<Coordinate>()
+        var customerIds = emptyList<Long>()
         var toOriginDist = 0.0
         var toOriginTime = 0.0
         var customer = v.customers.firstOrNull()
         while (customer != null) {
-            locations += Location(
-                customer.id,
-                customer.location.latitude,
-                customer.location.longitude,
-                customer.location.name,
-                customer.demand
-            )
+            locations += Coordinate(customer.location.latitude, customer.location.longitude)
+            customerIds += customer.id
+
             val previousLocationId = customer.previousCustomer?.location?.id ?: v.depot.location.id
             dist += matrix.distance(locationIdx[previousLocationId]!!, locationIdx[customer.location.id]!!)
             time += matrix.time(locationIdx[previousLocationId]!!, locationIdx[customer.location.id]!!)
@@ -134,7 +126,7 @@ fun VehicleRoutingSolution.toDTO(instance: Instance, matrix: Matrix): VrpSolutio
             BigDecimal(dist).setScale(2, RoundingMode.HALF_UP),
             BigDecimal(time).setScale(2, RoundingMode.HALF_UP),
             rep,
-            locations.map { it.id }
+            customerIds
         )
     } ?: emptyList()
 

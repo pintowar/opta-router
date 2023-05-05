@@ -35,7 +35,7 @@ data class Path(val distance: Double, val time: Long, val coordinates: List<Coor
 /**
  * Route representation containing the route distance, time and list of points.
  */
-data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Location>, val customerIds: List<Long>)
+data class Route(val distance: BigDecimal, val time: BigDecimal, val order: List<Coordinate>, val customerIds: List<Long>)
 
 /**
  * DTO class with the representation of the VRP solution.
