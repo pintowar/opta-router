@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import jakarta.annotation.PreDestroy
@@ -26,15 +26,10 @@ private val logger = KotlinLogging.logger {}
  */
 @Service
 class OptaSolverService(
-    val graph: GeoService,
     val solverManager: SolverManager<VehicleRoutingSolution, Long>,
     val solverRepository: SolverRepository,
     val broadcastService: BroadcastService
 ) : VrpSolverService {
-
-    private val notSolved = "not solved"
-    private val running = "running"
-    private val terminated = "terminated"
 
     /**
      * Terminates the solvers, in case of application termination.
@@ -46,9 +41,9 @@ class OptaSolverService(
             .forEach(solverManager::terminateEarly)
     }
 
-    fun wrapperForInstance(solution: VehicleRoutingSolution): VrpSolution {
+    fun wrapperForInstance(solution: VehicleRoutingSolution, matrix: Matrix): VrpSolution {
         val current = solverRepository.currentSolutionState(solution.id)!!
-        return solution.toDTO(current.solution.instance, graph)
+        return solution.toDTO(current.solution.instance, matrix)
     }
 
     fun broadcastSolution(instanceId: Long) {
@@ -77,11 +72,11 @@ class OptaSolverService(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.updateSolution(wrapperForInstance(sol), SolverState.RUNNING)
+                        solverRepository.updateSolution(wrapperForInstance(sol, currentMatrix), SolverState.RUNNING)
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.updateSolution(wrapperForInstance(sol), SolverState.TERMINATED)
+                        solverRepository.updateSolution(wrapperForInstance(sol, currentMatrix), SolverState.TERMINATED)
                         broadcastSolution(instance.id)
                     },
                     { it: Long, exp: Throwable ->
