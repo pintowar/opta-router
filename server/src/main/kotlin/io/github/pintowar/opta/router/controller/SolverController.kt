@@ -1,25 +1,29 @@
 package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
+import io.github.pintowar.opta.router.core.solver.pathPlotted
+import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 /**
  * The Controller that contains all REST functions to be used on the application.
  */
 @RestController
 @RequestMapping("/api/solver")
-class SolverController(val solver: VrpSolverService) {
+class SolverController(
+    private val solver: VrpSolverService,
+    private val geoService: GeoService,
+    private val sessionPanel: MutableMap<String, SolverPanel>
+) {
+
+    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionState)
 
     @PostMapping(
         "/{id}/solve",
@@ -31,9 +35,14 @@ class SolverController(val solver: VrpSolverService) {
         return ResponseEntity.ok(solver.showState(id))
     }
 
-    @PutMapping("/{id}/detailed-path/{status}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun detailedPath(@PathVariable id: Long, @PathVariable status: Boolean): ResponseEntity<SolverState> {
-        solver.updateDetailedView(id, status)
+    @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun detailedPath(
+        @PathVariable id: Long,
+        @PathVariable isDetailed: Boolean,
+        session: HttpSession
+    ): ResponseEntity<SolverState> {
+        sessionPanel[session.id] = SolverPanel(isDetailed)
+        solver.updateDetailedView(id, isDetailed)
         return ResponseEntity.ok(solver.showState(id))
     }
 
@@ -50,9 +59,12 @@ class SolverController(val solver: VrpSolverService) {
     }
 
     @GetMapping("/{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun solutionState(@PathVariable id: Long): ResponseEntity<VrpSolutionState> {
-        return solver.currentSolutionState(id)
-            ?.let { ResponseEntity.ok(it) }
-            ?: ResponseEntity.notFound().build()
+    fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
+        val panel = sessionPanel[session.id] ?: SolverPanel()
+
+        return solver.currentSolutionState(id)?.let {
+            val sol = (if (panel.isDetailedPath) it.solution.pathPlotted(geoService, true) else it.solution)
+            PanelSolutionState(panel, it.copy(solution = sol))
+        }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 }

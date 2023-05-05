@@ -54,9 +54,10 @@ data class VrpSolution(val instance: Instance, val routes: List<Route>) {
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
-/**
- * DTO class with the representation of solver status data.
- */
-data class SolverState(val status: String, val detailedPath: Boolean = false)
+enum class SolverState {
+    NOT_SOLVED, RUNNING, TERMINATED
+}
 
 data class VrpSolutionState(val solution: VrpSolution, val state: SolverState)
+
+data class SolverPanel(val isDetailedPath: Boolean = false)

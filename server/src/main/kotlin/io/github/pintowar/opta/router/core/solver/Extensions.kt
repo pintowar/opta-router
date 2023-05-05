@@ -82,8 +82,8 @@ fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
                 .windowed(2, 1, false)
                 .map { (a, b) -> graph.simplePath(a, b) }
         }
-        val rep = aux.flatMap { it.coordinates }.mapIndexed { idx, it ->
-            Location(lat = it.lat, lng = it.lng, id = idx.toLong(), demand = 0, name = "None")
+        val rep = aux.flatMap { it.coordinates }.mapIndexed { cIdx, it ->
+            Location(lat = it.lat, lng = it.lng, id = cIdx.toLong(), demand = 0, name = "None")
         }
         val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
         val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
@@ -99,7 +99,7 @@ fun VrpSolution.pathPlotted(graph: GeoService, detailed: Boolean): VrpSolution {
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.toDTO(instance: Instance, graph: GeoService, detailed: Boolean): VrpSolution {
+fun VehicleRoutingSolution.toDTO(instance: Instance, graph: GeoService, detailed: Boolean = false): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
         val origin = v.depot.location.let { Location(it.id, it.latitude, it.longitude, it.name, 0) }

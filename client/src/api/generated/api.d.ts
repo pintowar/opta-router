@@ -5,7 +5,7 @@
 
 
 export interface paths {
-  "/api/solver/{id}/detailed-path/{status}": {
+  "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
   };
   "/api/solver/{id}/solve": {
@@ -32,10 +32,6 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    SolverState: {
-      status: string;
-      detailedPath: boolean;
-    };
     Instance: {
       /** Format: int64 */
       id: number;
@@ -64,11 +60,18 @@ export interface components {
       /** Format: int32 */
       demand: number;
     };
+    PanelSolutionState: {
+      solverPanel: components["schemas"]["SolverPanel"];
+      solutionState: components["schemas"]["VrpSolutionState"];
+    };
     Route: {
       distance: number;
       time: number;
       order: (components["schemas"]["Location"])[];
       customerIds: (number)[];
+    };
+    SolverPanel: {
+      isDetailedPath: boolean;
     };
     VrpSolution: {
       instance: components["schemas"]["Instance"];
@@ -79,7 +82,8 @@ export interface components {
     };
     VrpSolutionState: {
       solution: components["schemas"]["VrpSolution"];
-      state: components["schemas"]["SolverState"];
+      /** @enum {string} */
+      state: "NOT_SOLVED" | "RUNNING" | "TERMINATED";
     };
   };
   responses: never;
@@ -97,14 +101,14 @@ export interface operations {
     parameters: {
       path: {
         id: number;
-        status: boolean;
+        isDetailed: boolean;
       };
     };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["SolverState"];
+          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -124,7 +128,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["SolverState"];
+          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -139,7 +143,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["SolverState"];
+          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -154,7 +158,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpSolutionState"];
+          "application/json": components["schemas"]["PanelSolutionState"];
         };
       };
     };
@@ -169,7 +173,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["SolverState"];
+          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };

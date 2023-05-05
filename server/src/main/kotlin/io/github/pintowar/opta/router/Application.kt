@@ -4,6 +4,7 @@ import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
 import io.github.pintowar.opta.router.adapters.geo.GraphHopperGeoService
+import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
@@ -43,20 +44,8 @@ class Application {
         return GraphHopperGeoService(gh.importOrLoad())
     }
 
-    /**
-     * The creation of the Thread Pool Task Executor, to run the optimization process in background.
-     * @see com.github.opta.VehicleRoutingSolverService
-     */
     @Bean
-    fun taskExecutor(): Executor {
-        val executor = ThreadPoolTaskExecutor()
-        executor.corePoolSize = 2
-        executor.maxPoolSize = 2
-        executor.setQueueCapacity(500)
-        executor.setThreadNamePrefix("VrpSolver-")
-        executor.initialize()
-        return executor
-    }
+    fun sessionPanel(): MutableMap<String, SolverPanel> = mutableMapOf()
 }
 
 fun main(args: Array<String>) {

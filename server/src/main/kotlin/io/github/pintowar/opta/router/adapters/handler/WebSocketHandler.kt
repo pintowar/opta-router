@@ -1,8 +1,11 @@
 package io.github.pintowar.opta.router.adapters.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
+import io.github.pintowar.opta.router.core.domain.ports.GeoService
+import io.github.pintowar.opta.router.core.solver.pathPlotted
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
@@ -15,7 +18,11 @@ import java.util.concurrent.ConcurrentHashMap
 private val logger = KotlinLogging.logger {}
 
 @Component
-class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(), BroadcastService {
+class WebSocketHandler(
+    private val sessionPanel: MutableMap<String, SolverPanel>,
+    private val mapper: ObjectMapper,
+    private val geoService: GeoService
+) : TextWebSocketHandler(), BroadcastService {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
 
@@ -39,8 +46,14 @@ class WebSocketHandler(private val mapper: ObjectMapper) : TextWebSocketHandler(
     }
 
     private fun broadcast(data: VrpSolutionState) {
-        val textData = mapper.writeValueAsString(data)
-        sessions.forEach { (_, session) ->
+        sessions.forEach { (sessionId, session) ->
+            val panel = sessionPanel[sessionId] ?: SolverPanel()
+
+            // TODO: cache resp to avoid doing this multiple times
+            val textData =
+                (if (panel.isDetailedPath) data.solution.pathPlotted(geoService, true) else data.solution).let {
+                    mapper.writeValueAsString(data.copy(solution = it))
+                }
             notifyUser(session, data.solution.instance.id, textData)
         }
     }
