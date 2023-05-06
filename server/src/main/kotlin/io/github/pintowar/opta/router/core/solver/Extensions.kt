@@ -31,9 +31,9 @@ fun Instance.toSolution(dist: Matrix): VehicleRoutingSolution {
         Depot(it, locs[idx])
     }.associateBy { it.id }
 
-    locs.forEachIndexed { idxa, a ->
+    locs.forEach { a ->
         a.travelDistanceMap = locs
-            .mapIndexed { idxb, b -> b to dist.distance(idxa, idxb) }
+            .map { b -> b to dist.distance(a.id, b.id) }
             .filter { (b, _) -> a != b }
             .toMap()
     }
@@ -76,7 +76,6 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
  */
 fun VehicleRoutingSolution.toDTO(instance: Instance, matrix: Matrix): VrpSolution {
     val vehicles = this.vehicleList
-    val locationIdx = this.locationList.mapIndexed { idx, it -> it.id to idx }.toMap()
     val routes = vehicles?.map { v ->
         val origin = v.depot.location.let { Coordinate(it.latitude, it.longitude) }
 
@@ -85,26 +84,26 @@ fun VehicleRoutingSolution.toDTO(instance: Instance, matrix: Matrix): VrpSolutio
         var locations = emptyList<Coordinate>()
         var customerIds = emptyList<Long>()
         var toOriginDist = 0.0
-        var toOriginTime = 0.0
+        var toOriginTime = 0L
         var customer = v.customers.firstOrNull()
         while (customer != null) {
             locations += Coordinate(customer.location.latitude, customer.location.longitude)
             customerIds += customer.id
 
             val previousLocationId = customer.previousCustomer?.location?.id ?: v.depot.location.id
-            dist += matrix.distance(locationIdx[previousLocationId]!!, locationIdx[customer.location.id]!!)
-            time += matrix.time(locationIdx[previousLocationId]!!, locationIdx[customer.location.id]!!)
-            toOriginDist = matrix.distance(locationIdx[customer.location.id]!!, locationIdx[v.depot.location.id]!!)
-            toOriginTime = matrix.time(locationIdx[customer.location.id]!!, locationIdx[v.depot.location.id]!!)
+            dist += matrix.distance(previousLocationId, customer.location.id)
+            time += matrix.time(previousLocationId, customer.location.id)
+            toOriginDist = matrix.distance(customer.location.id, v.depot.location.id)
+            toOriginTime = matrix.time(customer.location.id, v.depot.location.id)
             customer = customer.nextCustomer
         }
-        dist = (dist + toOriginDist) / 1000
-        time = (time + toOriginTime) / (60 * 1000)
+        dist += toOriginDist
+        time += toOriginTime
         val rep = (listOf(origin) + locations + listOf(origin))
 
         Route(
-            BigDecimal(dist).setScale(2, RoundingMode.HALF_UP),
-            BigDecimal(time).setScale(2, RoundingMode.HALF_UP),
+            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
             rep,
             customerIds
         )

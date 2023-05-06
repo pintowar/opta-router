@@ -5,15 +5,45 @@ import java.math.BigDecimal
 /**
  * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
  */
-data class Instance(
-    val id: Long,
-    val name: String,
-    val nLocations: Int,
-    val nVehicles: Int,
-    val capacity: Int,
-    val stops: List<Location>,
+interface Instance {
+    val id: Long
+    val name: String
+    val nLocations: Int
+    val nVehicles: Int
+    val capacity: Int
+    val stops: List<Location>
     val depots: List<Long>
-)
+}
+
+data class DummyInstance(
+    override val id: Long,
+    override val name: String,
+    override val nLocations: Int,
+    override val nVehicles: Int,
+    override val capacity: Int,
+    override val stops: List<Location>,
+    override val depots: List<Long>
+) : Instance
+
+data class RouteInstance(
+    override val id: Long,
+    override val name: String,
+    val vehicles: List<Vehicle>,
+    val customers: List<Customer>
+) : Instance {
+    override val nLocations: Int = customers.size + 1
+    override val nVehicles: Int = vehicles.size
+    override val capacity: Int = vehicles.maxOf { it.capacity }
+    override val stops: List<Location> =
+        (vehicles.map { it.depot.location }.toSet() + customers.map { it.location }.toSet()).toList()
+    override val depots: List<Long> = vehicles.map { it.depot.location.id }
+}
+
+data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot: Depot)
+
+data class Customer(val id: Long, val name: String, val demand: Int, val location: Location)
+
+data class Depot(val id: Long, val name: String, val location: Location)
 
 data class Coordinate(val lat: Double, val lng: Double)
 

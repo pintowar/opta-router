@@ -31,11 +31,7 @@ async function getSolution(id: number): Promise<VrpSolution | null> {
 
 async function solve(instance: Instance): Promise<SolverState | null> {
   try {
-    const { data, status } = await axios.post<SolverState>(
-      `/api/solver/${instance.id}/solve`,
-      instance,
-      defaultHeaders
-    );
+    const { data, status } = await axios.post<SolverState>(`/api/solver/${instance.id}/solve`, defaultHeaders);
     return status === 200 ? data : Promise.reject(`Failed to solve instance ${instance.id}`);
   } catch (e) {
     return Promise.resolve(null);

@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.pintowar.opta.router.core.domain.models.DummyInstance
 import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.GeoMatrix
@@ -9,10 +10,8 @@ import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.Resource
-import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 
-@Component
 class SolutionDummyRepository(
     private val geoService: GeoService,
     private val mapper: ObjectMapper
@@ -36,7 +35,7 @@ class SolutionDummyRepository(
     }
 
     private fun readInstances(resource: Resource): List<Instance> {
-        val sample = mapper.readValue(resource.getContentAsString(StandardCharsets.UTF_8), Instance::class.java)
+        val sample = mapper.readValue(resource.getContentAsString(StandardCharsets.UTF_8), DummyInstance::class.java)
 
         val subSamples = listOf(2, 5)
             .flatMapIndexed { i, splitBy ->
@@ -44,7 +43,7 @@ class SolutionDummyRepository(
 
                 stopSamples.mapIndexed { j, stop ->
                     val baseIdx = i * stopSamples.size
-                    Instance(
+                    DummyInstance(
                         id = baseIdx + sample.id + 1 + j,
                         name = "sub-sample-${baseIdx + 1 + j}",
                         capacity = sample.capacity / splitBy,
@@ -67,7 +66,7 @@ private data class PersistSolution(
 ) {
     val matrix: Matrix by lazy {
         GeoMatrix(
-            vrpSolution.instance.stops.map { it.toCoordinate() },
+            vrpSolution.instance.stops,
             geoService
         )
     }

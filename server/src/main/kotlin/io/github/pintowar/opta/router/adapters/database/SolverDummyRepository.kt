@@ -7,11 +7,9 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
-import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-@Component
 class SolverDummyRepository(
     private val solutionRepository: SolutionRepository
 ) : SolverRepository {

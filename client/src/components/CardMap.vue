@@ -59,7 +59,7 @@ watchEffect(() => {
     <div class="card-body">
       <h2 class="card-title">Map Viewer</h2>
 
-      <div style="height: 600px">
+      <div style="height: 400px">
         <l-map
           ref="routerMap"
           v-model:zoom="zoom"

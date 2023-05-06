@@ -10,7 +10,6 @@ import CardMap from "../components/CardMap.vue";
 const route = useRoute();
 
 const solutionState = await getPanelSolutionState(+route.params.id);
-// const solution = ref<VrpSolution | null>(await getSolution(+route.params.id));
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
 const instance = ref<Instance | null>(solution.value?.instance || null);
 
@@ -66,7 +65,7 @@ async function cleanAction() {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-4 px-4 py-4">
+  <div class="grid grid-cols-1 gap-4 px-4 py-4">
     <card-editor
       v-model:instance="instance"
       v-model:is-detailed-path="isDetailedPath"

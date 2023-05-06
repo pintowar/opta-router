@@ -35,9 +35,11 @@ class SolverController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun solve(@PathVariable id: Long, @RequestBody instance: Instance): ResponseEntity<SolverState> {
-        solver.asyncSolve(instance)
-        return ResponseEntity.ok(solver.showState(id))
+    fun solve(@PathVariable id: Long): ResponseEntity<SolverState> {
+        return solver.currentSolutionState(id)?.let {
+            solver.asyncSolve(it.solution.instance)
+            ResponseEntity.ok(solver.showState(id))
+        } ?: ResponseEntity.notFound().build()
     }
 
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
