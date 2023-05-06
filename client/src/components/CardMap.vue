@@ -41,7 +41,7 @@ const polylines = computed(() => {
 
 watchEffect(() => {
   const bounds: L.LatLngBounds = L.featureGroup(
-    (instance?.value?.stops || []).map((e) => new L.Marker([e.lat, e.lng]))
+    (instance?.value?.locations || []).map((e) => new L.Marker([e.lat, e.lng]))
   ).getBounds();
 
   if (bounds.isValid()) {
@@ -69,7 +69,7 @@ watchEffect(() => {
           :use-global-leaflet="false"
         >
           <l-tile-layer :url="layerUrl" :options="layerOptions" />
-          <l-marker v-for="stop in instance?.stops || []" :key="stop.id" :lat-lng="stop" :visible="true">
+          <l-marker v-for="stop in instance?.locations || []" :key="stop.id" :lat-lng="stop" :visible="true">
             <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
           </l-marker>
           <l-polyline

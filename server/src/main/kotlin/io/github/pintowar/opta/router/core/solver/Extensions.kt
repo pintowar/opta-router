@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
-import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.RouteInstance
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
@@ -20,16 +20,15 @@ import java.math.RoundingMode
  * @param dist distance calculator instance.
  * @return solution representation used by the solver.
  */
-fun Instance.toSolution(dist: Matrix): VehicleRoutingSolution {
+fun RouteInstance.toSolution(dist: Matrix): VehicleRoutingSolution {
     val sol = VehicleRoutingSolution(id)
     sol.name = this.name
-    val locs = this.stops.map {
+    val locs = this.locations.map {
         RoadLocation(it.id, it.lat, it.lng).apply { name = it.name }
     }
+    val locsIdx = locs.associateBy { it.id }
 
-    val deps = this.depots.distinct().mapIndexed { idx, it ->
-        Depot(it, locs[idx])
-    }.associateBy { it.id }
+    val deps = this.depots.map { Depot(it.id, locsIdx[it.id]) }.associateBy { it.id }
 
     locs.forEach { a ->
         a.travelDistanceMap = locs
@@ -38,15 +37,15 @@ fun Instance.toSolution(dist: Matrix): VehicleRoutingSolution {
             .toMap()
     }
     sol.locationList = locs
-    val depsLocs = deps.map { it.value.location.id }.toSet()
-    sol.customerList = this.stops.mapIndexed { idx, it ->
-        Customer(it.id, sol.locationList[idx], it.demand)
-    }.filter { !depsLocs.contains(it.location.id) }
+    sol.customerList = this.customers.map {
+        Customer(it.id, locsIdx[it.location.id], it.demand)
+    }
     sol.depotList = deps.values.toList()
 
-    sol.vehicleList = this.depots.mapIndexed { idx, it ->
-        Vehicle(idx.toLong(), this.capacity, deps[it])
+    sol.vehicleList = this.vehicles.map {
+        Vehicle(it.id, it.capacity, deps[it.depot.id])
     }
+
     sol.distanceType = DistanceType.ROAD_DISTANCE
     sol.distanceUnitOfMeasurement = "m"
     return sol
@@ -74,7 +73,7 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.toDTO(instance: Instance, matrix: Matrix): VrpSolution {
+fun VehicleRoutingSolution.toDTO(instance: RouteInstance, matrix: Matrix): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
         val origin = v.depot.location.let { Coordinate(it.latitude, it.longitude) }

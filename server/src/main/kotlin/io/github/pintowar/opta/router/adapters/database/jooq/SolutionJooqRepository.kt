@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.adapters.database
+package io.github.pintowar.opta.router.adapters.database.jooq
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -57,12 +57,12 @@ class SolutionJooqRepository(
                 c.id!!,
                 c.name,
                 c.demand,
-                Location(l.id!!, l.latitude.toDouble(), l.longitude.toDouble(), l.name, c.demand)
+                Location(l.id!!, l.name, l.latitude.toDouble(), l.longitude.toDouble())
             )
             val accV = vehicles + Vehicle(
                 v.id!!, v.name, v.capacity, Depot(
                     d.id!!, d.name,
-                    Location(dl.id!!, dl.latitude.toDouble(), dl.longitude.toDouble(), dl.name, 0)
+                    Location(dl.id!!, dl.name, dl.latitude.toDouble(), dl.longitude.toDouble())
                 )
             )
 

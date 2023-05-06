@@ -42,7 +42,7 @@ export interface components {
       nVehicles?: number;
       /** Format: int32 */
       capacity: number;
-      stops: (components["schemas"]["Location"])[];
+      locations: (components["schemas"]["Location"])[];
       depots: (number)[];
       /** Format: int32 */
       nvehicles: number;
@@ -57,8 +57,6 @@ export interface components {
       /** Format: double */
       lng: number;
       name: string;
-      /** Format: int32 */
-      demand: number;
     };
     PanelSolutionState: {
       solverPanel: components["schemas"]["SolverPanel"];

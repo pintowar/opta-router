@@ -67,7 +67,6 @@ async function cleanAction() {
 <template>
   <div class="grid grid-cols-1 gap-4 px-4 py-4">
     <card-editor
-      v-model:instance="instance"
       v-model:is-detailed-path="isDetailedPath"
       :status="status"
       :is-ws-connected="isWsConnected"

@@ -1,10 +1,10 @@
 package io.github.pintowar.opta.router.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.adapters.database.SolutionDummyRepository
-import io.github.pintowar.opta.router.adapters.database.SolutionJooqRepository
-import io.github.pintowar.opta.router.adapters.database.SolverDummyRepository
-import io.github.pintowar.opta.router.adapters.database.SolverJooqRepository
+import io.github.pintowar.opta.router.adapters.database.dummy.SolutionDummyRepository
+import io.github.pintowar.opta.router.adapters.database.jooq.SolutionJooqRepository
+import io.github.pintowar.opta.router.adapters.database.dummy.SolverDummyRepository
+import io.github.pintowar.opta.router.adapters.database.jooq.SolverJooqRepository
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository

@@ -1,6 +1,6 @@
-package io.github.pintowar.opta.router.adapters.database
+package io.github.pintowar.opta.router.adapters.database.dummy
 
-import io.github.pintowar.opta.router.core.domain.models.Instance
+import io.github.pintowar.opta.router.core.domain.models.RouteInstance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
@@ -18,7 +18,7 @@ class SolverDummyRepository(
 
     override fun listAllSolutionIds(): Set<Long> = solutionIdMap.keys
 
-    private fun createSolution(instance: Instance): VrpSolutionState {
+    private fun createSolution(instance: RouteInstance): VrpSolutionState {
         val pu = PersistenceUnit(VrpSolution.emptyFromInstance(instance), SolverState.NOT_SOLVED)
         solutionIdMap[instance.id] = pu
         return VrpSolutionState(pu.vrpSolution, SolverState.NOT_SOLVED)
