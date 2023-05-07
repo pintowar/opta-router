@@ -21,11 +21,15 @@ spring:
 #    init:
 #      data-locations: classpath:db/init.sql
 
-optaplanner:
-  solver-config-xml: org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml
-  solver:
-    termination:
-      spent-limit: 2m
+solver:
+  termination:
+    time-limit: 2m
+
+#optaplanner:
+#  solver-config-xml: org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml
+#  solver:
+#    termination:
+#      spent-limit: 2m
 
 endpoints:
   health:

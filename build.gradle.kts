@@ -5,6 +5,7 @@ plugins {
     id("idea")
     alias(libs.plugins.spotless)
     alias(libs.plugins.release)
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 
 allprojects {

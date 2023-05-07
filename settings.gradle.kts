@@ -1,3 +1,3 @@
 rootProject.name = "opta-router"
 
-include("client", "server")
+include("opta-router-webcli", "opta-router-core", "opta-router-rest")

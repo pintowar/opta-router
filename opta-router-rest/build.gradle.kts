@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
     alias(libs.plugins.git.properties)
-    alias(libs.plugins.spotless)
+//    alias(libs.plugins.spotless)
     alias(libs.plugins.jib)
 }
 
@@ -27,16 +27,12 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":opta-router-core"))
     implementation(libs.bundles.kotlin)
     implementation(libs.bundles.spring) {
         exclude(module = "spring-boot-starter-logging")
     }
     implementation(libs.springdoc.openapi)
-
-    implementation(libs.bundles.optaplanner) {
-        exclude(group = "com.google.protobuf")
-        exclude(group = "com.sun.xml.bind")
-    }
     implementation(libs.graphhopper.core)
     implementation(libs.jooq.kotlin)
 
@@ -80,7 +76,6 @@ flyway {
     url = "jdbc:h2:file:/tmp/opta.router.db"
     user = "sa"
     password = ""
-//    locations = arrayOf("filesystem:$projectDir/src/main/resources/db/migration")
 }
 
 jooq {
@@ -94,7 +89,6 @@ jooq {
                     password = ""
                 }
                 generator.apply {
-//                    name = "org.jooq.codegen.DefaultGenerator"
                     name = "org.jooq.codegen.KotlinGenerator"
                     database.apply {
                         name = "org.jooq.meta.h2.H2Database"
@@ -124,13 +118,13 @@ jooq {
     }
 }
 
-spotless {
-    kotlin {
-        ktlint()
-            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
-//    licenseHeaderFile()
-    }
-}
+//spotless {
+//    kotlin {
+//        ktlint()
+//            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
+////    licenseHeaderFile()
+//    }
+//}
 
 configure<GitPropertiesPluginExtension> {
     dotGitDirectory.set(file("${project.rootDir}/.git"))

@@ -50,7 +50,6 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
-optaplanner-boot = { module = "org.optaplanner:optaplanner-spring-boot-starter", version.ref = "optaplanner" }
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
@@ -62,5 +61,5 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
-optaplanner = ["optaplanner-examples", "optaplanner-boot"]
+optaplanner = ["optaplanner-examples"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]

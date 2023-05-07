@@ -2,18 +2,18 @@ package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.RouteInstance
 import io.github.pintowar.opta.router.core.domain.models.SolverState
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
-import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
 import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
-import jakarta.annotation.PreDestroy
 import mu.KotlinLogging
+import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.api.solver.SolverManager
 import org.optaplanner.core.api.solver.SolverStatus
+import org.optaplanner.core.config.solver.SolverConfig
+import org.optaplanner.core.config.solver.termination.TerminationConfig
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
-import org.springframework.stereotype.Service
+import java.time.Duration
 import java.util.*
 
 private val logger = KotlinLogging.logger {}
@@ -25,17 +25,24 @@ private val logger = KotlinLogging.logger {}
  *
  * @param graph the graphhopper wrapper to help calculate distances between points.
  */
-@Service
 class OptaSolverService(
-    val solverManager: SolverManager<VehicleRoutingSolution, Long>,
+    val timeLimit: Duration,
     val solverRepository: SolverRepository,
     val broadcastService: BroadcastService
 ) : VrpSolverService {
 
+    val configPath = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"
+    val solverConfig = SolverConfig.createFromXmlResource(configPath).apply {
+        terminationConfig = TerminationConfig().apply {
+            overwriteSpentLimit(timeLimit)
+        }
+    }
+    val solverFactory = SolverFactory.create<VehicleRoutingSolution>(solverConfig)
+    val solverManager = SolverManager.create<VehicleRoutingSolution, Long>(solverFactory)
+
     /**
      * Terminates the solvers, in case of application termination.
      */
-    @PreDestroy
     fun destroy() {
         solverRepository
             .listAllSolutionIds()
@@ -70,11 +77,19 @@ class OptaSolverService(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.addNewSolution(sol.toDTO(instance, currentMatrix), solverKey, SolverState.RUNNING)
+                        solverRepository.addNewSolution(
+                            sol.toDTO(instance, currentMatrix),
+                            solverKey,
+                            SolverState.RUNNING
+                        )
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.addNewSolution(sol.toDTO(instance, currentMatrix), solverKey, SolverState.TERMINATED)
+                        solverRepository.addNewSolution(
+                            sol.toDTO(instance, currentMatrix),
+                            solverKey,
+                            SolverState.TERMINATED
+                        )
                         broadcastSolution(instance.id)
                     },
                     { it: Long, exp: Throwable ->
@@ -90,7 +105,6 @@ class OptaSolverService(
     override fun terminateEarly(instanceId: Long): Boolean {
         return if (solverManager.getSolverStatus(instanceId) != SolverStatus.NOT_SOLVING) {
             solverManager.terminateEarly(instanceId)
-//            solverRepository.updateStatus(instanceId, SolverState.TERMINATED)
             broadcastSolution(instanceId)
             true
         } else {
@@ -106,7 +120,6 @@ class OptaSolverService(
         val current = solverRepository.currentOrNewSolutionRegistry(instanceId)?.solution
         if (current != null) {
             solverManager.terminateEarly(instanceId)
-//            solverRepository.updateStatus(instanceId, SolverState.NOT_SOLVED)
             solverRepository.clearSolution(instanceId)
             broadcastSolution(instanceId)
         }
