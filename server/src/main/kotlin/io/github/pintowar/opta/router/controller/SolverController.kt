@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverState
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import jakarta.servlet.http.HttpSession
@@ -26,7 +26,7 @@ class SolverController(
     private val sessionPanel: MutableMap<String, SolverPanel>
 ) {
 
-    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionState)
+    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRegistry)
 
     @PostMapping(
         "/{id}/solve",

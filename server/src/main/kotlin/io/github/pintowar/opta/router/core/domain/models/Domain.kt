@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models
 
 import java.math.BigDecimal
+import java.util.*
 
 /**
  * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
@@ -22,15 +23,9 @@ data class RouteInstance(
 
 data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot: Depot)
 
-data class Customer(val id: Long, val name: String, val demand: Int, val location: Location) {
-    constructor(id: Long, name: String, demand: Int, lat: Double, lng: Double) :
-            this(id, name, demand, Location(id, name, lat, lng))
-}
+data class Customer(val id: Long, val name: String, val demand: Int, val location: Location)
 
-data class Depot(val id: Long, val name: String, val location: Location) {
-    constructor(id: Long, name: String, lat: Double, lng: Double) :
-            this(id, name, Location(id, name, lat, lng))
-}
+data class Depot(val id: Long, val name: String, val location: Location)
 
 data class Coordinate(val lat: Double, val lng: Double)
 
@@ -71,9 +66,9 @@ data class VrpSolution(val instance: RouteInstance, val routes: List<Route>) {
 }
 
 enum class SolverState {
-    NOT_SOLVED, RUNNING, TERMINATED
+    ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
 }
 
-data class VrpSolutionState(val solution: VrpSolution, val state: SolverState)
+data class VrpSolutionRegistry(val solution: VrpSolution, val state: SolverState, val solverKey: UUID? = null)
 
 data class SolverPanel(val isDetailedPath: Boolean = false)

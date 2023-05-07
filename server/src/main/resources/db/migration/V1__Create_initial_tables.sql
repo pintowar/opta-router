@@ -116,7 +116,7 @@ CREATE SEQUENCE solution_pk_seq
 
 CREATE TABLE solution (
     id BIGINT DEFAULT NEXT VALUE FOR solution_pk_seq PRIMARY KEY,
-    solver_key UUID NOT NULL,
+    solver_key UUID,
     route_id BIGINT NOT NULL,
     status VARCHAR (20) NOT NULL,
     paths JSON NOT NULL,
