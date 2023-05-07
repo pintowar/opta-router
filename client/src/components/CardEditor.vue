@@ -38,18 +38,18 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
 <template>
   <div class="card bg-base-200 shadow-xl">
     <div class="card-body">
-      <h2 class="card-title">Route Definition</h2>
+      <h2 class="card-title">Planning Panel</h2>
 
       <div class="form-control flex flex-row space-x-2">
         <span class="label-text">Show Detailed Path</span>
         <input v-model="editorDetailedPath" type="checkbox" class="toggle" />
         <div class="grow align-middle">
           <div class="flex justify-end space-x-2">
-            <div>
-              <span v-if="status" class="badge badge-outline">{{ status }}</span>
-            </div>
             <div class="tooltip" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
               <div :class="`badge ${badgeColor}`">WS</div>
+            </div>
+            <div>
+              <span v-if="status" class="badge badge-outline">{{ status }}</span>
             </div>
           </div>
         </div>

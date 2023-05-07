@@ -43,6 +43,7 @@ data class Path(val distance: Double, val time: Long, val coordinates: List<Coor
 data class Route(
     val distance: BigDecimal,
     val time: BigDecimal,
+    val totalDemand: Int,
     val order: List<Coordinate>,
     val customerIds: List<Long>
 )

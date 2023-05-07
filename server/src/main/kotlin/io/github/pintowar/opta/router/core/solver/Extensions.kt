@@ -82,12 +82,14 @@ fun VehicleRoutingSolution.toDTO(instance: RouteInstance, matrix: Matrix): VrpSo
         var time = 0.0
         var locations = emptyList<Coordinate>()
         var customerIds = emptyList<Long>()
+        var totalDemand = 0
         var toOriginDist = 0.0
         var toOriginTime = 0L
         var customer = v.customers.firstOrNull()
         while (customer != null) {
             locations += Coordinate(customer.location.latitude, customer.location.longitude)
             customerIds += customer.id
+            totalDemand += customer.demand
 
             val previousLocationId = customer.previousCustomer?.location?.id ?: v.depot.location.id
             dist += matrix.distance(previousLocationId, customer.location.id)
@@ -103,6 +105,7 @@ fun VehicleRoutingSolution.toDTO(instance: RouteInstance, matrix: Matrix): VrpSo
         Route(
             BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
             BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
+            totalDemand,
             rep,
             customerIds
         )

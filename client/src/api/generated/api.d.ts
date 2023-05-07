@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
@@ -68,17 +67,19 @@ export interface components {
     Route: {
       distance: number;
       time: number;
-      order: (components["schemas"]["Coordinate"])[];
-      customerIds: (number)[];
+      /** Format: int32 */
+      totalDemand: number;
+      order: components["schemas"]["Coordinate"][];
+      customerIds: number[];
     };
     RouteInstance: {
       /** Format: int64 */
       id: number;
       name: string;
-      vehicles: (components["schemas"]["Vehicle"])[];
-      customers: (components["schemas"]["Customer"])[];
-      depots: (components["schemas"]["Depot"])[];
-      locations: (components["schemas"]["Location"])[];
+      vehicles: components["schemas"]["Vehicle"][];
+      customers: components["schemas"]["Customer"][];
+      depots: components["schemas"]["Depot"][];
+      locations: components["schemas"]["Location"][];
       /** Format: int32 */
       nlocations: number;
       /** Format: int32 */
@@ -97,7 +98,7 @@ export interface components {
     };
     VrpSolution: {
       instance: components["schemas"]["RouteInstance"];
-      routes: (components["schemas"]["Route"])[];
+      routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
       totalTime: Record<string, never>;
@@ -120,7 +121,6 @@ export interface components {
 export type external = Record<string, never>;
 
 export interface operations {
-
   detailedPath: {
     parameters: {
       path: {
@@ -202,7 +202,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": (components["schemas"]["VrpSolution"])[];
+          "application/json": components["schemas"]["VrpSolution"][];
         };
       };
     };

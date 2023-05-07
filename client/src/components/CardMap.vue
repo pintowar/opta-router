@@ -29,14 +29,27 @@ const polylines = computed(() => {
   const routes = solution.value?.routes || [];
   const colors = createRainbow(Math.max(routes.length, 9)).map((c) => rgbaString(c));
 
-  return routes?.map((r, idx) => ({
-    id: `v${idx}`,
-    visible: true,
-    points: r.order.map((p) => [p.lat, p.lng]) as L.LatLngExpression[],
-    opacity: 0.0,
-    content: `<ul><li>ID: v${idx}</li><li>Distance: ${r.distance}</li><li>Time: ${r.time}</li></ul>`,
-    color: colors[idx],
-  }));
+  return routes?.map((r, idx) => {
+    const vCapacity = instance.value?.vehicles[idx]?.capacity;
+    const capacity = vCapacity ? (100 * r.totalDemand) / vCapacity : 0;
+    return {
+      id: `v${idx}`,
+      visible: true,
+      points: r.order.map((p) => [p.lat, p.lng]) as L.LatLngExpression[],
+      opacity: 0.0,
+      content: `<ul>
+        <li>${instance.value?.vehicles[idx].name}</li>
+        <li>Distance: ${r.distance}</li>
+        <li>Time: ${r.time}</li>
+        <li>
+          <div class="tooltip w-full" data-tip="${capacity}%">
+            <progress class="progress progress-primary w-full" value="${capacity}" max="100"></progress>
+          </div>
+        </li>
+      </ul>`,
+      color: colors[idx],
+    };
+  });
 });
 
 watchEffect(() => {

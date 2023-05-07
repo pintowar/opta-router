@@ -1,10 +1,12 @@
 import axios from "axios";
 import { components } from "./generated/api";
 type RouteInstance = components["schemas"]["RouteInstance"];
+type Route = components["schemas"]["Route"];
+type Vehicle = components["schemas"]["Vehicle"];
 type VrpSolution = components["schemas"]["VrpSolution"];
 type VrpSolutionRegistry = components["schemas"]["VrpSolutionRegistry"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
-type SolverState = "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
 const defaultHeaders = {
   headers: {
@@ -79,6 +81,6 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-export type { RouteInstance, SolverState, VrpSolution, VrpSolutionRegistry };
+export type { Route, RouteInstance, SolverState, Vehicle, VrpSolution, VrpSolutionRegistry };
 
 export { getInstances, getSolution, solve, terminate, clean, detailedPath, getPanelSolutionState };

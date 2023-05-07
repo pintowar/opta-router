@@ -67,7 +67,7 @@ class GraphHopperGeoService(val path: String, val location: String) : GeoService
             val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
             val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
 
-            Route(dist, time, rep, route.customerIds)
+            Route(dist, time, route.totalDemand, rep, route.customerIds)
         }
         return solution.copy(routes = newRoutes)
     }

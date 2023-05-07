@@ -6,6 +6,7 @@ import { RouteInstance, VrpSolution } from "../api";
 import { solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
+import CardVehicles from "../components/CardVehicles.vue";
 
 const route = useRoute();
 
@@ -65,16 +66,20 @@ async function cleanAction() {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 px-4 py-4">
-    <card-editor
-      v-model:is-detailed-path="isDetailedPath"
-      :status="status"
-      :is-ws-connected="isWsConnected"
-      @on-solve="solveAction"
-      @on-terminate="terminateAction"
-      @on-destroy="cleanAction"
-    />
-
-    <card-map :solution="solution" />
+  <div class="flex flex-col mx-4">
+    <div class="grid grid-cols-1 py-2">
+      <card-editor
+        v-model:is-detailed-path="isDetailedPath"
+        :status="status"
+        :is-ws-connected="isWsConnected"
+        @on-solve="solveAction"
+        @on-terminate="terminateAction"
+        @on-destroy="cleanAction"
+      />
+    </div>
+    <div class="grid grid-cols-2 gap-4 py-2">
+      <card-map :solution="solution" />
+      <card-vehicles :solution="solution" />
+    </div>
   </div>
 </template>
