@@ -19,12 +19,8 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.bundles.kotlin)
-
-    api(libs.bundles.optaplanner) {
-        exclude(group = "com.google.protobuf")
-        exclude(group = "com.sun.xml.bind")
-    }
+    implementation(project(":opta-router-core"))
+    api(libs.graphhopper.core)
 
     runtimeOnly(libs.slf4j)
 }

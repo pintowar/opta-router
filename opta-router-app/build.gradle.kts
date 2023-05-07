@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
     alias(libs.plugins.git.properties)
-//    alias(libs.plugins.spotless)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.jib)
 }
 
@@ -28,12 +28,13 @@ repositories {
 
 dependencies {
     implementation(project(":opta-router-core"))
+    implementation(project(":opta-router-geo"))
     implementation(libs.bundles.kotlin)
     implementation(libs.bundles.spring) {
         exclude(module = "spring-boot-starter-logging")
     }
     implementation(libs.springdoc.openapi)
-    implementation(libs.graphhopper.core)
+
     implementation(libs.jooq.kotlin)
 
     implementation(libs.bundles.jackson)
@@ -118,13 +119,13 @@ jooq {
     }
 }
 
-//spotless {
-//    kotlin {
-//        ktlint()
-//            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
-////    licenseHeaderFile()
-//    }
-//}
+spotless {
+    kotlin {
+        ktlint()
+            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
+//    licenseHeaderFile()
+    }
+}
 
 configure<GitPropertiesPluginExtension> {
     dotGitDirectory.set(file("${project.rootDir}/.git"))
