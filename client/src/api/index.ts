@@ -1,8 +1,8 @@
 import axios from "axios";
 import { components } from "./generated/api";
-type Instance = components["schemas"]["Instance"];
+type RouteInstance = components["schemas"]["RouteInstance"];
 type VrpSolution = components["schemas"]["VrpSolution"];
-type VrpSolutionState = components["schemas"]["VrpSolutionState"];
+type VrpSolutionRegistry = components["schemas"]["VrpSolutionRegistry"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
 type SolverState = "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
@@ -13,7 +13,7 @@ const defaultHeaders = {
   },
 };
 
-async function getInstances(): Promise<Instance[]> {
+async function getInstances(): Promise<RouteInstance[]> {
   const { data, status } = await axios.get<VrpSolution[]>("/api/solutions");
 
   return status === 200 ? data.map((it) => it.instance) : Promise.reject("Failed to retrieve instances");
@@ -29,10 +29,10 @@ async function getSolution(id: number): Promise<VrpSolution | null> {
   }
 }
 
-async function solve(instance: Instance): Promise<SolverState | null> {
+async function solve(id: number): Promise<SolverState | null> {
   try {
-    const { data, status } = await axios.post<SolverState>(`/api/solver/${instance.id}/solve`, defaultHeaders);
-    return status === 200 ? data : Promise.reject(`Failed to solve instance ${instance.id}`);
+    const { data, status } = await axios.post<SolverState>(`/api/solver/${id}/solve`, defaultHeaders);
+    return status === 200 ? data : Promise.reject(`Failed to solve instance ${id}`);
   } catch (e) {
     return Promise.resolve(null);
   }
@@ -79,6 +79,6 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-export type { Instance, SolverState, VrpSolution, VrpSolutionState };
+export type { RouteInstance, SolverState, VrpSolution, VrpSolutionRegistry };
 
 export { getInstances, getSolution, solve, terminate, clean, detailedPath, getPanelSolutionState };

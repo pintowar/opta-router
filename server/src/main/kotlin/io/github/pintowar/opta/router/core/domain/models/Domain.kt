@@ -14,7 +14,6 @@ data class RouteInstance(
 ) {
     val nLocations: Int = customers.size + 1
     val nVehicles: Int = vehicles.size
-    val capacity: Int = vehicles.maxOf { it.capacity }
     val depots: List<Depot> = vehicles.map { it.depot }.distinct()
     val locations: List<Location> =
         depots.map { it.location } + customers.map { it.location }

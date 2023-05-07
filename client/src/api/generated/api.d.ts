@@ -32,56 +32,82 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    Instance: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      /** Format: int32 */
-      nLocations?: number;
-      /** Format: int32 */
-      nVehicles?: number;
-      /** Format: int32 */
-      capacity: number;
-      locations: (components["schemas"]["Location"])[];
-      depots: (number)[];
-      /** Format: int32 */
-      nvehicles: number;
-      /** Format: int32 */
-      nlocations: number;
-    };
-    Location: {
-      /** Format: int64 */
-      id: number;
+    Coordinate: {
       /** Format: double */
       lat: number;
       /** Format: double */
       lng: number;
+    };
+    Customer: {
+      /** Format: int64 */
+      id: number;
       name: string;
+      /** Format: int32 */
+      demand: number;
+      location: components["schemas"]["Location"];
+    };
+    Depot: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      location: components["schemas"]["Location"];
+    };
+    Location: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
     };
     PanelSolutionState: {
       solverPanel: components["schemas"]["SolverPanel"];
-      solutionState: components["schemas"]["VrpSolutionState"];
+      solutionState: components["schemas"]["VrpSolutionRegistry"];
     };
     Route: {
       distance: number;
       time: number;
-      order: (components["schemas"]["Location"])[];
+      order: (components["schemas"]["Coordinate"])[];
       customerIds: (number)[];
+    };
+    RouteInstance: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      vehicles: (components["schemas"]["Vehicle"])[];
+      customers: (components["schemas"]["Customer"])[];
+      depots: (components["schemas"]["Depot"])[];
+      locations: (components["schemas"]["Location"])[];
+      /** Format: int32 */
+      nlocations: number;
+      /** Format: int32 */
+      nvehicles: number;
     };
     SolverPanel: {
       isDetailedPath: boolean;
     };
+    Vehicle: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: int32 */
+      capacity: number;
+      depot: components["schemas"]["Depot"];
+    };
     VrpSolution: {
-      instance: components["schemas"]["Instance"];
+      instance: components["schemas"]["RouteInstance"];
       routes: (components["schemas"]["Route"])[];
       empty: boolean;
       totalDistance: number;
       totalTime: Record<string, never>;
     };
-    VrpSolutionState: {
+    VrpSolutionRegistry: {
       solution: components["schemas"]["VrpSolution"];
       /** @enum {string} */
-      state: "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+      state: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+      /** Format: uuid */
+      solverKey?: string;
     };
   };
   responses: never;
@@ -106,7 +132,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -117,16 +143,11 @@ export interface operations {
         id: number;
       };
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Instance"];
-      };
-    };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -141,7 +162,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };
@@ -171,7 +192,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
         };
       };
     };

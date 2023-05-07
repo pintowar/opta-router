@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ref, onBeforeMount } from "vue";
 
-import { Instance, getInstances } from "../api";
+import { RouteInstance, getInstances } from "../api";
 
-const instances = ref<Instance[]>([]);
+const instances = ref<RouteInstance[]>([]);
 
 onBeforeMount(async () => {
   instances.value = await getInstances();
@@ -16,7 +16,6 @@ onBeforeMount(async () => {
       <thead>
         <th>Id</th>
         <th>Name</th>
-        <th>Capacity</th>
         <th>Num Locations</th>
         <th>Num Vehicles</th>
         <th></th>
@@ -24,7 +23,6 @@ onBeforeMount(async () => {
       <tbody v-for="instance in instances" :key="instance.id">
         <td>{{ instance.id }}</td>
         <td>{{ instance.name }}</td>
-        <td>{{ instance.capacity }}</td>
         <td>{{ instance.nlocations }}</td>
         <td>{{ instance.nvehicles }}</td>
         <td>

@@ -7,7 +7,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
-import { Instance, VrpSolution } from "../api";
+import { RouteInstance, VrpSolution } from "../api";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
-const instance = ref<Instance | null>(solution.value?.instance || null);
+const instance = ref<RouteInstance | null>(solution.value?.instance || null);
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
 const zoom = ref(3);
