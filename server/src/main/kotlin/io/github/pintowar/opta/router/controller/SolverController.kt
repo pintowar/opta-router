@@ -1,9 +1,8 @@
 package io.github.pintowar.opta.router.controller
 
-import io.github.pintowar.opta.router.core.domain.models.Instance
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverState
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionState
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import jakarta.servlet.http.HttpSession
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -28,16 +26,18 @@ class SolverController(
     private val sessionPanel: MutableMap<String, SolverPanel>
 ) {
 
-    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionState)
+    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRegistry)
 
     @PostMapping(
         "/{id}/solve",
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun solve(@PathVariable id: Long, @RequestBody instance: Instance): ResponseEntity<SolverState> {
-        solver.asyncSolve(instance)
-        return ResponseEntity.ok(solver.showState(id))
+    fun solve(@PathVariable id: Long): ResponseEntity<SolverState> {
+        return solver.currentSolutionState(id)?.let {
+            solver.asyncSolve(it.solution.instance)
+            ResponseEntity.ok(solver.showState(id))
+        } ?: ResponseEntity.notFound().build()
     }
 
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])

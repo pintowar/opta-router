@@ -8,7 +8,11 @@ springdoc = "2.1.0"
 jackson = "2.14.2" # 2.15.0
 optaplanner = "9.37.0.Final"
 graphhopper = "7.0"
+flyway = "9.17.0"
+jooq = "3.18.3"
+h2 = "2.1.214"
 sfl4j = "2.0.7"
+gradle-jooq = "8.2"
 gradle-node = "4.0.0"
 gradle-jib = "3.3.1"
 gradle-git = "2.4.1"
@@ -19,6 +23,8 @@ spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency = { id = "io.spring.dependency-management", version.ref = "spring-dependency" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
+jooq = { id = "nu.studer.jooq", version.ref = "gradle-jooq" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gradle-git" }
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
@@ -32,9 +38,11 @@ kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref =
 
 spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring-boot" }
 spring-actuator = { module = "org.springframework.boot:spring-boot-actuator", version.ref = "spring-boot" }
+spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
@@ -46,12 +54,13 @@ optaplanner-boot = { module = "org.optaplanner:optaplanner-spring-boot-starter",
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
+jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
+h2-db = { module = "com.h2database:h2", version.ref = "h2" }
+
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
-
-
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
-spring = ["spring-websocket", "spring-actuator"]
+spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
 optaplanner = ["optaplanner-examples", "optaplanner-boot"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]

@@ -2,7 +2,7 @@
 import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
-import { Instance, VrpSolution } from "../api";
+import { RouteInstance, VrpSolution } from "../api";
 import { solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
@@ -10,9 +10,8 @@ import CardMap from "../components/CardMap.vue";
 const route = useRoute();
 
 const solutionState = await getPanelSolutionState(+route.params.id);
-// const solution = ref<VrpSolution | null>(await getSolution(+route.params.id));
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
-const instance = ref<Instance | null>(solution.value?.instance || null);
+const instance = ref<RouteInstance | null>(solution.value?.instance || null);
 
 const status = ref<string | null>(solutionState?.solutionState?.state || null);
 const isDetailedPath = ref<boolean>(solutionState?.solverPanel?.isDetailedPath || false);
@@ -45,7 +44,7 @@ function creatWSCli() {
 
 async function solveAction() {
   if (instance.value !== null) {
-    const state = await solve(instance.value);
+    const state = await solve(instance.value.id);
     status.value = state || null;
   }
 }
@@ -66,9 +65,8 @@ async function cleanAction() {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-4 px-4 py-4">
+  <div class="grid grid-cols-1 gap-4 px-4 py-4">
     <card-editor
-      v-model:instance="instance"
       v-model:is-detailed-path="isDetailedPath"
       :status="status"
       :is-ws-connected="isWsConnected"

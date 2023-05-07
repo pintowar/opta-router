@@ -7,7 +7,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
-import { Instance, VrpSolution } from "../api";
+import { RouteInstance, VrpSolution } from "../api";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
-const instance = ref<Instance | null>(solution.value?.instance || null);
+const instance = ref<RouteInstance | null>(solution.value?.instance || null);
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
 const zoom = ref(3);
@@ -41,7 +41,7 @@ const polylines = computed(() => {
 
 watchEffect(() => {
   const bounds: L.LatLngBounds = L.featureGroup(
-    (instance?.value?.stops || []).map((e) => new L.Marker([e.lat, e.lng]))
+    (instance?.value?.locations || []).map((e) => new L.Marker([e.lat, e.lng]))
   ).getBounds();
 
   if (bounds.isValid()) {
@@ -59,7 +59,7 @@ watchEffect(() => {
     <div class="card-body">
       <h2 class="card-title">Map Viewer</h2>
 
-      <div style="height: 600px">
+      <div style="height: 400px">
         <l-map
           ref="routerMap"
           v-model:zoom="zoom"
@@ -69,7 +69,7 @@ watchEffect(() => {
           :use-global-leaflet="false"
         >
           <l-tile-layer :url="layerUrl" :options="layerOptions" />
-          <l-marker v-for="stop in instance?.stops || []" :key="stop.id" :lat-lng="stop" :visible="true">
+          <l-marker v-for="stop in instance?.locations || []" :key="stop.id" :lat-lng="stop" :visible="true">
             <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
           </l-marker>
           <l-polyline

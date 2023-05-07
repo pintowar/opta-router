@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import JsonEditorVue from "json-editor-vue";
+// import JsonEditorVue from "json-editor-vue";
 import { toRefs, computed } from "vue";
 
-import { Instance } from "../api";
+// import { Instance } from "../api";
 
 const props = defineProps<{
-  instance: Instance | null;
+  // instance: Instance | null;
   status: string | null;
   isDetailedPath: boolean;
   isWsConnected: boolean;
@@ -15,16 +15,17 @@ const emit = defineEmits<{
   (e: "onSolve"): void;
   (e: "onTerminate"): void;
   (e: "onDestroy"): void;
-  (e: "update:instance", val: Instance | null): void;
+  // (e: "update:instance", val: Instance | null): void;
   (e: "update:isDetailedPath", val: boolean): void;
 }>();
 
-const { instance, status, isDetailedPath, isWsConnected } = toRefs(props);
+// instance
+const { status, isDetailedPath, isWsConnected } = toRefs(props);
 
-const editorContent = computed({
-  get: () => instance.value,
-  set: (val) => emit("update:instance", val),
-});
+// const editorContent = computed({
+//   get: () => instance.value,
+//   set: (val) => emit("update:instance", val),
+// });
 
 const editorDetailedPath = computed({
   get: () => isDetailedPath.value,
@@ -54,12 +55,12 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
         </div>
       </div>
 
-      <json-editor-vue v-model="editorContent" mode="tree" class="jse-theme-dark" />
+      <!-- <json-editor-vue v-model="editorContent" mode="tree" class="jse-theme-dark" /> -->
 
       <div class="card-actions">
-        <button class="btn btn-success" @click="$emit('onSolve')">Solve</button>
-        <button class="btn btn-warning" @click="$emit('onTerminate')">Terminate</button>
-        <button class="btn btn-error" @click="$emit('onDestroy')">Clear</button>
+        <button class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
+        <button class="btn btn-sm btn-warning" @click="$emit('onTerminate')">Terminate</button>
+        <button class="btn btn-sm btn-error" @click="$emit('onDestroy')">Clear</button>
       </div>
     </div>
   </div>

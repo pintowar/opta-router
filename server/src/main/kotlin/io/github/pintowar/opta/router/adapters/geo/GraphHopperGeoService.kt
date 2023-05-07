@@ -2,6 +2,8 @@ package io.github.pintowar.opta.router.adapters.geo
 
 import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper
+import com.graphhopper.config.CHProfile
+import com.graphhopper.config.Profile
 import com.graphhopper.util.Parameters
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.Path
@@ -12,17 +14,31 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-/**
- * A Simple Wrapper to the GraphHopper class.
- * @param graph A GraphHopper instance.
- */
-class GraphHopperGeoService(private val graph: GraphHopper) : GeoService {
+class GraphHopperGeoService(val path: String, val location: String) : GeoService {
 
     companion object {
         const val VEHICLE = "car"
         const val WEIGHTING = "shortest"
         const val PROFILE = "${VEHICLE}_$WEIGHTING"
     }
+
+    private val graph: GraphHopper = GraphHopper().apply {
+        val profs = listOf(
+            Profile(PROFILE).apply {
+                vehicle = VEHICLE
+                weighting = WEIGHTING
+            }
+        )
+
+        osmFile = path
+        graphHopperLocation = location
+        profiles = profs
+        chPreparationHandler.preparationThreads = Runtime.getRuntime().availableProcessors()
+        chPreparationHandler.setCHProfiles(profs.map { CHProfile(it.name) })
+
+        setMinNetworkSize(200)
+    }.importOrLoad()
+
 
     /**
      * Generates a PathWrapper containing the best route between origin and target points.
