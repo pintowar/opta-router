@@ -2,7 +2,7 @@
 import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
-import { RouteInstance, VrpSolution } from "../api";
+import { VrpProblem, VrpSolution } from "../api";
 import { solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
@@ -12,7 +12,7 @@ const route = useRoute();
 
 const solutionState = await getPanelSolutionState(+route.params.id);
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
-const instance = ref<RouteInstance | null>(solution.value?.instance || null);
+const instance = ref<VrpProblem | null>(solution.value?.instance || null);
 
 const status = ref<string | null>(solutionState?.solutionState?.state || null);
 const isDetailedPath = ref<boolean>(solutionState?.solverPanel?.isDetailedPath || false);

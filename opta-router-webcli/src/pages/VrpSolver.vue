@@ -1,12 +1,12 @@
 <script setup>
-import Dashboard from "../components/Dashboard.vue";
+import VrpSolverDashboard from "../components/VrpSolverDashboard.vue";
 </script>
 
 <template>
   <suspense>
     <template #default>
       <main>
-        <dashboard />
+        <vrp-solver-dashboard />
       </main>
     </template>
     <template #fallback>

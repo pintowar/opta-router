@@ -63,7 +63,7 @@ class SolverController(
         return ResponseEntity.ok(solver.showState(id))
     }
 
-    @GetMapping("/{id}/solution-state", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
         val panel = sessionPanel[session.id] ?: SolverPanel()
 

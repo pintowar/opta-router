@@ -6,7 +6,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.util.*
 
-interface SolverRepository {
+interface VrpSolverSolutionRepository {
 
     fun listAllSolutionIds(): Set<Long>
 

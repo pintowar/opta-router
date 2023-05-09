@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { ref, onBeforeMount } from "vue";
 
-import { RouteInstance, getInstances } from "../api";
+import { VrpProblem, getProblems } from "../api";
 
-const instances = ref<RouteInstance[]>([]);
+const instances = ref<VrpProblem[]>([]);
 
 onBeforeMount(async () => {
-  instances.value = await getInstances();
+  instances.value = await getProblems();
 });
 </script>
 

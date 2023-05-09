@@ -1,8 +1,8 @@
 import axios from "axios";
 import { components } from "./generated/api";
-type RouteInstance = components["schemas"]["RouteInstance"];
 type Route = components["schemas"]["Route"];
 type Vehicle = components["schemas"]["Vehicle"];
+type VrpProblem = components["schemas"]["VrpProblem"];
 type VrpSolution = components["schemas"]["VrpSolution"];
 type VrpSolutionRegistry = components["schemas"]["VrpSolutionRegistry"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
@@ -15,17 +15,17 @@ const defaultHeaders = {
   },
 };
 
-async function getInstances(): Promise<RouteInstance[]> {
-  const { data, status } = await axios.get<VrpSolution[]>("/api/solutions");
+async function getProblems(): Promise<VrpProblem[]> {
+  const { data, status } = await axios.get<VrpProblem[]>("/api/vrp-problems");
 
-  return status === 200 ? data.map((it) => it.instance) : Promise.reject("Failed to retrieve instances");
+  return status === 200 ? data : Promise.reject("Failed to retrieve instances");
 }
 
-async function getSolution(id: number): Promise<VrpSolution | null> {
+async function getProblem(id: number): Promise<VrpProblem | null> {
   try {
-    const { data, status } = await axios.get<VrpSolution>(`/api/solutions/by-instance-id/${id}/show`);
+    const { data, status } = await axios.get<VrpProblem>(`/api/vrp-problems/${id}`);
 
-    return status === 200 ? data : Promise.reject("Failed to retrieve solution");
+    return status === 200 ? data : Promise.reject("Failed to retrieve instance");
   } catch (e) {
     return Promise.resolve(null);
   }
@@ -42,7 +42,7 @@ async function solve(id: number): Promise<SolverState | null> {
 
 async function getPanelSolutionState(id: number): Promise<PanelSolutionState | null> {
   try {
-    const { data, status } = await axios.get<PanelSolutionState>(`/api/solver/${id}/solution-state`, defaultHeaders);
+    const { data, status } = await axios.get<PanelSolutionState>(`/api/solver/${id}/solution-panel`, defaultHeaders);
 
     return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
   } catch (e) {
@@ -81,6 +81,6 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-export type { Route, RouteInstance, SolverState, Vehicle, VrpSolution, VrpSolutionRegistry };
+export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution, VrpSolutionRegistry };
 
-export { getInstances, getSolution, solve, terminate, clean, detailedPath, getPanelSolutionState };
+export { getProblems, getProblem, solve, terminate, clean, detailedPath, getPanelSolutionState };

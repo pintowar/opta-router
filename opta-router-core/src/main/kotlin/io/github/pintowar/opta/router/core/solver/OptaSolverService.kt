@@ -4,7 +4,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
-import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverFactory
@@ -27,7 +27,7 @@ private val logger = KotlinLogging.logger {}
  */
 class OptaSolverService(
     val timeLimit: Duration,
-    val solverRepository: SolverRepository,
+    val vrpSolverSolutionRepository: VrpSolverSolutionRepository,
     val broadcastService: BroadcastService
 ) : VrpSolverService {
 
@@ -44,7 +44,7 @@ class OptaSolverService(
      * Terminates the solvers, in case of application termination.
      */
     fun destroy() {
-        solverRepository
+        vrpSolverSolutionRepository
             .listAllSolutionIds()
             .forEach(solverManager::terminateEarly)
     }
@@ -55,7 +55,7 @@ class OptaSolverService(
     }
 
     override fun currentSolutionState(instanceId: Long): VrpSolutionRegistry? =
-        solverRepository.currentOrNewSolutionRegistry(instanceId)
+        vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instanceId)
 
     override fun showState(instanceId: Long): SolverState =
         currentSolutionState(instanceId)?.state ?: SolverState.NOT_SOLVED
@@ -66,18 +66,18 @@ class OptaSolverService(
 
     override fun asyncSolve(instance: VrpProblem) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
-            val currentSolutionRegistry = solverRepository.currentOrNewSolutionRegistry(instance.id)!!
-            val currentMatrix = solverRepository.currentMatrix(instance.id) ?: return
+            val currentSolutionRegistry = vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instance.id)!!
+            val currentMatrix = vrpSolverSolutionRepository.currentMatrix(instance.id) ?: return
             val solverKey = currentSolutionRegistry.solverKey ?: UUID.randomUUID()
 
             val solution = currentSolutionRegistry.solution.toSolverSolution(currentMatrix)
-            solverRepository.addNewSolution(solution.toDTO(instance, currentMatrix), solverKey, SolverState.ENQUEUED)
+            vrpSolverSolutionRepository.addNewSolution(solution.toDTO(instance, currentMatrix), solverKey, SolverState.ENQUEUED)
             try {
                 solverManager.solveAndListen(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.addNewSolution(
+                        vrpSolverSolutionRepository.addNewSolution(
                             sol.toDTO(instance, currentMatrix),
                             solverKey,
                             SolverState.RUNNING
@@ -85,7 +85,7 @@ class OptaSolverService(
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        solverRepository.addNewSolution(
+                        vrpSolverSolutionRepository.addNewSolution(
                             sol.toDTO(instance, currentMatrix),
                             solverKey,
                             SolverState.TERMINATED
@@ -117,10 +117,10 @@ class OptaSolverService(
      *
      */
     override fun clean(instanceId: Long) {
-        val current = solverRepository.currentOrNewSolutionRegistry(instanceId)?.solution
+        val current = vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instanceId)?.solution
         if (current != null) {
             solverManager.terminateEarly(instanceId)
-            solverRepository.clearSolution(instanceId)
+            vrpSolverSolutionRepository.clearSolution(instanceId)
             broadcastSolution(instanceId)
         }
     }

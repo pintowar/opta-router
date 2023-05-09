@@ -3,12 +3,12 @@ import "./app.css";
 import App from "./App.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 
-import Home from "./pages/Home.vue";
-import Solver from "./pages/Solver.vue";
+import VrpProblems from "./pages/VrpProblems.vue";
+import VrpSolver from "./pages/VrpSolver.vue";
 
 const routes = [
-  { path: "/", component: Home },
-  { path: "/solve/:id", component: Solver },
+  { path: "/", component: VrpProblems },
+  { path: "/solve/:id", component: VrpSolver },
 ];
 
 const router = createRouter({

@@ -1,10 +1,10 @@
 package io.github.pintowar.opta.router.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.adapters.database.jooq.SolutionJooqRepository
-import io.github.pintowar.opta.router.adapters.database.jooq.SolverJooqRepository
-import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
-import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
+import io.github.pintowar.opta.router.adapters.database.jooq.VrpProblemJooqRepository
+import io.github.pintowar.opta.router.adapters.database.jooq.VrpSolverSolutionJooqRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpProblemRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
 import org.jooq.DSLContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,16 +13,16 @@ import org.springframework.context.annotation.Configuration
 class RepositoryConfig {
 
     @Bean
-    fun solutionRepository(
+    fun vrpProblemRepository(
         dslContext: DSLContext,
-    ): SolutionRepository = SolutionJooqRepository(dslContext)
+    ): VrpProblemRepository = VrpProblemJooqRepository(dslContext)
 
 
     @Bean
-    fun solverRepository(
+    fun vrpSolverSolutionRepository(
         objectMapper: ObjectMapper,
         dslContext: DSLContext,
-        solutionRepo: SolutionRepository
-    ): SolverRepository = SolverJooqRepository(objectMapper, dslContext, solutionRepo)
+        solutionRepo: VrpProblemRepository
+    ): VrpSolverSolutionRepository = VrpSolverSolutionJooqRepository(objectMapper, dslContext, solutionRepo)
 
 }

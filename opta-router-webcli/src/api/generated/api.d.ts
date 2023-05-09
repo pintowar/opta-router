@@ -10,20 +10,20 @@ export interface paths {
   "/api/solver/{id}/solve": {
     post: operations["solve"];
   };
+  "/api/vrp-problems": {
+    get: operations["index"];
+  };
+  "/api/vrp-problems/{id}": {
+    get: operations["show"];
+  };
   "/api/solver/{id}/terminate": {
     get: operations["terminateEarly"];
   };
-  "/api/solver/{id}/solution-state": {
+  "/api/solver/{id}/solution-panel": {
     get: operations["solutionState"];
   };
   "/api/solver/{id}/clean": {
     get: operations["clean"];
-  };
-  "/api/solutions": {
-    get: operations["index"];
-  };
-  "/api/solutions/by-instance-id/{id}/show": {
-    get: operations["show"];
   };
 }
 
@@ -31,30 +31,57 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    Coordinate: {
-      /** Format: double */
-      lat: number;
-      /** Format: double */
-      lng: number;
-    };
     Customer: {
       /** Format: int64 */
       id: number;
       name: string;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
       /** Format: int32 */
       demand: number;
-      location: components["schemas"]["Location"];
     };
     Depot: {
       /** Format: int64 */
       id: number;
       name: string;
-      location: components["schemas"]["Location"];
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
     };
     Location: {
+      name: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
+    };
+    Vehicle: {
       /** Format: int64 */
       id: number;
       name: string;
+      /** Format: int32 */
+      capacity: number;
+      depot: components["schemas"]["Depot"];
+    };
+    VrpProblem: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      vehicles: components["schemas"]["Vehicle"][];
+      customers: components["schemas"]["Customer"][];
+      depots: components["schemas"]["Depot"][];
+      locations: components["schemas"]["Location"][];
+      /** Format: int32 */
+      nlocations: number;
+      /** Format: int32 */
+      nvehicles: number;
+    };
+    LatLng: {
       /** Format: double */
       lat: number;
       /** Format: double */
@@ -69,35 +96,14 @@ export interface components {
       time: number;
       /** Format: int32 */
       totalDemand: number;
-      order: components["schemas"]["Coordinate"][];
+      order: components["schemas"]["LatLng"][];
       customerIds: number[];
-    };
-    RouteInstance: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      vehicles: components["schemas"]["Vehicle"][];
-      customers: components["schemas"]["Customer"][];
-      depots: components["schemas"]["Depot"][];
-      locations: components["schemas"]["Location"][];
-      /** Format: int32 */
-      nlocations: number;
-      /** Format: int32 */
-      nvehicles: number;
     };
     SolverPanel: {
       isDetailedPath: boolean;
     };
-    Vehicle: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      /** Format: int32 */
-      capacity: number;
-      depot: components["schemas"]["Depot"];
-    };
     VrpSolution: {
-      instance: components["schemas"]["RouteInstance"];
+      instance: components["schemas"]["VrpProblem"];
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
@@ -152,6 +158,31 @@ export interface operations {
       };
     };
   };
+  index: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VrpProblem"][];
+        };
+      };
+    };
+  };
+  show: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VrpProblem"];
+        };
+      };
+    };
+  };
   terminateEarly: {
     parameters: {
       path: {
@@ -193,31 +224,6 @@ export interface operations {
       200: {
         content: {
           "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
-        };
-      };
-    };
-  };
-  index: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["VrpSolution"][];
-        };
-      };
-    };
-  };
-  show: {
-    parameters: {
-      path: {
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["VrpSolution"];
         };
       };
     };

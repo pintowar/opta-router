@@ -4,23 +4,22 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.core.domain.ports.SolutionRepository
-import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpProblemRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
 import org.jooq.DSLContext
 import org.jooq.JSON
-import org.jooq.generated.public.tables.references.SOLUTION
 import org.jooq.generated.public.tables.references.VRP_SOLVER_SOLUTION
 import java.time.Instant
 import java.util.*
 
-class SolverJooqRepository(
+class VrpSolverSolutionJooqRepository(
     private val mapper: ObjectMapper,
     private val dsl: DSLContext,
-    private val solutionRepo: SolutionRepository
-) : SolverRepository {
+    private val solutionRepo: VrpProblemRepository
+) : VrpSolverSolutionRepository {
 
     override fun listAllSolutionIds(): Set<Long> {
-        return dsl.select(SOLUTION).from(SOLUTION).fetch { (it) -> it.id!! }.toSet()
+        return dsl.select(VRP_SOLVER_SOLUTION).from(VRP_SOLVER_SOLUTION).fetch { (it) -> it.id!! }.toSet()
     }
 
     override fun addNewSolution(sol: VrpSolution, uuid: UUID, solverState: SolverState) {
@@ -28,13 +27,13 @@ class SolverJooqRepository(
     }
 
     override fun currentOrNewSolutionRegistry(instanceId: Long): VrpSolutionRegistry? {
-        return solutionRepo.getByInstanceId(instanceId)?.instance?.let { instance ->
+        return solutionRepo.getById(instanceId)?.let { instance ->
             currentSolution(instance) ?: createNewSolutionFromInstance(instance)
         }
     }
 
     override fun currentMatrix(instanceId: Long): Matrix? {
-        return solutionRepo.getByMatrixInstanceId(instanceId)
+        return solutionRepo.getMatrixById(instanceId)
     }
 
     override fun clearSolution(instanceId: Long) {
