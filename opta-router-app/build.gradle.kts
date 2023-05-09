@@ -1,15 +1,12 @@
 import com.gorylenko.GitPropertiesPluginExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jooq.meta.jaxb.ForcedType
 
 plugins {
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
-    alias(libs.plugins.flyway)
-    alias(libs.plugins.jooq)
     alias(libs.plugins.git.properties)
     alias(libs.plugins.spotless)
     alias(libs.plugins.jib)
@@ -28,22 +25,22 @@ repositories {
 
 dependencies {
     implementation(project(":opta-router-core"))
+    implementation(project(":opta-router-repo"))
     implementation(project(":opta-router-geo"))
     implementation(libs.bundles.kotlin)
     implementation(libs.bundles.spring) {
         exclude(module = "spring-boot-starter-logging")
+        exclude(module = "jooq")
     }
     implementation(libs.springdoc.openapi)
 
-    implementation(libs.jooq.kotlin)
-
+    implementation(libs.bundles.jooq)
     implementation(libs.bundles.jackson)
     runtimeOnly(libs.slf4j)
 
     testImplementation(libs.spring.test)
 
     runtimeOnly(libs.h2.db)
-    jooqGenerator(libs.h2.db)
 }
 
 tasks {
@@ -67,53 +64,6 @@ tasks {
                     into(dest)
                 }
                 logger.quiet("Cli Resources: move from $origin to $dest")
-            }
-        }
-    }
-}
-
-flyway {
-//    configurations = arrayOf("flywayMigration")
-    url = "jdbc:h2:file:/tmp/opta.router.db"
-    user = "sa"
-    password = ""
-}
-
-jooq {
-    configurations {
-        create("main") {
-            jooqConfiguration.apply {
-                jdbc.apply {
-                    driver = "org.h2.Driver"
-                    url = "jdbc:h2:file:/tmp/opta.router.db"
-                    user = "sa"
-                    password = ""
-                }
-                generator.apply {
-                    name = "org.jooq.codegen.KotlinGenerator"
-                    database.apply {
-                        name = "org.jooq.meta.h2.H2Database"
-                        forcedTypes = listOf(
-                            ForcedType().apply {
-                                name = "Instant"
-                                types = "timestamp"
-                            }
-                        )
-                    }
-                    generate.apply {
-                        isImplicitJoinPathsAsKotlinProperties = true
-//                        isKotlinSetterJvmNameAnnotationsOnIsPrefix = true
-                        isPojosAsKotlinDataClasses = true
-                        isKotlinNotNullPojoAttributes = true
-                        isKotlinNotNullRecordAttributes = true
-                        isKotlinNotNullInterfaceAttributes = true
-                    }
-//                    target.apply {
-//                        packageName = "nu.studer.sample"
-//                        directory = "src/generated/jooq"
-//                    }
-                    strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
-                }
             }
         }
     }
