@@ -1,8 +1,8 @@
 package io.github.pintowar.opta.router.config
 
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
+import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
+import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import io.github.pintowar.opta.router.core.solver.OptaSolverService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -16,8 +16,8 @@ class VrpSolverConfig {
     fun vrpSolverService(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         vrpSolverSolutionRepository: VrpSolverSolutionRepository,
-        broadcastService: BroadcastService
+        broadcastPort: BroadcastPort
     ): VrpSolverService {
-        return OptaSolverService(timeLimit, vrpSolverSolutionRepository, broadcastService)
+        return OptaSolverService(timeLimit, vrpSolverSolutionRepository, broadcastPort)
     }
 }

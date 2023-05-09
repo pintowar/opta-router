@@ -3,8 +3,8 @@ package io.github.pintowar.opta.router.adapters.handler
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
+import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
@@ -20,8 +20,8 @@ private val logger = KotlinLogging.logger {}
 class WebSocketHandler(
     private val sessionPanel: MutableMap<String, SolverPanel>,
     private val mapper: ObjectMapper,
-    private val geoService: GeoService
-) : TextWebSocketHandler(), BroadcastService {
+    private val geoService: GeoPort
+) : TextWebSocketHandler(), BroadcastPort {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
 

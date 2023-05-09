@@ -3,8 +3,8 @@ package io.github.pintowar.opta.router.controller
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
+import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/solver")
 class SolverController(
     private val solver: VrpSolverService,
-    private val geoService: GeoService,
+    private val geoService: GeoPort,
     private val sessionPanel: MutableMap<String, SolverPanel>
 ) {
 

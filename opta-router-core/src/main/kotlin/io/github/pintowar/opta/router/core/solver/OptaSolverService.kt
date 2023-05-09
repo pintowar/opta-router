@@ -3,9 +3,8 @@ package io.github.pintowar.opta.router.core.solver
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
+import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverService
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.api.solver.SolverManager
@@ -28,7 +27,7 @@ private val logger = KotlinLogging.logger {}
 class OptaSolverService(
     val timeLimit: Duration,
     val vrpSolverSolutionRepository: VrpSolverSolutionRepository,
-    val broadcastService: BroadcastService
+    val broadcastPort: BroadcastPort
 ) : VrpSolverService {
 
     val configPath = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"
@@ -51,7 +50,7 @@ class OptaSolverService(
 
     fun broadcastSolution(instanceId: Long) {
         currentSolutionState(instanceId)
-            ?.let(broadcastService::broadcastSolution)
+            ?.let(broadcastPort::broadcastSolution)
     }
 
     override fun currentSolutionState(instanceId: Long): VrpSolutionRegistry? =

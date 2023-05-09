@@ -4,7 +4,7 @@ import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.Path
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 
-interface GeoService {
+interface GeoPort {
 
     fun simplePath(origin: Coordinate, target: Coordinate): Path
 

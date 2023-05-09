@@ -6,12 +6,12 @@ import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
 import com.graphhopper.util.Parameters
 import io.github.pintowar.opta.router.core.domain.models.*
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
+import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-class GraphHopperGeoService(val path: String, val location: String) : GeoService {
+class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
 
     companion object {
         const val VEHICLE = "car"

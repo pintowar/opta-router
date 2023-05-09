@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.domain.ports
+package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState

@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models.matrix
 
 import io.github.pintowar.opta.router.core.domain.models.Location
-import io.github.pintowar.opta.router.core.domain.ports.GeoService
+import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 
 /**
  * Calculates the distance of all points found in locations, based on the OSM map provided.
@@ -9,7 +9,7 @@ import io.github.pintowar.opta.router.core.domain.ports.GeoService
  * @param locations list of points.
  * @param graph the wrapper used to calculate
  */
-class GeoMatrix(private val locations: List<Location>, graph: GeoService) : Matrix {
+class GeoMatrix(private val locations: List<Location>, graph: GeoPort) : Matrix {
     private val locationIds: Map<Long, Int> = locations.mapIndexed { idx, it -> it.id to idx }.toMap()
     private val n = this.locations.size
     private var distMatrix: Array<DoubleArray> = Array(this.n) { DoubleArray(this.n) }
@@ -19,7 +19,7 @@ class GeoMatrix(private val locations: List<Location>, graph: GeoService) : Matr
         createDistMatrix(graph)
     }
 
-    private fun createDistMatrix(graph: GeoService) {
+    private fun createDistMatrix(graph: GeoPort) {
         for (i in 0 until this.n) {
             val a = locations[i]
             for (j in 0 until this.n) {
