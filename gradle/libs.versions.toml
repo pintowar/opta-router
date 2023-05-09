@@ -25,13 +25,15 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 jooq = { id = "nu.studer.jooq", version.ref = "gradle-jooq" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gradle-git" }
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
 release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 
 [libraries]
+gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }

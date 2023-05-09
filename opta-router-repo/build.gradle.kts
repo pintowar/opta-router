@@ -1,12 +1,9 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jooq.meta.jaxb.ForcedType
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
+    id("opta-router.base")
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
-    alias(libs.plugins.spotless)
     `java-library`
 }
 
@@ -31,15 +28,6 @@ dependencies {
     jooqGenerator(libs.h2.db)
 }
 
-tasks {
-    withType<KotlinCompile> {
-        compilerOptions {
-            freeCompilerArgs.set(listOf("-Xjsr305=strict"))
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-}
-
 flyway {
 //    configurations = arrayOf("flywayMigration")
     url = "jdbc:h2:file:/tmp/opta.router.db"
@@ -48,7 +36,7 @@ flyway {
 }
 
 jooq {
-    version.set("3.18.3")
+    version.set(libs.versions.jooq.get())
     configurations {
         create("main") {
             jooqConfiguration.apply {
@@ -85,13 +73,5 @@ jooq {
                 }
             }
         }
-    }
-}
-
-spotless {
-    kotlin {
-        ktlint()
-            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
-//    licenseHeaderFile()
     }
 }

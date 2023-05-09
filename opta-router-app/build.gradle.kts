@@ -1,14 +1,11 @@
 import com.gorylenko.GitPropertiesPluginExtension
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("opta-router.base")
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency)
-    alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.git.properties)
-    alias(libs.plugins.spotless)
     alias(libs.plugins.jib)
 }
 
@@ -44,13 +41,6 @@ dependencies {
 }
 
 tasks {
-    withType<KotlinCompile> {
-        compilerOptions {
-            freeCompilerArgs.set(listOf("-Xjsr305=strict"))
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-
     if (project.hasProperty("prod")) {
         processResources {
             val webCli = ":client"
@@ -66,14 +56,6 @@ tasks {
                 logger.quiet("Cli Resources: move from $origin to $dest")
             }
         }
-    }
-}
-
-spotless {
-    kotlin {
-        ktlint()
-            .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
-//    licenseHeaderFile()
     }
 }
 
