@@ -25,13 +25,15 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 jooq = { id = "nu.studer.jooq", version.ref = "gradle-jooq" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gradle-git" }
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
 release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 
 [libraries]
+gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
@@ -50,10 +52,10 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
-optaplanner-boot = { module = "org.optaplanner:optaplanner-spring-boot-starter", version.ref = "optaplanner" }
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
+jooq-core = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
 h2-db = { module = "com.h2database:h2", version.ref = "h2" }
 
@@ -62,5 +64,6 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
-optaplanner = ["optaplanner-examples", "optaplanner-boot"]
+jooq = ["jooq-core", "jooq-kotlin"]
+optaplanner = ["optaplanner-examples"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]

@@ -3,7 +3,7 @@ import net.researchgate.release.ReleaseExtension
 plugins {
     base
     id("idea")
-    alias(libs.plugins.spotless)
+    id("com.diffplug.spotless")
     alias(libs.plugins.release)
 }
 
