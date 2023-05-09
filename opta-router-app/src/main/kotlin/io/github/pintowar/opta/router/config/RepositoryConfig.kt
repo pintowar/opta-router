@@ -1,8 +1,8 @@
 package io.github.pintowar.opta.router.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.adapters.database.jooq.VrpProblemJooqRepository
-import io.github.pintowar.opta.router.adapters.database.jooq.VrpSolverSolutionJooqRepository
+import io.github.pintowar.opta.router.adapters.database.VrpProblemJooqRepository
+import io.github.pintowar.opta.router.adapters.database.VrpSolverSolutionJooqRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemRepository
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
 import org.jooq.DSLContext

@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.adapters.database.jooq
+package io.github.pintowar.opta.router.adapters.database
 
 import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Depot

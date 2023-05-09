@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.adapters.database.jooq
+package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
