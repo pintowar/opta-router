@@ -1,11 +1,11 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
-import io.github.pintowar.opta.router.core.domain.models.RouteInstance
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 
 interface VrpSolverService {
-    fun asyncSolve(instance: RouteInstance)
+    fun asyncSolve(instance: VrpProblem)
 
     fun showState(instanceId: Long): SolverState
 

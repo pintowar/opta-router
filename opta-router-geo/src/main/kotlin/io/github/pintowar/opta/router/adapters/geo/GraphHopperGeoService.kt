@@ -5,10 +5,7 @@ import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
 import com.graphhopper.util.Parameters
-import io.github.pintowar.opta.router.core.domain.models.Coordinate
-import io.github.pintowar.opta.router.core.domain.models.Path
-import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.ports.GeoService
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -63,7 +60,7 @@ class GraphHopperGeoService(val path: String, val location: String) : GeoService
                 .windowed(2, 1, false)
                 .map { (a, b) -> detailedSimplePath(a, b) }
 
-            val rep = aux.flatMap { it.coordinates }.map { Coordinate(it.lat, it.lng) }
+            val rep = aux.flatMap { it.coordinates }.map { LatLng(it.lat, it.lng) }
             val dist = BigDecimal(aux.sumOf { it.distance / 1000 }).setScale(2, RoundingMode.HALF_UP)
             val time = BigDecimal(aux.sumOf { it.time.toDouble() / (60 * 1000) }).setScale(2, RoundingMode.HALF_UP)
 
@@ -78,7 +75,7 @@ class GraphHopperGeoService(val path: String, val location: String) : GeoService
             .putHint(Parameters.Routing.INSTRUCTIONS, false)
             .setLocale(Locale.US)
         return graph.route(req).best.let {
-            Path(it.distance, it.time, it.points.map { p -> Coordinate(p.lat, p.lon) })
+            Path(it.distance, it.time, it.points.map { p -> LatLng(p.lat, p.lon) })
         }
     }
 }

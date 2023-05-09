@@ -1,6 +1,6 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.RouteInstance
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastService
@@ -64,7 +64,7 @@ class OptaSolverService(
         broadcastSolution(instanceId)
     }
 
-    override fun asyncSolve(instance: RouteInstance) {
+    override fun asyncSolve(instance: VrpProblem) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
             val currentSolutionRegistry = solverRepository.currentOrNewSolutionRegistry(instance.id)!!
             val currentMatrix = solverRepository.currentMatrix(instance.id) ?: return

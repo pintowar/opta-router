@@ -14,9 +14,8 @@ class RepositoryConfig {
 
     @Bean
     fun solutionRepository(
-        objectMapper: ObjectMapper,
-        dslContext: DSLContext
-    ): SolutionRepository = SolutionJooqRepository(objectMapper, dslContext)
+        dslContext: DSLContext,
+    ): SolutionRepository = SolutionJooqRepository(dslContext)
 
 
     @Bean

@@ -25,7 +25,7 @@ class GeoMatrix(private val locations: List<Location>, graph: GeoService) : Matr
             for (j in 0 until this.n) {
                 if (i != j) {
                     val b = locations[j]
-                    val path = graph.simplePath(a.toCoordinate(), b.toCoordinate())
+                    val path = graph.simplePath(a, b)
                     this.distMatrix[i][j] = path.distance
                     this.timeMatrix[i][j] = path.time
                 } else {

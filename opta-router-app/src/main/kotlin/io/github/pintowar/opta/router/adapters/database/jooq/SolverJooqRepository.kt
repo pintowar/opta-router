@@ -9,6 +9,7 @@ import io.github.pintowar.opta.router.core.domain.ports.SolverRepository
 import org.jooq.DSLContext
 import org.jooq.JSON
 import org.jooq.generated.public.tables.references.SOLUTION
+import org.jooq.generated.public.tables.references.VRP_SOLVER_SOLUTION
 import java.time.Instant
 import java.util.*
 
@@ -40,9 +41,9 @@ class SolverJooqRepository(
         createNewSolution(instanceId)
     }
 
-    private fun currentSolution(instance: RouteInstance) = dsl.selectFrom(SOLUTION)
-        .where(SOLUTION.ROUTE_ID.eq(instance.id))
-        .orderBy(SOLUTION.UPDATED_AT.desc())
+    private fun currentSolution(instance: VrpProblem) = dsl.selectFrom(VRP_SOLVER_SOLUTION)
+        .where(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID.eq(instance.id))
+        .orderBy(VRP_SOLVER_SOLUTION.UPDATED_AT.desc())
         .limit(1)
         .fetchOne()
         ?.let { sol ->
@@ -57,18 +58,18 @@ class SolverJooqRepository(
         uuid: UUID? = null,
     ) {
         val now = Instant.now()
-        dsl.insertInto(SOLUTION)
-            .set(SOLUTION.SOLVER_KEY, uuid)
-            .set(SOLUTION.ROUTE_ID, instanceId)
-            .set(SOLUTION.STATUS, solverState.name)
-            .set(SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(paths)))
-            .set(SOLUTION.CREATED_AT, now)
-            .set(SOLUTION.UPDATED_AT, now)
+        dsl.insertInto(VRP_SOLVER_SOLUTION)
+            .set(VRP_SOLVER_SOLUTION.SOLUTION_KEY, uuid)
+            .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, instanceId)
+            .set(VRP_SOLVER_SOLUTION.STATUS, solverState.name)
+            .set(VRP_SOLVER_SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(paths)))
+            .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
+            .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
             .execute()
     }
 
     private fun createNewSolutionFromInstance(
-        instance: RouteInstance,
+        instance: VrpProblem,
         solverState: SolverState = SolverState.NOT_SOLVED,
         paths: List<Route> = emptyList(),
         uuid: UUID? = null,

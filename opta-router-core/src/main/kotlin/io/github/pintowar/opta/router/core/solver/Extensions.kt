@@ -1,8 +1,9 @@
 package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
-import io.github.pintowar.opta.router.core.domain.models.RouteInstance
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import org.optaplanner.examples.vehiclerouting.domain.Customer
@@ -20,7 +21,7 @@ import java.math.RoundingMode
  * @param dist distance calculator instance.
  * @return solution representation used by the solver.
  */
-fun RouteInstance.toSolution(dist: Matrix): VehicleRoutingSolution {
+fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     val sol = VehicleRoutingSolution(id)
     sol.name = this.name
     val locs = this.locations.map {
@@ -38,7 +39,7 @@ fun RouteInstance.toSolution(dist: Matrix): VehicleRoutingSolution {
     }
     sol.locationList = locs
     sol.customerList = this.customers.map {
-        Customer(it.id, locsIdx[it.location.id], it.demand)
+        Customer(it.id, locsIdx[it.id], it.demand)
     }
     sol.depotList = deps.values.toList()
 
@@ -73,21 +74,21 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.toDTO(instance: RouteInstance, matrix: Matrix): VrpSolution {
+fun VehicleRoutingSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolution {
     val vehicles = this.vehicleList
     val routes = vehicles?.map { v ->
-        val origin = v.depot.location.let { Coordinate(it.latitude, it.longitude) }
+        val origin = v.depot.location.let { LatLng(it.latitude, it.longitude) }
 
         var dist = 0.0
         var time = 0.0
-        var locations = emptyList<Coordinate>()
+        var locations = emptyList<LatLng>()
         var customerIds = emptyList<Long>()
         var totalDemand = 0
         var toOriginDist = 0.0
         var toOriginTime = 0L
         var customer = v.customers.firstOrNull()
         while (customer != null) {
-            locations += Coordinate(customer.location.latitude, customer.location.longitude)
+            locations += LatLng(customer.location.latitude, customer.location.longitude)
             customerIds += customer.id
             totalDemand += customer.demand
 
