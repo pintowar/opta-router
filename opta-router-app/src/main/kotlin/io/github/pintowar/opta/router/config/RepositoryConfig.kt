@@ -14,14 +14,12 @@ class RepositoryConfig {
 
     @Bean
     fun vrpProblemRepository(
-        dslContext: DSLContext,
+        dslContext: DSLContext
     ): VrpProblemPort = VrpProblemJooqAdapter(dslContext)
-
 
     @Bean
     fun vrpSolverSolutionRepository(
         objectMapper: ObjectMapper,
-        dslContext: DSLContext,
+        dslContext: DSLContext
     ): VrpSolverSolutionPort = VrpSolverSolutionJooqAdapter(objectMapper, dslContext)
-
 }

@@ -1,10 +1,14 @@
 package io.github.pintowar.opta.router.core.domain.repository
 
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
-import java.util.*
+import java.util.UUID
 
 class SolverRepository(
     val vrpProblemPort: VrpProblemPort,
@@ -40,10 +44,9 @@ class SolverRepository(
         solverName: String,
         solverState: SolverState = SolverState.NOT_SOLVED,
         paths: List<Route> = emptyList(),
-        uuid: UUID? = null,
+        uuid: UUID? = null
     ): VrpSolutionRegistry {
         vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverName, solverState, paths, uuid)
         return VrpSolutionRegistry(VrpSolution(problem, paths), solverState, uuid)
     }
-
 }

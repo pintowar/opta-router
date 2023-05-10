@@ -44,6 +44,11 @@ tasks {
 
 spotless {
     kotlin {
+        targetExclude(
+            fileTree(project.projectDir) {
+                include("build/generated-src/**")
+            }
+        )
         ktlint()
             .setEditorConfigPath("${rootProject.projectDir}/.editorconfig")
 //    licenseHeaderFile()

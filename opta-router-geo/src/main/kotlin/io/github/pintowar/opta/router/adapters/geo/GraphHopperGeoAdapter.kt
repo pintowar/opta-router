@@ -5,7 +5,11 @@ import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
 import com.graphhopper.util.Parameters
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Coordinate
+import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Path
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -35,7 +39,6 @@ class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
 
         setMinNetworkSize(200)
     }.importOrLoad()
-
 
     /**
      * Generates a PathWrapper containing the best route between origin and target points.

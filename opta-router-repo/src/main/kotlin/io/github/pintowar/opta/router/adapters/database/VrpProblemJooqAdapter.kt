@@ -11,7 +11,11 @@ import org.jooq.DSLContext
 import org.jooq.Records
 import org.jooq.generated.public.tables.records.LocationRecord
 import org.jooq.generated.public.tables.records.VehicleRecord
-import org.jooq.generated.public.tables.references.*
+import org.jooq.generated.public.tables.references.LOCATION
+import org.jooq.generated.public.tables.references.VEHICLE
+import org.jooq.generated.public.tables.references.VRP_PROBLEM
+import org.jooq.generated.public.tables.references.VRP_PROBLEM_LOCATION
+import org.jooq.generated.public.tables.references.VRP_PROBLEM_MATRIX
 import org.jooq.impl.DSL.multiset
 import org.jooq.impl.DSL.select
 
@@ -39,7 +43,9 @@ class VrpProblemJooqAdapter(
 
         return matrix?.let {
             VrpProblemMatrix(
-                it.locationIds.filterNotNull(), it.travelDistances.filterNotNull(), it.travelTimes.filterNotNull()
+                it.locationIds.filterNotNull(),
+                it.travelDistances.filterNotNull(),
+                it.travelTimes.filterNotNull()
             )
         }
     }

@@ -22,7 +22,6 @@ private val logger = KotlinLogging.logger {}
  * storages. It also sends notifications to the WebSocket queue of the proper user (just for the one that executed the
  * application).
  *
- * @param graph the graphhopper wrapper to help calculate distances between points.
  */
 class OptaSolverService(
     val timeLimit: Duration,
@@ -64,7 +63,10 @@ class OptaSolverService(
 
             val solution = currentSolutionRegistry.solution.toSolverSolution(currentMatrix)
             solverRepository.insertNewSolution(
-                solution.toDTO(instance, currentMatrix), solverName, solverKey, SolverState.ENQUEUED
+                solution.toDTO(instance, currentMatrix),
+                solverName,
+                solverKey,
+                SolverState.ENQUEUED
             )
             try {
                 solverManager.solveAndListen(

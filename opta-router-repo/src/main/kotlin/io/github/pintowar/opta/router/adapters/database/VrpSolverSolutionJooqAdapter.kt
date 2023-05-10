@@ -14,7 +14,7 @@ import java.util.*
 
 class VrpSolverSolutionJooqAdapter(
     private val mapper: ObjectMapper,
-    private val dsl: DSLContext,
+    private val dsl: DSLContext
 ) : VrpSolverSolutionPort {
 
     override fun clearSolution(problemId: Long) {
@@ -55,5 +55,4 @@ class VrpSolverSolutionJooqAdapter(
             .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
             .execute()
     }
-
 }

@@ -47,7 +47,7 @@ data class Depot(
     override val id: Long,
     override val name: String,
     override val lat: Double,
-    override val lng: Double,
+    override val lng: Double
 ) : Location
 
 data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot: Depot)
@@ -62,7 +62,7 @@ data class Route(
     val time: BigDecimal,
     val totalDemand: Int,
     val order: List<LatLng>,
-    val customerIds: List<Long> //TODO rename to locationIds
+    val customerIds: List<Long> // TODO rename to locationIds
 )
 
 /**

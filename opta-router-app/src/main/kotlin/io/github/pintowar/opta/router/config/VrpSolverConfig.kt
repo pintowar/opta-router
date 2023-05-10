@@ -20,7 +20,7 @@ class VrpSolverConfig {
         vrpSolverSolutionPort: VrpSolverSolutionPort
     ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort)
 
-    @Bean //(destroyMethod = "destroy")
+    @Bean // (destroyMethod = "destroy")
     fun vrpSolverService(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         solverRepository: SolverRepository,

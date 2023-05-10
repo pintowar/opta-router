@@ -1,9 +1,8 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.Coordinate
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import org.optaplanner.examples.vehiclerouting.domain.Customer

@@ -7,7 +7,7 @@ class VrpProblemMatrix(
 ) : Matrix {
 
     constructor(locationIds: List<Long>, travelDistances: List<Double>, travelTimes: List<Long>) :
-            this(locationIds.toLongArray(), travelDistances.toDoubleArray(), travelTimes.toLongArray())
+        this(locationIds.toLongArray(), travelDistances.toDoubleArray(), travelTimes.toLongArray())
 
     private val locationIdxs = locationIds.withIndex().associate { (idx, it) -> it to idx }
     private val n = locationIds.size
