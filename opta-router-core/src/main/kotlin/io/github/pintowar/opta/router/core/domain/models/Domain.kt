@@ -86,6 +86,14 @@ enum class SolverState {
     ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
 }
 
+data class VrpSolverSolution(
+    val problemId: Long,
+    val solver: String,
+    val routes: List<Route>,
+    val state: SolverState,
+    val solverKey: UUID? = null
+)
+
 data class VrpSolutionRegistry(val solution: VrpSolution, val state: SolverState, val solverKey: UUID? = null)
 
 data class SolverPanel(val isDetailedPath: Boolean = false)

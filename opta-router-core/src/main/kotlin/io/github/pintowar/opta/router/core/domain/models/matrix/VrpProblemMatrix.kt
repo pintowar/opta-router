@@ -1,8 +1,6 @@
 package io.github.pintowar.opta.router.core.domain.models.matrix
 
-import io.github.pintowar.opta.router.core.domain.models.Location
-
-data class VrpProblemMatrix(
+class VrpProblemMatrix(
     private val locationIds: LongArray,
     private val travelDistances: DoubleArray,
     private val travelTimes: LongArray
@@ -14,19 +12,24 @@ data class VrpProblemMatrix(
     private val locationIdxs = locationIds.withIndex().associate { (idx, it) -> it to idx }
     private val n = locationIds.size
 
+    private val indexCache = mutableMapOf<Pair<Int, Int>, Int>()
+
     init {
         assert(n * n == travelTimes.size && n * n == travelDistances.size) {
             "Travel Times/Distances must have the squared number of elements on locations"
         }
     }
 
-    override fun distance(originId: Long, targetId: Long): Double {
+    private fun cachedIndex(originId: Long, targetId: Long): Int {
         val (a, b) = locationIdxs[originId]!! to locationIdxs[targetId]!!
-        return travelDistances[a * n + b]
+        return indexCache.computeIfAbsent(a to b) { (i, j) -> i * n + j }
+    }
+
+    override fun distance(originId: Long, targetId: Long): Double {
+        return travelDistances[cachedIndex(originId, targetId)]
     }
 
     override fun time(originId: Long, targetId: Long): Long {
-        val (a, b) = locationIdxs[originId]!! to locationIdxs[targetId]!!
-        return travelTimes[a * n + b]
+        return travelTimes[cachedIndex(originId, targetId)]
     }
 }

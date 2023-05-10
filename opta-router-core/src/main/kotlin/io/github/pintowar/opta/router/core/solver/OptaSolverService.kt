@@ -1,10 +1,10 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionRepository
+import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import mu.KotlinLogging
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.api.solver.SolverManager
@@ -26,7 +26,7 @@ private val logger = KotlinLogging.logger {}
  */
 class OptaSolverService(
     val timeLimit: Duration,
-    val vrpSolverSolutionRepository: VrpSolverSolutionRepository,
+    val solverRepository: SolverRepository,
     val broadcastPort: BroadcastPort
 ) : VrpSolverService {
 
@@ -39,53 +39,50 @@ class OptaSolverService(
     val solverFactory = SolverFactory.create<VehicleRoutingSolution>(solverConfig)
     val solverManager = SolverManager.create<VehicleRoutingSolution, Long>(solverFactory)
 
-    /**
-     * Terminates the solvers, in case of application termination.
-     */
-    fun destroy() {
-        vrpSolverSolutionRepository
-            .listAllSolutionIds()
-            .forEach(solverManager::terminateEarly)
-    }
+    val solverName = "optaplanner"
 
-    fun broadcastSolution(instanceId: Long) {
-        currentSolutionState(instanceId)
+    fun broadcastSolution(problemId: Long) {
+        currentSolutionState(problemId)
             ?.let(broadcastPort::broadcastSolution)
     }
 
-    override fun currentSolutionState(instanceId: Long): VrpSolutionRegistry? =
-        vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instanceId)
+    override fun currentSolutionState(problemId: Long): VrpSolutionRegistry? =
+        solverRepository.currentOrNewSolutionRegistry(problemId, solverName)
 
-    override fun showState(instanceId: Long): SolverState =
-        currentSolutionState(instanceId)?.state ?: SolverState.NOT_SOLVED
+    override fun showState(problemId: Long): SolverState =
+        currentSolutionState(problemId)?.state ?: SolverState.NOT_SOLVED
 
-    override fun updateDetailedView(instanceId: Long, enabled: Boolean) {
-        broadcastSolution(instanceId)
+    override fun updateDetailedView(problemId: Long, enabled: Boolean) {
+        broadcastSolution(problemId)
     }
 
     override fun asyncSolve(instance: VrpProblem) {
         if (solverManager.getSolverStatus(instance.id) == SolverStatus.NOT_SOLVING) {
-            val currentSolutionRegistry = vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instance.id)!!
-            val currentMatrix = vrpSolverSolutionRepository.currentMatrix(instance.id) ?: return
+            val currentSolutionRegistry = solverRepository.currentOrNewSolutionRegistry(instance.id, solverName)!!
+            val currentMatrix = solverRepository.currentMatrix(instance.id) ?: return
             val solverKey = currentSolutionRegistry.solverKey ?: UUID.randomUUID()
 
             val solution = currentSolutionRegistry.solution.toSolverSolution(currentMatrix)
-            vrpSolverSolutionRepository.addNewSolution(solution.toDTO(instance, currentMatrix), solverKey, SolverState.ENQUEUED)
+            solverRepository.insertNewSolution(
+                solution.toDTO(instance, currentMatrix), solverName, solverKey, SolverState.ENQUEUED
+            )
             try {
                 solverManager.solveAndListen(
                     solution.id,
                     { it: Long -> if (it == solution.id) solution else null },
                     { sol: VehicleRoutingSolution ->
-                        vrpSolverSolutionRepository.addNewSolution(
+                        solverRepository.insertNewSolution(
                             sol.toDTO(instance, currentMatrix),
+                            solverName,
                             solverKey,
                             SolverState.RUNNING
                         )
                         broadcastSolution(instance.id)
                     },
                     { sol: VehicleRoutingSolution ->
-                        vrpSolverSolutionRepository.addNewSolution(
+                        solverRepository.insertNewSolution(
                             sol.toDTO(instance, currentMatrix),
+                            solverName,
                             solverKey,
                             SolverState.TERMINATED
                         )
@@ -101,26 +98,19 @@ class OptaSolverService(
         }
     }
 
-    override fun terminateEarly(instanceId: Long): Boolean {
-        return if (solverManager.getSolverStatus(instanceId) != SolverStatus.NOT_SOLVING) {
-            solverManager.terminateEarly(instanceId)
-            broadcastSolution(instanceId)
-            true
-        } else {
-            false
+    override fun terminateEarly(problemId: Long) {
+        if (solverManager.getSolverStatus(problemId) != SolverStatus.NOT_SOLVING) {
+            solverManager.terminateEarly(problemId)
+            broadcastSolution(problemId)
         }
     }
 
-    /**
-     * Removes all information associated to the user (identified by sessionID).
-     *
-     */
-    override fun clean(instanceId: Long) {
-        val current = vrpSolverSolutionRepository.currentOrNewSolutionRegistry(instanceId)?.solution
+    override fun clean(problemId: Long) {
+        val current = solverRepository.currentOrNewSolutionRegistry(problemId, solverName)
         if (current != null) {
-            solverManager.terminateEarly(instanceId)
-            vrpSolverSolutionRepository.clearSolution(instanceId)
-            broadcastSolution(instanceId)
+            solverManager.terminateEarly(problemId)
+            solverRepository.clearSolution(problemId)
+            broadcastSolution(problemId)
         }
     }
 }

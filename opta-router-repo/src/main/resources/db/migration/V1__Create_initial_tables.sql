@@ -85,7 +85,7 @@ CREATE SEQUENCE vrp_solver_solution_pk_seq
 CREATE TABLE vrp_solver_solution (
     id BIGINT DEFAULT NEXT VALUE FOR vrp_solver_solution_pk_seq PRIMARY KEY,
     vrp_problem_id BIGINT NOT NULL,
-    solver VARCHAR (50),
+    solver VARCHAR (50) NOT NULL,
     solution_key UUID,
     status VARCHAR (20) NOT NULL,
     paths JSON NOT NULL,

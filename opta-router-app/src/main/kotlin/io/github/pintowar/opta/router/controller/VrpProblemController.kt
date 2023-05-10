@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/vrp-problems")
-class VrpProblemController(val repo: VrpProblemRepository) {
+class VrpProblemController(val repo: VrpProblemPort) {
 
     @GetMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun index(): List<VrpProblem> = repo.listAll()

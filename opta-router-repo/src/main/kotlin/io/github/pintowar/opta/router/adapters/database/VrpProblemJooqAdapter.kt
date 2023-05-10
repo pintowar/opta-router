@@ -6,7 +6,7 @@ import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemRepository
+import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import org.jooq.DSLContext
 import org.jooq.Records
 import org.jooq.generated.public.tables.records.LocationRecord
@@ -15,9 +15,9 @@ import org.jooq.generated.public.tables.references.*
 import org.jooq.impl.DSL.multiset
 import org.jooq.impl.DSL.select
 
-class VrpProblemJooqRepository(
+class VrpProblemJooqAdapter(
     private val dsl: DSLContext
-) : VrpProblemRepository {
+) : VrpProblemPort {
 
     override fun listAll(): List<VrpProblem> {
         return query().limit(0, 10).fetch { (r, c, v) ->
@@ -25,16 +25,16 @@ class VrpProblemJooqRepository(
         }
     }
 
-    override fun getById(instanceId: Long): VrpProblem? {
-        return query().where(VRP_PROBLEM.ID.eq(instanceId)).fetch { (r, c, v) ->
+    override fun getById(problemId: Long): VrpProblem? {
+        return query().where(VRP_PROBLEM.ID.eq(problemId)).fetch { (r, c, v) ->
             VrpProblem(r.id!!, r.name, v, c)
         }.firstOrNull()
     }
 
-    override fun getMatrixById(instanceId: Long): Matrix? {
+    override fun getMatrixById(problemId: Long): Matrix? {
         val matrix = dsl
             .selectFrom(VRP_PROBLEM_MATRIX)
-            .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(instanceId))
+            .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))
             .fetchOne()
 
         return matrix?.let {

@@ -3,11 +3,11 @@ package io.github.pintowar.opta.router.core.domain.ports
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 
-interface VrpProblemRepository {
+interface VrpProblemPort {
 
     fun listAll(): List<VrpProblem>
 
-    fun getById(instanceId: Long): VrpProblem?
+    fun getById(problemId: Long): VrpProblem?
 
-    fun getMatrixById(instanceId: Long): Matrix?
+    fun getMatrixById(problemId: Long): Matrix?
 }
