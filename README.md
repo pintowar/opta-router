@@ -20,8 +20,7 @@ Portfolio List
 
 Solver View
 
-![image](https://user-images.githubusercontent.com/354264/235455414-ea1df27b-66eb-485c-be52-8a9caccb3c25.png)
-
+![image](https://github.com/pintowar/opta-router/assets/354264/94fee73c-46d6-428c-8fd5-7f4ee5b25e9c)
 
 ## Run in development mode
 
