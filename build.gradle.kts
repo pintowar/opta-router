@@ -38,5 +38,5 @@ configure<ReleaseExtension> {
 }
 
 tasks.afterReleaseBuild {
-    dependsOn(":server:jib")
+    dependsOn(":opta-router-app:jib")
 }

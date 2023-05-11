@@ -7,17 +7,6 @@ plugins {
     `java-library`
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":opta-router-core"))
     api(libs.bundles.jooq)
@@ -30,7 +19,8 @@ dependencies {
 
 flyway {
 //    configurations = arrayOf("flywayMigration")
-    url = "jdbc:h2:file:/tmp/opta.router.db"
+    driver = "org.h2.Driver"
+    url = "jdbc:h2:file:~/.opta.router/h2.db"
     user = "sa"
     password = ""
 }
@@ -41,10 +31,10 @@ jooq {
         create("main") {
             jooqConfiguration.apply {
                 jdbc.apply {
-                    driver = "org.h2.Driver"
-                    url = "jdbc:h2:file:/tmp/opta.router.db"
-                    user = "sa"
-                    password = ""
+                    driver = flyway.driver
+                    url = flyway.url
+                    user = flyway.user
+                    password = flyway.password
                 }
                 generator.apply {
                     name = "org.jooq.codegen.KotlinGenerator"
@@ -74,4 +64,18 @@ jooq {
             }
         }
     }
+}
+
+tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
+    // ensure database schema has been prepared by Flyway before generating the jOOQ sources
+    dependsOn("flywayMigrate")
+
+    // declare Flyway migration scripts as inputs on the jOOQ task
+    inputs.files(fileTree("${project.projectDir}/src/main/resources/db/migration"))
+        .withPropertyName("migrations")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    // make jOOQ task participate in incremental builds and build caching
+    allInputsDeclared.set(true)
+    outputs.cacheIf { true }
 }

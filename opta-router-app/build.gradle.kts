@@ -9,22 +9,11 @@ plugins {
     alias(libs.plugins.jib)
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":opta-router-core"))
     implementation(project(":opta-router-repo"))
     implementation(project(":opta-router-geo"))
-    implementation(libs.bundles.kotlin)
+
     implementation(libs.bundles.spring) {
         exclude(module = "spring-boot-starter-logging")
         exclude(module = "jooq")

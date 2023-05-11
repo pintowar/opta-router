@@ -8,8 +8,7 @@ spring:
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
   datasource:
-    url: jdbc:h2:file:/tmp/opta.router.db
-#    url: jdbc:h2:mem:opta.router.db
+    url: jdbc:h2:file:~/.opta.router/h2.db
     username: sa
     password:
     driverClassName: org.h2.Driver
@@ -17,9 +16,10 @@ spring:
     console.enabled: true
   jooq:
     sql-dialect: H2
-#  sql:
-#    init:
-#      data-locations: classpath:db/init.sql
+  sql:
+    init:
+      mode: always
+      data-locations: classpath*:db/data.sql
 
 solver:
   termination:
