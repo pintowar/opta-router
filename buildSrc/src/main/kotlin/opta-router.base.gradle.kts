@@ -26,6 +26,7 @@ tasks {
     kotlin {
         jvmToolchain(17)
     }
+
     withType<KotlinCompile> {
         compilerOptions {
             freeCompilerArgs.set(listOf("-Xjsr305=strict"))
