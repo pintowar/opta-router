@@ -32,7 +32,7 @@ dependencies {
 tasks {
     if (project.hasProperty("prod")) {
         processResources {
-            val webCli = ":client"
+            val webCli = ":opta-router-app"
             dependsOn("$webCli:build")
 
             doLast {
