@@ -12,7 +12,7 @@ const route = useRoute();
 
 const solutionState = await getPanelSolutionState(+route.params.id);
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
-const instance = ref<VrpProblem | null>(solution.value?.instance || null);
+const problem = ref<VrpProblem | null>(solution.value?.problem || null);
 
 const status = ref<string | null>(solutionState?.solutionState?.state || null);
 const isDetailedPath = ref<boolean>(solutionState?.solverPanel?.isDetailedPath || false);
@@ -25,8 +25,8 @@ onBeforeUnmount(() => {
 });
 
 watch(isDetailedPath, async () => {
-  if (instance.value) {
-    await detailedPath(instance.value?.id, isDetailedPath.value || false);
+  if (problem.value) {
+    await detailedPath(problem.value?.id, isDetailedPath.value || false);
   }
 });
 
@@ -44,22 +44,22 @@ function creatWSCli() {
 }
 
 async function solveAction() {
-  if (instance.value !== null) {
-    const state = await solve(instance.value.id);
+  if (problem.value !== null) {
+    const state = await solve(problem.value.id);
     status.value = state || null;
   }
 }
 
 async function terminateAction() {
-  if (instance.value) {
-    const state = await terminate(instance.value.id);
+  if (problem.value) {
+    const state = await terminate(problem.value.id);
     status.value = state || null;
   }
 }
 
 async function cleanAction() {
-  if (instance.value) {
-    const state = await clean(instance.value.id);
+  if (problem.value) {
+    const state = await clean(problem.value.id);
     status.value = state || null;
   }
 }

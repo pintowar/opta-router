@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
-const vehicles = computed(() => solution.value?.instance.vehicles || []);
+const vehicles = computed(() => solution.value?.problem.vehicles || []);
 const routes = computed(() => solution.value?.routes || []);
 const capacities = computed(
   () => solution.value?.routes.map((r, idx) => (100 * r.totalDemand) / vehicles.value[idx].capacity) || []

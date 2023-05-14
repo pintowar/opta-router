@@ -3,6 +3,7 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
@@ -72,10 +73,10 @@ export interface components {
       /** Format: int64 */
       id: number;
       name: string;
-      vehicles: components["schemas"]["Vehicle"][];
-      customers: components["schemas"]["Customer"][];
-      depots: components["schemas"]["Depot"][];
-      locations: components["schemas"]["Location"][];
+      vehicles: (components["schemas"]["Vehicle"])[];
+      customers: (components["schemas"]["Customer"])[];
+      depots: (components["schemas"]["Depot"])[];
+      locations: (components["schemas"]["Location"])[];
       /** Format: int32 */
       nlocations: number;
       /** Format: int32 */
@@ -96,18 +97,19 @@ export interface components {
       time: number;
       /** Format: int32 */
       totalDemand: number;
-      order: components["schemas"]["LatLng"][];
-      customerIds: number[];
+      order: (components["schemas"]["LatLng"])[];
+      customerIds: (number)[];
     };
     SolverPanel: {
       isDetailedPath: boolean;
     };
     VrpSolution: {
-      instance: components["schemas"]["VrpProblem"];
-      routes: components["schemas"]["Route"][];
+      problem: components["schemas"]["VrpProblem"];
+      routes: (components["schemas"]["Route"])[];
       empty: boolean;
-      totalDistance: number;
+      feasible: boolean;
       totalTime: Record<string, never>;
+      totalDistance: number;
     };
     VrpSolutionRegistry: {
       solution: components["schemas"]["VrpSolution"];
@@ -127,6 +129,7 @@ export interface components {
 export type external = Record<string, never>;
 
 export interface operations {
+
   detailedPath: {
     parameters: {
       path: {
@@ -163,7 +166,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpProblem"][];
+          "application/json": (components["schemas"]["VrpProblem"])[];
         };
       };
     };

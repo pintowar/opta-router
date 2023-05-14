@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.config
 
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.OptaSolverService
@@ -9,7 +10,9 @@ import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.time.Duration
+import java.util.concurrent.Executors
 
 @Configuration
 class VrpSolverConfig {
@@ -17,8 +20,9 @@ class VrpSolverConfig {
     @Bean
     fun solverRepository(
         vrpProblemPort: VrpProblemPort,
-        vrpSolverSolutionPort: VrpSolverSolutionPort
-    ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort)
+        vrpSolverSolutionPort: VrpSolverSolutionPort,
+        vrpSolverRequestPort: VrpSolverRequestPort
+    ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort, vrpSolverRequestPort)
 
     @Bean // (destroyMethod = "destroy")
     fun vrpSolverService(
@@ -26,6 +30,7 @@ class VrpSolverConfig {
         solverRepository: SolverRepository,
         broadcastPort: BroadcastPort
     ): VrpSolverService {
-        return OptaSolverService(timeLimit, solverRepository, broadcastPort)
+        val executor = Executors.newSingleThreadExecutor()
+        return OptaSolverService(timeLimit, executor, solverRepository, broadcastPort)
     }
 }

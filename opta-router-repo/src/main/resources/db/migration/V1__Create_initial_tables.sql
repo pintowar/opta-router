@@ -74,6 +74,16 @@ CREATE TABLE vehicle (
     FOREIGN KEY (depot_id) REFERENCES location(id)
 );
 
+CREATE TABLE vrp_solver_request (
+    request_key UUID PRIMARY KEY,
+    vrp_problem_id BIGINT NOT NULL,
+    solver VARCHAR (50) NOT NULL,
+    status VARCHAR (20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+);
+
 CREATE SEQUENCE vrp_solver_solution_pk_seq
 	INCREMENT BY 1
 	MINVALUE 0

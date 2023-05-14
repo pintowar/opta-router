@@ -52,7 +52,7 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
 }
 
 fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
-    val solution = instance.toSolution(distances)
+    val solution = problem.toSolution(distances)
     val keys = solution.customerList.associateBy { it.id }
 
     routes.forEachIndexed { rIdx, route ->

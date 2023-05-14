@@ -54,7 +54,7 @@ class WebSocketHandler(
                 mapper.writeValueAsString(data.copy(solution = sol))
             }
 
-            notifyUser(session, data.solution.instance.id, textData)
+            notifyUser(session, data.solution.problem.id, textData)
         }
     }
 

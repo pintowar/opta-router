@@ -34,10 +34,8 @@ class SolverController(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun solve(@PathVariable id: Long): ResponseEntity<SolverState> {
-        return solver.currentSolutionState(id)?.let {
-            solver.asyncSolve(it.solution.instance)
-            ResponseEntity.ok(solver.showState(id))
-        } ?: ResponseEntity.notFound().build()
+        solver.enqueueSolverRequest(id)
+        return ResponseEntity.ok(solver.showState(id))
     }
 
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -53,13 +51,14 @@ class SolverController(
 
     @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverState> {
-        solver.terminateEarly(id)
+//        solver.terminateEarly(id)
+        solver.currentSolutionRegistry(id)?.also { solver.terminateEarly(it.solverKey!!) }
         return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
-        solver.clean(id)
+        solver.currentSolutionRegistry(id)?.also { solver.clean(it.solverKey!!) }
         return ResponseEntity.ok(solver.showState(id))
     }
 
@@ -67,7 +66,7 @@ class SolverController(
     fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
         val panel = sessionPanel[session.id] ?: SolverPanel()
 
-        return solver.currentSolutionState(id)?.let {
+        return solver.currentSolutionRegistry(id)?.let {
             val sol = (if (panel.isDetailedPath) geoService.detailedPaths(it.solution) else it.solution)
             PanelSolutionState(panel, it.copy(solution = sol))
         }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()

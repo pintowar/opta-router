@@ -1,5 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models
 
+import io.github.pintowar.opta.router.core.solver.Problem
+import io.github.pintowar.opta.router.core.solver.Solution
 import java.math.BigDecimal
 import java.util.*
 
@@ -25,10 +27,10 @@ data class LatLng(override val lat: Double, override val lng: Double) : Coordina
  */
 data class VrpProblem(
     val id: Long,
-    val name: String,
+    override val name: String,
     val vehicles: List<Vehicle>,
     val customers: List<Customer>
-) {
+) : Problem {
     val depots: List<Depot> = vehicles.map { it.depot }.distinct()
     val locations: List<Location> = depots + customers
     val nLocations: Int = locations.size
@@ -69,10 +71,18 @@ data class Route(
  * DTO class with the representation of the VRP solution.
  * This class is used as the application output data representation.
  */
-data class VrpSolution(val instance: VrpProblem, val routes: List<Route>) {
+data class VrpSolution(override val problem: VrpProblem, val routes: List<Route>) : Solution<VrpProblem> {
 
     companion object {
-        fun emptyFromInstance(instance: VrpProblem) = VrpSolution(instance, emptyList())
+        fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
+    }
+
+    override fun objective(): Double = getTotalDistance().toDouble()
+
+    override fun isFeasible(): Boolean {
+        return problem.vehicles.zip(routes).all { (vehicle, route) ->
+            vehicle.capacity >= route.totalDemand
+        }
     }
 
     fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
@@ -85,6 +95,13 @@ data class VrpSolution(val instance: VrpProblem, val routes: List<Route>) {
 enum class SolverState {
     ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
 }
+
+data class VrpSolverRequest(
+    val requestKey: UUID,
+    val problemId: Long,
+    val solver: String,
+    val status: SolverState,
+)
 
 data class VrpSolverSolution(
     val problemId: Long,
