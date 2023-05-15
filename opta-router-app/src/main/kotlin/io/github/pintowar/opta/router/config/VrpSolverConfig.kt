@@ -5,12 +5,10 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
-import io.github.pintowar.opta.router.core.solver.OptaSolverService
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import java.time.Duration
 import java.util.concurrent.Executors
 
@@ -31,6 +29,6 @@ class VrpSolverConfig {
         broadcastPort: BroadcastPort
     ): VrpSolverService {
         val executor = Executors.newSingleThreadExecutor()
-        return OptaSolverService(timeLimit, executor, solverRepository, broadcastPort)
+        return VrpSolverService(timeLimit, executor, solverRepository, broadcastPort)
     }
 }

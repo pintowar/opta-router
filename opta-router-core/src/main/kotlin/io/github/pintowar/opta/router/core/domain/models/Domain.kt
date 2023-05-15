@@ -1,7 +1,6 @@
 package io.github.pintowar.opta.router.core.domain.models
 
-import io.github.pintowar.opta.router.core.solver.Problem
-import io.github.pintowar.opta.router.core.solver.Solution
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
 import java.util.*
 
@@ -27,10 +26,11 @@ data class LatLng(override val lat: Double, override val lng: Double) : Coordina
  */
 data class VrpProblem(
     val id: Long,
-    override val name: String,
+    val name: String,
     val vehicles: List<Vehicle>,
-    val customers: List<Customer>
-) : Problem {
+    val customers: List<Customer>,
+    val matrix: Matrix? = null
+) {
     val depots: List<Depot> = vehicles.map { it.depot }.distinct()
     val locations: List<Location> = depots + customers
     val nLocations: Int = locations.size
@@ -71,15 +71,13 @@ data class Route(
  * DTO class with the representation of the VRP solution.
  * This class is used as the application output data representation.
  */
-data class VrpSolution(override val problem: VrpProblem, val routes: List<Route>) : Solution<VrpProblem> {
+data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
 
     companion object {
         fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
     }
 
-    override fun objective(): Double = getTotalDistance().toDouble()
-
-    override fun isFeasible(): Boolean {
+    fun isFeasible(): Boolean {
         return problem.vehicles.zip(routes).all { (vehicle, route) ->
             vehicle.capacity >= route.totalDemand
         }
@@ -105,7 +103,6 @@ data class VrpSolverRequest(
 
 data class VrpSolverSolution(
     val problemId: Long,
-    val solver: String,
     val routes: List<Route>,
     val state: SolverState,
     val solverKey: UUID? = null

@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.solver
+package io.github.pintowar.opta.router.solver.optaplanner
 
 import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Route

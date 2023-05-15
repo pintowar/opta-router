@@ -5,7 +5,7 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
-import java.util.UUID
+import java.util.*
 
 class SolverRepository(
     val vrpProblemPort: VrpProblemPort,
@@ -27,14 +27,14 @@ class SolverRepository(
         vrpSolverSolverSolutionPort.clearSolution(problemId)
     }
 
-    fun insertNewSolution(sol: VrpSolution, solverName: String, uuid: UUID, solverState: SolverState) {
+    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverState: SolverState) {
         vrpSolverRequestPort.updateSolverStatus(uuid, solverState)
-        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverName, solverState, sol.routes, uuid)
+        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverState, sol.routes, uuid)
     }
 
-    fun latestOrNewSolutionRegistry(problemId: Long, solverName: String, uuid: UUID): VrpSolutionRegistry? {
+    fun latestOrNewSolutionRegistry(problemId: Long, uuid: UUID): VrpSolutionRegistry? {
         return vrpProblemPort.getById(problemId)?.let { problem ->
-            latest(problem)?.copy(solverKey = uuid) ?: createNewSolutionFromInstance(problem, solverName, uuid)
+            latest(problem)?.copy(solverKey = uuid) ?: createNewSolutionFromInstance(problem, uuid)
         }
     }
 
@@ -56,12 +56,11 @@ class SolverRepository(
 
     private fun createNewSolutionFromInstance(
         problem: VrpProblem,
-        solverName: String,
         uuid: UUID,
         solverState: SolverState = SolverState.NOT_SOLVED,
         paths: List<Route> = emptyList(),
     ): VrpSolutionRegistry {
-        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverName, solverState, paths, uuid)
+        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverState, paths, uuid)
         return VrpSolutionRegistry(VrpSolution(problem, paths), solverState, uuid)
     }
 }

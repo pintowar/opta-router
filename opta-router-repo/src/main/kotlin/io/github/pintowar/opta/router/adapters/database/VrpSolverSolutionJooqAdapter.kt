@@ -18,7 +18,7 @@ class VrpSolverSolutionJooqAdapter(
 ) : VrpSolverSolutionPort {
 
     override fun clearSolution(problemId: Long) {
-        createNewSolution(problemId, "none")
+        createNewSolution(problemId)
     }
 
     override fun currentSolution(problemId: Long): VrpSolverSolution? = dsl
@@ -30,7 +30,6 @@ class VrpSolverSolutionJooqAdapter(
             val routes = mapper.readValue<List<Route>>(sol.paths.data())
             VrpSolverSolution(
                 sol.vrpProblemId,
-                sol.solver,
                 routes,
                 SolverState.valueOf(sol.status),
                 sol.solutionKey
@@ -39,7 +38,6 @@ class VrpSolverSolutionJooqAdapter(
 
     override fun createNewSolution(
         instanceId: Long,
-        solver: String,
         solverState: SolverState,
         paths: List<Route>,
         uuid: UUID?
@@ -48,7 +46,6 @@ class VrpSolverSolutionJooqAdapter(
         dsl.insertInto(VRP_SOLVER_SOLUTION)
             .set(VRP_SOLVER_SOLUTION.SOLUTION_KEY, uuid)
             .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, instanceId)
-            .set(VRP_SOLVER_SOLUTION.SOLVER, solver)
             .set(VRP_SOLVER_SOLUTION.STATUS, solverState.name)
             .set(VRP_SOLVER_SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(paths)))
             .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)

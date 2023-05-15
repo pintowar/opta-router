@@ -11,7 +11,6 @@ interface VrpSolverSolutionPort {
 
     fun createNewSolution(
         instanceId: Long,
-        solver: String,
         solverState: SolverState = SolverState.NOT_SOLVED,
         paths: List<Route> = emptyList(),
         uuid: UUID? = null

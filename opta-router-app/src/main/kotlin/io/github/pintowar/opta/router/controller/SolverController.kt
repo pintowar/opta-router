@@ -45,7 +45,7 @@ class SolverController(
         session: HttpSession
     ): ResponseEntity<SolverState> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
-        solver.updateDetailedView(id, isDetailed)
+        solver.updateDetailedView(id)
         return ResponseEntity.ok(solver.showState(id))
     }
 
