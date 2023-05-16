@@ -18,7 +18,7 @@ class EventHandlerConfig {
     fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster {
         return SimpleApplicationEventMulticaster().apply {
             this.setTaskExecutor(SimpleAsyncTaskExecutor().apply {
-                concurrencyLimit = 1
+                concurrencyLimit = 2
             })
         }
     }

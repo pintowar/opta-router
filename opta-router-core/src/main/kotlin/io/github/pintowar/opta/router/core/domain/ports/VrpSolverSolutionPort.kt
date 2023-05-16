@@ -13,6 +13,7 @@ interface VrpSolverSolutionPort {
         instanceId: Long,
         solverStatus: SolverStatus = SolverStatus.NOT_SOLVED,
         paths: List<Route> = emptyList(),
+        objective: Double = 0.0,
         uuid: UUID? = null
     )
 

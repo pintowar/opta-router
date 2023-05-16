@@ -97,6 +97,7 @@ CREATE TABLE vrp_solver_solution (
     vrp_problem_id BIGINT NOT NULL,
     solution_key UUID,
     status VARCHAR (20) NOT NULL,
+    objective DOUBLE PRECISION NOT NULL,
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,

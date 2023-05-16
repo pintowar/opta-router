@@ -29,7 +29,7 @@ class SolverRepository(
 
     fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus) {
         vrpSolverRequestPort.updateSolverStatus(uuid, solverStatus)
-        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverStatus, sol.routes, uuid)
+        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverStatus, sol.routes, sol.getTotalDistance().toDouble(), uuid)
     }
 
     fun latestOrNewSolutionRegistry(problemId: Long, uuid: UUID): VrpSolutionRegistry? {
@@ -60,7 +60,7 @@ class SolverRepository(
         solverStatus: SolverStatus = SolverStatus.NOT_SOLVED,
         paths: List<Route> = emptyList(),
     ): VrpSolutionRegistry {
-        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverStatus, paths, uuid)
+        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverStatus, paths, 0.0, uuid)
         return VrpSolutionRegistry(VrpSolution(problem, paths), solverStatus, uuid)
     }
 }

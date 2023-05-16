@@ -40,6 +40,7 @@ class VrpSolverSolutionJooqAdapter(
         instanceId: Long,
         solverStatus: SolverStatus,
         paths: List<Route>,
+        objective: Double,
         uuid: UUID?
     ) {
         val now = Instant.now()
@@ -47,6 +48,7 @@ class VrpSolverSolutionJooqAdapter(
             .set(VRP_SOLVER_SOLUTION.SOLUTION_KEY, uuid)
             .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, instanceId)
             .set(VRP_SOLVER_SOLUTION.STATUS, solverStatus.name)
+            .set(VRP_SOLVER_SOLUTION.OBJECTIVE, objective)
             .set(VRP_SOLVER_SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(paths)))
             .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
             .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
