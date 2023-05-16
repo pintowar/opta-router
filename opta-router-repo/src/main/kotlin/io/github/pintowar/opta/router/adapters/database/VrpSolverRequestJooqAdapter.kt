@@ -1,6 +1,6 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import org.jooq.DSLContext
@@ -15,7 +15,7 @@ class VrpSolverRequestJooqAdapter(
     override fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
         val numEnqueued = dsl.selectFrom(VRP_SOLVER_REQUEST)
             .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(request.problemId))
-            .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverState.ENQUEUED.name, SolverState.RUNNING.name))
+            .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverStatus.ENQUEUED.name, SolverStatus.RUNNING.name))
             .count()
 
         if (numEnqueued > 0) return null
@@ -39,13 +39,13 @@ class VrpSolverRequestJooqAdapter(
             .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
             .limit(1)
             .fetchOne {
-                VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverState.valueOf(it.status))
+                VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
             }
     }
 
-    override fun updateSolverStatus(solverKey: UUID, solverState: SolverState) {
+    override fun updateSolverStatus(solverKey: UUID, solverStatus: SolverStatus) {
         dsl.update(VRP_SOLVER_REQUEST)
-            .set(VRP_SOLVER_REQUEST.STATUS, solverState.name)
+            .set(VRP_SOLVER_REQUEST.STATUS, solverStatus.name)
             .set(VRP_SOLVER_REQUEST.UPDATED_AT, Instant.now())
             .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(solverKey))
             .execute()

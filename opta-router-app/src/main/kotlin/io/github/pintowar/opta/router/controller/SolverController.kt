@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
@@ -33,8 +33,8 @@ class SolverController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun solve(@PathVariable id: Long): ResponseEntity<SolverState> {
-        solver.enqueueSolverRequest(id)
+    fun solve(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solver.enqueueSolverRequest(id, "optaplanner")
         return ResponseEntity.ok(solver.showState(id))
     }
 
@@ -43,21 +43,21 @@ class SolverController(
         @PathVariable id: Long,
         @PathVariable isDetailed: Boolean,
         session: HttpSession
-    ): ResponseEntity<SolverState> {
+    ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
         solver.updateDetailedView(id)
         return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverState> {
+    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverStatus> {
 //        solver.terminateEarly(id)
         solver.currentSolutionRegistry(id)?.also { solver.terminateEarly(it.solverKey!!) }
         return ResponseEntity.ok(solver.showState(id))
     }
 
     @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun clean(@PathVariable id: Long): ResponseEntity<SolverState> {
+    fun clean(@PathVariable id: Long): ResponseEntity<SolverStatus> {
         solver.currentSolutionRegistry(id)?.also { solver.clean(it.solverKey!!) }
         return ResponseEntity.ok(solver.showState(id))
     }

@@ -15,7 +15,7 @@ class SolverRepository(
 
     fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
         return vrpSolverRequestPort.createRequest(
-            VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverState.ENQUEUED)
+            VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
         )
     }
 
@@ -27,9 +27,9 @@ class SolverRepository(
         vrpSolverSolverSolutionPort.clearSolution(problemId)
     }
 
-    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverState: SolverState) {
-        vrpSolverRequestPort.updateSolverStatus(uuid, solverState)
-        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverState, sol.routes, uuid)
+    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus) {
+        vrpSolverRequestPort.updateSolverStatus(uuid, solverStatus)
+        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverStatus, sol.routes, uuid)
     }
 
     fun latestOrNewSolutionRegistry(problemId: Long, uuid: UUID): VrpSolutionRegistry? {
@@ -50,17 +50,17 @@ class SolverRepository(
 
     private fun latest(problem: VrpProblem): VrpSolutionRegistry? {
         return vrpSolverSolverSolutionPort.currentSolution(problem.id)?.let { sol ->
-            VrpSolutionRegistry(VrpSolution(problem, sol.routes), sol.state, sol.solverKey)
+            VrpSolutionRegistry(VrpSolution(problem, sol.routes), sol.status, sol.solverKey)
         }
     }
 
     private fun createNewSolutionFromInstance(
         problem: VrpProblem,
         uuid: UUID,
-        solverState: SolverState = SolverState.NOT_SOLVED,
+        solverStatus: SolverStatus = SolverStatus.NOT_SOLVED,
         paths: List<Route> = emptyList(),
     ): VrpSolutionRegistry {
-        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverState, paths, uuid)
-        return VrpSolutionRegistry(VrpSolution(problem, paths), solverState, uuid)
+        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverStatus, paths, uuid)
+        return VrpSolutionRegistry(VrpSolution(problem, paths), solverStatus, uuid)
     }
 }

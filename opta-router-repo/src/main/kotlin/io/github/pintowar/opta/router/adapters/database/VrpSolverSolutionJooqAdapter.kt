@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.adapters.database
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverSolution
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import org.jooq.DSLContext
@@ -31,14 +31,14 @@ class VrpSolverSolutionJooqAdapter(
             VrpSolverSolution(
                 sol.vrpProblemId,
                 routes,
-                SolverState.valueOf(sol.status),
+                SolverStatus.valueOf(sol.status),
                 sol.solutionKey
             )
         }
 
     override fun createNewSolution(
         instanceId: Long,
-        solverState: SolverState,
+        solverStatus: SolverStatus,
         paths: List<Route>,
         uuid: UUID?
     ) {
@@ -46,7 +46,7 @@ class VrpSolverSolutionJooqAdapter(
         dsl.insertInto(VRP_SOLVER_SOLUTION)
             .set(VRP_SOLVER_SOLUTION.SOLUTION_KEY, uuid)
             .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, instanceId)
-            .set(VRP_SOLVER_SOLUTION.STATUS, solverState.name)
+            .set(VRP_SOLVER_SOLUTION.STATUS, solverStatus.name)
             .set(VRP_SOLVER_SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(paths)))
             .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
             .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)

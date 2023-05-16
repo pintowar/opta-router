@@ -1,18 +1,15 @@
 package io.github.pintowar.opta.router.core.solver
 
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import io.github.pintowar.opta.router.core.solver.spi.SolverFactory
-import mu.KotlinLogging
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ExecutorService
-
-private val logger = KotlinLogging.logger {}
 
 /**
  * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions
@@ -22,8 +19,7 @@ private val logger = KotlinLogging.logger {}
  */
 class VrpSolverService(
     private val timeLimit: Duration,
-    private val executor: ExecutorService,
-//    private val solverQueue: SolverQueuePort,
+    private val solverQueue: SolverQueuePort,
     private val solverRepository: SolverRepository,
     private val broadcastPort: BroadcastPort
 ) {
@@ -35,18 +31,22 @@ class VrpSolverService(
             ?: solverRepository.latestOrNewSolutionRegistry(problemId, UUID.randomUUID())
     //TODO: Adjust this
 
-    fun showState(problemId: Long): SolverState =
-        currentSolutionRegistry(problemId)?.state ?: SolverState.NOT_SOLVED
+    fun showState(problemId: Long): SolverStatus =
+        currentSolutionRegistry(problemId)?.state ?: SolverStatus.NOT_SOLVED
 
     fun updateDetailedView(problemId: Long) {
         currentSolutionRegistry(problemId)?.let(broadcastPort::broadcastSolution)
     }
 
-    fun enqueueSolverRequest(problemId: Long): UUID? {
-        val solverName = "optaplanner"
+    fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
-//            solverQueue.requestSolver(request.problemId, request.requestKey)
-            executor.submit { solve(request.problemId, request.requestKey, solverName) }
+            solverQueue.requestSolver(
+                SolverQueuePort.RequestSolverCommand(
+                    request.problemId,
+                    request.requestKey,
+                    solverName
+                )
+            )
             request.requestKey
         }
     }
@@ -79,8 +79,7 @@ class VrpSolverService(
 
         solverKeys[solverKey] = SolverFactory.createSolver(solverName, solverKey, SolverConfig(timeLimit))
         solverKeys[solverKey]!!.solve(currentSolutionRegistry.solution, currentMatrix) {
-            solverRepository.insertNewSolution(it.solution, it.solverKey!!, it.state)
-            broadcastPort.broadcastSolution(it)
+            solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRegistryCommand(it))
         }
     }
 

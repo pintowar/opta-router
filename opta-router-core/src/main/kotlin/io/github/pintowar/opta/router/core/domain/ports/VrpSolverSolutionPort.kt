@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
 import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverSolution
 import java.util.*
 
@@ -11,7 +11,7 @@ interface VrpSolverSolutionPort {
 
     fun createNewSolution(
         instanceId: Long,
-        solverState: SolverState = SolverState.NOT_SOLVED,
+        solverStatus: SolverStatus = SolverStatus.NOT_SOLVED,
         paths: List<Route> = emptyList(),
         uuid: UUID? = null
     )

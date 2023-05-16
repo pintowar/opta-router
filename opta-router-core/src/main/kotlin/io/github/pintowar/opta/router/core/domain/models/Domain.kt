@@ -90,7 +90,7 @@ data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
-enum class SolverState {
+enum class SolverStatus {
     ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
 }
 
@@ -98,16 +98,16 @@ data class VrpSolverRequest(
     val requestKey: UUID,
     val problemId: Long,
     val solver: String,
-    val status: SolverState,
+    val status: SolverStatus,
 )
 
 data class VrpSolverSolution(
     val problemId: Long,
     val routes: List<Route>,
-    val state: SolverState,
+    val status: SolverStatus,
     val solverKey: UUID? = null
 )
 
-data class VrpSolutionRegistry(val solution: VrpSolution, val state: SolverState, val solverKey: UUID? = null)
+data class VrpSolutionRegistry(val solution: VrpSolution, val state: SolverStatus, val solverKey: UUID? = null)
 
 data class SolverPanel(val isDetailedPath: Boolean = false)

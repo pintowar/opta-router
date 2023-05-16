@@ -1,6 +1,6 @@
 package io.github.pintowar.opta.router.solver.optaplanner
 
-import io.github.pintowar.opta.router.core.domain.models.SolverState
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
@@ -27,12 +27,12 @@ class OptaSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, na
 
         solver.addEventListener { evt ->
             val sol = evt.newBestSolution
-            callback(VrpSolutionRegistry(sol.toDTO(problem, matrix), SolverState.RUNNING, key))
+            callback(VrpSolutionRegistry(sol.toDTO(problem, matrix), SolverStatus.RUNNING, key))
         }
 
-        callback(VrpSolutionRegistry(initialSolution, SolverState.RUNNING, key))
+        callback(VrpSolutionRegistry(initialSolution, SolverStatus.RUNNING, key))
         val sol = solver.solve(initialSolution.toSolverSolution(matrix))
-        callback(VrpSolutionRegistry(sol.toDTO(problem, matrix), SolverState.TERMINATED, key))
+        callback(VrpSolutionRegistry(sol.toDTO(problem, matrix), SolverStatus.TERMINATED, key))
     }
 
     override fun terminate() {
