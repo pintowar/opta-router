@@ -90,7 +90,7 @@ export interface components {
     };
     PanelSolutionState: {
       solverPanel: components["schemas"]["SolverPanel"];
-      solutionState: components["schemas"]["VrpSolutionRegistry"];
+      solutionState: components["schemas"]["VrpSolutionRequest"];
     };
     Route: {
       distance: number;
@@ -107,14 +107,14 @@ export interface components {
       problem: components["schemas"]["VrpProblem"];
       routes: (components["schemas"]["Route"])[];
       empty: boolean;
+      totalDistance: number;
       feasible: boolean;
       totalTime: Record<string, never>;
-      totalDistance: number;
     };
-    VrpSolutionRegistry: {
+    VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
       /** @enum {string} */
-      state: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+      status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
       /** Format: uuid */
       solverKey?: string;
     };
