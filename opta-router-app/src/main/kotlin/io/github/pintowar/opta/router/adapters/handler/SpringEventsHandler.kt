@@ -18,10 +18,10 @@ class SpringEventsHandler(
     }
 
     @EventListener
-    fun solutionRegistryListener(solutionRegistryEvent: SolutionRegistryEvent) {
-        val cmd = solutionRegistryEvent.command
-        val registry = cmd.solutionRegistry
-        solverRepository.insertNewSolution(registry.solution, registry.solverKey!!, registry.state)
-        broadcastPort.broadcastSolution(registry)
+    fun solutionRegistryListener(solutionRequestEvent: SolutionRequestEvent) {
+        val cmd = solutionRequestEvent.command
+        val (solRequest, clear) = cmd.solutionRequest to cmd.clear
+        solverRepository.insertNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
+        broadcastPort.broadcastSolution(if (clear) solRequest.withClearSolution() else solRequest)
     }
 }

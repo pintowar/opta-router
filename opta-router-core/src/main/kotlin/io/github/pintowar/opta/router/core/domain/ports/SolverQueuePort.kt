@@ -1,17 +1,15 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
-import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import java.util.*
 
 interface SolverQueuePort {
 
     data class RequestSolverCommand(val problemId: Long, val uuid: UUID, val solverName: String)
 
-    data class SolutionRegistryCommand(val solutionRegistry: VrpSolutionRegistry)
+    data class SolutionRequestCommand(val solutionRequest: VrpSolutionRequest, val clear: Boolean)
 
     fun requestSolver(command: RequestSolverCommand)
 
-    fun updateAndBroadcast(command: SolutionRegistryCommand)
+    fun updateAndBroadcast(command: SolutionRequestCommand)
 }

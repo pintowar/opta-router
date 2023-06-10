@@ -9,7 +9,7 @@ import java.util.*
 
 class SolverRepository(
     val vrpProblemPort: VrpProblemPort,
-    val vrpSolverSolverSolutionPort: VrpSolverSolutionPort,
+    val vrpSolverSolutionPort: VrpSolverSolutionPort,
     val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
 
@@ -19,48 +19,44 @@ class SolverRepository(
         )
     }
 
-    fun currentSolverStatus(problemId: Long): VrpSolverRequest? {
-        return vrpSolverRequestPort.currentSolverStatus(problemId)
+    fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
+        return vrpSolverRequestPort.currentSolverRequest(problemId)
+    }
+
+    fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? {
+        return vrpSolverRequestPort.currentSolverRequest(requestKey)
+    }
+
+    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+        //TODO single db request
+        return latestSolution(problemId)?.let { solution ->
+            currentSolverRequest(problemId)?.let { solverRequest ->
+                VrpSolutionRequest(solution, solverRequest.status, solverRequest.requestKey)
+            } ?: VrpSolutionRequest(solution, SolverStatus.NOT_SOLVED)
+        }
     }
 
     fun clearSolution(problemId: Long) {
-        vrpSolverSolverSolutionPort.clearSolution(problemId)
+        vrpSolverSolutionPort.clearSolution(problemId)
     }
 
-    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus) {
-        vrpSolverRequestPort.updateSolverStatus(uuid, solverStatus)
-        vrpSolverSolverSolutionPort.createNewSolution(sol.problem.id, solverStatus, sol.routes, sol.getTotalDistance().toDouble(), uuid)
-    }
-
-    fun latestOrNewSolutionRegistry(problemId: Long, uuid: UUID): VrpSolutionRegistry? {
-        return vrpProblemPort.getById(problemId)?.let { problem ->
-            latest(problem)?.copy(solverKey = uuid) ?: createNewSolutionFromInstance(problem, uuid)
-        }
-    }
-
-    fun latestSolution(problemId: Long): VrpSolutionRegistry? {
-        return vrpProblemPort.getById(problemId)?.let { problem ->
-            latest(problem)
-        }
+    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean) {
+        //TODO single db request AND return solutionrequest
+        vrpSolverRequestPort.updateSolverStatus(uuid, if (clear) SolverStatus.NOT_SOLVED else solverStatus)
+        vrpSolverSolutionPort.upsertSolution(
+            sol.problem.id, solverStatus, sol.routes, sol.getTotalDistance().toDouble(), clear, uuid
+        )
     }
 
     fun currentMatrix(instanceId: Long): Matrix? {
         return vrpProblemPort.getMatrixById(instanceId)
     }
 
-    private fun latest(problem: VrpProblem): VrpSolutionRegistry? {
-        return vrpSolverSolverSolutionPort.currentSolution(problem.id)?.let { sol ->
-            VrpSolutionRegistry(VrpSolution(problem, sol.routes), sol.status, sol.solverKey)
-        }
+    private fun latestSolution(problemId: Long): VrpSolution? {
+        return vrpProblemPort.getById(problemId)?.let(::latest)
     }
 
-    private fun createNewSolutionFromInstance(
-        problem: VrpProblem,
-        uuid: UUID,
-        solverStatus: SolverStatus = SolverStatus.NOT_SOLVED,
-        paths: List<Route> = emptyList(),
-    ): VrpSolutionRegistry {
-        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverStatus, paths, 0.0, uuid)
-        return VrpSolutionRegistry(VrpSolution(problem, paths), solverStatus, uuid)
+    private fun latest(problem: VrpProblem): VrpSolution {
+        return VrpSolution(problem, vrpSolverSolutionPort.currentSolution(problem.id))
     }
 }

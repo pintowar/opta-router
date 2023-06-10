@@ -14,7 +14,7 @@ const solutionState = await getPanelSolutionState(+route.params.id);
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
 const problem = ref<VrpProblem | null>(solution.value?.problem || null);
 
-const status = ref<string | null>(solutionState?.solutionState?.state || null);
+const status = ref<string | null>(solutionState?.solutionState?.status || null);
 const isDetailedPath = ref<boolean>(solutionState?.solverPanel?.isDetailedPath || false);
 
 const isWsConnected = ref<boolean>(false);
@@ -36,7 +36,7 @@ function creatWSCli() {
   cli.onmessage = (message) => {
     const payload = JSON.parse(message.data);
     solution.value = payload.solution;
-    status.value = payload.state;
+    status.value = payload.status;
   };
   cli.onclose = () => (isWsConnected.value = true);
 

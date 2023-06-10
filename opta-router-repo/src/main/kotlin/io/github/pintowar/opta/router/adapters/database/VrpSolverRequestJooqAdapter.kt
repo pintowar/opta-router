@@ -33,9 +33,19 @@ class VrpSolverRequestJooqAdapter(
         return if (result == 1) request else null
     }
 
-    override fun currentSolverStatus(problemId: Long): VrpSolverRequest? {
+    override fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
         return dsl.selectFrom(VRP_SOLVER_REQUEST)
             .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
+            .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
+            .limit(1)
+            .fetchOne {
+                VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
+            }
+    }
+
+    override fun currentSolverRequest(solverKey: UUID): VrpSolverRequest? {
+        return dsl.selectFrom(VRP_SOLVER_REQUEST)
+            .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(solverKey))
             .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
             .limit(1)
             .fetchOne {

@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
@@ -26,16 +26,15 @@ class VrpSolverService(
 
     private val solverKeys = ConcurrentHashMap<UUID, Solver>()
 
-    fun currentSolutionRegistry(problemId: Long): VrpSolutionRegistry? =
-        solverRepository.latestSolution(problemId)
-            ?: solverRepository.latestOrNewSolutionRegistry(problemId, UUID.randomUUID())
-    //TODO: Adjust this
+    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+        return solverRepository.currentSolutionRequest(problemId)
+    }
 
-    fun showState(problemId: Long): SolverStatus =
-        currentSolutionRegistry(problemId)?.state ?: SolverStatus.NOT_SOLVED
+    fun showStatus(problemId: Long): SolverStatus =
+        solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
 
     fun updateDetailedView(problemId: Long) {
-        currentSolutionRegistry(problemId)?.let(broadcastPort::broadcastSolution)
+        solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
     }
 
     fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
@@ -52,35 +51,39 @@ class VrpSolverService(
     }
 
     fun terminateEarly(solverKey: UUID) {
-        solverKeys[solverKey]?.terminate()
-//        if (solverManager.getSolverStatus(problemId) != SolverStatus.NOT_SOLVING) {
-//            solverManager.terminateEarly(problemId)
-//            broadcastSolution(problemId)
-//        }
+        val solverRequest = solverRepository.currentSolverRequest(solverKey)
+        if (solverRequest?.status != SolverStatus.NOT_SOLVED) {
+            solverKeys[solverKey]?.terminate()
+        }
     }
 
     fun clean(solverKey: UUID) {
-        solverKeys[solverKey]?.terminate()
-        solverKeys.remove(solverKey)
-//        val current = solverRepository.currentOrNewSolutionRegistry(problemId, solverName)
-//        if (current != null) {
-//            solverManager.terminateEarly(problemId)
-//            solverRepository.clearSolution(problemId)
-//            broadcastSolution(problemId)
-//        }
+        val solverRequest = solverRepository.currentSolverRequest(solverKey)
+        if (solverRequest != null) {
+            solverKeys[solverKey]?.terminate()
+            sequence<Boolean?> { solverKeys[solverKey]?.isSolving() }.takeWhile { it == true }
+            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
+                broadcastSolution(it, true)
+            }
+        }
     }
 
     fun solve(problemId: Long, uuid: UUID, solverName: String) {
         if (solverKeys.containsKey(uuid)) return
 
-        val currentSolutionRegistry = solverRepository.latestOrNewSolutionRegistry(problemId, uuid)!!
         val currentMatrix = solverRepository.currentMatrix(problemId) ?: return
-        val solverKey = currentSolutionRegistry.solverKey ?: UUID.randomUUID()
+        val solutionRequest = solverRepository.currentSolutionRequest(problemId) ?: return
+        val solverKey = solutionRequest.solverKey ?: return
+        val currentSolution = solutionRequest.solution
 
-        solverKeys[solverKey] = SolverFactory.createSolver(solverName, solverKey, SolverConfig(timeLimit))
-        solverKeys[solverKey]!!.solve(currentSolutionRegistry.solution, currentMatrix) {
-            solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRegistryCommand(it))
+        SolverFactory.createSolver(solverName, solverKey, SolverConfig(timeLimit)).also { solver ->
+            solverKeys[solverKey] = solver
+            solver.solve(currentSolution, currentMatrix, ::broadcastSolution)
         }
+    }
+
+    private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
+        solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
     }
 
 }

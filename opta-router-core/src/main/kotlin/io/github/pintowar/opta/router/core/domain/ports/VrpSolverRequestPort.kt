@@ -8,7 +8,9 @@ interface VrpSolverRequestPort {
 
     fun createRequest(request: VrpSolverRequest): VrpSolverRequest?
 
-    fun currentSolverStatus(problemId: Long): VrpSolverRequest?
+    fun currentSolverRequest(problemId: Long): VrpSolverRequest?
+
+    fun currentSolverRequest(solverKey: UUID): VrpSolverRequest?
 
     fun updateSolverStatus(solverKey: UUID, solverStatus: SolverStatus)
 }
