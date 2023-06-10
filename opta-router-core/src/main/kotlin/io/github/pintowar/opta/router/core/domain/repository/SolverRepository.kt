@@ -28,7 +28,7 @@ class SolverRepository(
     }
 
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        //TODO single db request
+        // TODO single db request
         return latestSolution(problemId)?.let { solution ->
             currentSolverRequest(problemId)?.let { solverRequest ->
                 VrpSolutionRequest(solution, solverRequest.status, solverRequest.requestKey)
@@ -36,13 +36,8 @@ class SolverRepository(
         }
     }
 
-    fun clearSolution(problemId: Long) {
-        vrpSolverSolutionPort.clearSolution(problemId)
-    }
-
     fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean) {
-        //TODO single db request AND return solutionrequest
-        vrpSolverRequestPort.updateSolverStatus(uuid, if (clear) SolverStatus.NOT_SOLVED else solverStatus)
+        // TODO return solutionrequest
         vrpSolverSolutionPort.upsertSolution(
             sol.problem.id, solverStatus, sol.routes, sol.getTotalDistance().toDouble(), clear, uuid
         )

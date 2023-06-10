@@ -14,8 +14,7 @@ interface VrpSolverSolutionPort {
         paths: List<Route>,
         objective: Double,
         clear: Boolean,
-        uuid: UUID?
+        uuid: UUID
     )
 
-    fun clearSolution(problemId: Long)
 }

@@ -18,15 +18,6 @@ class VrpSolverSolutionJooqAdapter(
     private val dsl: DSLContext
 ) : VrpSolverSolutionPort {
 
-    override fun clearSolution(problemId: Long) {
-        dsl
-            .update(VRP_SOLUTION)
-            .set(VRP_SOLUTION.PATHS, JSON.json(mapper.writeValueAsString(emptyList<Route>())))
-            .set(VRP_SOLUTION.UPDATED_AT, Instant.now())
-            .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-            .execute()
-    }
-
     override fun currentSolution(problemId: Long): List<Route> = dsl
         .selectFrom(VRP_SOLUTION)
         .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
@@ -41,11 +32,18 @@ class VrpSolverSolutionJooqAdapter(
         paths: List<Route>,
         objective: Double,
         clear: Boolean,
-        uuid: UUID?
+        uuid: UUID
     ) {
         val now = Instant.now()
 
         dsl.transaction { trx ->
+            trx.dsl()
+                .update(VRP_SOLVER_REQUEST)
+                .set(VRP_SOLVER_REQUEST.STATUS, if (clear) SolverStatus.NOT_SOLVED.name else solverStatus.name)
+                .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
+                .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(uuid))
+                .execute()
+
             val jsonPaths = if (clear) JSON.json("[]") else JSON.json(mapper.writeValueAsString(paths))
 
             val numSolutions = dsl.selectFrom(VRP_SOLUTION)

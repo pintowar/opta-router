@@ -53,11 +53,11 @@ class VrpSolverRequestJooqAdapter(
             }
     }
 
-    override fun updateSolverStatus(solverKey: UUID, solverStatus: SolverStatus) {
-        dsl.update(VRP_SOLVER_REQUEST)
-            .set(VRP_SOLVER_REQUEST.STATUS, solverStatus.name)
-            .set(VRP_SOLVER_REQUEST.UPDATED_AT, Instant.now())
-            .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(solverKey))
-            .execute()
-    }
+//    override fun updateSolverStatus(solverKey: UUID, solverStatus: SolverStatus) {
+//        dsl.update(VRP_SOLVER_REQUEST)
+//            .set(VRP_SOLVER_REQUEST.STATUS, solverStatus.name)
+//            .set(VRP_SOLVER_REQUEST.UPDATED_AT, Instant.now())
+//            .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(solverKey))
+//            .execute()
+//    }
 }
