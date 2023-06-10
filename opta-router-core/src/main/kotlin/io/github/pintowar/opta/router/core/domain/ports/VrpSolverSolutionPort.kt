@@ -16,5 +16,4 @@ interface VrpSolverSolutionPort {
         clear: Boolean,
         uuid: UUID
     )
-
 }

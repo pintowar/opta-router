@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
-import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import java.util.*
 

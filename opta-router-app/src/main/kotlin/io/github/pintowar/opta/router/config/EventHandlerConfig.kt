@@ -10,16 +10,17 @@ import org.springframework.context.event.ApplicationEventMulticaster
 import org.springframework.context.event.SimpleApplicationEventMulticaster
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 
-
 @Configuration
 class EventHandlerConfig {
 
     @Bean(name = ["applicationEventMulticaster"])
     fun simpleApplicationEventMulticaster(): ApplicationEventMulticaster {
         return SimpleApplicationEventMulticaster().apply {
-            this.setTaskExecutor(SimpleAsyncTaskExecutor().apply {
-                concurrencyLimit = 2
-            })
+            this.setTaskExecutor(
+                SimpleAsyncTaskExecutor().apply {
+                    concurrencyLimit = 2
+                }
+            )
         }
     }
 

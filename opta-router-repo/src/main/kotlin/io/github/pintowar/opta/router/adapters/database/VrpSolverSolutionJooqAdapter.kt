@@ -67,16 +67,18 @@ class VrpSolverSolutionJooqAdapter(
                     .execute()
             }
 
-            if (!clear) trx.dsl()
-                .insertInto(VRP_SOLVER_SOLUTION)
-                .set(VRP_SOLVER_SOLUTION.REQUEST_KEY, uuid)
-                .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, problemId)
-                .set(VRP_SOLVER_SOLUTION.STATUS, solverStatus.name)
-                .set(VRP_SOLVER_SOLUTION.OBJECTIVE, objective)
-                .set(VRP_SOLVER_SOLUTION.PATHS, jsonPaths)
-                .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
-                .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
-                .execute()
+            if (!clear) {
+                trx.dsl()
+                    .insertInto(VRP_SOLVER_SOLUTION)
+                    .set(VRP_SOLVER_SOLUTION.REQUEST_KEY, uuid)
+                    .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, problemId)
+                    .set(VRP_SOLVER_SOLUTION.STATUS, solverStatus.name)
+                    .set(VRP_SOLVER_SOLUTION.OBJECTIVE, objective)
+                    .set(VRP_SOLVER_SOLUTION.PATHS, jsonPaths)
+                    .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
+                    .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
+                    .execute()
+            }
         }
     }
 }

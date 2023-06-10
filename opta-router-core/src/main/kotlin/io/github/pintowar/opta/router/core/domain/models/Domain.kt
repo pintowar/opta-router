@@ -98,7 +98,7 @@ data class VrpSolverRequest(
     val requestKey: UUID,
     val problemId: Long,
     val solver: String,
-    val status: SolverStatus,
+    val status: SolverStatus
 )
 
 data class VrpSolverSolution(
@@ -110,7 +110,6 @@ data class VrpSolverSolution(
 
 data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null) {
     fun withClearSolution() = copy(solution = solution.copy(routes = emptyList()), status = SolverStatus.NOT_SOLVED)
-
 }
 
 data class SolverPanel(val isDetailedPath: Boolean = false)

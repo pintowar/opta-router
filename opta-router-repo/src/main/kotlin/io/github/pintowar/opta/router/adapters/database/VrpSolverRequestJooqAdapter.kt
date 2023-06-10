@@ -52,5 +52,4 @@ class VrpSolverRequestJooqAdapter(
                 VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
             }
     }
-
 }

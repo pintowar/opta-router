@@ -1,6 +1,10 @@
 package io.github.pintowar.opta.router.core.domain.repository
 
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
+import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
@@ -39,7 +43,12 @@ class SolverRepository(
     fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean) {
         // TODO return solutionrequest
         vrpSolverSolutionPort.upsertSolution(
-            sol.problem.id, solverStatus, sol.routes, sol.getTotalDistance().toDouble(), clear, uuid
+            sol.problem.id,
+            solverStatus,
+            sol.routes,
+            sol.getTotalDistance().toDouble(),
+            clear,
+            uuid
         )
     }
 

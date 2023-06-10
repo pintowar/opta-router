@@ -4,13 +4,13 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.core.solver.spi.Solver
 import io.github.pintowar.opta.router.core.solver.SolverConfig
+import io.github.pintowar.opta.router.core.solver.spi.Solver
 import org.optaplanner.core.api.solver.SolverFactory
-import org.optaplanner.core.config.solver.SolverConfig as SC
 import org.optaplanner.core.config.solver.termination.TerminationConfig
 import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
 import java.util.UUID
+import org.optaplanner.core.config.solver.SolverConfig as SC
 
 class OptaSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, name, config) {
     private val configPath = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"

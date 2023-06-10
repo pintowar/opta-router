@@ -85,5 +85,4 @@ class VrpSolverService(
     private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
         solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
     }
-
 }
