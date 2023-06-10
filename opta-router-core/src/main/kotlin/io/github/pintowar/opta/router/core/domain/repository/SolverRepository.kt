@@ -1,7 +1,6 @@
 package io.github.pintowar.opta.router.core.domain.repository
 
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
@@ -32,12 +31,7 @@ class SolverRepository(
     }
 
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        // TODO single db request
-        return latestSolution(problemId)?.let { solution ->
-            currentSolverRequest(problemId)?.let { solverRequest ->
-                VrpSolutionRequest(solution, solverRequest.status, solverRequest.requestKey)
-            } ?: VrpSolutionRequest(solution, SolverStatus.NOT_SOLVED)
-        }
+        return vrpSolverSolutionPort.currentSolutionRequest(problemId)
     }
 
     fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean) {
@@ -56,11 +50,4 @@ class SolverRepository(
         return vrpProblemPort.getMatrixById(instanceId)
     }
 
-    private fun latestSolution(problemId: Long): VrpSolution? {
-        return vrpProblemPort.getById(problemId)?.let(::latest)
-    }
-
-    private fun latest(problem: VrpProblem): VrpSolution {
-        return VrpSolution(problem, vrpSolverSolutionPort.currentSolution(problem.id))
-    }
 }

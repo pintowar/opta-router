@@ -2,11 +2,16 @@ package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import org.jooq.DSLContext
 import org.jooq.JSON
+import org.jooq.Record
+import org.jooq.generated.public.tables.records.VrpProblemRecord
+import org.jooq.generated.public.tables.records.VrpSolutionRecord
+import org.jooq.generated.public.tables.records.VrpSolverRequestRecord
+import org.jooq.generated.public.tables.references.VRP_PROBLEM
 import org.jooq.generated.public.tables.references.VRP_SOLUTION
 import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
 import org.jooq.generated.public.tables.references.VRP_SOLVER_SOLUTION
@@ -25,6 +30,19 @@ class VrpSolverSolutionJooqAdapter(
         .fetchOne { sol ->
             mapper.readValue<List<Route>>(sol.paths.data())
         } ?: emptyList()
+
+    override fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+        return VrpProblemJooqAdapter
+            .problemSelect(dsl)
+            .select(VRP_SOLUTION, VRP_SOLVER_REQUEST)
+            .from(VRP_PROBLEM)
+            .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+            .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+            .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
+            .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
+            .limit(1)
+            .fetchOne(::convertRecordToSolutionRequest)
+    }
 
     override fun upsertSolution(
         problemId: Long,
@@ -80,5 +98,25 @@ class VrpSolverSolutionJooqAdapter(
                     .execute()
             }
         }
+    }
+
+    private fun convertRecordToSolutionRequest(record: Record): VrpSolutionRequest {
+        val problem = record.get(0, VrpProblemRecord::class.java).let {
+            VrpProblem(it.id!!, it.name, emptyList(), emptyList())
+        }.copy(
+            customers = record.get(1, List::class.java).filterIsInstance<Customer>(),
+            vehicles = record.get(2, List::class.java).filterIsInstance<Vehicle>()
+        )
+        val solution = record.get(3, VrpSolutionRecord::class.java)
+        val solverRequest = record.get(4, VrpSolverRequestRecord::class.java)
+
+        return VrpSolutionRequest(
+            VrpSolution(
+                problem,
+                mapper.readValue<List<Route>>(solution.paths.data())
+            ),
+            SolverStatus.valueOf(solverRequest.status),
+            solverRequest.requestKey
+        )
     }
 }

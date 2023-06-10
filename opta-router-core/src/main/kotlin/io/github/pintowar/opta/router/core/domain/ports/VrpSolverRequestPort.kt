@@ -11,5 +11,4 @@ interface VrpSolverRequestPort {
 
     fun currentSolverRequest(solverKey: UUID): VrpSolverRequest?
 
-//    fun updateSolverStatus(solverKey: UUID, solverStatus: SolverStatus)
 }

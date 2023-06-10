@@ -28,8 +28,7 @@ data class VrpProblem(
     val id: Long,
     val name: String,
     val vehicles: List<Vehicle>,
-    val customers: List<Customer>,
-    val matrix: Matrix? = null
+    val customers: List<Customer>
 ) {
     val depots: List<Depot> = vehicles.map { it.depot }.distinct()
     val locations: List<Location> = depots + customers
