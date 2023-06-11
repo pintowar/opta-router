@@ -8,6 +8,7 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import java.time.Duration
 import java.util.UUID
 
 class SolverRepository(
@@ -22,7 +23,8 @@ class SolverRepository(
         )
     }
 
-    fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
+    fun refreshAndGetCurrentSolverRequest(problemId: Long, timeLimit: Duration): VrpSolverRequest? {
+        vrpSolverRequestPort.refreshSolverRequests(timeLimit + Duration.ofMinutes(1))
         return vrpSolverRequestPort.currentSolverRequest(problemId)
     }
 

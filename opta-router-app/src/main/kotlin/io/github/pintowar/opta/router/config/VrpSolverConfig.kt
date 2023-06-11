@@ -27,7 +27,7 @@ class VrpSolverConfig {
     @Bean
     fun solverQueue(publisher: ApplicationEventPublisher): SolverQueuePort = SolverQueueAdapter(publisher)
 
-    @Bean // (destroyMethod = "destroy")
+    @Bean(destroyMethod = "destroy")
     fun vrpSolverService(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         solverRepository: SolverRepository,

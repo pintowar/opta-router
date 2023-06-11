@@ -5,12 +5,21 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import org.jooq.DSLContext
 import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
+import java.time.Duration
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class VrpSolverRequestJooqAdapter(
     private val dsl: DSLContext
 ) : VrpSolverRequestPort {
+
+    override fun refreshSolverRequests(timeout: Duration) {
+        dsl
+            .update(VRP_SOLVER_REQUEST)
+            .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.TERMINATED.name)
+            .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.RUNNING.name))
+            .and(VRP_SOLVER_REQUEST.UPDATED_AT.lt(Instant.now() - timeout))
+    }
 
     override fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
         val numEnqueued = dsl.selectFrom(VRP_SOLVER_REQUEST)
