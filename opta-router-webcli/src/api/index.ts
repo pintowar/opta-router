@@ -4,7 +4,6 @@ type Route = components["schemas"]["Route"];
 type Vehicle = components["schemas"]["Vehicle"];
 type VrpProblem = components["schemas"]["VrpProblem"];
 type VrpSolution = components["schemas"]["VrpSolution"];
-type VrpSolutionRegistry = components["schemas"]["VrpSolutionRegistry"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
 type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
@@ -81,6 +80,6 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution, VrpSolutionRegistry };
+export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution };
 
 export { getProblems, getProblem, solve, terminate, clean, detailedPath, getPanelSolutionState };

@@ -69,10 +69,16 @@ data class Route(
  * DTO class with the representation of the VRP solution.
  * This class is used as the application output data representation.
  */
-data class VrpSolution(val instance: VrpProblem, val routes: List<Route>) {
+data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
 
     companion object {
-        fun emptyFromInstance(instance: VrpProblem) = VrpSolution(instance, emptyList())
+        fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
+    }
+
+    fun isFeasible(): Boolean {
+        return problem.vehicles.zip(routes).all { (vehicle, route) ->
+            vehicle.capacity >= route.totalDemand
+        }
     }
 
     fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
@@ -82,18 +88,17 @@ data class VrpSolution(val instance: VrpProblem, val routes: List<Route>) {
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
 
-enum class SolverState {
+enum class SolverStatus {
     ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
 }
 
-data class VrpSolverSolution(
+data class VrpSolverRequest(
+    val requestKey: UUID,
     val problemId: Long,
     val solver: String,
-    val routes: List<Route>,
-    val state: SolverState,
-    val solverKey: UUID? = null
+    val status: SolverStatus
 )
 
-data class VrpSolutionRegistry(val solution: VrpSolution, val state: SolverState, val solverKey: UUID? = null)
+data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null)
 
 data class SolverPanel(val isDetailedPath: Boolean = false)

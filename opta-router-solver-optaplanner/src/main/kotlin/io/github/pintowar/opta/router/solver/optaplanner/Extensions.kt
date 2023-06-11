@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.solver
+package io.github.pintowar.opta.router.solver.optaplanner
 
 import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Route
@@ -52,7 +52,7 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
 }
 
 fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
-    val solution = instance.toSolution(distances)
+    val solution = problem.toSolution(distances)
     val keys = solution.customerList.associateBy { it.id }
 
     routes.forEachIndexed { rIdx, route ->

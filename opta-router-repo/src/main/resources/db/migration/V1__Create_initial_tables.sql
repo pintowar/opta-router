@@ -74,6 +74,16 @@ CREATE TABLE vehicle (
     FOREIGN KEY (depot_id) REFERENCES location(id)
 );
 
+CREATE TABLE vrp_solver_request (
+    request_key UUID PRIMARY KEY,
+    vrp_problem_id BIGINT NOT NULL,
+    solver VARCHAR (50) NOT NULL,
+    status VARCHAR (20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+);
+
 CREATE SEQUENCE vrp_solver_solution_pk_seq
 	INCREMENT BY 1
 	MINVALUE 0
@@ -85,9 +95,18 @@ CREATE SEQUENCE vrp_solver_solution_pk_seq
 CREATE TABLE vrp_solver_solution (
     id BIGINT DEFAULT NEXT VALUE FOR vrp_solver_solution_pk_seq PRIMARY KEY,
     vrp_problem_id BIGINT NOT NULL,
-    solver VARCHAR (50) NOT NULL,
-    solution_key UUID,
+    request_key UUID,
     status VARCHAR (20) NOT NULL,
+    objective DOUBLE PRECISION NOT NULL,
+    paths JSON NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id),
+    FOREIGN KEY (request_key) REFERENCES vrp_solver_request(request_key)
+);
+
+CREATE TABLE vrp_solution (
+    vrp_problem_id BIGINT PRIMARY KEY,
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,

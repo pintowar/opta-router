@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.adapters.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import mu.KotlinLogging
@@ -44,7 +44,7 @@ class WebSocketHandler(
         return session.attributes["HTTP.SESSION.ID"]!!.toString()
     }
 
-    private fun broadcast(data: VrpSolutionRegistry) {
+    private fun broadcast(data: VrpSolutionRequest) {
         val cache = mutableMapOf<Boolean, String>()
         sessions.forEach { (sessionId, session) ->
             val panel = sessionPanel[sessionId] ?: SolverPanel()
@@ -54,7 +54,7 @@ class WebSocketHandler(
                 mapper.writeValueAsString(data.copy(solution = sol))
             }
 
-            notifyUser(session, data.solution.instance.id, textData)
+            notifyUser(session, data.solution.problem.id, textData)
         }
     }
 
@@ -70,8 +70,7 @@ class WebSocketHandler(
         }
     }
 
-    override fun broadcastSolution(data: VrpSolutionRegistry) {
-        logger.info("{}, {}", data.state, data.solution.getTotalDistance().toString())
+    override fun broadcastSolution(data: VrpSolutionRequest) {
         broadcast(data)
     }
 }

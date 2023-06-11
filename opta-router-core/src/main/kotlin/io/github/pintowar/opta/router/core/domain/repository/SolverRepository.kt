@@ -1,52 +1,53 @@
 package io.github.pintowar.opta.router.core.domain.repository
 
-import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.SolverState
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRegistry
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
+import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import java.time.Duration
 import java.util.UUID
 
 class SolverRepository(
-    val vrpProblemPort: VrpProblemPort,
-    val vrpSolverSolverSolutionPort: VrpSolverSolutionPort
+    private val vrpProblemPort: VrpProblemPort,
+    private val vrpSolverSolutionPort: VrpSolverSolutionPort,
+    private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
 
-    fun clearSolution(problemId: Long) {
-        vrpSolverSolverSolutionPort.clearSolution(problemId)
+    fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
+        return vrpSolverRequestPort.createRequest(
+            VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
+        )
     }
 
-    fun insertNewSolution(sol: VrpSolution, solverName: String, uuid: UUID, solverState: SolverState) {
-        vrpSolverSolverSolutionPort.createNewSolution(sol.instance.id, solverName, solverState, sol.routes, uuid)
+    fun refreshAndGetCurrentSolverRequest(problemId: Long, timeLimit: Duration): VrpSolverRequest? {
+        vrpSolverRequestPort.refreshSolverRequests(timeLimit + Duration.ofMinutes(1))
+        return vrpSolverRequestPort.currentSolverRequest(problemId)
     }
 
-    fun currentOrNewSolutionRegistry(problemId: Long, solverName: String): VrpSolutionRegistry? {
-        return vrpProblemPort.getById(problemId)?.let { problem ->
-            current(problem) ?: createNewSolutionFromInstance(problem, solverName)
-        }
+    fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? {
+        return vrpSolverRequestPort.currentSolverRequest(requestKey)
+    }
+
+    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+        return vrpSolverSolutionPort.currentSolutionRequest(problemId)
+    }
+
+    fun addNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
+        return vrpSolverSolutionPort.upsertSolution(
+            sol.problem.id,
+            solverStatus,
+            sol.routes,
+            sol.getTotalDistance().toDouble(),
+            clear,
+            uuid
+        )
     }
 
     fun currentMatrix(instanceId: Long): Matrix? {
         return vrpProblemPort.getMatrixById(instanceId)
-    }
-
-    private fun current(problem: VrpProblem): VrpSolutionRegistry? {
-        return vrpSolverSolverSolutionPort.currentSolution(problem.id)?.let { sol ->
-            VrpSolutionRegistry(VrpSolution(problem, sol.routes), sol.state, sol.solverKey)
-        }
-    }
-
-    private fun createNewSolutionFromInstance(
-        problem: VrpProblem,
-        solverName: String,
-        solverState: SolverState = SolverState.NOT_SOLVED,
-        paths: List<Route> = emptyList(),
-        uuid: UUID? = null
-    ): VrpSolutionRegistry {
-        vrpSolverSolverSolutionPort.createNewSolution(problem.id, solverName, solverState, paths, uuid)
-        return VrpSolutionRegistry(VrpSolution(problem, paths), solverState, uuid)
     }
 }
