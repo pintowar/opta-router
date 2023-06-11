@@ -10,5 +10,4 @@ interface VrpSolverRequestPort {
     fun currentSolverRequest(problemId: Long): VrpSolverRequest?
 
     fun currentSolverRequest(solverKey: UUID): VrpSolverRequest?
-
 }

@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.core.domain.models
 
-import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
 import java.util.*
 
@@ -98,13 +97,6 @@ data class VrpSolverRequest(
     val problemId: Long,
     val solver: String,
     val status: SolverStatus
-)
-
-data class VrpSolverSolution(
-    val problemId: Long,
-    val routes: List<Route>,
-    val status: SolverStatus,
-    val solverKey: UUID? = null
 )
 
 data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null)

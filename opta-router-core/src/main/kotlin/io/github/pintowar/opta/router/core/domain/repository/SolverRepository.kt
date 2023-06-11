@@ -8,7 +8,7 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
-import java.util.*
+import java.util.UUID
 
 class SolverRepository(
     private val vrpProblemPort: VrpProblemPort,
@@ -34,7 +34,7 @@ class SolverRepository(
         return vrpSolverSolutionPort.currentSolutionRequest(problemId)
     }
 
-    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
+    fun addNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
         return vrpSolverSolutionPort.upsertSolution(
             sol.problem.id,
             solverStatus,
@@ -48,5 +48,4 @@ class SolverRepository(
     fun currentMatrix(instanceId: Long): Matrix? {
         return vrpProblemPort.getMatrixById(instanceId)
     }
-
 }

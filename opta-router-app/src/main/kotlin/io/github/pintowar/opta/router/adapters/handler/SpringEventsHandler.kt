@@ -22,7 +22,7 @@ class SpringEventsHandler(
         val cmd = solutionRequestEvent.command
         val (solRequest, clear) = cmd.solutionRequest to cmd.clear
         val newSolRequest = solverRepository
-            .insertNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
+            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
         broadcastPort.broadcastSolution(newSolRequest)
     }
 }

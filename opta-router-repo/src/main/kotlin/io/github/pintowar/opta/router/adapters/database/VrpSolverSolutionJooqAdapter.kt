@@ -2,8 +2,13 @@ package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.pintowar.opta.router.core.domain.models.*
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.models.Customer
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.Vehicle
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import org.jooq.DSLContext
 import org.jooq.JSON

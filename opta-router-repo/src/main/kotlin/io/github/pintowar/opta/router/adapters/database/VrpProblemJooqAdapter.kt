@@ -81,7 +81,4 @@ class VrpProblemJooqAdapter(
             )
         }
     }
-
-
-
 }
