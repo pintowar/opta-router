@@ -1,7 +1,7 @@
 [versions]
-kotlin = "1.8.20"
+kotlin = "1.8.22"
 kotlin-logging = "3.0.5"
-spring-boot = "3.0.6"
+spring-boot = "3.1.0"
 spring-dependency = "1.1.0"
 spotless = "6.18.0"
 springdoc = "2.1.0"
