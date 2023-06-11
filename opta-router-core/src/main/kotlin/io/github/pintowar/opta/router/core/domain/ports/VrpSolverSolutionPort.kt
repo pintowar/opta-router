@@ -18,5 +18,5 @@ interface VrpSolverSolutionPort {
         objective: Double,
         clear: Boolean,
         uuid: UUID
-    )
+    ): VrpSolutionRequest
 }

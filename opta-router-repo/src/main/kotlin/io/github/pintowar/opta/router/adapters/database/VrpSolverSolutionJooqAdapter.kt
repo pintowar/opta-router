@@ -32,15 +32,7 @@ class VrpSolverSolutionJooqAdapter(
         } ?: emptyList()
 
     override fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return VrpProblemJooqAdapter
-            .problemSelect(dsl)
-            .select(VRP_SOLUTION, VRP_SOLVER_REQUEST)
-            .from(VRP_PROBLEM)
-            .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
-            .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
-            .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
-            .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
-            .limit(1)
+        return currentSolutionRequestQuery(dsl, problemId)
             .fetchOne(::convertRecordToSolutionRequest)
     }
 
@@ -51,18 +43,17 @@ class VrpSolverSolutionJooqAdapter(
         objective: Double,
         clear: Boolean,
         uuid: UUID
-    ) {
+    ): VrpSolutionRequest {
         val now = Instant.now()
+        val jsonPaths = if (clear) JSON.json("[]") else JSON.json(mapper.writeValueAsString(paths))
 
-        dsl.transaction { trx ->
+        return dsl.transactionResult { trx ->
             trx.dsl()
                 .update(VRP_SOLVER_REQUEST)
                 .set(VRP_SOLVER_REQUEST.STATUS, if (clear) SolverStatus.NOT_SOLVED.name else solverStatus.name)
                 .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
                 .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(uuid))
                 .execute()
-
-            val jsonPaths = if (clear) JSON.json("[]") else JSON.json(mapper.writeValueAsString(paths))
 
             val numSolutions = dsl.selectFrom(VRP_SOLUTION)
                 .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
@@ -97,8 +88,21 @@ class VrpSolverSolutionJooqAdapter(
                     .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
                     .execute()
             }
+
+            currentSolutionRequestQuery(trx.dsl(), problemId)
+                .fetchOne(::convertRecordToSolutionRequest)!!
         }
     }
+
+    private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = VrpProblemJooqAdapter
+        .problemSelect(dsl)
+        .select(VRP_SOLUTION, VRP_SOLVER_REQUEST)
+        .from(VRP_PROBLEM)
+        .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+        .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+        .where(VRP_PROBLEM.ID.eq(problemId))
+        .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
+        .limit(1)
 
     private fun convertRecordToSolutionRequest(record: Record): VrpSolutionRequest {
         val problem = record.get(0, VrpProblemRecord::class.java).let {
@@ -113,10 +117,10 @@ class VrpSolverSolutionJooqAdapter(
         return VrpSolutionRequest(
             VrpSolution(
                 problem,
-                mapper.readValue<List<Route>>(solution.paths.data())
+                solution.get(solution.field2())?.let { mapper.readValue<List<Route>>(it.data()) } ?: emptyList()
             ),
-            SolverStatus.valueOf(solverRequest.status),
-            solverRequest.requestKey
+            solverRequest.get(solverRequest.field4())?.let(SolverStatus::valueOf) ?: SolverStatus.NOT_SOLVED,
+            solverRequest.get(solverRequest.field1())
         )
     }
 }

@@ -11,9 +11,9 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import java.util.*
 
 class SolverRepository(
-    val vrpProblemPort: VrpProblemPort,
-    val vrpSolverSolutionPort: VrpSolverSolutionPort,
-    val vrpSolverRequestPort: VrpSolverRequestPort
+    private val vrpProblemPort: VrpProblemPort,
+    private val vrpSolverSolutionPort: VrpSolverSolutionPort,
+    private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
 
     fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
@@ -34,9 +34,8 @@ class SolverRepository(
         return vrpSolverSolutionPort.currentSolutionRequest(problemId)
     }
 
-    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean) {
-        // TODO return solutionrequest
-        vrpSolverSolutionPort.upsertSolution(
+    fun insertNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
+        return vrpSolverSolutionPort.upsertSolution(
             sol.problem.id,
             solverStatus,
             sol.routes,
