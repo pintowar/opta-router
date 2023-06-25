@@ -12,6 +12,7 @@ import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix
 import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 private fun toJsLocations(locations: List<Location>): List<JsLocation> {
     return locations.mapIndexed { idx, it ->
@@ -37,8 +38,8 @@ private fun toJsVehicles(vehicles: List<Vehicle>, locationsIds: Map<String, JsLo
                     .build()
             )
             .setUserData(mapOf("name" to it.name))
-            .setStartLocation(locationsIds.getValue("${it.id}"))
-            .setEndLocation(locationsIds.getValue("${it.id}"))
+            .setStartLocation(locationsIds.getValue("${it.depot.id}"))
+            .setEndLocation(locationsIds.getValue("${it.depot.id}"))
             .setReturnToDepot(true)
             .build()
     }
@@ -92,13 +93,12 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingProblemSoluti
             acc.addService(it)
         }.build()
     }
-    return VehicleRoutingProblemSolution(jspritRoutes, routes.sumOf { it.distance }.toDouble())
+    return VehicleRoutingProblemSolution(jspritRoutes, routes.sumOf { it.distance }.toDouble() / 1000)
 }
 
 /**
  * Convert the solver VRP Solution representation into the DTO representation.
  *
- * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
 fun VehicleRoutingProblemSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolution {
@@ -106,18 +106,18 @@ fun VehicleRoutingProblemSolution.toDTO(instance: VrpProblem, matrix: Matrix): V
 
     val subRoutes = routes.map { route ->
         val tour = listOf(route.start) + route.activities + listOf(route.end)
-        val ds = tour.windowed(2, 1).sumOf { (i, j) ->
+        val dist = tour.windowed(2, 1).sumOf { (i, j) ->
             matrix.distance(i.location.id.toLong(), j.location.id.toLong())
         }
-        val ts = tour.windowed(2, 1).sumOf { (i, j) ->
-            matrix.time(i.location.id.toLong(), j.location.id.toLong())
+        val time = tour.windowed(2, 1).sumOf { (i, j) ->
+            matrix.time(i.location.id.toLong(), j.location.id.toLong()).toDouble()
         }
         val coordinates = tour.mapNotNull { locationIds[it.location.id.toLong()] }
         val customers = coordinates.mapNotNull { if (it is Customer) it else null }
 
         Route(
-            BigDecimal(ds),
-            BigDecimal.valueOf(ts),
+            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
             customers.sumOf { it.demand },
             coordinates.map { LatLng(it.lat, it.lng) },
             customers.map { it.id }

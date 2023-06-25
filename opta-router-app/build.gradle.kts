@@ -16,7 +16,6 @@ dependencies {
     implementation(project(":opta-router-solver-jsprit"))
 
     implementation(libs.bundles.spring) {
-        exclude(module = "spring-boot-starter-logging")
         exclude(module = "jooq")
     }
     implementation(libs.springdoc.openapi)

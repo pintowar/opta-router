@@ -31,7 +31,11 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
 
     override fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit) {
         val initialProblem = initialSolution.problem
-        val algorithm = Jsprit.createAlgorithm(initialProblem.toProblem(matrix))
+        var best = initialSolution
+        val algorithm = Jsprit.Builder
+            .newInstance(initialProblem.toProblem(matrix))
+            .setProperty(Jsprit.Parameter.ITERATIONS.toString(), "${config.timeLimit.toSeconds() * 70}")
+            .buildAlgorithm()
 
         algorithm.addInitialSolution(initialSolution.toSolverSolution(matrix))
         algorithm.addListener(object : IterationEndsListener {
@@ -40,21 +44,22 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
                 problem: VehicleRoutingProblem,
                 solutions: MutableCollection<VehicleRoutingProblemSolution>
             ) {
-                val sol = Solutions.bestOf(solutions)
-                callback(VrpSolutionRequest(sol.toDTO(initialProblem, matrix), SolverStatus.RUNNING, key))
+                val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
+                if (best.isEmpty() || actual.getTotalDistance() < best.getTotalDistance())
+                    best = actual
+                callback(VrpSolutionRequest(best, SolverStatus.RUNNING, key))
             }
         })
         algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))
         algorithm.addTerminationCriterion { !running }
         running = true
         val solutions = algorithm.searchSolutions()
-        val sol = Solutions.bestOf(solutions)
-        callback(VrpSolutionRequest(sol.toDTO(initialProblem, matrix), SolverStatus.TERMINATED, key))
-
+        best = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
+        callback(VrpSolutionRequest(best, SolverStatus.TERMINATED, key))
     }
 
     override fun terminate() {
-        running = true
+        running = false
     }
 
     override fun isSolving() = running

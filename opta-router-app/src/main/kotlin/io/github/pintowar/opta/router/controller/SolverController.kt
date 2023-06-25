@@ -34,7 +34,7 @@ class SolverController(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun solve(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solver.enqueueSolverRequest(id, "optaplanner")
+        solver.enqueueSolverRequest(id, "jsprit")
         return ResponseEntity.ok(solver.showStatus(id))
     }
 
