@@ -1,0 +1,61 @@
+package io.github.pintowar.opta.router.solver.jsprit
+
+import com.graphhopper.jsprit.core.algorithm.SearchStrategy
+import com.graphhopper.jsprit.core.algorithm.box.Jsprit
+import com.graphhopper.jsprit.core.algorithm.listener.IterationEndsListener
+import com.graphhopper.jsprit.core.algorithm.termination.PrematureAlgorithmTermination
+import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem
+import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution
+import com.graphhopper.jsprit.core.util.Solutions
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
+import io.github.pintowar.opta.router.core.solver.SolverConfig
+import io.github.pintowar.opta.router.core.solver.spi.Solver
+import java.time.Duration
+import java.util.*
+
+
+class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, name, config) {
+
+    @Volatile
+    private var running = false
+
+    internal class TimeTermination(private val totalTimeMs: Duration) : PrematureAlgorithmTermination {
+        private val beginning = System.currentTimeMillis()
+
+        override fun isPrematureBreak(discoveredSolution: SearchStrategy.DiscoveredSolution) =
+            System.currentTimeMillis() - beginning >= totalTimeMs.toMillis()
+    }
+
+    override fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit) {
+        val initialProblem = initialSolution.problem
+        val algorithm = Jsprit.createAlgorithm(initialProblem.toProblem(matrix))
+
+        algorithm.addInitialSolution(initialSolution.toSolverSolution(matrix))
+        algorithm.addListener(object : IterationEndsListener {
+            override fun informIterationEnds(
+                i: Int,
+                problem: VehicleRoutingProblem,
+                solutions: MutableCollection<VehicleRoutingProblemSolution>
+            ) {
+                val sol = Solutions.bestOf(solutions)
+                callback(VrpSolutionRequest(sol.toDTO(initialProblem, matrix), SolverStatus.RUNNING, key))
+            }
+        })
+        algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))
+        algorithm.addTerminationCriterion { !running }
+        running = true
+        val solutions = algorithm.searchSolutions()
+        val sol = Solutions.bestOf(solutions)
+        callback(VrpSolutionRequest(sol.toDTO(initialProblem, matrix), SolverStatus.TERMINATED, key))
+
+    }
+
+    override fun terminate() {
+        running = true
+    }
+
+    override fun isSolving() = running
+}
