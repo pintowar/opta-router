@@ -74,24 +74,24 @@ fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
         }
         .build()
 
-    return VehicleRoutingProblem.Builder.newInstance().apply {
-        setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
-        addAllVehicles(jspritVehicles)
-        addAllJobs(jspritServices)
-        setRoutingCost(jspritMatrix)
-    }.build()
+    return VehicleRoutingProblem.Builder.newInstance()
+        .setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
+        .addAllVehicles(jspritVehicles)
+        .addAllJobs(jspritServices)
+        .setRoutingCost(jspritMatrix)
+        .build()
 }
 
-fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingProblemSolution {
-    val jsProblem = problem.toProblem(distances)
-    val jspritLocationsId = toJsLocations(problem.locations).associateBy { it.id }
-    val vehicles = jsProblem.vehicles.toList()
+fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProblemSolution {
+    val vehicles = vrp.vehicles.toList()
 
-    val jspritRoutes = routes.indices.map { idx ->
-        val services = toJsServices(problem.customers, jspritLocationsId)
-        services.fold(VehicleRoute.Builder.newInstance(vehicles[idx])) { acc, it ->
-            acc.addService(it)
-        }.build()
+    val jspritRoutes = routes.mapIndexed { idx, route ->
+        val builder = VehicleRoute.Builder.newInstance(vehicles[idx]).setJobActivityFactory(vrp.jobActivityFactory)
+        route.customerIds
+            .asSequence()
+            .map { vrp.jobs["$it"] as Service }
+            .fold(builder) { acc, it -> acc.addService(it) }
+            .build()
     }
     return VehicleRoutingProblemSolution(jspritRoutes, routes.sumOf { it.distance }.toDouble() / 1000)
 }

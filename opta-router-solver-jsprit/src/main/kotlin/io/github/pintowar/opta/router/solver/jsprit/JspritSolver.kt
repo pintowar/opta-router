@@ -31,13 +31,14 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
 
     override fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit) {
         val initialProblem = initialSolution.problem
+        val vrp = initialProblem.toProblem(matrix)
         var best = initialSolution
         val algorithm = Jsprit.Builder
-            .newInstance(initialProblem.toProblem(matrix))
+            .newInstance(vrp)
             .setProperty(Jsprit.Parameter.ITERATIONS.toString(), "${config.timeLimit.toSeconds() * 70}")
             .buildAlgorithm()
 
-        algorithm.addInitialSolution(initialSolution.toSolverSolution(matrix))
+        algorithm.addInitialSolution(initialSolution.toSolverSolution(vrp))
         algorithm.addListener(object : IterationEndsListener {
             override fun informIterationEnds(
                 i: Int,
