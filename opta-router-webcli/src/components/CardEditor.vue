@@ -7,6 +7,8 @@ import { toRefs, computed } from "vue";
 const props = defineProps<{
   // instance: Instance | null;
   status: string | null;
+  selectedSolver: string;
+  solvers: string[];
   isDetailedPath: boolean;
   isWsConnected: boolean;
 }>();
@@ -17,10 +19,11 @@ const emit = defineEmits<{
   (e: "onDestroy"): void;
   // (e: "update:instance", val: Instance | null): void;
   (e: "update:isDetailedPath", val: boolean): void;
+  (e: "update:selectedSolver", val: string): void;
 }>();
 
 // instance
-const { status, isDetailedPath, isWsConnected } = toRefs(props);
+const { status, selectedSolver, solvers, isDetailedPath, isWsConnected } = toRefs(props);
 
 // const editorContent = computed({
 //   get: () => instance.value,
@@ -32,6 +35,11 @@ const editorDetailedPath = computed({
   set: (val) => emit("update:isDetailedPath", val),
 });
 
+const editorSelectedSolver = computed({
+  get: () => selectedSolver.value,
+  set: (val) => emit("update:selectedSolver", val),
+});
+
 const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
 </script>
 
@@ -41,8 +49,20 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
       <h2 class="card-title">Planning Panel</h2>
 
       <div class="form-control flex flex-row space-x-2">
-        <span class="label-text">Show Detailed Path</span>
-        <input v-model="editorDetailedPath" type="checkbox" class="toggle" />
+        <label class="relative inline-flex items-center mb-4 cursor-pointer">
+          <span class="mr-3 text-sm font-medium">Solver</span>
+          <select v-model="editorSelectedSolver" class="select select-bordered select-xs">
+            <option v-for="solver in solvers" :key="solver" :value="solver">
+              {{ solver }}
+            </option>
+          </select>
+        </label>
+
+        <label class="relative inline-flex items-center mb-4 cursor-pointer">
+          <span class="mr-3 text-sm font-medium">Show Detailed Path</span>
+          <input v-model="editorDetailedPath" type="checkbox" class="toggle" />
+        </label>
+
         <div class="grow align-middle">
           <div class="flex justify-end space-x-2">
             <div class="tooltip" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">

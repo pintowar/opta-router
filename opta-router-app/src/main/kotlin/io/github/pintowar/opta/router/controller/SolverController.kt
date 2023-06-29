@@ -28,13 +28,16 @@ class SolverController(
 
     data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)
 
+    @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun solverNames() = solver.solverNames().sorted()
+
     @PostMapping(
-        "/{id}/solve",
+        "/{id}/solve/{solverName}",
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun solve(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solver.enqueueSolverRequest(id, "optaplanner")
+    fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
+        solver.enqueueSolverRequest(id, solverName)
         return ResponseEntity.ok(solver.showStatus(id))
     }
 

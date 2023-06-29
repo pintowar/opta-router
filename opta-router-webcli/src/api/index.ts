@@ -30,9 +30,19 @@ async function getProblem(id: number): Promise<VrpProblem | null> {
   }
 }
 
-async function solve(id: number): Promise<SolverState | null> {
+async function getSolverNames(): Promise<string[]> {
   try {
-    const { data, status } = await axios.post<SolverState>(`/api/solver/${id}/solve`, defaultHeaders);
+    const { data, status } = await axios.get<string[]>(`/api/solver/solver-names`, defaultHeaders);
+
+    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
+  } catch (e) {
+    return Promise.resolve([]);
+  }
+}
+
+async function solve(id: number, solverName: string): Promise<SolverState | null> {
+  try {
+    const { data, status } = await axios.post<SolverState>(`/api/solver/${id}/solve/${solverName}`, defaultHeaders);
     return status === 200 ? data : Promise.reject(`Failed to solve instance ${id}`);
   } catch (e) {
     return Promise.resolve(null);
@@ -82,4 +92,4 @@ async function clean(id: number): Promise<SolverState | null> {
 
 export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution };
 
-export { getProblems, getProblem, solve, terminate, clean, detailedPath, getPanelSolutionState };
+export { getProblems, getProblem, getSolverNames, solve, terminate, clean, detailedPath, getPanelSolutionState };

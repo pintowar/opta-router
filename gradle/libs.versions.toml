@@ -7,6 +7,7 @@ spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2"
 optaplanner = "9.37.0.Final"
+jsprit = "1.9.0-beta.11"
 graphhopper = "7.0"
 flyway = "9.17.0"
 jooq = "3.18.3"
@@ -52,6 +53,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
+jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
