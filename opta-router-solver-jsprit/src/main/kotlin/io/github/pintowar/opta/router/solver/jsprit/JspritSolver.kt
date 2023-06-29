@@ -46,9 +46,10 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
                 solutions: MutableCollection<VehicleRoutingProblemSolution>
             ) {
                 val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
-                if (best.isEmpty() || actual.getTotalDistance() < best.getTotalDistance())
+                if (best.isEmpty() || actual.getTotalDistance() < best.getTotalDistance()) {
                     best = actual
-                callback(VrpSolutionRequest(best, SolverStatus.RUNNING, key))
+                    callback(VrpSolutionRequest(best, SolverStatus.RUNNING, key))
+                }
             }
         })
         algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))

@@ -3,13 +3,15 @@ import { useRoute } from "vue-router";
 import { ref, onBeforeUnmount, watch } from "vue";
 
 import { VrpProblem, VrpSolution } from "../api";
-import { solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
+import { getSolverNames, solve, terminate, clean, detailedPath, getPanelSolutionState } from "../api";
 import CardEditor from "../components/CardEditor.vue";
 import CardMap from "../components/CardMap.vue";
 import CardVehicles from "../components/CardVehicles.vue";
 
 const route = useRoute();
 
+const solvers = await getSolverNames();
+const selectedSolver = ref<string>(solvers.length ? solvers[0] : "none");
 const solutionState = await getPanelSolutionState(+route.params.id);
 const solution = ref<VrpSolution | null>(solutionState?.solutionState?.solution || null);
 const problem = ref<VrpProblem | null>(solution.value?.problem || null);
@@ -45,7 +47,7 @@ function creatWSCli() {
 
 async function solveAction() {
   if (problem.value !== null) {
-    const state = await solve(problem.value.id);
+    const state = await solve(problem.value.id, selectedSolver.value);
     status.value = state || null;
   }
 }
@@ -70,6 +72,8 @@ async function cleanAction() {
     <div class="grid grid-cols-1 py-2">
       <card-editor
         v-model:is-detailed-path="isDetailedPath"
+        v-model:selected-solver="selectedSolver"
+        :solvers="solvers"
         :status="status"
         :is-ws-connected="isWsConnected"
         @on-solve="solveAction"

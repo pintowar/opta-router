@@ -8,7 +8,7 @@ export interface paths {
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
   };
-  "/api/solver/{id}/solve": {
+  "/api/solver/{id}/solve/{solverName}": {
     post: operations["solve"];
   };
   "/api/vrp-problems": {
@@ -25,6 +25,9 @@ export interface paths {
   };
   "/api/solver/{id}/clean": {
     get: operations["clean"];
+  };
+  "/api/solver/solver-names": {
+    get: operations["solverNames"];
   };
 }
 
@@ -150,6 +153,7 @@ export interface operations {
     parameters: {
       path: {
         id: number;
+        solverName: string;
       };
     };
     responses: {
@@ -227,6 +231,16 @@ export interface operations {
       200: {
         content: {
           "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+        };
+      };
+    };
+  };
+  solverNames: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": (string)[];
         };
       };
     };

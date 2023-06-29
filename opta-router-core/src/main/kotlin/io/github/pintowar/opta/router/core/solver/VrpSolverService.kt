@@ -74,6 +74,8 @@ class VrpSolverService(
         }
     }
 
+    fun solverNames() = SolverFactory.getNamedSolverFactories().keys
+
     fun solve(problemId: Long, uuid: UUID, solverName: String) {
         if (solverKeys.containsKey(uuid)) return
 
