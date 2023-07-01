@@ -7,7 +7,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
-import { VrpProblem, VrpSolution } from "../api";
+import { VrpSolution } from "../api";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -15,7 +15,6 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
-const problem = ref<VrpProblem | null>(solution.value?.problem || null);
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
 const zoom = ref(3);
@@ -28,9 +27,10 @@ const layerOptions = { subdomains: ["a", "b", "c"] };
 const polylines = computed(() => {
   const routes = solution.value?.routes || [];
   const colors = createRainbow(Math.max(routes.length, 9)).map((c) => rgbaString(c));
+  const problem = solution.value?.problem;
 
   return routes?.map((r, idx) => {
-    const vCapacity = problem.value?.vehicles[idx]?.capacity;
+    const vCapacity = problem?.vehicles[idx]?.capacity;
     const capacity = vCapacity ? (100 * r.totalDemand) / vCapacity : 0;
     return {
       id: `v${idx}`,
@@ -38,7 +38,7 @@ const polylines = computed(() => {
       points: r.order.map((p) => [p.lat, p.lng]) as L.LatLngExpression[],
       opacity: 0.0,
       content: `<ul>
-        <li>${problem.value?.vehicles[idx].name}</li>
+        <li>${problem?.vehicles[idx].name}</li>
         <li>Distance: ${r.distance}</li>
         <li>Time: ${r.time}</li>
         <li>
@@ -54,7 +54,7 @@ const polylines = computed(() => {
 
 watchEffect(() => {
   const bounds: L.LatLngBounds = L.featureGroup(
-    (problem?.value?.locations || []).map((e) => new L.Marker([e.lat, e.lng]))
+    (solution?.value?.problem?.locations || []).map((e) => new L.Marker([e.lat, e.lng]))
   ).getBounds();
 
   if (bounds.isValid()) {
@@ -68,37 +68,29 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div class="card bg-base-200 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">Map Viewer</h2>
-
-      <div style="height: 400px">
-        <l-map
-          ref="routerMap"
-          v-model:zoom="zoom"
-          :min-zoom="minZoom"
-          :max-zoom="maxZoom"
-          :center="center"
-          :use-global-leaflet="false"
-        >
-          <l-tile-layer :url="layerUrl" :options="layerOptions" />
-          <l-marker v-for="stop in problem?.locations || []" :key="stop.id" :lat-lng="stop" :visible="true">
-            <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
-          </l-marker>
-          <l-polyline
-            v-for="item in polylines"
-            :key="item.id"
-            :lat-lngs="item.points"
-            :visible="item.visible"
-            :color="item.color"
-            :fill-opacity="item.opacity"
-          >
-            <l-popup :content="item.content" />
-          </l-polyline>
-        </l-map>
-      </div>
-
-      <span>Distance: {{ solution?.totalDistance || 0 }} | Time: {{ solution?.totalTime || 0 }}</span>
-    </div>
+  <div style="height: 100%">
+    <l-map
+      ref="routerMap"
+      v-model:zoom="zoom"
+      :min-zoom="minZoom"
+      :max-zoom="maxZoom"
+      :center="center"
+      :use-global-leaflet="false"
+    >
+      <l-tile-layer :url="layerUrl" :options="layerOptions" />
+      <l-marker v-for="stop in solution?.problem?.locations || []" :key="stop.id" :lat-lng="stop" :visible="true">
+        <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
+      </l-marker>
+      <l-polyline
+        v-for="item in polylines"
+        :key="item.id"
+        :lat-lngs="item.points"
+        :visible="item.visible"
+        :color="item.color"
+        :fill-opacity="item.opacity"
+      >
+        <l-popup :content="item.content" />
+      </l-polyline>
+    </l-map>
   </div>
 </template>
