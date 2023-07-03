@@ -4,6 +4,8 @@ type Route = components["schemas"]["Route"];
 type Vehicle = components["schemas"]["Vehicle"];
 type VrpProblem = components["schemas"]["VrpProblem"];
 type VrpSolution = components["schemas"]["VrpSolution"];
+type VrpSolverRequest = components["schemas"]["VrpSolverRequest"];
+type VrpSolverObjective = components["schemas"]["VrpSolverObjective"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
 type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
@@ -90,6 +92,54 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution };
+async function getHistorySolverNames(problemId: number): Promise<string[]> {
+  try {
+    const { data, status } = await axios.get<string[]>(`/api/solver-history/${problemId}/solver-names`, defaultHeaders);
 
-export { getProblems, getProblem, getSolverNames, solve, terminate, clean, detailedPath, getPanelSolutionState };
+    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
+  } catch (e) {
+    return Promise.resolve([]);
+  }
+}
+
+async function getHistoryRequests(problemId: number, solverName: string): Promise<VrpSolverRequest[]> {
+  try {
+    const { data, status } = await axios.get<VrpSolverRequest[]>(
+      `/api/solver-history/${problemId}/requests/${solverName}`,
+      defaultHeaders
+    );
+
+    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
+  } catch (e) {
+    return Promise.resolve([]);
+  }
+}
+
+async function getHistorySolutions(problemId: number, requestKey: string): Promise<VrpSolverObjective[]> {
+  try {
+    const { data, status } = await axios.get<VrpSolverObjective[]>(
+      `/api/solver-history/${problemId}/solutions/${requestKey}`,
+      defaultHeaders
+    );
+
+    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
+  } catch (e) {
+    return Promise.resolve([]);
+  }
+}
+
+export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution, VrpSolverRequest, VrpSolverObjective };
+
+export {
+  getProblems,
+  getProblem,
+  getSolverNames,
+  solve,
+  terminate,
+  clean,
+  detailedPath,
+  getPanelSolutionState,
+  getHistorySolverNames,
+  getHistoryRequests,
+  getHistorySolutions,
+};

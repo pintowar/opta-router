@@ -28,6 +28,15 @@ export interface paths {
   "/api/solver/solver-names": {
     get: operations["solverNames"];
   };
+  "/api/solver-history/{problemId}/solver-names": {
+    get: operations["solverNames_1"];
+  };
+  "/api/solver-history/{problemId}/solutions/{requestId}": {
+    get: operations["solutions"];
+  };
+  "/api/solver-history/{problemId}/requests/{solverName}": {
+    get: operations["requests"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -110,8 +119,8 @@ export interface components {
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
-      feasible: boolean;
       totalTime: Record<string, never>;
+      feasible: boolean;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -119,6 +128,25 @@ export interface components {
       status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
       /** Format: uuid */
       solverKey?: string;
+    };
+    VrpSolverObjective: {
+      /** Format: double */
+      objective: number;
+      /** @enum {string} */
+      status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+      /** Format: uuid */
+      solverKey: string;
+      /** Format: date-time */
+      createdAt: string;
+    };
+    VrpSolverRequest: {
+      /** Format: uuid */
+      requestKey: string;
+      /** Format: int64 */
+      problemId: number;
+      solver: string;
+      /** @enum {string} */
+      status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
     };
   };
   responses: never;
@@ -239,6 +267,53 @@ export interface operations {
       200: {
         content: {
           "application/json": string[];
+        };
+      };
+    };
+  };
+  solverNames_1: {
+    parameters: {
+      path: {
+        problemId: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": string[];
+        };
+      };
+    };
+  };
+  solutions: {
+    parameters: {
+      path: {
+        problemId: number;
+        requestId: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VrpSolverObjective"][];
+        };
+      };
+    };
+  };
+  requests: {
+    parameters: {
+      path: {
+        problemId: number;
+        solverName: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["VrpSolverRequest"][];
         };
       };
     };

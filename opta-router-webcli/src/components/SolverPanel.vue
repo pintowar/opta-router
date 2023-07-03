@@ -39,6 +39,14 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
 
 <template>
   <div class="space-y-2">
+    <div class="flex space-x-2">
+      <div class="basis-1/2">
+        <h1>Solver</h1>
+      </div>
+      <div class="basis-1/2 flex flex-row-reverse">
+        <router-link :to="`/solver-history/${solution?.problem.id}`" class="link link-primary">History »</router-link>
+      </div>
+    </div>
     <div class="flex flex-row-reverse space-x-2">
       <div class="flex justify-end space-x-2">
         <div>

@@ -14,6 +14,7 @@
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.2.1",
+    "apexcharts": "^3.41.0",
     "axios": "^1.4.0",
     "json-editor-vue": "^0.10.6",
     "leaflet": "^1.9.3",
@@ -21,7 +22,8 @@
     "theme-change": "^2.5.0",
     "vanilla-jsoneditor": "^0.17.1",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.3",
