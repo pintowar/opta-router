@@ -5,6 +5,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import org.jooq.DSLContext
 import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
+import org.jooq.kotlin.fetchList
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -58,6 +59,25 @@ class VrpSolverRequestJooqAdapter(
             .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
             .limit(1)
             .fetchOne {
+                VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
+            }
+    }
+
+    override fun solverHistory(problemId: Long): List<String> {
+        return dsl.selectDistinct(VRP_SOLVER_REQUEST.SOLVER)
+            .from(VRP_SOLVER_REQUEST)
+            .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
+            .orderBy(VRP_SOLVER_REQUEST.SOLVER)
+            .fetchList()
+            .filterNotNull()
+    }
+
+    override fun requestsByProblemIdAndSolverName(problemId: Long, solverName: String): List<VrpSolverRequest> {
+        return dsl.selectFrom(VRP_SOLVER_REQUEST)
+            .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
+            .and(VRP_SOLVER_REQUEST.SOLVER.eq(solverName))
+            .orderBy(VRP_SOLVER_REQUEST.CREATED_AT)
+            .fetch {
                 VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
             }
     }

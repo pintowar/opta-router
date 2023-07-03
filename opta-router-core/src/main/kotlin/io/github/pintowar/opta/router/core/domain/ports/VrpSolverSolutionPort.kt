@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.core.domain.ports
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
+import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
 import java.util.*
 
 interface VrpSolverSolutionPort {
@@ -19,4 +20,6 @@ interface VrpSolverSolutionPort {
         clear: Boolean,
         uuid: UUID
     ): VrpSolutionRequest
+
+    fun solutionHistory(problemId: Long, requestId: UUID): List<VrpSolverObjective>
 }

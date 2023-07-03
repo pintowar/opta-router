@@ -2,13 +2,7 @@ package io.github.pintowar.opta.router.adapters.database
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.pintowar.opta.router.core.domain.models.Customer
-import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.models.Vehicle
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
+import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import org.jooq.DSLContext
 import org.jooq.JSON
@@ -20,6 +14,7 @@ import org.jooq.generated.public.tables.references.VRP_PROBLEM
 import org.jooq.generated.public.tables.references.VRP_SOLUTION
 import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
 import org.jooq.generated.public.tables.references.VRP_SOLVER_SOLUTION
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.*
 
@@ -97,6 +92,16 @@ class VrpSolverSolutionJooqAdapter(
             currentSolutionRequestQuery(trx.dsl(), problemId)
                 .fetchOne(::convertRecordToSolutionRequest)!!
         }
+    }
+
+    override fun solutionHistory(problemId: Long, requestId: UUID): List<VrpSolverObjective> {
+        return dsl.selectFrom(VRP_SOLVER_SOLUTION)
+            .where(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+            .and(VRP_SOLVER_SOLUTION.REQUEST_KEY.eq(requestId))
+            .orderBy(VRP_SOLVER_SOLUTION.CREATED_AT)
+            .fetch {
+                VrpSolverObjective(it.objective, SolverStatus.valueOf(it.status), it.requestKey!!, it.createdAt)
+            }
     }
 
     private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = VrpProblemJooqAdapter

@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models
 
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.*
 
 interface Coordinate {
@@ -100,5 +101,12 @@ data class VrpSolverRequest(
 )
 
 data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null)
+
+data class VrpSolverObjective(
+    val objective: Double,
+    val status: SolverStatus,
+    val solverKey: UUID,
+    val createdAt: Instant
+)
 
 data class SolverPanel(val isDetailedPath: Boolean = false)
