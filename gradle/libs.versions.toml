@@ -7,6 +7,7 @@ spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2"
 optaplanner = "9.37.0.Final"
+timefold = "1.0.0"
 jsprit = "1.9.0-beta.11"
 graphhopper = "7.0"
 flyway = "9.17.0"
@@ -52,6 +53,7 @@ jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
+timefold-examples = { module = "ai.timefold.solver:timefold-solver-examples", version.ref = "timefold" }
 optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
 jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
 
@@ -68,4 +70,5 @@ kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
 jooq = ["jooq-core", "jooq-kotlin"]
 optaplanner = ["optaplanner-examples"]
+timefold = ["timefold-examples"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]

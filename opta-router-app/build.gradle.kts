@@ -13,7 +13,7 @@ dependencies {
     implementation(project(":opta-router-core"))
     implementation(project(":opta-router-repo"))
     implementation(project(":opta-router-geo"))
-    implementation(project(":opta-router-solver-optaplanner"))
+    implementation(project(":opta-router-solver-timefold"))
     implementation(project(":opta-router-solver-jsprit"))
 
     implementation(libs.bundles.spring) {
