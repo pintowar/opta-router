@@ -23,7 +23,9 @@ const durations = computed(() => {
     : [];
 });
 
-const bestScore = computed(() => Math.min(...solutions.value.map((it) => it.objective)));
+const bestScore = computed(() =>
+  Math.min(...solutions.value.filter((it) => it.objective > 0.0).map((it) => it.objective))
+);
 const maxDuration = computed(() => Math.max(...durations.value));
 
 const chartOptions = computed(() => {
