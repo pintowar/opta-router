@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.controller
 
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
@@ -46,5 +45,4 @@ class SolverHistoryController(
             ResponseEntity.ok(it)
         }
     }
-
 }

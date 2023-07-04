@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.solver.jsprit
 
-import com.graphhopper.jsprit.core.problem.Location as JsLocation
 import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem
 import com.graphhopper.jsprit.core.problem.job.Service
 import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution
@@ -9,10 +8,17 @@ import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl
 import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl
 import com.graphhopper.jsprit.core.util.Coordinate
 import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Customer
+import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Location
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.Vehicle
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
 import java.math.RoundingMode
+import com.graphhopper.jsprit.core.problem.Location as JsLocation
 
 private fun toJsLocations(locations: List<Location>): List<JsLocation> {
     return locations.mapIndexed { idx, it ->

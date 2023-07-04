@@ -16,7 +16,6 @@ import io.github.pintowar.opta.router.core.solver.spi.Solver
 import java.time.Duration
 import java.util.*
 
-
 class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, name, config) {
 
     @Volatile
