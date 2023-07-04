@@ -16,11 +16,11 @@ Both Envs can be customized on the `application.yml` file.
 
 Portfolio List
 
-![image](https://user-images.githubusercontent.com/354264/235455148-886a25ab-78b3-4e3e-afbb-54fae311dff7.png)
+![image](https://github.com/pintowar/opta-router/assets/354264/b88230bf-5f2e-40cf-8921-370bacd1a602)
 
 Solver View
 
-![image](https://github.com/pintowar/opta-router/assets/354264/94fee73c-46d6-428c-8fd5-7f4ee5b25e9c)
+![image](https://github.com/pintowar/opta-router/assets/354264/3922c6d1-8e48-4af6-8805-44096312bb24)
 
 ## Run in development mode
 
