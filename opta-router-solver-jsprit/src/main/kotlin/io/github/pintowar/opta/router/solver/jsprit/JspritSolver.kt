@@ -57,6 +57,7 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
         val solutions = algorithm.searchSolutions()
         best = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
         callback(VrpSolutionRequest(best, SolverStatus.TERMINATED, key))
+        running = false
     }
 
     override fun terminate() {

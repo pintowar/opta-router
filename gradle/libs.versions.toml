@@ -9,6 +9,7 @@ jackson = "2.14.2"
 optaplanner = "9.40.0.Final"
 timefold = "1.0.0"
 jsprit = "1.9.0-beta.11"
+ortools = "9.6.2534"
 graphhopper = "7.0"
 flyway = "9.17.0"
 jooq = "3.18.3"
@@ -56,6 +57,7 @@ jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin"
 timefold-examples = { module = "ai.timefold.solver:timefold-solver-examples", version.ref = "timefold" }
 optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
 jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
+or-tools = { module = "com.google.ortools:ortools-java", version.ref = "ortools" }
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
