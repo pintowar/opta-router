@@ -28,7 +28,6 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
             .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
             .setTimeLimit(Duration.newBuilder().setSeconds(config.timeLimit.toSeconds()).build())
             .setLocalSearchMetaheuristic(LocalSearchMetaheuristic.Value.GUIDED_LOCAL_SEARCH)
-            .setLogSearch(true)
             .build()
 
         model.addAtSolutionCallback {
