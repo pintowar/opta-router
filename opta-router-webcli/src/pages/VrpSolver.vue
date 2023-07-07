@@ -6,6 +6,7 @@ import { useWebSocket } from "@vueuse/core";
 import { getSolverNames, detailedPath, getPanelSolutionState, solve, terminate, clean } from "../api";
 import { VrpSolution } from "../api";
 
+import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
 import SolverMap from "../components/SolverMap.vue";
 import SolverPanel from "../components/SolverPanel.vue";
 
@@ -69,8 +70,8 @@ async function cleanAction() {
 </script>
 
 <template>
-  <div class="flex my-2 mx-2 space-x-2" style="height: calc(100vh - 140px)">
-    <div class="flex-initial w-96">
+  <vrp-solver-panel-layout>
+    <template #menu>
       <solver-panel
         v-model:is-detailed-path="isDetailedPath"
         v-model:selected-solver="selectedSolver"
@@ -82,9 +83,9 @@ async function cleanAction() {
         @on-terminate="terminateAction"
         @on-clear="cleanAction"
       />
-    </div>
-    <div class="flex-auto">
+    </template>
+    <template #main>
       <solver-map :solution="solution" />
-    </div>
-  </div>
+    </template>
+  </vrp-solver-panel-layout>
 </template>

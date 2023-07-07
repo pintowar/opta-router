@@ -5,6 +5,7 @@ import { useRoute } from "vue-router";
 
 import { getHistorySolverNames, getHistoryRequests, getHistorySolutions, VrpSolverRequest } from "../api";
 
+import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
 import SolutionsHistoryChart from "../components/SolutionsHistoryChart.vue";
 
 const route = useRoute();
@@ -50,8 +51,8 @@ function requestStatus(request: VrpSolverRequest | null): string {
 </script>
 
 <template>
-  <div class="flex my-2 mx-2 space-x-2" style="height: calc(100vh - 140px)">
-    <div class="flex-initial w-96">
+  <vrp-solver-panel-layout>
+    <template #menu>
       <div class="space-y-2">
         <div class="flex space-x-2">
           <div class="basis-1/2">
@@ -91,9 +92,9 @@ function requestStatus(request: VrpSolverRequest | null): string {
           </label>
         </div>
       </div>
-    </div>
-    <div class="flex-auto">
+    </template>
+    <template #main>
       <solutions-history-chart :solutions="solutions" :request="selectedRequest" />
-    </div>
-  </div>
+    </template>
+  </vrp-solver-panel-layout>
 </template>
