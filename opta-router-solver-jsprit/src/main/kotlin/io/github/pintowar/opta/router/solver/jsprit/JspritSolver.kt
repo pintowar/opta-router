@@ -54,6 +54,7 @@ class JspritSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, 
         algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))
         algorithm.addTerminationCriterion { !running }
         running = true
+        if (!initialSolution.isEmpty()) callback(VrpSolutionRequest(initialSolution, SolverStatus.RUNNING, key))
         val solutions = algorithm.searchSolutions()
         best = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
         callback(VrpSolutionRequest(best, SolverStatus.TERMINATED, key))

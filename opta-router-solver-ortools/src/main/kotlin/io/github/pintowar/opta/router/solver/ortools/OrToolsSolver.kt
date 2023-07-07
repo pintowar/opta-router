@@ -1,15 +1,17 @@
 package io.github.pintowar.opta.router.solver.ortools
 
 import com.google.ortools.Loader
-import com.google.ortools.constraintsolver.*
+import com.google.ortools.constraintsolver.FirstSolutionStrategy
+import com.google.ortools.constraintsolver.LocalSearchMetaheuristic
+import com.google.ortools.constraintsolver.main
 import com.google.protobuf.Duration
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
-import java.util.*
-import java.util.function.LongBinaryOperator
-import java.util.function.LongUnaryOperator
+import java.util.UUID
 
 class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, name, config) {
 
@@ -43,6 +45,7 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
         }
 
         running = true
+        if (!initialSolution.isEmpty()) callback(VrpSolutionRequest(initialSolution, SolverStatus.RUNNING, key))
         val solution = if (!initialSolution.isEmpty()) {
             model.closeModelWithParameters(searchParameters)
             val vehicleVisitOrder = initialSolution.routes.map { route ->
@@ -58,7 +61,9 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
             if (solution != null) {
                 val sol = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix, solution)
                 callback(VrpSolutionRequest(sol, SolverStatus.TERMINATED, key))
-            } else throw IllegalStateException("Couldn't find an optimal solution")
+            } else {
+                throw IllegalStateException("Couldn't find an optimal solution")
+            }
         } finally {
             running = false
             model.delete()
@@ -70,5 +75,4 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
     }
 
     override fun isSolving() = running
-
 }

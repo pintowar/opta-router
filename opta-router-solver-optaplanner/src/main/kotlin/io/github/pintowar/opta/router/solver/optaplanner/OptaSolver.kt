@@ -30,7 +30,7 @@ class OptaSolver(key: UUID, name: String, config: SolverConfig) : Solver(key, na
             callback(VrpSolutionRequest(sol.toDTO(problem, matrix), SolverStatus.RUNNING, key))
         }
 
-        callback(VrpSolutionRequest(initialSolution, SolverStatus.RUNNING, key))
+        if (!initialSolution.isEmpty()) callback(VrpSolutionRequest(initialSolution, SolverStatus.RUNNING, key))
         val sol = solver.solve(initialSolution.toSolverSolution(matrix))
         callback(VrpSolutionRequest(sol.toDTO(problem, matrix), SolverStatus.TERMINATED, key))
     }

@@ -3,7 +3,12 @@ package io.github.pintowar.opta.router.solver.ortools
 import com.google.ortools.constraintsolver.Assignment
 import com.google.ortools.constraintsolver.RoutingIndexManager
 import com.google.ortools.constraintsolver.RoutingModel
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Customer
+import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Location
+import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -11,7 +16,10 @@ import java.util.function.LongBinaryOperator
 import java.util.function.LongUnaryOperator
 
 private class DistanceEval(
-    val matrix: Matrix, val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>, val k: Long = 100
+    val matrix: Matrix,
+    val manager: RoutingIndexManager,
+    val idxLocations: Map<Int, Location>,
+    val k: Long = 100
 ) : LongBinaryOperator {
     override fun applyAsLong(p1: Long, p2: Long): Long = try {
         val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
@@ -24,7 +32,8 @@ private class DistanceEval(
 }
 
 private class DemandEval(
-    val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>
+    val manager: RoutingIndexManager,
+    val idxLocations: Map<Int, Location>
 ) : LongUnaryOperator {
     override fun applyAsLong(fromIndex: Long): Long {
         val fromNode = manager.indexToNode(fromIndex)
@@ -90,7 +99,7 @@ fun RoutingModel.toDTO(
     instance: VrpProblem,
     idxLocations: Map<Int, Location>,
     matrix: Matrix,
-    assignment: Assignment? = null,
+    assignment: Assignment? = null
 ): VrpSolution {
     val subRoutes = instance.vehicles.indices.map { vehicleIdx ->
         val nodes = sequence {
