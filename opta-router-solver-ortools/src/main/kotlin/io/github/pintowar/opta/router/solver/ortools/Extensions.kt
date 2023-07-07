@@ -7,75 +7,85 @@ import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.util.function.LongBinaryOperator
+import java.util.function.LongUnaryOperator
 
-//import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem
-//import com.graphhopper.jsprit.core.problem.job.Service
-//import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution
-//import com.graphhopper.jsprit.core.problem.solution.route.VehicleRoute
-//import com.graphhopper.jsprit.core.problem.vehicle.VehicleImpl
-//import com.graphhopper.jsprit.core.problem.vehicle.VehicleTypeImpl
-//import com.graphhopper.jsprit.core.util.Coordinate
-//import com.graphhopper.jsprit.core.util.VehicleRoutingTransportCostsMatrix
-//import io.github.pintowar.opta.router.core.domain.models.Customer
-//import io.github.pintowar.opta.router.core.domain.models.LatLng
-//import io.github.pintowar.opta.router.core.domain.models.Location
-//import io.github.pintowar.opta.router.core.domain.models.Route
-//import io.github.pintowar.opta.router.core.domain.models.Vehicle
-//import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-//import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-//import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-//import java.math.BigDecimal
-//import java.math.RoundingMode
-//import com.graphhopper.jsprit.core.problem.Location as JsLocation
-//
+private class DistanceEval(
+    val matrix: Matrix, val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>, val k: Long = 100
+) : LongBinaryOperator {
+    override fun applyAsLong(p1: Long, p2: Long): Long = try {
+        val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
+        val toNode = idxLocations.getValue(manager.indexToNode(p2)).id
 
-///**
-// * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
-// *
-// * @param dist distance calculator instance.
-// * @return solution representation used by the solver.
-// */
-//fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
-//    val jspritLocationsId = toJsLocations(locations).associateBy { it.id }
-//    val jspritVehicles = toJsVehicles(vehicles, jspritLocationsId)
-//    val jspritServices = toJsServices(customers, jspritLocationsId)
-//
-//    val jspritMatrix = jspritLocationsId
-//        .flatMap { (_, i) -> jspritLocationsId.map { (_, j) -> i to j } }
-//        .fold(VehicleRoutingTransportCostsMatrix.Builder.newInstance(false)) { acc, (i, j) ->
-//            acc.addTransportDistance(i.id, j.id, dist.distance(i.id.toLong(), j.id.toLong()))
-//        }
-//        .build()
-//
-//    return VehicleRoutingProblem.Builder.newInstance()
-//        .setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
-//        .addAllVehicles(jspritVehicles)
-//        .addAllJobs(jspritServices)
-//        .setRoutingCost(jspritMatrix)
-//        .build()
-//}
-//
-//fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProblemSolution {
-//    val vehicles = vrp.vehicles.toList()
-//
-//    val jspritRoutes = routes.mapIndexed { idx, route ->
-//        val builder = VehicleRoute.Builder.newInstance(vehicles[idx]).setJobActivityFactory(vrp.jobActivityFactory)
-//        route.customerIds
-//            .asSequence()
-//            .map { vrp.jobs["$it"] as Service }
-//            .fold(builder) { acc, it -> acc.addService(it) }
-//            .build()
-//    }
-//    return VehicleRoutingProblemSolution(jspritRoutes, routes.sumOf { it.distance }.toDouble() / 1000)
-//}
+        (matrix.distance(fromNode, toNode) * k).toLong()
+    } catch (e: Throwable) {
+        0L
+    }
+}
+
+private class DemandEval(
+    val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>
+) : LongUnaryOperator {
+    override fun applyAsLong(fromIndex: Long): Long {
+        val fromNode = manager.indexToNode(fromIndex)
+        return when (val loc = idxLocations[fromNode]) {
+            is Customer -> loc.demand.toLong()
+            else -> 0L
+        }
+    }
+}
+
+class ProblemSummary(problem: VrpProblem) {
+    val nVehicles = problem.vehicles.size
+    val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
+    val idLocations = problem.locations.associateBy { it.id }
+    val idxLocations = problem.locations.withIndex().associate { it.index to it.value }
+    val locationsIdx = idxLocations.map { it.value to it.key }.toMap()
+    val nLocations = idxLocations.size
+    val depots = problem.vehicles.mapNotNull { locationsIdx[it.depot] }.toIntArray()
+
+    fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
+}
+
+data class ProblemWrapper(val model: RoutingModel, val manager: RoutingIndexManager, val summary: ProblemSummary)
+
+/**
+ * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
+ *
+ * @param dist distance calculator instance.
+ * @return solution representation used by the solver.
+ */
+fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
+    val summary = ProblemSummary(this)
+
+    val manager = RoutingIndexManager(summary.nLocations, summary.nVehicles, summary.depots, summary.depots)
+    val model = RoutingModel(manager)
+
+    val transitRegistry = model.registerTransitCallback(
+        DistanceEval(
+            matrix,
+            manager,
+            summary.idxLocations
+        )
+    )
+    model.setArcCostEvaluatorOfAllVehicles(transitRegistry)
+
+    val demandCallbackIndex: Int = model.registerUnaryTransitCallback(
+        DemandEval(
+            manager,
+            summary.idxLocations
+        )
+    )
+    model.addDimensionWithVehicleCapacity(demandCallbackIndex, 0, summary.vehiclesCapacities, true, "Capacity")
+    return ProblemWrapper(model, manager, summary)
+}
 
 /**
  * Convert the solver VRP Solution representation into the DTO representation.
  *
  * @return the DTO solution representation.
  */
-fun toDTO(
-    model: RoutingModel,
+fun RoutingModel.toDTO(
     manager: RoutingIndexManager,
     instance: VrpProblem,
     idxLocations: Map<Int, Location>,
@@ -84,10 +94,10 @@ fun toDTO(
 ): VrpSolution {
     val subRoutes = instance.vehicles.indices.map { vehicleIdx ->
         val nodes = sequence {
-            var index = model.start(vehicleIdx)
+            var index = start(vehicleIdx)
             yield(index)
-            while (!model.isEnd(index)) {
-                index = assignment?.value(model.nextVar(index)) ?: model.nextVar(index).value()
+            while (!isEnd(index)) {
+                index = assignment?.value(nextVar(index)) ?: nextVar(index).value()
                 yield(index)
             }
         }.map(manager::indexToNode)
@@ -105,6 +115,5 @@ fun toDTO(
             customers.map { it.id }
         )
     }
-
     return VrpSolution(instance, subRoutes)
 }

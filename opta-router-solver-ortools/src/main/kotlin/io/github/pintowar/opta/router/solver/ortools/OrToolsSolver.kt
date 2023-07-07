@@ -17,58 +17,12 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
         Loader.loadNativeLibraries()
     }
 
-    private class DistanceEval(
-        val matrix: Matrix, val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>, val k: Long = 100
-    ) : LongBinaryOperator {
-        override fun applyAsLong(p1: Long, p2: Long): Long = try {
-            val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
-            val toNode = idxLocations.getValue(manager.indexToNode(p2)).id
-
-            (matrix.distance(fromNode, toNode) * k).toLong()
-        } catch (e: Throwable) {
-            0L
-        }
-    }
-
-    private class DemandEval(
-        val manager: RoutingIndexManager, val idxLocations: Map<Int, Location>
-    ) : LongUnaryOperator {
-        override fun applyAsLong(fromIndex: Long): Long {
-            val fromNode = manager.indexToNode(fromIndex)
-            return when (val loc = idxLocations[fromNode]) {
-                is Customer -> loc.demand.toLong()
-                else -> 0L
-            }
-        }
-    }
-
-    private class ProblemSummary(problem: VrpProblem) {
-        val nVehicles = problem.vehicles.size
-        val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
-        val idLocations = problem.locations.associateBy { it.id }
-        val idxLocations = problem.locations.withIndex().associate { it.index to it.value }
-        val locationsIdx = idxLocations.map { it.value to it.key }.toMap()
-        val nLocations = idxLocations.size
-        val depots = problem.vehicles.mapNotNull { locationsIdx[it.depot] }.toIntArray()
-
-        fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
-    }
-
     @Volatile
     private var running = false
 
     override fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit) {
         var best = initialSolution
-        val summary = ProblemSummary(initialSolution.problem)
-
-        val manager = RoutingIndexManager(summary.nLocations, summary.nVehicles, summary.depots, summary.depots)
-        val model = RoutingModel(manager)
-
-        val transitRegistry = model.registerTransitCallback(DistanceEval(matrix, manager, summary.idxLocations))
-        model.setArcCostEvaluatorOfAllVehicles(transitRegistry)
-
-        val demandCallbackIndex: Int = model.registerUnaryTransitCallback(DemandEval(manager, summary.idxLocations))
-        model.addDimensionWithVehicleCapacity(demandCallbackIndex, 0, summary.vehiclesCapacities, true, "Capacity")
+        val (model, manager, summary) = initialSolution.problem.toProblem(matrix)
 
         val searchParameters = main.defaultRoutingSearchParameters().toBuilder()
             .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
@@ -79,7 +33,7 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
 
         model.addAtSolutionCallback {
             if (isSolving()) {
-                val actual = toDTO(model, manager, initialSolution.problem, summary.idxLocations, matrix)
+                val actual = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix)
                 if (best.isEmpty() || actual.getTotalDistance() < best.getTotalDistance()) {
                     best = actual
                     callback(VrpSolutionRequest(best, SolverStatus.RUNNING, key))
@@ -103,7 +57,7 @@ class OrToolsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key,
 
         try {
             if (solution != null) {
-                val sol = toDTO(model, manager, initialSolution.problem, summary.idxLocations, matrix, solution)
+                val sol = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix, solution)
                 callback(VrpSolutionRequest(sol, SolverStatus.TERMINATED, key))
             } else throw IllegalStateException("Couldn't find an optimal solution")
         } finally {
