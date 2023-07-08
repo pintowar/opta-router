@@ -31,13 +31,21 @@ class SolverController(
     @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solverNames() = solver.solverNames().sorted()
 
-    @PostMapping(
-        "/{id}/solve/{solverName}",
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
+    @PostMapping("/{id}/solve/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
         solver.enqueueSolverRequest(id, solverName)
+        return ResponseEntity.ok(solver.showStatus(id))
+    }
+
+    @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solver.currentSolutionRequest(id)?.also { it.solverKey?.also(solver::terminateEarly) }
+        return ResponseEntity.ok(solver.showStatus(id))
+    }
+
+    @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun clean(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solver.currentSolutionRequest(id)?.also { it.solverKey?.also(solver::clean) }
         return ResponseEntity.ok(solver.showStatus(id))
     }
 
@@ -49,18 +57,6 @@ class SolverController(
     ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
         solver.updateDetailedView(id)
-        return ResponseEntity.ok(solver.showStatus(id))
-    }
-
-    @GetMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solver.currentSolutionRequest(id)?.also { it.solverKey?.also(solver::terminateEarly) }
-        return ResponseEntity.ok(solver.showStatus(id))
-    }
-
-    @GetMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun clean(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solver.currentSolutionRequest(id)?.also { it.solverKey?.also(solver::clean) }
         return ResponseEntity.ok(solver.showStatus(id))
     }
 

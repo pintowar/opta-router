@@ -70,6 +70,7 @@ watchEffect(() => {
 <template>
   <div style="height: 100%">
     <l-map
+      v-if="solution"
       ref="routerMap"
       v-model:zoom="zoom"
       :min-zoom="minZoom"

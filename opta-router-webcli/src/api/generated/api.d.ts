@@ -3,12 +3,19 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
   };
+  "/api/solver/{id}/terminate": {
+    post: operations["terminateEarly"];
+  };
   "/api/solver/{id}/solve/{solverName}": {
     post: operations["solve"];
+  };
+  "/api/solver/{id}/clean": {
+    post: operations["clean"];
   };
   "/api/vrp-problems": {
     get: operations["index"];
@@ -16,14 +23,8 @@ export interface paths {
   "/api/vrp-problems/{id}": {
     get: operations["show"];
   };
-  "/api/solver/{id}/terminate": {
-    get: operations["terminateEarly"];
-  };
   "/api/solver/{id}/solution-panel": {
     get: operations["solutionState"];
-  };
-  "/api/solver/{id}/clean": {
-    get: operations["clean"];
   };
   "/api/solver/solver-names": {
     get: operations["solverNames"];
@@ -81,10 +82,10 @@ export interface components {
       /** Format: int64 */
       id: number;
       name: string;
-      vehicles: components["schemas"]["Vehicle"][];
-      customers: components["schemas"]["Customer"][];
-      depots: components["schemas"]["Depot"][];
-      locations: components["schemas"]["Location"][];
+      vehicles: (components["schemas"]["Vehicle"])[];
+      customers: (components["schemas"]["Customer"])[];
+      depots: (components["schemas"]["Depot"])[];
+      locations: (components["schemas"]["Location"])[];
       /** Format: int32 */
       nlocations: number;
       /** Format: int32 */
@@ -105,15 +106,15 @@ export interface components {
       time: number;
       /** Format: int32 */
       totalDemand: number;
-      order: components["schemas"]["LatLng"][];
-      customerIds: number[];
+      order: (components["schemas"]["LatLng"])[];
+      customerIds: (number)[];
     };
     SolverPanel: {
       isDetailedPath: boolean;
     };
     VrpSolution: {
       problem: components["schemas"]["VrpProblem"];
-      routes: components["schemas"]["Route"][];
+      routes: (components["schemas"]["Route"])[];
       empty: boolean;
       totalDistance: number;
       feasible: boolean;
@@ -157,11 +158,27 @@ export interface components {
 export type external = Record<string, never>;
 
 export interface operations {
+
   detailedPath: {
     parameters: {
       path: {
         id: number;
         isDetailed: boolean;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+        };
+      };
+    };
+  };
+  terminateEarly: {
+    parameters: {
+      path: {
+        id: number;
       };
     };
     responses: {
@@ -189,12 +206,27 @@ export interface operations {
       };
     };
   };
+  clean: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+        };
+      };
+    };
+  };
   index: {
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpProblem"][];
+          "application/json": (components["schemas"]["VrpProblem"])[];
         };
       };
     };
@@ -214,21 +246,6 @@ export interface operations {
       };
     };
   };
-  terminateEarly: {
-    parameters: {
-      path: {
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
-        };
-      };
-    };
-  };
   solutionState: {
     parameters: {
       path: {
@@ -244,27 +261,12 @@ export interface operations {
       };
     };
   };
-  clean: {
-    parameters: {
-      path: {
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
-        };
-      };
-    };
-  };
   solverNames: {
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": string[];
+          "application/json": (string)[];
         };
       };
     };
@@ -279,7 +281,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpSolverObjective"][];
+          "application/json": (components["schemas"]["VrpSolverObjective"])[];
         };
       };
     };
@@ -295,7 +297,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpSolverRequest"][];
+          "application/json": (components["schemas"]["VrpSolverRequest"])[];
         };
       };
     };
