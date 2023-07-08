@@ -33,6 +33,7 @@ const editorSelectedSolver = computed({
   set: (val) => emit("update:selectedSolver", val),
 });
 
+const isRunning = computed(() => ["ENQUEUED", "RUNNING"].includes(solverStatus.value || ""));
 const isWsConnected = computed(() => wsStatus.value === "OPEN");
 const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
 </script>
@@ -76,9 +77,9 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
     </div>
     <div class="flex space-x-2">
       <div class="card-actions">
-        <button class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
-        <button class="btn btn-sm btn-warning" @click="$emit('onTerminate')">Terminate</button>
-        <button class="btn btn-sm btn-error" @click="$emit('onClear')">Clear</button>
+        <button :disabled="isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
+        <button :disabled="!isRunning" class="btn btn-sm btn-warning" @click="$emit('onTerminate')">Terminate</button>
+        <button :disabled="isRunning" class="btn btn-sm btn-error" @click="$emit('onClear')">Clear</button>
       </div>
     </div>
     <div class="flex space-x-2">
