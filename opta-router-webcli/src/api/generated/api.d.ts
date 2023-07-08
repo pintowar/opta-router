@@ -7,8 +7,14 @@ export interface paths {
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
   };
+  "/api/solver/{id}/terminate": {
+    post: operations["terminateEarly"];
+  };
   "/api/solver/{id}/solve/{solverName}": {
     post: operations["solve"];
+  };
+  "/api/solver/{id}/clean": {
+    post: operations["clean"];
   };
   "/api/vrp-problems": {
     get: operations["index"];
@@ -16,22 +22,13 @@ export interface paths {
   "/api/vrp-problems/{id}": {
     get: operations["show"];
   };
-  "/api/solver/{id}/terminate": {
-    get: operations["terminateEarly"];
-  };
   "/api/solver/{id}/solution-panel": {
     get: operations["solutionState"];
-  };
-  "/api/solver/{id}/clean": {
-    get: operations["clean"];
   };
   "/api/solver/solver-names": {
     get: operations["solverNames"];
   };
-  "/api/solver-history/{problemId}/solver-names": {
-    get: operations["solverNames_1"];
-  };
-  "/api/solver-history/{problemId}/solutions/{requestId}": {
+  "/api/solver-history/{problemId}/solutions": {
     get: operations["solutions"];
   };
   "/api/solver-history/{problemId}/requests/{solverName}": {
@@ -119,8 +116,8 @@ export interface components {
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
-      totalTime: Record<string, never>;
       feasible: boolean;
+      totalTime: Record<string, never>;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -132,6 +129,7 @@ export interface components {
     VrpSolverObjective: {
       /** Format: double */
       objective: number;
+      solver: string;
       /** @enum {string} */
       status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
       /** Format: uuid */
@@ -175,11 +173,41 @@ export interface operations {
       };
     };
   };
+  terminateEarly: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+        };
+      };
+    };
+  };
   solve: {
     parameters: {
       path: {
         id: number;
         solverName: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
+        };
+      };
+    };
+  };
+  clean: {
+    parameters: {
+      path: {
+        id: number;
       };
     };
     responses: {
@@ -216,21 +244,6 @@ export interface operations {
       };
     };
   };
-  terminateEarly: {
-    parameters: {
-      path: {
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
-        };
-      };
-    };
-  };
   solutionState: {
     parameters: {
       path: {
@@ -246,37 +259,7 @@ export interface operations {
       };
     };
   };
-  clean: {
-    parameters: {
-      path: {
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
-        };
-      };
-    };
-  };
   solverNames: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": string[];
-        };
-      };
-    };
-  };
-  solverNames_1: {
-    parameters: {
-      path: {
-        problemId: number;
-      };
-    };
     responses: {
       /** @description OK */
       200: {
@@ -290,7 +273,6 @@ export interface operations {
     parameters: {
       path: {
         problemId: number;
-        requestId: string;
       };
     };
     responses: {

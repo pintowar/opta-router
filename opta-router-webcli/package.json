@@ -15,7 +15,6 @@
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.2.1",
     "apexcharts": "^3.41.0",
-    "axios": "^1.4.0",
     "json-editor-vue": "^0.10.6",
     "leaflet": "^1.9.3",
     "rainbow-color": "^2.0.0",

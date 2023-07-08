@@ -22,10 +22,6 @@ class SolverHistoryController(
     private val vrpSolverSolutionPort: VrpSolverSolutionPort
 ) {
 
-    @GetMapping("/{problemId}/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun solverNames(@PathVariable problemId: Long): ResponseEntity<List<String>> =
-        ResponseEntity.ok(vrpSolverRequestPort.solverHistory(problemId))
-
     @GetMapping("/{problemId}/requests/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun requests(
         @PathVariable problemId: Long,
@@ -36,12 +32,11 @@ class SolverHistoryController(
         }
     }
 
-    @GetMapping("/{problemId}/solutions/{requestId}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("/{problemId}/solutions", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutions(
-        @PathVariable problemId: Long,
-        @PathVariable requestId: UUID
+        @PathVariable problemId: Long
     ): ResponseEntity<List<VrpSolverObjective>> {
-        return vrpSolverSolutionPort.solutionHistory(problemId, requestId).let {
+        return vrpSolverSolutionPort.solutionHistory(problemId).let {
             ResponseEntity.ok(it)
         }
     }

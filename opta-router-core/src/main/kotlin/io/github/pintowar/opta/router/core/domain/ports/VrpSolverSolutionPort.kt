@@ -21,5 +21,5 @@ interface VrpSolverSolutionPort {
         uuid: UUID
     ): VrpSolutionRequest
 
-    fun solutionHistory(problemId: Long, requestId: UUID): List<VrpSolverObjective>
+    fun solutionHistory(problemId: Long): List<VrpSolverObjective>
 }
