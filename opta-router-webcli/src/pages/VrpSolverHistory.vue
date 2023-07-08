@@ -3,9 +3,9 @@ import { ref, watch, computed } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-// import { getHistorySolverNames, getHistoryRequests, getHistorySolutions, VrpSolverRequest, VrpSolverObjective } from "../api";
 import { VrpSolverRequest, VrpSolverObjective } from "../api";
 
+import VrpPageLayout from "../layout/VrpPageLayout.vue";
 import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
 import SolutionsHistoryChart from "../components/SolutionsHistoryChart.vue";
 
@@ -51,69 +51,53 @@ function requestStatus(request: VrpSolverRequest | null): string {
 </script>
 
 <template>
-  <main v-if="isFetching" class="flex items-center justify-center h-full">
-    <div class="mt-32">
-      <button class="btn btn-ghost loading">Loading</button>
-    </div>
-  </main>
-  <main v-else-if="error" class="flex items-center justify-center h-full">
-    <div class="mx-32 mt-16 alert alert-error">
-      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-        />
-      </svg>
-      <span>Error! Failed to load data</span>
-    </div>
-  </main>
-  <vrp-solver-panel-layout v-else>
-    <template #menu>
-      <div class="space-y-2">
-        <div class="flex space-x-2">
-          <div class="basis-1/2">
-            <h1>Solver History</h1>
+  <vrp-page-layout :is-fetching="isFetching" :error="error">
+    <vrp-solver-panel-layout>
+      <template #menu>
+        <div class="space-y-2">
+          <div class="flex space-x-2">
+            <div class="basis-1/2">
+              <h1>Solver History</h1>
+            </div>
+            <div class="basis-1/2 flex flex-row-reverse">
+              <router-link :to="`/solve/${route.params.id}`" class="link link-primary">Solver »</router-link>
+            </div>
           </div>
-          <div class="basis-1/2 flex flex-row-reverse">
-            <router-link :to="`/solve/${route.params.id}`" class="link link-primary">Solver »</router-link>
+          <div class="flex space-x-2">
+            <label class="relative inline-flex items-center mb-4 cursor-pointer">
+              <span class="mr-3 text-sm font-medium">Solver</span>
+              <select v-model="selectedSolver" class="select select-bordered select-xs">
+                <option value="all">all</option>
+                <option v-for="solver in solvers" :key="solver" :value="solver">
+                  {{ solver }}
+                </option>
+              </select>
+            </label>
           </div>
-        </div>
-        <div class="flex space-x-2">
-          <label class="relative inline-flex items-center mb-4 cursor-pointer">
-            <span class="mr-3 text-sm font-medium">Solver</span>
-            <select v-model="selectedSolver" class="select select-bordered select-xs">
-              <option value="all">all</option>
-              <option v-for="solver in solvers" :key="solver" :value="solver">
-                {{ solver }}
-              </option>
-            </select>
-          </label>
-        </div>
 
-        <div v-if="requests?.length" class="flex space-x-2">
-          <label class="relative inline-flex items-center mb-4 cursor-pointer">
-            <span class="mr-3 text-sm font-medium">Request</span>
-            <select
-              v-model="selectedRequest"
-              :class="`select select-bordered select-xs ${requestStatus(selectedRequest)}`"
-            >
-              <option
-                v-for="request in requests"
-                :key="request.requestKey"
-                :value="request"
-                :class="requestStatus(request)"
+          <div v-if="requests?.length" class="flex space-x-2">
+            <label class="relative inline-flex items-center mb-4 cursor-pointer">
+              <span class="mr-3 text-sm font-medium">Request</span>
+              <select
+                v-model="selectedRequest"
+                :class="`select select-bordered select-xs ${requestStatus(selectedRequest)}`"
               >
-                {{ request.requestKey }}
-              </option>
-            </select>
-          </label>
+                <option
+                  v-for="request in requests"
+                  :key="request.requestKey"
+                  :value="request"
+                  :class="requestStatus(request)"
+                >
+                  {{ request.requestKey }}
+                </option>
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
-    </template>
-    <template #main>
-      <solutions-history-chart :solutions="filteredSolutions" :request="selectedRequest" :solvers="[...solvers]" />
-    </template>
-  </vrp-solver-panel-layout>
+      </template>
+      <template #main>
+        <solutions-history-chart :solutions="filteredSolutions" :request="selectedRequest" :solvers="[...solvers]" />
+      </template>
+    </vrp-solver-panel-layout>
+  </vrp-page-layout>
 </template>
