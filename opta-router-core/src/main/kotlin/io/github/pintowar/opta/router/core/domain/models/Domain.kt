@@ -104,6 +104,7 @@ data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatu
 
 data class VrpSolverObjective(
     val objective: Double,
+    val solver: String,
     val status: SolverStatus,
     val solverKey: UUID,
     val createdAt: Instant

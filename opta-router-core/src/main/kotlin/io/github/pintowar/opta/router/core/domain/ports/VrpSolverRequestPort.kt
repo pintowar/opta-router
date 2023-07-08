@@ -14,7 +14,5 @@ interface VrpSolverRequestPort {
 
     fun currentSolverRequest(solverKey: UUID): VrpSolverRequest?
 
-    fun solverHistory(problemId: Long): List<String>
-
     fun requestsByProblemIdAndSolverName(problemId: Long, solverName: String): List<VrpSolverRequest>
 }

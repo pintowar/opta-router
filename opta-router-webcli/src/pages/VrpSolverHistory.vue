@@ -1,37 +1,37 @@
 <script lang="ts" setup>
-import { ref, onBeforeMount, watch } from "vue";
-import { computedAsync } from "@vueuse/core";
+import { ref, watch, computed } from "vue";
+import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { getHistorySolverNames, getHistoryRequests, getHistorySolutions, VrpSolverRequest } from "../api";
+// import { getHistorySolverNames, getHistoryRequests, getHistorySolutions, VrpSolverRequest, VrpSolverObjective } from "../api";
+import { VrpSolverRequest, VrpSolverObjective } from "../api";
 
 import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
 import SolutionsHistoryChart from "../components/SolutionsHistoryChart.vue";
 
 const route = useRoute();
+const url = ref(`/api/solver-history/${route.params.id}/solutions`);
+const { isFetching, error, data: solutions } = useFetch(url).get().json<VrpSolverObjective[]>();
 
-const selectedSolver = ref<string>("");
-const solvers = ref<string[]>([]);
+const selectedSolver = ref<string>("all");
+const solvers = computed(() => new Set(solutions?.value?.map((it) => it.solver) || []));
 
 const selectedRequest = ref<VrpSolverRequest | null>(null);
-const requests = computedAsync(async () => {
-  return selectedSolver.value ? await getHistoryRequests(+route.params.id, selectedSolver.value) : [];
-}, []);
+const requestsUrl = computed(() => `/api/solver-history/${route.params.id}/requests/${selectedSolver.value}`);
+const { data: requests } = useFetch(requestsUrl, { refetch: true }).get().json<VrpSolverRequest[]>();
 
-const solutions = computedAsync(async () => {
-  return selectedRequest.value ? await getHistorySolutions(+route.params.id, selectedRequest.value.requestKey) : [];
-}, []);
-
-onBeforeMount(async () => {
-  const solverNames = await getHistorySolverNames(+route.params.id);
-  solvers.value = solverNames;
-  selectedSolver.value = solverNames[0] || "";
+const filteredSolutions = computed(() => {
+  return (
+    solutions?.value?.filter(
+      (it) =>
+        (selectedSolver.value !== "all" ? it.solver === selectedSolver.value : true) &&
+        (selectedRequest.value ? it.solverKey === selectedRequest.value.requestKey : true)
+    ) || []
+  );
 });
 
 watch(requests, () => {
-  if (requests.value.length) {
-    selectedRequest.value = requests.value[0];
-  }
+  selectedRequest.value = requests?.value?.length ? requests.value[0] : null;
 });
 
 function requestStatus(request: VrpSolverRequest | null): string {
@@ -51,7 +51,25 @@ function requestStatus(request: VrpSolverRequest | null): string {
 </script>
 
 <template>
-  <vrp-solver-panel-layout>
+  <main v-if="isFetching" class="flex items-center justify-center h-full">
+    <div class="mt-32">
+      <button class="btn btn-ghost loading">Loading</button>
+    </div>
+  </main>
+  <main v-else-if="error" class="flex items-center justify-center h-full">
+    <div class="mx-32 mt-16 alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      <span>Error! Failed to load data</span>
+    </div>
+  </main>
+  <vrp-solver-panel-layout v-else>
     <template #menu>
       <div class="space-y-2">
         <div class="flex space-x-2">
@@ -66,6 +84,7 @@ function requestStatus(request: VrpSolverRequest | null): string {
           <label class="relative inline-flex items-center mb-4 cursor-pointer">
             <span class="mr-3 text-sm font-medium">Solver</span>
             <select v-model="selectedSolver" class="select select-bordered select-xs">
+              <option value="all">all</option>
               <option v-for="solver in solvers" :key="solver" :value="solver">
                 {{ solver }}
               </option>
@@ -73,7 +92,7 @@ function requestStatus(request: VrpSolverRequest | null): string {
           </label>
         </div>
 
-        <div class="flex space-x-2">
+        <div v-if="requests?.length" class="flex space-x-2">
           <label class="relative inline-flex items-center mb-4 cursor-pointer">
             <span class="mr-3 text-sm font-medium">Request</span>
             <select
@@ -94,7 +113,7 @@ function requestStatus(request: VrpSolverRequest | null): string {
       </div>
     </template>
     <template #main>
-      <solutions-history-chart :solutions="solutions" :request="selectedRequest" />
+      <solutions-history-chart :solutions="filteredSolutions" :request="selectedRequest" :solvers="[...solvers]" />
     </template>
   </vrp-solver-panel-layout>
 </template>

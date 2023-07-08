@@ -100,13 +100,22 @@ class VrpSolverSolutionJooqAdapter(
         }
     }
 
-    override fun solutionHistory(problemId: Long, requestId: UUID): List<VrpSolverObjective> {
-        return dsl.selectFrom(VRP_SOLVER_SOLUTION)
+    override fun solutionHistory(problemId: Long): List<VrpSolverObjective> {
+        return dsl.select(VRP_SOLVER_SOLUTION, VRP_SOLVER_REQUEST)
+            .from(
+                VRP_SOLVER_SOLUTION.leftJoin(VRP_SOLVER_REQUEST)
+                    .on(VRP_SOLVER_SOLUTION.REQUEST_KEY.eq(VRP_SOLVER_REQUEST.REQUEST_KEY))
+            )
             .where(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-            .and(VRP_SOLVER_SOLUTION.REQUEST_KEY.eq(requestId))
             .orderBy(VRP_SOLVER_SOLUTION.CREATED_AT)
-            .fetch {
-                VrpSolverObjective(it.objective, SolverStatus.valueOf(it.status), it.requestKey!!, it.createdAt)
+            .fetch { (sol, req) ->
+                VrpSolverObjective(
+                    sol.objective,
+                    req.solver,
+                    SolverStatus.valueOf(sol.status),
+                    sol.requestKey!!,
+                    sol.createdAt
+                )
             }
     }
 

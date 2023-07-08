@@ -28,10 +28,7 @@ export interface paths {
   "/api/solver/solver-names": {
     get: operations["solverNames"];
   };
-  "/api/solver-history/{problemId}/solver-names": {
-    get: operations["solverNames_1"];
-  };
-  "/api/solver-history/{problemId}/solutions/{requestId}": {
+  "/api/solver-history/{problemId}/solutions": {
     get: operations["solutions"];
   };
   "/api/solver-history/{problemId}/requests/{solverName}": {
@@ -119,8 +116,8 @@ export interface components {
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
-      totalTime: Record<string, never>;
       feasible: boolean;
+      totalTime: Record<string, never>;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -132,6 +129,7 @@ export interface components {
     VrpSolverObjective: {
       /** Format: double */
       objective: number;
+      solver: string;
       /** @enum {string} */
       status: "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
       /** Format: uuid */
@@ -271,26 +269,10 @@ export interface operations {
       };
     };
   };
-  solverNames_1: {
-    parameters: {
-      path: {
-        problemId: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": string[];
-        };
-      };
-    };
-  };
   solutions: {
     parameters: {
       path: {
         problemId: number;
-        requestId: string;
       };
     };
     responses: {

@@ -1,20 +1,29 @@
 <script lang="ts" setup>
 import { computed, toRefs } from "vue";
+import { createRainbow } from "rainbow-color";
+import { rgbaString } from "color-map";
+
 import { VrpSolverRequest, VrpSolverObjective } from "../api";
 
 const props = defineProps<{
   solutions: VrpSolverObjective[];
   request: VrpSolverRequest | null;
+  solvers: string[];
 }>();
 
 const { solutions, request } = toRefs(props);
 
-const series = computed(() => [
-  {
-    name: "Distance",
-    data: solutions.value.map((it) => it.objective),
-  },
-]);
+const colors = createRainbow(Math.max(props.solvers.length, 9))
+  .map((c) => rgbaString(c))
+  .slice(0, props.solvers.length);
+
+const series = computed(() => {
+  const solvers = new Set(solutions?.value?.map((it) => it.solver) || []);
+  return [...solvers].map((it) => ({
+    name: it,
+    data: solutions?.value?.map((sol) => (sol.solver === it ? sol.objective : null)),
+  }));
+});
 
 const durations = computed(() => {
   const begin = solutions.value.length ? new Date(solutions.value[0].createdAt) : new Date();
@@ -31,6 +40,8 @@ const maxDuration = computed(() => Math.max(...durations.value));
 const chartOptions = computed(() => {
   const formatter = new Intl.NumberFormat("en-US", { maximumSignificantDigits: 2 });
   const formatedDurations = durations.value.map((it) => formatter.format(it));
+  const selectedColor = colors[props.solvers.findIndex((it) => it === request.value?.solver)];
+
   return {
     chart: {
       height: 350,
@@ -45,11 +56,15 @@ const chartOptions = computed(() => {
     stroke: {
       curve: "straight",
     },
+    colors: selectedColor ? [selectedColor] : colors,
     title: {
       text: request.value
         ? `${request.value.status} - ${request.value?.requestKey} | ${bestScore.value} m : ${maxDuration.value} s`
-        : "",
-      align: "left",
+        : `${bestScore.value} m : ${maxDuration.value} s`,
+      align: "center",
+    },
+    legend: {
+      position: "top",
     },
     grid: {
       row: {

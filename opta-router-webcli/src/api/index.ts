@@ -16,12 +16,6 @@ const defaultHeaders = {
   },
 };
 
-async function getProblems(): Promise<VrpProblem[]> {
-  const { data, status } = await axios.get<VrpProblem[]>("/api/vrp-problems");
-
-  return status === 200 ? data : Promise.reject("Failed to retrieve instances");
-}
-
 async function getProblem(id: number): Promise<VrpProblem | null> {
   try {
     const { data, status } = await axios.get<VrpProblem>(`/api/vrp-problems/${id}`);
@@ -92,54 +86,6 @@ async function clean(id: number): Promise<SolverState | null> {
   }
 }
 
-async function getHistorySolverNames(problemId: number): Promise<string[]> {
-  try {
-    const { data, status } = await axios.get<string[]>(`/api/solver-history/${problemId}/solver-names`, defaultHeaders);
-
-    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
-  } catch (e) {
-    return Promise.resolve([]);
-  }
-}
-
-async function getHistoryRequests(problemId: number, solverName: string): Promise<VrpSolverRequest[]> {
-  try {
-    const { data, status } = await axios.get<VrpSolverRequest[]>(
-      `/api/solver-history/${problemId}/requests/${solverName}`,
-      defaultHeaders
-    );
-
-    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
-  } catch (e) {
-    return Promise.resolve([]);
-  }
-}
-
-async function getHistorySolutions(problemId: number, requestKey: string): Promise<VrpSolverObjective[]> {
-  try {
-    const { data, status } = await axios.get<VrpSolverObjective[]>(
-      `/api/solver-history/${problemId}/solutions/${requestKey}`,
-      defaultHeaders
-    );
-
-    return status === 200 ? data : Promise.reject("Failed to retrieve solver solution/state");
-  } catch (e) {
-    return Promise.resolve([]);
-  }
-}
-
 export type { Route, SolverState, Vehicle, VrpProblem, VrpSolution, VrpSolverRequest, VrpSolverObjective };
 
-export {
-  getProblems,
-  getProblem,
-  getSolverNames,
-  solve,
-  terminate,
-  clean,
-  detailedPath,
-  getPanelSolutionState,
-  getHistorySolverNames,
-  getHistoryRequests,
-  getHistorySolutions,
-};
+export { getProblem, getSolverNames, solve, terminate, clean, detailedPath, getPanelSolutionState };
