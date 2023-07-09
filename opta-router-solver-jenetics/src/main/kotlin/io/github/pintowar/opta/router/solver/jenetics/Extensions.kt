@@ -1,128 +1,85 @@
-//package io.github.pintowar.opta.router.solver.jenetics
-//
-//import com.google.ortools.constraintsolver.Assignment
-//import com.google.ortools.constraintsolver.RoutingIndexManager
-//import com.google.ortools.constraintsolver.RoutingModel
-//import io.github.pintowar.opta.router.core.domain.models.Customer
-//import io.github.pintowar.opta.router.core.domain.models.LatLng
-//import io.github.pintowar.opta.router.core.domain.models.Location
-//import io.github.pintowar.opta.router.core.domain.models.Route
-//import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-//import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-//import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-//import java.math.BigDecimal
-//import java.math.RoundingMode
-//import java.util.function.LongBinaryOperator
-//import java.util.function.LongUnaryOperator
-//
-//private class DistanceEval(
-//    val matrix: Matrix,
-//    val manager: RoutingIndexManager,
-//    val idxLocations: Map<Int, Location>,
-//    val k: Long = 100
-//) : LongBinaryOperator {
-//    override fun applyAsLong(p1: Long, p2: Long): Long = try {
-//        val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
-//        val toNode = idxLocations.getValue(manager.indexToNode(p2)).id
-//
-//        (matrix.distance(fromNode, toNode) * k).toLong()
-//    } catch (e: Throwable) {
-//        0L
-//    }
-//}
-//
-//private class DemandEval(
-//    val manager: RoutingIndexManager,
-//    val idxLocations: Map<Int, Location>
-//) : LongUnaryOperator {
-//    override fun applyAsLong(fromIndex: Long): Long {
-//        val fromNode = manager.indexToNode(fromIndex)
-//        return when (val loc = idxLocations[fromNode]) {
-//            is Customer -> loc.demand.toLong()
-//            else -> 0L
-//        }
-//    }
-//}
-//
-//class ProblemSummary(problem: VrpProblem) {
-//    val nVehicles = problem.vehicles.size
-//    val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
-//    val idLocations = problem.locations.associateBy { it.id }
-//    val idxLocations = problem.locations.withIndex().associate { it.index to it.value }
-//    val locationsIdx = idxLocations.map { it.value to it.key }.toMap()
-//    val nLocations = idxLocations.size
-//    val depots = problem.vehicles.mapNotNull { locationsIdx[it.depot] }.toIntArray()
-//
-//    fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
-//}
-//
-//data class ProblemWrapper(val model: RoutingModel, val manager: RoutingIndexManager, val summary: ProblemSummary)
-//
-///**
-// * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
-// *
-// * @param dist distance calculator instance.
-// * @return solution representation used by the solver.
-// */
-//fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
-//    val summary = ProblemSummary(this)
-//
-//    val manager = RoutingIndexManager(summary.nLocations, summary.nVehicles, summary.depots, summary.depots)
-//    val model = RoutingModel(manager)
-//
-//    val transitRegistry = model.registerTransitCallback(
-//        DistanceEval(
-//            matrix,
-//            manager,
-//            summary.idxLocations
-//        )
-//    )
-//    model.setArcCostEvaluatorOfAllVehicles(transitRegistry)
-//
-//    val demandCallbackIndex: Int = model.registerUnaryTransitCallback(
-//        DemandEval(
-//            manager,
-//            summary.idxLocations
-//        )
-//    )
-//    model.addDimensionWithVehicleCapacity(demandCallbackIndex, 0, summary.vehiclesCapacities, true, "Capacity")
-//    return ProblemWrapper(model, manager, summary)
-//}
-//
-///**
-// * Convert the solver VRP Solution representation into the DTO representation.
-// *
-// * @return the DTO solution representation.
-// */
-//fun RoutingModel.toDTO(
-//    manager: RoutingIndexManager,
-//    instance: VrpProblem,
-//    idxLocations: Map<Int, Location>,
-//    matrix: Matrix,
-//    assignment: Assignment? = null
-//): VrpSolution {
-//    val subRoutes = instance.vehicles.indices.map { vehicleIdx ->
-//        val nodes = sequence {
-//            var index = start(vehicleIdx)
-//            yield(index)
-//            while (!isEnd(index)) {
-//                index = assignment?.value(nextVar(index)) ?: nextVar(index).value()
-//                yield(index)
-//            }
-//        }.map(manager::indexToNode)
-//
-//        val locations = nodes.map(idxLocations::getValue).toList()
-//        val dist = locations.windowed(2, 1).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
-//        val time = locations.windowed(2, 1).sumOf { (i, j) -> matrix.time(i.id, j.id).toDouble() }
-//        val customers = locations.mapNotNull { if (it is Customer) it else null }
-//
-//        Route(
-//            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
-//            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
-//            customers.sumOf { it.demand },
-//            locations.map { LatLng(it.lat, it.lng) },
-//            customers.map { it.id }
-//        )
-//    }
-//    return VrpSolution(instance, subRoutes)
-//}
+package io.github.pintowar.opta.router.solver.jenetics
+
+import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
+import io.jenetics.EnumGene
+import io.jenetics.Genotype
+import io.jenetics.PermutationChromosome
+import io.jenetics.Phenotype
+import io.jenetics.engine.Codec
+import io.jenetics.engine.EvolutionStart
+import io.jenetics.engine.Problem
+import io.jenetics.util.ISeq
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.util.*
+
+private fun problemCodec(problem: VrpProblem, seed: Random = Random()) = problem.let { prob ->
+    val nCustomers = prob.customers.size
+    val customersIdx = prob.customers.indices
+    val nVehicles = prob.nVehicles
+
+    val customerOrder = (prob.customers).toList().shuffled(seed)
+    val indices = customersIdx.drop(1).shuffled(seed).take(nVehicles - 1).sorted()
+    println(indices)
+
+    val subRoutes = (listOf(0) + indices + listOf(nCustomers))
+        .asSequence()
+        .windowed(2)
+        .map { (b, e) -> customerOrder.subList(b, e) }
+        .map { route -> route.indices.map { EnumGene.of(it, ISeq.of(route)) } }
+        .map { PermutationChromosome(ISeq.of(it)) }
+        .toList()
+
+    Codec.of(Genotype.of(subRoutes)) { gt ->
+        ISeq.of(gt.map { ISeq.of(it.toList()) })
+    }
+}
+
+fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Customer>, Double> {
+    val idxCustomers = this.problem.customers.associateBy { it.id }
+    val subRoutes = this.routes.asSequence()
+        .map { it.customerIds.map(idxCustomers::getValue) }
+        .map { customers -> customers.indices.map { EnumGene.of(it, ISeq.of(customers)) } }
+        .map { PermutationChromosome(ISeq.of(it)) }
+        .toList()
+
+    val gen = 1L
+    val phenotype = Genotype.of(subRoutes).let { gt -> Phenotype.of(gt, gen, this.getTotalDistance().toDouble()) }
+    return EvolutionStart.of(ISeq.of(phenotype), gen)
+}
+
+fun VrpProblem.toProblem(matrix: Matrix): Problem<ISeq<ISeq<EnumGene<Customer>>>, EnumGene<Customer>, Double> {
+    val codec = problemCodec(this, Random())
+    return Problem.of(
+        { gene ->
+            gene.mapIndexed { idx, seq ->
+                val depot = this.vehicles[idx].depot
+                val customers = seq.map { it.allele() }.toList()
+                (listOf(depot) + customers + listOf(depot)).windowed(2).sumOf { (a, b) -> matrix.distance(a.id, b.id) }
+            }.sum()
+        },
+        codec
+    )
+}
+
+fun Genotype<EnumGene<Customer>>.toDto(problem: VrpProblem, matrix: Matrix): VrpSolution {
+    val subRoutes = this.mapIndexed { idx, gen ->
+        val depot = problem.vehicles[idx].depot
+        val customers = gen.map { it.allele() }.toList()
+        val locations = (listOf(depot) + customers + listOf(depot))
+
+        val dist = locations.windowed(2).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
+        val time = locations.windowed(2).sumOf { (i, j) -> matrix.time(i.id, j.id).toDouble() }
+
+        Route(
+            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
+            customers.sumOf { it.demand },
+            locations.map { LatLng(it.lat, it.lng) },
+            customers.map { it.id }
+        )
+    }
+
+    return VrpSolution(problem, subRoutes)
+}
