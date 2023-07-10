@@ -6,6 +6,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
+import io.jenetics.EliteSelector
 import io.jenetics.Optimize
 import io.jenetics.PartiallyMatchedCrossover
 import io.jenetics.RouletteWheelSelector
@@ -23,6 +24,7 @@ class JeneticsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key
         var best = initialSolution
         val engine = Engine.builder(initialSolution.problem.toProblem(matrix))
             .minimizing()
+            .survivorsSelector(EliteSelector(5))
             .offspringSelector(RouletteWheelSelector())
             .offspringFraction(0.8)
             .maximalPhenotypeAge(10)

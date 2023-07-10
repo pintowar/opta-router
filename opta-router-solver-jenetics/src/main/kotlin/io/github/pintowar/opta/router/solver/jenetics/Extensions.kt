@@ -7,6 +7,7 @@ import io.jenetics.Genotype
 import io.jenetics.PermutationChromosome
 import io.jenetics.Phenotype
 import io.jenetics.engine.Codec
+import io.jenetics.engine.Constraint
 import io.jenetics.engine.EvolutionStart
 import io.jenetics.engine.Problem
 import io.jenetics.util.ISeq
@@ -49,6 +50,25 @@ fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Location>, Double> 
     return EvolutionStart.of(ISeq.of(phenotype), gen)
 }
 
+private fun problemConstraint(problem: VrpProblem): Constraint<EnumGene<Location>, Double> =
+    Constraint.of { individual ->
+        val subRoutes = genToSubRoutes(individual.genotype())
+        val validCapacities by lazy {
+            subRoutes.indices.all { idx ->
+                val subRoute = subRoutes[idx]
+                val (demand, customersIds) = subRoute
+                    .asSequence()
+                    .map { it.allele() }
+                    .filterIsInstance<Customer>()
+                    .fold(0 to emptySet<Long>()) { (allDemand, allIds), it ->
+                        (allDemand + it.demand) to (allIds + it.id)
+                    }
+                problem.vehicles[idx].capacity >= demand && customersIds.size == problem.customers.size
+            }
+        }
+        subRoutes.size <= problem.nVehicles && validCapacities
+    }
+
 fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<EnumGene<Location>>>, EnumGene<Location>, Double> {
     val codec = problemCodec(this)
     return Problem.of(
@@ -56,17 +76,19 @@ fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<EnumGene<Location>>>
             gene.mapIndexed { idx, seq ->
                 val depot = this.vehicles[idx].depot
                 val customers = seq.map { it.allele() }.toList()
-                (listOf(depot) + customers + listOf(depot)).windowed(2).sumOf { (a, b) -> matrix.distance(a.id, b.id) }
+                (listOf(depot) + customers + listOf(depot)).windowed(2)
+                    .sumOf { (a, b) -> matrix.distance(a.id, b.id) }
             }.sum()
         },
-        codec
+        codec,
+        problemConstraint(this)
     )
 }
 
 fun Genotype<EnumGene<Location>>.toDto(problem: VrpProblem, matrix: Matrix): VrpSolution {
     val subRoutes = genToSubRoutes(this).mapIndexed { idx, gen ->
         val depot = problem.vehicles[idx].depot
-        val customers = gen.map { it.allele() }.filterIsInstance<Customer>()
+        val customers = gen.asSequence().map { it.allele() }.filterIsInstance<Customer>().toList()
         val locations = (listOf(depot) + customers + listOf(depot))
 
         val dist = locations.windowed(2).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
