@@ -12,45 +12,45 @@ import io.jenetics.engine.Problem
 import io.jenetics.util.ISeq
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.util.*
 
-private fun problemCodec(problem: VrpProblem, seed: Random = Random()) = problem.let { prob ->
-    val nCustomers = prob.customers.size
-    val customersIdx = prob.customers.indices
-    val nVehicles = prob.nVehicles
-
-    val customerOrder = (prob.customers).toList().shuffled(seed)
-    val indices = customersIdx.drop(1).shuffled(seed).take(nVehicles - 1).sorted()
-    println(indices)
-
-    val subRoutes = (listOf(0) + indices + listOf(nCustomers))
-        .asSequence()
-        .windowed(2)
-        .map { (b, e) -> customerOrder.subList(b, e) }
-        .map { route -> route.indices.map { EnumGene.of(it, ISeq.of(route)) } }
-        .map { PermutationChromosome(ISeq.of(it)) }
-        .toList()
-
-    Codec.of(Genotype.of(subRoutes)) { gt ->
-        ISeq.of(gt.map { ISeq.of(it.toList()) })
-    }
+data class DummyLocation(override val id: Long) : Location {
+    override val name: String = "Dummy $id"
+    override val lat: Double = 0.0
+    override val lng: Double = 0.0
 }
 
-fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Customer>, Double> {
+private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<EnumGene<Location>>> {
+    val chromosome = genotype.chromosome().toList()
+    val indices = chromosome.withIndex().filter { (_, it) -> it.allele() is DummyLocation }.map { (idx, _) -> idx }
+    return (listOf(0) + indices + listOf(chromosome.size))
+        .windowed(2)
+        .map { (b, e) -> chromosome.subList(b, e).filter { it.allele() is Customer } }
+}
+
+private fun problemCodec(problem: VrpProblem) = problem.let { prob ->
+    val nVehicles = prob.nVehicles
+    val locations = prob.customers + (1 until nVehicles).map { DummyLocation(it.toLong()) }
+    val chromosomeLocations = PermutationChromosome.of(ISeq.of(locations))
+    Codec.of(Genotype.of(chromosomeLocations), ::genToSubRoutes)
+}
+
+fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Location>, Double> {
     val idxCustomers = this.problem.customers.associateBy { it.id }
-    val subRoutes = this.routes.asSequence()
-        .map { it.customerIds.map(idxCustomers::getValue) }
-        .map { customers -> customers.indices.map { EnumGene.of(it, ISeq.of(customers)) } }
-        .map { PermutationChromosome(ISeq.of(it)) }
-        .toList()
+    val customers = this.routes.map { it.customerIds.map(idxCustomers::getValue) }
+    val dummies = (1 until customers.size).map { DummyLocation(it.toLong()) }
+    val locations = customers.withIndex().fold(emptyList<Location>()) { acc, (idx, customers) ->
+        val dummy = if (idx < dummies.size) listOf(dummies[idx]) else emptyList()
+        acc + customers + dummy
+    }
+    val chromosome = PermutationChromosome(ISeq.of(locations.indices.map { EnumGene.of(it, ISeq.of(locations)) }))
 
     val gen = 1L
-    val phenotype = Genotype.of(subRoutes).let { gt -> Phenotype.of(gt, gen, this.getTotalDistance().toDouble()) }
+    val phenotype = Genotype.of(chromosome).let { gt -> Phenotype.of(gt, gen, this.getTotalDistance().toDouble()) }
     return EvolutionStart.of(ISeq.of(phenotype), gen)
 }
 
-fun VrpProblem.toProblem(matrix: Matrix): Problem<ISeq<ISeq<EnumGene<Customer>>>, EnumGene<Customer>, Double> {
-    val codec = problemCodec(this, Random())
+fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<EnumGene<Location>>>, EnumGene<Location>, Double> {
+    val codec = problemCodec(this)
     return Problem.of(
         { gene ->
             gene.mapIndexed { idx, seq ->
@@ -63,10 +63,10 @@ fun VrpProblem.toProblem(matrix: Matrix): Problem<ISeq<ISeq<EnumGene<Customer>>>
     )
 }
 
-fun Genotype<EnumGene<Customer>>.toDto(problem: VrpProblem, matrix: Matrix): VrpSolution {
-    val subRoutes = this.mapIndexed { idx, gen ->
+fun Genotype<EnumGene<Location>>.toDto(problem: VrpProblem, matrix: Matrix): VrpSolution {
+    val subRoutes = genToSubRoutes(this).mapIndexed { idx, gen ->
         val depot = problem.vehicles[idx].depot
-        val customers = gen.map { it.allele() }.toList()
+        val customers = gen.map { it.allele() }.filterIsInstance<Customer>()
         val locations = (listOf(depot) + customers + listOf(depot))
 
         val dist = locations.windowed(2).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
