@@ -38,12 +38,16 @@ private fun problemCodec(problem: VrpProblem) = problem.let { prob ->
 fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Location>, Double> {
     val idxCustomers = this.problem.customers.associateBy { it.id }
     val customers = this.routes.map { it.customerIds.map(idxCustomers::getValue) }
-    val dummies = (1 until customers.size).map { DummyLocation(it.toLong()) }
-    val locations = customers.withIndex().fold(emptyList<Location>()) { acc, (idx, customers) ->
+    val dummies = (1 until this.problem.nVehicles).map { DummyLocation(it.toLong()) }
+    val orderedLocations = customers.withIndex().fold(emptyList<Location>()) { acc, (idx, customers) ->
         val dummy = if (idx < dummies.size) listOf(dummies[idx]) else emptyList()
         acc + customers + dummy
     }
-    val chromosome = PermutationChromosome(ISeq.of(locations.indices.map { EnumGene.of(it, ISeq.of(locations)) }))
+
+    val geneIdx = (problem.customers + dummies).withIndex().associate { (k, v) -> v to k }
+    val chromosome = PermutationChromosome(
+        ISeq.of(orderedLocations.map { EnumGene.of(geneIdx.getValue(it), ISeq.of(problem.customers + dummies)) })
+    )
 
     val gen = 1L
     val phenotype = Genotype.of(chromosome).let { gt -> Phenotype.of(gt, gen, this.getTotalDistance().toDouble()) }
