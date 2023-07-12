@@ -27,7 +27,7 @@ class JeneticsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key
             .survivorsSelector(EliteSelector(5))
             .offspringSelector(RouletteWheelSelector())
             .offspringFraction(0.8)
-            .maximalPhenotypeAge(10)
+            .maximalPhenotypeAge(100)
             .populationSize(500)
             .alterers(
                 PartiallyMatchedCrossover(0.8),
