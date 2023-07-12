@@ -20,12 +20,18 @@ data class DummyLocation(override val id: Long) : Location {
     override val lng: Double = 0.0
 }
 
-private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<EnumGene<Location>>> {
+private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Customer>> {
     val chromosome = genotype.chromosome().toList()
     val indices = chromosome.withIndex().filter { (_, it) -> it.allele() is DummyLocation }.map { (idx, _) -> idx }
     return (listOf(0) + indices + listOf(chromosome.size))
         .windowed(2)
-        .map { (b, e) -> chromosome.subList(b, e).filter { it.allele() is Customer } }
+        .map { (b, e) ->
+            chromosome.subList(b, e)
+                .asSequence()
+                .map { it.allele() }
+                .filterIsInstance<Customer>()
+                .toList()
+        }
 }
 
 private fun problemCodec(problem: VrpProblem) = problem.let { prob ->
@@ -61,9 +67,6 @@ private fun problemConstraint(problem: VrpProblem): Constraint<EnumGene<Location
             subRoutes.indices.all { idx ->
                 val subRoute = subRoutes[idx]
                 val (demand, customersIds) = subRoute
-                    .asSequence()
-                    .map { it.allele() }
-                    .filterIsInstance<Customer>()
                     .fold(0 to emptySet<Long>()) { (allDemand, allIds), it ->
                         (allDemand + it.demand) to (allIds + it.id)
                     }
@@ -73,13 +76,12 @@ private fun problemConstraint(problem: VrpProblem): Constraint<EnumGene<Location
         subRoutes.size <= problem.nVehicles && validCapacities
     }
 
-fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<EnumGene<Location>>>, EnumGene<Location>, Double> {
+fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<Customer>>, EnumGene<Location>, Double> {
     val codec = problemCodec(this)
     return Problem.of(
         { gene ->
-            gene.mapIndexed { idx, seq ->
+            gene.mapIndexed { idx, customers ->
                 val depot = this.vehicles[idx].depot
-                val customers = seq.map { it.allele() }.toList()
                 (listOf(depot) + customers + listOf(depot)).windowed(2)
                     .sumOf { (a, b) -> matrix.distance(a.id, b.id) }
             }.sum()
@@ -90,9 +92,8 @@ fun VrpProblem.toProblem(matrix: Matrix): Problem<List<List<EnumGene<Location>>>
 }
 
 fun Genotype<EnumGene<Location>>.toDto(problem: VrpProblem, matrix: Matrix): VrpSolution {
-    val subRoutes = genToSubRoutes(this).mapIndexed { idx, gen ->
+    val subRoutes = genToSubRoutes(this).mapIndexed { idx, customers ->
         val depot = problem.vehicles[idx].depot
-        val customers = gen.asSequence().map { it.allele() }.filterIsInstance<Customer>().toList()
         val locations = (listOf(depot) + customers + listOf(depot))
 
         val dist = locations.windowed(2).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
