@@ -19,6 +19,7 @@ class VrpSolverRequestJooqAdapter(
             .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.TERMINATED.name)
             .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.RUNNING.name))
             .and(VRP_SOLVER_REQUEST.UPDATED_AT.lt(Instant.now() - timeout))
+            .execute()
     }
 
     override fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
