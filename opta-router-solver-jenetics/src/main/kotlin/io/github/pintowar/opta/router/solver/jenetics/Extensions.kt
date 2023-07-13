@@ -27,8 +27,11 @@ data class DummyLocation(override val id: Long) : Location {
 
 private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Customer>> {
     val chromosome = genotype.chromosome().toList()
-    val indices = chromosome.withIndex().filter { (_, it) -> it.allele() is DummyLocation }.map { (idx, _) -> idx }
-    return (listOf(0) + indices + listOf(chromosome.size))
+    val indices = chromosome.withIndex()
+        .filter { (_, it) -> it.allele() is DummyLocation }
+        .sortedBy { (_, it) -> it.alleleIndex() }
+        .map { (idx, _) -> idx }
+    val result = (listOf(0) + indices.sorted() + listOf(chromosome.size))
         .windowed(2)
         .map { (b, e) ->
             chromosome.subList(b, e)
@@ -37,6 +40,7 @@ private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Cu
                 .filterIsInstance<Customer>()
                 .toList()
         }
+    return (listOf(-1) + indices).withIndex().sortedBy { (_, v) -> v }.map { (i, _) -> result[i] }
 }
 
 private fun problemCodec(problem: VrpProblem) = problem.let { prob ->
@@ -100,26 +104,27 @@ private fun problemConstraint(problem: VrpProblem, matrix: Matrix): Constraint<E
                     full + (splitIndex < subRoutes[idx].size) to dropped + subRoutes[idx].drop(splitIndex)
                 }
 
-            var tmpDropped = HashSet(dropped)
-            val result = subRoutes.mapIndexed { idx, it ->
+            val initial = MutableList<List<Customer>>(subRoutes.size) { emptyList() } to dropped
+            val (adjustedSubRoutes, _) = subRoutes.foldIndexed(initial) { idx, (newSubRoutes, used), subRoute ->
                 if (full[idx]) {
-                    it.filter { c -> c !in dropped }
+                    newSubRoutes[idx] = subRoute.filter { c -> c !in dropped }
+                    newSubRoutes to used
                 } else {
-                    val valids =
-                        tmpDropped.scan(Pair<Int, Customer?>(it.sumOf { c -> c.demand }, null)) { (acc, _), c ->
-                            val zaz = acc + c.demand
-                            if (zaz > problem.vehicles[idx].capacity) {
-                                acc to null
-                            } else {
-                                zaz to c
-                            }
-                        }.drop(1).mapNotNull { (_, c) -> c }
-                    tmpDropped -= valids.toSet()
-                    it + valids
+                    val currentDemand = subRoute.sumOf { c -> c.demand }
+                    val validSubRoute = used.scan(Pair<Int, Customer?>(currentDemand, null)) { (acc, _), c ->
+                        val accDemand = acc + c.demand
+                        if (accDemand > problem.vehicles[idx].capacity) {
+                            acc to null
+                        } else {
+                            accDemand to c
+                        }
+                    }.drop(1).mapNotNull { (_, c) -> c }
+                    newSubRoutes[idx] = subRoute + validSubRoute
+                    newSubRoutes to (used - validSubRoute.toSet())
                 }
             }
-            val distance = fitnessFactory(problem, matrix)(result)
-            val chromosome = toChromosome(problem, result)
+            val distance = fitnessFactory(problem, matrix)(adjustedSubRoutes)
+            val chromosome = toChromosome(problem, adjustedSubRoutes)
             Genotype.of(chromosome).let { gt -> Phenotype.of(gt, gen, distance) }
         }
     )

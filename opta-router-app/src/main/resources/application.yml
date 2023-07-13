@@ -24,7 +24,7 @@ spring:
 
 solver:
   termination:
-    time-limit: 30s
+    time-limit: 2m
 
 endpoints:
   health:

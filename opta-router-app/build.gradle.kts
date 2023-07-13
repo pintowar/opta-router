@@ -14,9 +14,9 @@ dependencies {
     implementation(project(":opta-router-repo"))
     implementation(project(":opta-router-geo"))
     implementation(project(":opta-router-solver-jenetics"))
-//    implementation(project(":opta-router-solver-jsprit"))
+    implementation(project(":opta-router-solver-jsprit"))
     implementation(project(":opta-router-solver-ortools"))
-//    implementation(project(":opta-router-solver-timefold"))
+    implementation(project(":opta-router-solver-timefold"))
 
     implementation(libs.bundles.spring) {
         exclude(module = "jooq")
