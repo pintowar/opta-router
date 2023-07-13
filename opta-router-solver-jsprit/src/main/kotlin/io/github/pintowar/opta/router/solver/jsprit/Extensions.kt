@@ -107,8 +107,8 @@ fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProb
  *
  * @return the DTO solution representation.
  */
-fun VehicleRoutingProblemSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolution {
-    val locationIds = instance.locations.associateBy { it.id }
+fun VehicleRoutingProblemSolution.toDTO(problem: VrpProblem, matrix: Matrix): VrpSolution {
+    val locationIds = problem.locations.associateBy { it.id }
 
     val subRoutes = routes.map { route ->
         val tour = listOf(route.start) + route.activities + listOf(route.end)
@@ -130,5 +130,6 @@ fun VehicleRoutingProblemSolution.toDTO(instance: VrpProblem, matrix: Matrix): V
         )
     }
 
-    return VrpSolution(instance, subRoutes)
+    val emptyRoutes = List((problem.nVehicles - subRoutes.size).coerceAtLeast(0)) { Route.EMPTY }
+    return VrpSolution(problem, subRoutes + emptyRoutes)
 }

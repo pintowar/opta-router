@@ -64,7 +64,11 @@ data class Route(
     val totalDemand: Int,
     val order: List<LatLng>,
     val customerIds: List<Long> // TODO rename to locationIds
-)
+) {
+    companion object {
+        val EMPTY = Route(BigDecimal.ZERO, BigDecimal.ZERO, 0, emptyList(), emptyList())
+    }
+}
 
 /**
  * DTO class with the representation of the VRP solution.
