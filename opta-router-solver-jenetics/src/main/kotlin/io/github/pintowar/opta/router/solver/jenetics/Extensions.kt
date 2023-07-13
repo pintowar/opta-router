@@ -75,7 +75,9 @@ private fun toChromosome(problem: VrpProblem, subRoutes: List<List<Customer>>): 
 
 fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Location>, Double> {
     val idxCustomers = this.problem.customers.associateBy { it.id }
-    val subRoutes = this.routes.map { it.customerIds.map(idxCustomers::getValue) }
+    val subRoutes = (0 until this.problem.nVehicles).map {
+        if (it < this.routes.size) this.routes[it].customerIds.map(idxCustomers::getValue) else emptyList()
+    }
     val chromosome = toChromosome(this.problem, subRoutes)
 
     val gen = 1L
