@@ -7,7 +7,6 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import io.jenetics.EliteSelector
-import io.jenetics.Optimize
 import io.jenetics.PartiallyMatchedCrossover
 import io.jenetics.RouletteWheelSelector
 import io.jenetics.SwapMutator
@@ -59,5 +58,4 @@ class JeneticsSolver(key: UUID, name: String, config: SolverConfig) : Solver(key
     }
 
     override fun isSolving() = running.get()
-
 }
