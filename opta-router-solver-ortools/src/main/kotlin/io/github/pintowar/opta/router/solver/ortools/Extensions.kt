@@ -96,12 +96,12 @@ fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
  */
 fun RoutingModel.toDTO(
     manager: RoutingIndexManager,
-    instance: VrpProblem,
+    problem: VrpProblem,
     idxLocations: Map<Int, Location>,
     matrix: Matrix,
     assignment: Assignment? = null
 ): VrpSolution {
-    val subRoutes = instance.vehicles.indices.map { vehicleIdx ->
+    val subRoutes = problem.vehicles.indices.map { vehicleIdx ->
         val nodes = sequence {
             var index = start(vehicleIdx)
             yield(index)
@@ -124,5 +124,5 @@ fun RoutingModel.toDTO(
             customers.map { it.id }
         )
     }
-    return VrpSolution(instance, subRoutes)
+    return VrpSolution(problem, subRoutes)
 }

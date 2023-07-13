@@ -1,5 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models.matrix
 
+import java.util.concurrent.ConcurrentHashMap
+
 class VrpProblemMatrix(
     private val locationIds: LongArray,
     private val travelDistances: DoubleArray,
@@ -12,7 +14,7 @@ class VrpProblemMatrix(
     private val locationIdxs = locationIds.withIndex().associate { (idx, it) -> it to idx }
     private val n = locationIds.size
 
-    private val indexCache = mutableMapOf<Pair<Int, Int>, Int>()
+    private val indexCache = ConcurrentHashMap<Pair<Int, Int>, Int>()
 
     init {
         assert(n * n == travelTimes.size && n * n == travelDistances.size) {
