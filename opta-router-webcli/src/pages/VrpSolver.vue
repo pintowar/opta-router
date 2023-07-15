@@ -69,14 +69,12 @@ async function solveAction() {
 async function terminateAction() {
   if (problem.value) {
     await terminate();
-    solverStatus.value = termStatus.value || null;
   }
 }
 
 async function cleanAction() {
   if (problem.value) {
     await clean();
-    solverStatus.value = cleanStatus.value || null;
   }
 }
 </script>

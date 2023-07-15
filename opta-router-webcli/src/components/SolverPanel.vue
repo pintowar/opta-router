@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { toRefs, computed } from "vue";
+import { toRefs, computed, ref } from "vue";
+import { until } from "@vueuse/core";
 import { VrpSolution } from "../api";
 
 import SolverVehicles from "../components/SolverVehicles.vue";
@@ -36,6 +37,23 @@ const editorSelectedSolver = computed({
 const isRunning = computed(() => ["ENQUEUED", "RUNNING"].includes(solverStatus.value || ""));
 const isWsConnected = computed(() => wsStatus.value === "OPEN");
 const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
+
+const waitingTermination = ref(false);
+const waitingClear = ref(false);
+
+async function wrapperTermination() {
+  waitingTermination.value = true;
+  emit("onTerminate");
+  await until(solverStatus).toMatch((v) => v === "TERMINATED");
+  waitingTermination.value = false;
+}
+
+async function wrapperClear() {
+  waitingClear.value = true;
+  emit("onClear");
+  await until(solverStatus).toMatch((v) => v === "NOT_SOLVED");
+  waitingClear.value = false;
+}
 </script>
 
 <template>
@@ -78,8 +96,12 @@ const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "er
     <div class="flex space-x-2">
       <div class="card-actions">
         <button :disabled="isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
-        <button :disabled="!isRunning" class="btn btn-sm btn-warning" @click="$emit('onTerminate')">Terminate</button>
-        <button :disabled="isRunning" class="btn btn-sm btn-error" @click="$emit('onClear')">Clear</button>
+        <button :disabled="!isRunning" class="btn btn-sm btn-warning" @click="wrapperTermination">
+          Terminate<span v-if="waitingTermination" class="loading loading-bars loading-xs"></span>
+        </button>
+        <button :disabled="isRunning" class="btn btn-sm btn-error" @click="wrapperClear">
+          Clear<span v-if="waitingClear" class="loading loading-bars loading-xs"></span>
+        </button>
       </div>
     </div>
     <div class="flex space-x-2">
