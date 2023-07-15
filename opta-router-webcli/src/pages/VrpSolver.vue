@@ -31,8 +31,8 @@ const { isFetching, error, data: solutionPanel } = useFetch(solutionPanelUrl).ge
 const { data: solvers } = useFetch(solverNamesUrl, { initialData: [] }).get().json<string[]>();
 const { execute: detailedPath } = useFetch(detailedPathUrl, { immediate: false }).put();
 const { data: solveStatus, execute: solve } = useFetch(solveUrl, { immediate: false }).post().json<string>();
-const { data: termStatus, execute: terminate } = useFetch(terminateUrl, { immediate: false }).post().json<string>();
-const { data: cleanStatus, execute: clean } = useFetch(cleanUrl, { immediate: false }).post().json<string>();
+const { execute: terminate } = useFetch(terminateUrl, { immediate: false }).post().json<string>();
+const { execute: clean } = useFetch(cleanUrl, { immediate: false }).post().json<string>();
 
 watchOnce(solutionPanel, () => {
   isDetailedPath.value = solutionPanel.value?.solverPanel.isDetailedPath || false;
