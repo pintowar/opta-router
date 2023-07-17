@@ -1,21 +1,30 @@
 package io.github.pintowar.opta.router.core.solver.spi
 
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
+import io.github.pintowar.opta.router.core.solver.SolutionFlow
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import kotlinx.coroutines.flow.Flow
-import java.util.UUID
+import java.util.*
 
-data class SolutionFlow(val body: VrpSolution, val isCompleted: Boolean = false)
+interface Solver {
 
-abstract class Solver(val key: UUID, val name: String, val config: SolverConfig) {
+    companion object {
 
-    abstract fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<SolutionFlow>
+        fun getNamedSolvers(): Map<String, Solver> {
+            val solverFactories = mutableMapOf<String, Solver>()
+            ServiceLoader.load(Solver::class.java)
+                .iterator()
+                .forEachRemaining { solverFactories[it.name] = it }
+            return solverFactories
+        }
 
-    abstract fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit)
+        fun getSolverByName(solverName: String): Solver = getNamedSolvers()[solverName]
+            ?: throw IllegalArgumentException("No solver $solverName was found")
+    }
 
-    abstract fun terminate()
+    val name: String
 
-    abstract fun isSolving(): Boolean
+    fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<SolutionFlow>
+
 }

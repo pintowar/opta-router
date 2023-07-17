@@ -2,12 +2,11 @@ package io.github.pintowar.opta.router.adapters.handler
 
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
-import io.github.pintowar.opta.router.core.solver.VrpFlowSolverService
-import io.github.pintowar.opta.router.core.solver.VrpSolverService
+import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import org.springframework.context.event.EventListener
 
 class SpringEventsHandler(
-    private val solver: VrpFlowSolverService,
+    private val solver: VrpSolverManager,
     private val solverRepository: SolverRepository,
     private val broadcastPort: BroadcastPort
 ) {

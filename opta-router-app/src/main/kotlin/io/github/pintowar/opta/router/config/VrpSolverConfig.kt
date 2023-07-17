@@ -7,8 +7,7 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
-import io.github.pintowar.opta.router.core.solver.VrpFlowSolverService
-import io.github.pintowar.opta.router.core.solver.VrpSolverService
+import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
@@ -29,12 +28,12 @@ class VrpSolverConfig {
     fun solverQueue(publisher: ApplicationEventPublisher): SolverQueuePort = SolverQueueAdapter(publisher)
 
     @Bean(destroyMethod = "destroy")
-    fun vrpSolverService(
+    fun vrpSolverManager(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         solverRepository: SolverRepository,
         solverQueuePort: SolverQueuePort,
         broadcastPort: BroadcastPort
-    ): VrpFlowSolverService {
-        return VrpFlowSolverService(timeLimit, solverQueuePort, solverRepository, broadcastPort)
+    ): VrpSolverManager {
+        return VrpSolverManager(timeLimit, solverQueuePort, solverRepository, broadcastPort)
     }
 }
