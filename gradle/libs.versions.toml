@@ -1,5 +1,6 @@
 [versions]
 kotlin = "1.9.0"
+kotlin-coroutines = "1.7.2"
 kotlin-logging = "3.0.5"
 spring-boot = "3.1.1"
 spring-dependency = "1.1.0"
@@ -41,6 +42,7 @@ gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring-boot" }
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
@@ -70,7 +72,7 @@ h2-db = { module = "com.h2database:h2", version.ref = "h2" }
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 [bundles]
-kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
+kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging", "kotlin-coroutines-core"]
 spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
 jooq = ["jooq-core", "jooq-kotlin"]
 optaplanner = ["optaplanner-examples"]

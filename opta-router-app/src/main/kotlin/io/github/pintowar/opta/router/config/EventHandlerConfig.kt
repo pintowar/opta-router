@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.config
 import io.github.pintowar.opta.router.adapters.handler.SpringEventsHandler
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
+import io.github.pintowar.opta.router.core.solver.VrpFlowSolverService
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,7 +27,7 @@ class EventHandlerConfig {
 
     @Bean
     fun eventHandler(
-        solver: VrpSolverService,
+        solver: VrpFlowSolverService,
         solverRepository: SolverRepository,
         broadcastPort: BroadcastPort
     ): SpringEventsHandler {
