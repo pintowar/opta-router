@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.solver.ortools
 
 import com.google.ortools.Loader
+import com.google.ortools.constraintsolver.Assignment
 import com.google.ortools.constraintsolver.FirstSolutionStrategy
 import com.google.ortools.constraintsolver.LocalSearchMetaheuristic
 import com.google.ortools.constraintsolver.main
@@ -17,7 +18,9 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.UUID
+import kotlin.coroutines.resume
 
 class OrToolsSolver : Solver {
 
@@ -39,23 +42,24 @@ class OrToolsSolver : Solver {
                 .build()
 
             model.addAtSolutionCallback {
-                if (ctx.isActive) {
-                    val actual = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix)
-                    trySendBlocking(SolutionFlow(actual))
-                } else {
-                    model.solver().finishCurrentSearch()
-                }
+                val actual = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix)
+                trySendBlocking(SolutionFlow(actual))
             }
 
-            val solution = if (!initialSolution.isEmpty()) {
-                model.closeModelWithParameters(searchParameters)
-                val vehicleVisitOrder = initialSolution.routes.map { route ->
-                    route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
-                }.toTypedArray()
-                val initialState = model.readAssignmentFromRoutes(vehicleVisitOrder, true)
-                model.solveFromAssignmentWithParameters(initialState, searchParameters)
-            } else {
-                model.solveWithParameters(searchParameters)
+            val solution = suspendCancellableCoroutine<Assignment?> { continuation ->
+                continuation.invokeOnCancellation { model.solver().finishCurrentSearch() }
+                continuation.resume(
+                    if (!initialSolution.isEmpty()) {
+                        model.closeModelWithParameters(searchParameters)
+                        val vehicleVisitOrder = initialSolution.routes.map { route ->
+                            route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
+                        }.toTypedArray()
+                        val initialState = model.readAssignmentFromRoutes(vehicleVisitOrder, true)
+                        model.solveFromAssignmentWithParameters(initialState, searchParameters)
+                    } else {
+                        model.solveWithParameters(searchParameters)
+                    }
+                )
             }
 
             try {
