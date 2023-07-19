@@ -96,10 +96,10 @@ async function wrapperClear() {
     <div class="flex space-x-2">
       <div class="card-actions">
         <button :disabled="isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
-        <button :disabled="!isRunning" class="btn btn-sm btn-warning" @click="wrapperTermination">
+        <button :disabled="!isRunning || waitingTermination" class="btn btn-sm btn-warning" @click="wrapperTermination">
           Terminate<span v-if="waitingTermination" class="loading loading-bars loading-xs"></span>
         </button>
-        <button :disabled="isRunning" class="btn btn-sm btn-error" @click="wrapperClear">
+        <button :disabled="isRunning || waitingClear" class="btn btn-sm btn-error" @click="wrapperClear">
           Clear<span v-if="waitingClear" class="loading loading-bars loading-xs"></span>
         </button>
       </div>

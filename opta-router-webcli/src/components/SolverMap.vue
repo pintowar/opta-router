@@ -15,6 +15,8 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
+const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
 const routerMap = ref<typeof LMap | null>(null);
 const center = ref<L.PointExpression>([47.41322, -1.219482]);
 const zoom = ref(3);
@@ -42,7 +44,7 @@ const polylines = computed(() => {
         <li>Distance: ${r.distance}</li>
         <li>Time: ${r.time}</li>
         <li>
-          <div class="tooltip w-full" data-tip="${capacity}%">
+          <div class="tooltip w-full" data-tip="${formatter.format(capacity)}%">
             <progress class="progress progress-primary w-full" value="${capacity}" max="100"></progress>
           </div>
         </li>

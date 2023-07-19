@@ -11,6 +11,8 @@ const props = defineProps<{
 
 const { solution } = toRefs(props);
 
+const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
 const vehicles = computed(() => solution.value?.problem.vehicles || []);
 const routes = computed(() => solution.value?.routes || []);
 const capacities = computed(
@@ -36,7 +38,7 @@ const colors = computed(() => {
         <td>{{ routes[idx].distance }}</td>
         <td>{{ routes[idx].time }}</td>
         <td>
-          <div class="tooltip w-full" :data-tip="`${capacity}%`">
+          <div class="tooltip w-full" :data-tip="`${formatter.format(capacity)}%`">
             <progress class="progress progress-primary" :value="capacity" max="100"></progress>
           </div>
         </td>
