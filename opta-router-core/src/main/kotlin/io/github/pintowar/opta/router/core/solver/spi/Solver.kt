@@ -1,16 +1,28 @@
 package io.github.pintowar.opta.router.core.solver.spi
 
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
-import java.util.UUID
+import kotlinx.coroutines.flow.Flow
+import java.util.*
 
-abstract class Solver(val key: UUID, val name: String, val config: SolverConfig) {
+interface Solver {
 
-    abstract fun solve(initialSolution: VrpSolution, matrix: Matrix, callback: (VrpSolutionRequest) -> Unit)
+    companion object {
 
-    abstract fun terminate()
+        fun getNamedSolvers(): Map<String, Solver> {
+            val solverFactories = mutableMapOf<String, Solver>()
+            ServiceLoader.load(Solver::class.java)
+                .iterator()
+                .forEachRemaining { solverFactories[it.name] = it }
+            return solverFactories
+        }
 
-    abstract fun isSolving(): Boolean
+        fun getSolverByName(solverName: String): Solver = getNamedSolvers()[solverName]
+            ?: throw IllegalArgumentException("No solver $solverName was found")
+    }
+
+    val name: String
+
+    fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution>
 }

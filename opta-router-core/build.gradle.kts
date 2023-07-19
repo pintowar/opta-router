@@ -4,5 +4,7 @@ plugins {
 }
 
 dependencies {
+    api(libs.kotlin.coroutines.core)
+
     runtimeOnly(libs.slf4j)
 }

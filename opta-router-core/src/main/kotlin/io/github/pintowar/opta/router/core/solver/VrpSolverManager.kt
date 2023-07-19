@@ -6,10 +6,26 @@ import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
-import io.github.pintowar.opta.router.core.solver.spi.SolverFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions
@@ -17,14 +33,15 @@ import java.util.concurrent.ConcurrentHashMap
  * application).
  *
  */
-class VrpSolverService(
+class VrpSolverManager(
     private val timeLimit: Duration,
     private val solverQueue: SolverQueuePort,
     private val solverRepository: SolverRepository,
     private val broadcastPort: BroadcastPort
 ) {
 
-    private val solverKeys = ConcurrentHashMap<UUID, Solver>()
+    private val solverScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val solverKeys = ConcurrentHashMap<UUID, Job>()
 
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return solverRepository.currentSolutionRequest(problemId)
@@ -53,15 +70,16 @@ class VrpSolverService(
     fun terminateEarly(solverKey: UUID) {
         val solverRequest = solverRepository.currentSolverRequest(solverKey)
         if (solverRequest?.status != SolverStatus.NOT_SOLVED) {
-            solverKeys[solverKey]?.terminate()
+            solverKeys[solverKey]?.cancel()
         }
     }
 
     fun clean(solverKey: UUID) {
         val solverRequest = solverRepository.currentSolverRequest(solverKey)
         if (solverRequest != null) {
-            solverKeys[solverKey]?.terminate()
-            sequence<Boolean?> { solverKeys[solverKey]?.isSolving() }.takeWhile { it == true }
+            runBlocking {
+                solverKeys[solverKey]?.cancelAndJoin()
+            }
             solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
                 broadcastSolution(it, true)
             }
@@ -74,7 +92,7 @@ class VrpSolverService(
         }
     }
 
-    fun solverNames() = SolverFactory.getNamedSolverFactories().keys
+    fun solverNames() = Solver.getNamedSolvers().keys
 
     fun solve(problemId: Long, uuid: UUID, solverName: String) {
         if (solverKeys.containsKey(uuid)) return
@@ -84,9 +102,28 @@ class VrpSolverService(
         val solverKey = solutionRequest.solverKey ?: return
         val currentSolution = solutionRequest.solution
 
-        SolverFactory.createSolver(solverName, solverKey, SolverConfig(timeLimit)).also { solver ->
-            solverKeys[solverKey] = solver
-            solver.solve(currentSolution, currentMatrix, ::broadcastSolution)
+        solverKeys[solverKey] = solverScope.launch {
+            val scope = this
+            Solver.getSolverByName(solverName).also { solver ->
+                var bestSolution = currentSolution
+
+                solver.solutionFlow(currentSolution, currentMatrix, SolverConfig(timeLimit))
+                    .scan(currentSolution) { acc, req ->
+                        if (!acc.isEmpty() && req.getTotalDistance() > acc.getTotalDistance()) acc else req
+                    }
+                    .filterNot { it.isEmpty() }
+                    .distinctUntilChangedBy { it.getTotalDistance() }
+                    .onEach {
+                        bestSolution = it
+                        logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                        broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+                    }
+                    .onCompletion {
+                        logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                        broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
+                    }
+                    .collect()
+            }
         }
     }
 
