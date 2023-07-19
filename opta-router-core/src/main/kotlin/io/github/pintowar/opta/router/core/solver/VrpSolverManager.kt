@@ -6,11 +6,23 @@ import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.time.Duration
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
@@ -103,11 +115,11 @@ class VrpSolverManager(
                     .distinctUntilChangedBy { it.getTotalDistance() }
                     .onEach {
                         bestSolution = it
-                        logger.debug { "onEach (${scope.isActive}): ${solutionRequest.solverKey} | ${bestSolution.getTotalDistance()}" }
+                        logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
                         broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
                     }
                     .onCompletion {
-                        logger.debug { "onCompletion (${scope.isActive}): ${solutionRequest.solverKey} | ${bestSolution.getTotalDistance()}" }
+                        logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
                         broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
                     }
                     .collect()

@@ -22,11 +22,13 @@ class TimefoldSolver : Solver {
     override val name: String = "timefold"
 
     override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
-        val solver = SolverFactory.create<VehicleRoutingSolution>(solverConfig.apply {
-            terminationConfig = TerminationConfig().apply {
-                overwriteSpentLimit(config.timeLimit)
+        val solver = SolverFactory.create<VehicleRoutingSolution>(
+            solverConfig.apply {
+                terminationConfig = TerminationConfig().apply {
+                    overwriteSpentLimit(config.timeLimit)
+                }
             }
-        }).buildSolver()
+        ).buildSolver()
 
         return callbackFlow {
             solver.addEventListener { evt ->

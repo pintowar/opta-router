@@ -12,8 +12,8 @@ import io.jenetics.SwapMutator
 import io.jenetics.engine.Engine
 import io.jenetics.engine.EvolutionResult
 import io.jenetics.engine.Limits
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive

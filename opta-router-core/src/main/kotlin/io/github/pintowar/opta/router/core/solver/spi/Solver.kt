@@ -25,5 +25,4 @@ interface Solver {
     val name: String
 
     fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution>
-
 }
