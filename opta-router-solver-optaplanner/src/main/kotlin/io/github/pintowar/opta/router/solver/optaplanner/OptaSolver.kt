@@ -2,7 +2,6 @@ package io.github.pintowar.opta.router.solver.optaplanner
 
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.core.solver.SolutionFlow
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.channels.trySendBlocking
@@ -21,7 +20,7 @@ class OptaSolver : Solver {
 
     override val name: String = "optaplanner"
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<SolutionFlow> {
+    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val solver = SolverFactory.create<VehicleRoutingSolution>(solverConfig.apply {
             terminationConfig = TerminationConfig().apply {
                 overwriteSpentLimit(config.timeLimit)
@@ -31,14 +30,14 @@ class OptaSolver : Solver {
         return callbackFlow {
             solver.addEventListener { evt ->
                 val sol = evt.newBestSolution
-                trySendBlocking(SolutionFlow(sol.toDTO(initialSolution.problem, matrix)))
+                trySendBlocking(sol.toDTO(initialSolution.problem, matrix))
             }
 
             val sol = suspendCancellableCoroutine<VehicleRoutingSolution> { continuation ->
                 continuation.invokeOnCancellation { solver.terminateEarly() }
                 continuation.resume(solver.solve(initialSolution.toSolverSolution(matrix)))
             }
-            send(SolutionFlow(sol.toDTO(initialSolution.problem, matrix), true))
+            send(sol.toDTO(initialSolution.problem, matrix))
             close()
         }
     }

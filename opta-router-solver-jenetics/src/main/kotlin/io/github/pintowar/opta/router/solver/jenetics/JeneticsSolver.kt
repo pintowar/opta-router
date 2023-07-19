@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
-import io.github.pintowar.opta.router.core.solver.SolutionFlow
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import io.jenetics.EliteSelector
 import io.jenetics.PartiallyMatchedCrossover
@@ -36,7 +35,7 @@ class JeneticsSolver : Solver {
         )
         .build()
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<SolutionFlow> {
+    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val engine = buildEngine(initialSolution.problem, matrix)
 
         return callbackFlow {
@@ -48,11 +47,10 @@ class JeneticsSolver : Solver {
                 .limit { ctx.isActive }
                 .peek { result ->
                     val actual = result.bestPhenotype().genotype().toDto(initialSolution.problem, matrix)
-                    trySendBlocking(SolutionFlow(actual))
+                    trySendBlocking(actual)
                 }
                 .collect(EvolutionResult.toBestGenotype())
-            val actual = result.toDto(initialSolution.problem, matrix)
-            send(SolutionFlow(actual, true))
+            send(result.toDto(initialSolution.problem, matrix))
             close()
         }
     }

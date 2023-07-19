@@ -91,40 +91,31 @@ class VrpSolverManager(
         val currentSolution = solutionRequest.solution
 
         solverKeys[solverKey] = solverScope.launch {
+            val scope = this
             Solver.getSolverByName(solverName).also { solver ->
-                val initialRequest = SolutionFlow(currentSolution)
                 var bestSolution = currentSolution
 
                 solver.solutionFlow(currentSolution, currentMatrix, SolverConfig(timeLimit))
-                    .filter { !it.body.isEmpty() }
-                    .distinctUntilChanged { (best, bestStatus), (actual, actualStatus) ->
-                        bestStatus == actualStatus && best.getTotalDistance() <= actual.getTotalDistance()
+                    .scan(currentSolution) { acc, req ->
+                        if (!acc.isEmpty() && req.getTotalDistance() > acc.getTotalDistance()) acc else req
                     }
-                    .onEach { bestSolution = it.body }
-                    .onCompletion { ex ->
-                        if (ex is CancellationException) {
-                            broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
-                        }
+                    .filterNot { it.isEmpty() }
+                    .distinctUntilChangedBy { it.getTotalDistance() }
+                    .onEach {
+                        bestSolution = it
+                        logger.debug { "onEach (${scope.isActive}): ${solutionRequest.solverKey} | ${bestSolution.getTotalDistance()}" }
+                        broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
                     }
-                    .fold(initialRequest) { acc, req ->
-                        val hasWorstSol by lazy { req.body.getTotalDistance() > acc.body.getTotalDistance() }
-                        val condition = req.isCompleted && hasWorstSol
-                        (if (condition) req.copy(body = acc.body) else req).also {
-                            broadcastSolution(
-                                VrpSolutionRequest(
-                                    it.body,
-                                    if (it.isCompleted) SolverStatus.TERMINATED else SolverStatus.RUNNING,
-                                    solverKey
-                                )
-                            )
-                        }
+                    .onCompletion {
+                        logger.debug { "onCompletion (${scope.isActive}): ${solutionRequest.solverKey} | ${bestSolution.getTotalDistance()}" }
+                        broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
                     }
+                    .collect()
             }
         }
     }
 
     private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
-        logger.debug { "${solutionRequest.solverKey} - ${solutionRequest.status} - ${solutionRequest.solution.getTotalDistance()}" }
         solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
     }
 }

@@ -9,7 +9,6 @@ import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolutio
 import com.graphhopper.jsprit.core.util.Solutions
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.core.solver.SolutionFlow
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.channels.trySendBlocking
@@ -30,7 +29,7 @@ class JspritSolver : Solver {
             System.currentTimeMillis() - beginning >= totalTimeMs.toMillis()
     }
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<SolutionFlow> {
+    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         return callbackFlow {
             val ctx = currentCoroutineContext()
 
@@ -49,7 +48,7 @@ class JspritSolver : Solver {
                     solutions: MutableCollection<VehicleRoutingProblemSolution>
                 ) {
                     val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
-                    trySendBlocking(SolutionFlow(actual))
+                    trySendBlocking(actual)
                 }
             })
             algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))
@@ -57,7 +56,7 @@ class JspritSolver : Solver {
 
             val solutions = algorithm.searchSolutions()
             val result = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
-            send(SolutionFlow(result, true))
+            send(result)
             close()
         }
     }
