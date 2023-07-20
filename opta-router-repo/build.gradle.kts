@@ -42,6 +42,7 @@ jooq {
                     database.apply {
                         val (pg, h2) = "org.jooq.meta.postgres.PostgresDatabase" to "org.jooq.meta.h2.H2Database"
                         name = if (project.isProdProfile) pg else h2
+                        inputSchema = if (project.isProdProfile) "public" else "PUBLIC"
                         forcedTypes = listOf(
                             ForcedType().apply {
                                 name = "Instant"
@@ -56,6 +57,8 @@ jooq {
                         isKotlinNotNullPojoAttributes = true
                         isKotlinNotNullRecordAttributes = true
                         isKotlinNotNullInterfaceAttributes = true
+                        isRoutines = false
+                        isDeprecated = false
                     }
 //                    target.apply {
 //                        packageName = "nu.studer.sample"

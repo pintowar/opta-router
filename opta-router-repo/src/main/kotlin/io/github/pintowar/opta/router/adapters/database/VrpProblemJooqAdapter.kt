@@ -9,13 +9,13 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import org.jooq.DSLContext
 import org.jooq.Records
-import org.jooq.generated.public.tables.records.LocationRecord
-import org.jooq.generated.public.tables.records.VehicleRecord
-import org.jooq.generated.public.tables.references.LOCATION
-import org.jooq.generated.public.tables.references.VEHICLE
-import org.jooq.generated.public.tables.references.VRP_PROBLEM
-import org.jooq.generated.public.tables.references.VRP_PROBLEM_LOCATION
-import org.jooq.generated.public.tables.references.VRP_PROBLEM_MATRIX
+import org.jooq.generated.tables.records.LocationRecord
+import org.jooq.generated.tables.records.VehicleRecord
+import org.jooq.generated.tables.references.LOCATION
+import org.jooq.generated.tables.references.VEHICLE
+import org.jooq.generated.tables.references.VRP_PROBLEM
+import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
+import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
 import org.jooq.impl.DSL.multiset
 import org.jooq.impl.DSL.select
 

@@ -4,7 +4,7 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import org.jooq.DSLContext
-import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
+import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID

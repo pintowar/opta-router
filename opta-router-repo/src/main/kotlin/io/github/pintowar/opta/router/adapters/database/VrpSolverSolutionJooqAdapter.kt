@@ -14,13 +14,13 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import org.jooq.DSLContext
 import org.jooq.JSON
 import org.jooq.Record
-import org.jooq.generated.public.tables.records.VrpProblemRecord
-import org.jooq.generated.public.tables.records.VrpSolutionRecord
-import org.jooq.generated.public.tables.records.VrpSolverRequestRecord
-import org.jooq.generated.public.tables.references.VRP_PROBLEM
-import org.jooq.generated.public.tables.references.VRP_SOLUTION
-import org.jooq.generated.public.tables.references.VRP_SOLVER_REQUEST
-import org.jooq.generated.public.tables.references.VRP_SOLVER_SOLUTION
+import org.jooq.generated.tables.records.VrpProblemRecord
+import org.jooq.generated.tables.records.VrpSolutionRecord
+import org.jooq.generated.tables.records.VrpSolverRequestRecord
+import org.jooq.generated.tables.references.VRP_PROBLEM
+import org.jooq.generated.tables.references.VRP_SOLUTION
+import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
+import org.jooq.generated.tables.references.VRP_SOLVER_SOLUTION
 import java.time.Instant
 import java.util.*
 
