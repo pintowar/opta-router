@@ -1,30 +1,11 @@
 spring:
-  output:
-    ansi:
-      enabled: always
+  profiles:
+    active: dev
   jackson:
     serialization:
       indent_output: true
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
-  datasource:
-    url: jdbc:h2:file:~/.opta.router/h2.db
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
-#  h2:
-#    console:
-#      enabled: true
-  jooq:
-    sql-dialect: H2
-  sql:
-    init:
-      mode: always
-      data-locations: classpath*:db/data.sql
-
-solver:
-  termination:
-    time-limit: 2m
 
 endpoints:
   health:
@@ -38,8 +19,19 @@ springdoc:
   api-docs:
     enabled: true
 
+solver:
+  termination:
+    time-limit: 5m
+
 app:
   graph:
     osm:
       path: ${GRAPH_OSM_PATH:/home/thiago/Downloads/belgium-latest.osm.pbf}
       location: ${GRAPH_OSM_LOCATION:/tmp/gh-tmp}
+
+logging:
+  level:
+    io.github.pintowar.opta.router: INFO
+    ai.timefold.solver.core: ERROR
+    com.graphhopper.jsprit.core: ERROR
+    org.jooq: ERROR

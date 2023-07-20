@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  database:
+    image: 'postgres:latest'
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres # The PostgreSQL user (useful to connect to the database)
+      POSTGRES_PASSWORD: postgres # The PostgreSQL password (useful to connect to the database)
+      POSTGRES_DB: opta-router # The PostgreSQL default database (automatically created at first launch)
+
+#  web:
+#    image: 'pintowar/glomgold:latest'
+#    ports:
+#      - 8080:8080
+#    environment:
+#      DB_HOST: database
+#      DB_PORT: 5432
+#      DB_NAME: glomgold
+#      DB_USERNAME: postgres
+#      DB_PASSWORD: postgres
+#      JWT_GENERATOR_SIGNATURE_SECRET: pleaseChangeThisSecretForANewOneInProduction
+#      MICRONAUT_ENVIRONMENTS: prod,sample
+#    depends_on:
+#      - database
+#    restart: on-failure:5

@@ -13,16 +13,17 @@ dependencies {
     api(libs.bundles.jackson)
 
     runtimeOnly(libs.slf4j)
-    runtimeOnly(libs.h2.db)
-    jooqGenerator(libs.h2.db)
+    runtimeOnly(if (project.isProdProfile) libs.pg.db else libs.h2.db)
+    jooqGenerator(if (project.isProdProfile) libs.pg.db else libs.h2.db)
 }
 
 flyway {
 //    configurations = arrayOf("flywayMigration")
-    driver = "org.h2.Driver"
-    url = "jdbc:h2:file:~/.opta.router/h2.db"
-    user = "sa"
-    password = ""
+    driver = if (project.isProdProfile) "org.postgresql.Driver" else "org.h2.Driver"
+    url = if (project.isProdProfile) "jdbc:postgresql://localhost:5432/opta-router" else "jdbc:h2:file:~/.opta.router/h2.db"
+    user = if (project.isProdProfile) "postgres" else "sa"
+    password = if (project.isProdProfile) "postgres" else ""
+    locations = arrayOf("classpath:db/migration", "classpath:db/specific/${if (project.isProdProfile) "postgres" else "h2"}")
 }
 
 jooq {
@@ -39,7 +40,8 @@ jooq {
                 generator.apply {
                     name = "org.jooq.codegen.KotlinGenerator"
                     database.apply {
-                        name = "org.jooq.meta.h2.H2Database"
+                        val (pg, h2) = "org.jooq.meta.postgres.PostgresDatabase" to "org.jooq.meta.h2.H2Database"
+                        name = if (project.isProdProfile) pg else h2
                         forcedTypes = listOf(
                             ForcedType().apply {
                                 name = "Instant"

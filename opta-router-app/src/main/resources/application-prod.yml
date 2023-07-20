@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/opta-router
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  jooq:
+    sql-dialect: POSTGRES
+  flyway:
+    locations: db/migration,db/specific/postgres
+  sql:
+    init:
+      mode: always
+      data-locations: classpath*:db/data-pg.sql
+
+logging:
+  level:
+    io.github.pintowar.opta.router: DEBUG

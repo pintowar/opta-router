@@ -7,3 +7,12 @@ val Project.isSnapshotVersion: Boolean
 
 val Project.libs: LibrariesForLibs
     get() = the<LibrariesForLibs>()
+
+val Project.profile: String
+    get() = project
+        .findProperty("spring.profiles.active")?.toString()
+        ?: System.getenv("SPRING_PROFILES_ACTIVE")
+        ?: "dev"
+
+val Project.isProdProfile: Boolean
+    get() = project.profile.split(",").contains("prod")

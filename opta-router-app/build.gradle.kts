@@ -29,7 +29,7 @@ dependencies {
 
     testImplementation(libs.spring.test)
 
-    runtimeOnly(libs.h2.db)
+    runtimeOnly(if (project.isProdProfile) libs.pg.db else libs.h2.db)
 }
 
 tasks {
