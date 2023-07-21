@@ -1,25 +1,16 @@
 spring:
-  profiles:
-    include: rest,consumer
   output:
     ansi:
       enabled: always
-  datasource:
-    url: jdbc:h2:file:~/.opta.router/h2.db
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
-  h2:
-    console:
-      enabled: true
   jooq:
     sql-dialect: H2
-  flyway:
-    locations: db/migration,db/specific/h2
   sql:
     init:
       mode: always
       data-locations: classpath*:db/data-h2.sql
+  h2:
+    console:
+      enabled: true
 
 solver:
   termination:

@@ -1,11 +1,19 @@
 spring:
   profiles:
-    active: dev
+    active: '@environmentName@'
   jackson:
     serialization:
       indent_output: true
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
+
+  datasource:
+    url: '@flyway.url@'
+    username: '@flyway.user@'
+    password: '@flyway.password@'
+    driverClassName: '@flyway.driver@'
+  flyway:
+    enabled: false
 
 endpoints:
   health:

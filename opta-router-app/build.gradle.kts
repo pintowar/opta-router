@@ -33,21 +33,41 @@ dependencies {
 }
 
 tasks {
-    if (project.hasProperty("prod")) {
-        processResources {
-            val webCli = ":opta-router-webcli"
-            dependsOn("$webCli:build")
+    processResources {
+        val webCli = ":opta-router-webcli"
+        val isProd = project.hasProperty("prod").also {
+            if (it) dependsOn("$webCli:build")
+        }
 
-            doLast {
-                val origin = project(webCli).buildDir.absolutePath
-                val dest = "${project.buildDir.absolutePath}/resources/main/public"
+        doLast {
+            val resourceDest = "${project.buildDir.absolutePath}/resources/main"
+            val appProps = project.properties.filterKeys { it == "environmentName" || it.startsWith("flyway") }
+
+            copy {
+                from("src/main/resources")
+                include("**/*.yml")
+                filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to appProps)
+                into(resourceDest)
+                logger.quiet("Replacing properties resources")
+            }
+            if (isProd) {
+                val webCliOrigin = project(webCli).buildDir.absolutePath
+                val webCliDest = "$resourceDest/public"
                 copy {
-                    from(origin)
-                    into(dest)
+                    from(webCliOrigin)
+                    into(webCliDest)
                 }
-                logger.quiet("Cli Resources: move from $origin to $dest")
+                logger.quiet("Cli Resources: move from $webCliOrigin to $webCliDest")
             }
         }
+//        if (project.hasProperty("prod")) {
+//
+//            dependsOn("$webCli:build")
+//
+//            doLast {
+//
+//            }
+//        }
     }
 }
 

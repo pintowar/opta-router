@@ -17,13 +17,8 @@ dependencies {
     jooqGenerator(if (project.isProdProfile) libs.pg.db else libs.h2.db)
 }
 
-flyway {
-//    configurations = arrayOf("flywayMigration")
-    driver = if (project.isProdProfile) "org.postgresql.Driver" else "org.h2.Driver"
-    url = if (project.isProdProfile) "jdbc:postgresql://localhost:5432/opta-router" else "jdbc:h2:file:~/.opta.router/h2.db"
-    user = if (project.isProdProfile) "postgres" else "sa"
-    password = if (project.isProdProfile) "postgres" else ""
-    locations = arrayOf("classpath:db/migration", "classpath:db/specific/${if (project.isProdProfile) "postgres" else "h2"}")
+tasks.flywayMigrate {
+    dependsOn("processResources")
 }
 
 jooq {
@@ -32,17 +27,16 @@ jooq {
         create("main") {
             jooqConfiguration.apply {
                 jdbc.apply {
-                    driver = flyway.driver
-                    url = flyway.url
-                    user = flyway.user
-                    password = flyway.password
+                    driver = project.property("flyway.driver").toString()
+                    url = project.property("flyway.url").toString()
+                    user = project.property("flyway.user").toString()
+                    password = project.property("flyway.password").toString()
                 }
                 generator.apply {
                     name = "org.jooq.codegen.KotlinGenerator"
                     database.apply {
-                        val (pg, h2) = "org.jooq.meta.postgres.PostgresDatabase" to "org.jooq.meta.h2.H2Database"
-                        name = if (project.isProdProfile) pg else h2
-                        inputSchema = if (project.isProdProfile) "public" else "PUBLIC"
+                        name = project.property("jooq.generator").toString()
+                        inputSchema = project.property("flyway.defaultSchema").toString()
                         forcedTypes = listOf(
                             ForcedType().apply {
                                 name = "Instant"

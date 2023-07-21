@@ -18,11 +18,12 @@ jooq = "3.18.3"
 h2 = "2.1.214"
 postgres = "42.6.0"
 sfl4j = "2.0.7"
-gradle-jooq = "8.2"
-gradle-node = "4.0.0"
-gradle-jib = "3.3.1"
+gradle-jooq = "8.2.1"
+gradle-node = "5.0.0"
+gradle-jib = "3.3.2"
 gradle-git = "2.4.1"
 gradle-release = "3.0.2"
+gradle-properties = "1.5.2"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -39,6 +40,7 @@ release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 [libraries]
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+gradleplugin-properties = { module = "net.saliman:gradle-properties-plugin", version.ref = "gradle-properties" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }

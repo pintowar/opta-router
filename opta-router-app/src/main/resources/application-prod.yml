@@ -1,13 +1,6 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/opta-router
-    username: postgres
-    password: postgres
-    driverClassName: org.postgresql.Driver
   jooq:
     sql-dialect: POSTGRES
-  flyway:
-    locations: db/migration,db/specific/postgres
   sql:
     init:
       mode: always
