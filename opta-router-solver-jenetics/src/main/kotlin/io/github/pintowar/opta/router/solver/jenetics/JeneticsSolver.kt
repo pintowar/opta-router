@@ -31,7 +31,8 @@ class JeneticsSolver : Solver {
         .populationSize(500)
         .alterers(
             PartiallyMatchedCrossover(0.8),
-            SwapMutator(0.05)
+            SwapMutator(0.05),
+            ReverseMutator(0.05)
         )
         .build()
 
