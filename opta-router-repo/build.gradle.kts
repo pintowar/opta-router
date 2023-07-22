@@ -13,16 +13,12 @@ dependencies {
     api(libs.bundles.jackson)
 
     runtimeOnly(libs.slf4j)
-    runtimeOnly(libs.h2.db)
-    jooqGenerator(libs.h2.db)
+    runtimeOnly(if (project.isProdProfile) libs.pg.db else libs.h2.db)
+    jooqGenerator(if (project.isProdProfile) libs.pg.db else libs.h2.db)
 }
 
-flyway {
-//    configurations = arrayOf("flywayMigration")
-    driver = "org.h2.Driver"
-    url = "jdbc:h2:file:~/.opta.router/h2.db"
-    user = "sa"
-    password = ""
+tasks.flywayMigrate {
+    dependsOn("processResources")
 }
 
 jooq {
@@ -31,15 +27,16 @@ jooq {
         create("main") {
             jooqConfiguration.apply {
                 jdbc.apply {
-                    driver = flyway.driver
-                    url = flyway.url
-                    user = flyway.user
-                    password = flyway.password
+                    driver = project.property("flyway.driver").toString()
+                    url = project.property("flyway.url").toString()
+                    user = project.property("flyway.user").toString()
+                    password = project.property("flyway.password").toString()
                 }
                 generator.apply {
                     name = "org.jooq.codegen.KotlinGenerator"
                     database.apply {
-                        name = "org.jooq.meta.h2.H2Database"
+                        name = project.property("jooq.generator").toString()
+                        inputSchema = project.property("flyway.defaultSchema").toString()
                         forcedTypes = listOf(
                             ForcedType().apply {
                                 name = "Instant"
@@ -54,6 +51,8 @@ jooq {
                         isKotlinNotNullPojoAttributes = true
                         isKotlinNotNullRecordAttributes = true
                         isKotlinNotNullInterfaceAttributes = true
+                        isRoutines = false
+                        isDeprecated = false
                     }
 //                    target.apply {
 //                        packageName = "nu.studer.sample"

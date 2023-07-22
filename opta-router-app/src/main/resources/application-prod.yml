@@ -1,0 +1,11 @@
+spring:
+  jooq:
+    sql-dialect: POSTGRES
+  sql:
+    init:
+      mode: always
+      data-locations: classpath*:db/data-pg.sql
+
+logging:
+  level:
+    io.github.pintowar.opta.router: DEBUG

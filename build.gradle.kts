@@ -4,6 +4,7 @@ plugins {
     base
     id("idea")
     id("com.diffplug.spotless")
+    id("net.saliman.properties")
     alias(libs.plugins.release)
 }
 

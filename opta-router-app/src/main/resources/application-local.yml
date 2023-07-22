@@ -1,0 +1,21 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  jooq:
+    sql-dialect: H2
+  sql:
+    init:
+      mode: always
+      data-locations: classpath*:db/data-h2.sql
+  h2:
+    console:
+      enabled: true
+
+solver:
+  termination:
+    time-limit: 20s
+
+logging:
+  level:
+    io.github.pintowar.opta.router: DEBUG
