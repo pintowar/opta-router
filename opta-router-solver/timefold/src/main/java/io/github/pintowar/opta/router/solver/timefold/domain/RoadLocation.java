@@ -1,22 +1,25 @@
-package io.github.pintowar.opta.router.solver.timefold.domain.location;
+package io.github.pintowar.opta.router.solver.timefold.domain;
 
-import io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution;
+import java.util.Map;
 
-public abstract class Location {
+public class RoadLocation {
 
     private long id;
     private String name = null;
     private double latitude;
     private double longitude;
 
-    public Location() {
+    // Prefer Map over array or List because customers might be added and removed in real-time planning.
+    private Map<RoadLocation, Double> travelDistanceMap;
+
+    public RoadLocation() {
     }
 
-    public Location(long id) {
+    public RoadLocation(long id) {
         this.id = id;
     }
 
-    public Location(long id, double latitude, double longitude) {
+    public RoadLocation(long id, double latitude, double longitude) {
         this(id);
         this.latitude = latitude;
         this.longitude = longitude;
@@ -54,6 +57,14 @@ public abstract class Location {
         this.longitude = longitude;
     }
 
+    public Map<RoadLocation, Double> getTravelDistanceMap() {
+        return travelDistanceMap;
+    }
+
+    public void setTravelDistanceMap(Map<RoadLocation, Double> travelDistanceMap) {
+        this.travelDistanceMap = travelDistanceMap;
+    }
+
     // ************************************************************************
     // Complex methods
     // ************************************************************************
@@ -62,7 +73,14 @@ public abstract class Location {
      * @param location never null
      * @return a positive number, the distance multiplied by 1000 to avoid floating point arithmetic rounding errors
      */
-    public abstract long getDistanceTo(Location location);
+    public long getDistanceTo(RoadLocation location) {
+        if (this == location) {
+            return 0L;
+        }
+        double distance = travelDistanceMap.get(location);
+        // Multiplied by 1000 to avoid floating point arithmetic rounding errors
+        return (long) (distance * 1000.0 + 0.5);
+    }
 
     /**
      * The angle relative to the direction EAST.
@@ -70,7 +88,7 @@ public abstract class Location {
      * @param location never null
      * @return in Cartesian coordinates
      */
-    public double getAngle(Location location) {
+    public double getAngle(RoadLocation location) {
         // Euclidean distance (Pythagorean theorem) - not correct when the surface is a sphere
         double latitudeDifference = location.latitude - latitude;
         double longitudeDifference = location.longitude - longitude;

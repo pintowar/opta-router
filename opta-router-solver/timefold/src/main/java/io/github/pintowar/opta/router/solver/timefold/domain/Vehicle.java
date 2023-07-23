@@ -2,7 +2,6 @@ package io.github.pintowar.opta.router.solver.timefold.domain;
 
 import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.PlanningListVariable;
-import io.github.pintowar.opta.router.solver.timefold.domain.location.Location;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,13 +62,13 @@ public class Vehicle implements LocationAware {
     // ************************************************************************
 
     @Override
-    public Location getLocation() {
+    public RoadLocation getLocation() {
         return depot.getLocation();
     }
 
     @Override
     public String toString() {
-        Location location = getLocation();
+        RoadLocation location = getLocation();
         if (location.getName() == null) {
             return super.toString();
         }

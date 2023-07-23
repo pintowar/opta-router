@@ -6,7 +6,6 @@ import ai.timefold.solver.core.api.domain.solution.PlanningSolution;
 import ai.timefold.solver.core.api.domain.solution.ProblemFactCollectionProperty;
 import ai.timefold.solver.core.api.domain.valuerange.ValueRangeProvider;
 import ai.timefold.solver.core.api.score.buildin.hardsoftlong.HardSoftLongScore;
-import io.github.pintowar.opta.router.solver.timefold.domain.location.Location;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class VehicleRoutingSolution {
 
     private long id;
     private String name;
-    private List<Location> locationList;
+    private List<RoadLocation> locationList;
     private List<Depot> depotList;
     private List<Vehicle> vehicleList;
 
@@ -48,11 +47,11 @@ public class VehicleRoutingSolution {
     }
 
     @ProblemFactCollectionProperty
-    public List<Location> getLocationList() {
+    public List<RoadLocation> getLocationList() {
         return locationList;
     }
 
-    public void setLocationList(List<Location> locationList) {
+    public void setLocationList(List<RoadLocation> locationList) {
         this.locationList = locationList;
     }
 

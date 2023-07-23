@@ -4,7 +4,7 @@ import io.github.pintowar.opta.router.solver.timefold.domain.Customer
 import io.github.pintowar.opta.router.solver.timefold.domain.Depot
 import io.github.pintowar.opta.router.solver.timefold.domain.Vehicle
 import io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution
-import io.github.pintowar.opta.router.solver.timefold.domain.location.RoadLocation
+import io.github.pintowar.opta.router.solver.timefold.domain.RoadLocation
 import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
@@ -23,7 +23,8 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     val sol = VehicleRoutingSolution(id)
     sol.name = this.name
     val locs = this.locations.map {
-        RoadLocation(it.id, it.lat, it.lng).apply { name = it.name }
+        RoadLocation(it.id, it.lat, it.lng)
+            .apply { name = it.name }
     }
     val locsIdx = locs.associateBy { it.id }
 

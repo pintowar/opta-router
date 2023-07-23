@@ -1,16 +1,14 @@
 package io.github.pintowar.opta.router.solver.timefold.domain;
 
-import io.github.pintowar.opta.router.solver.timefold.domain.location.Location;
-
 public class Depot {
 
     private long id;
-    private Location location;
+    private RoadLocation location;
 
     public Depot() {
     }
 
-    public Depot(long id, Location location) {
+    public Depot(long id, RoadLocation location) {
         this.id = id;
         this.location = location;
     }
@@ -23,11 +21,11 @@ public class Depot {
         this.id = id;
     }
 
-    public Location getLocation() {
+    public RoadLocation getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(RoadLocation location) {
         this.location = location;
     }
 

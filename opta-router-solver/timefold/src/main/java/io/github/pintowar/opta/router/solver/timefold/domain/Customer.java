@@ -4,14 +4,13 @@ import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
 import ai.timefold.solver.core.api.domain.variable.InverseRelationShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.NextElementShadowVariable;
 import ai.timefold.solver.core.api.domain.variable.PreviousElementShadowVariable;
-import io.github.pintowar.opta.router.solver.timefold.domain.location.Location;
 import io.github.pintowar.opta.router.solver.timefold.domain.solver.DepotAngleCustomerDifficultyWeightFactory;
 
 @PlanningEntity(difficultyWeightFactoryClass = DepotAngleCustomerDifficultyWeightFactory.class)
 public class Customer implements LocationAware {
 
     private long id;
-    private Location location;
+    private RoadLocation location;
     private int demand;
 
     // Shadow variables
@@ -22,7 +21,7 @@ public class Customer implements LocationAware {
     public Customer() {
     }
 
-    public Customer(long id, Location location, int demand) {
+    public Customer(long id, RoadLocation location, int demand) {
         this.id = id;
         this.location = location;
         this.demand = demand;
@@ -37,11 +36,11 @@ public class Customer implements LocationAware {
     }
 
     @Override
-    public Location getLocation() {
+    public RoadLocation getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(RoadLocation location) {
         this.location = location;
     }
 
