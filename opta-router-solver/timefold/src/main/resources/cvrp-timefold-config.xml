@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solver xmlns="https://timefold.ai/xsd/solver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://timefold.ai/xsd/solver https://timefold.ai/xsd/solver/solver.xsd">
+  <!-- To slowly prove there are no bugs in this code -->
+  <!--<environmentMode>FULL_ASSERT</environmentMode>-->
+  <!-- To solve faster by saturating multiple CPU cores -->
+  <!--<moveThreadCount>AUTO</moveThreadCount>-->
+
+  <solutionClass>io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution</solutionClass>
+  <entityClass>io.github.pintowar.opta.router.solver.timefold.domain.Vehicle</entityClass>
+  <entityClass>io.github.pintowar.opta.router.solver.timefold.domain.Customer</entityClass>
+
+  <scoreDirectorFactory>
+    <constraintProviderClass>io.github.pintowar.opta.router.solver.timefold.score.VehicleRoutingConstraintProvider</constraintProviderClass>
+    <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
+  </scoreDirectorFactory>
+
+  <termination>
+    <minutesSpentLimit>5</minutesSpentLimit>
+  </termination>
+  <constructionHeuristic>
+  </constructionHeuristic>
+  <localSearch>
+    <unionMoveSelector>
+      <listChangeMoveSelector />
+      <listSwapMoveSelector />
+      <subListChangeMoveSelector>
+        <selectReversingMoveToo>true</selectReversingMoveToo>
+      </subListChangeMoveSelector>
+      <subListSwapMoveSelector>
+        <selectReversingMoveToo>true</selectReversingMoveToo>
+      </subListSwapMoveSelector>
+      <kOptListMoveSelector />
+    </unionMoveSelector>
+    <acceptor>
+      <lateAcceptanceSize>200</lateAcceptanceSize>
+    </acceptor>
+    <forager>
+      <acceptedCountLimit>1</acceptedCountLimit>
+    </forager>
+  </localSearch>
+</solver>

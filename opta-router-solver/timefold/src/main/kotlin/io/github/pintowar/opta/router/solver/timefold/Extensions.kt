@@ -1,11 +1,10 @@
 package io.github.pintowar.opta.router.solver.timefold
 
-import ai.timefold.solver.examples.vehiclerouting.domain.Customer
-import ai.timefold.solver.examples.vehiclerouting.domain.Depot
-import ai.timefold.solver.examples.vehiclerouting.domain.Vehicle
-import ai.timefold.solver.examples.vehiclerouting.domain.VehicleRoutingSolution
-import ai.timefold.solver.examples.vehiclerouting.domain.location.DistanceType
-import ai.timefold.solver.examples.vehiclerouting.domain.location.RoadLocation
+import io.github.pintowar.opta.router.solver.timefold.domain.Customer
+import io.github.pintowar.opta.router.solver.timefold.domain.Depot
+import io.github.pintowar.opta.router.solver.timefold.domain.Vehicle
+import io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution
+import io.github.pintowar.opta.router.solver.timefold.domain.location.RoadLocation
 import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
@@ -46,8 +45,6 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
         Vehicle(it.id, it.capacity, deps[it.depot.id])
     }
 
-    sol.distanceType = DistanceType.ROAD_DISTANCE
-    sol.distanceUnitOfMeasurement = "m"
     return sol
 }
 
