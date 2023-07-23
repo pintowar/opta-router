@@ -11,7 +11,7 @@
   <entityClass>io.github.pintowar.opta.router.solver.timefold.domain.Customer</entityClass>
 
   <scoreDirectorFactory>
-    <constraintProviderClass>io.github.pintowar.opta.router.solver.timefold.score.VehicleRoutingConstraintProvider</constraintProviderClass>
+    <constraintProviderClass>io.github.pintowar.opta.router.solver.timefold.score.CvrpConstraintProvider</constraintProviderClass>
     <initializingScoreTrend>ONLY_DOWN</initializingScoreTrend>
   </scoreDirectorFactory>
 
