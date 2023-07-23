@@ -23,11 +23,10 @@ class CvrpConstraintProvider : ConstraintProvider {
     private fun vehicleCapacity(factory: ConstraintFactory): Constraint = factory
         .forEach(Customer::class.java)
         .filter { customer -> customer.vehicle != null }
-        .groupBy({ it.vehicle }, ConstraintCollectors.sum { obj: Customer -> obj.demand })
-        .filter { vehicle, demand -> demand > vehicle.capacity }
-        .penalizeLong(HardSoftLongScore.ONE_HARD) { vehicle, demand -> (demand - vehicle.capacity).toLong() }
+        .groupBy({ it.vehicle }, ConstraintCollectors.sum { it: Customer -> it.demand })
+        .filter { vehicle, demand -> demand > vehicle!!.capacity }
+        .penalizeLong(HardSoftLongScore.ONE_HARD) { vehicle, demand -> (demand - vehicle!!.capacity).toLong() }
         .asConstraint("vehicleCapacity")
-
 
     // ************************************************************************
     // Soft constraints
@@ -37,7 +36,6 @@ class CvrpConstraintProvider : ConstraintProvider {
         .filter { customer: Customer -> customer.vehicle != null }
         .penalizeLong(HardSoftLongScore.ONE_SOFT) { it.distanceFromPreviousStandstill }
         .asConstraint("distanceToPreviousStandstill")
-
 
     private fun distanceFromLastCustomerToDepot(factory: ConstraintFactory): Constraint = factory
         .forEach(Customer::class.java)

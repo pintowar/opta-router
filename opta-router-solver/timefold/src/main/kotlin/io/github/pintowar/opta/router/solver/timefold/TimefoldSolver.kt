@@ -2,11 +2,11 @@ package io.github.pintowar.opta.router.solver.timefold
 
 import ai.timefold.solver.core.api.solver.SolverFactory
 import ai.timefold.solver.core.config.solver.termination.TerminationConfig
-import io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
+import io.github.pintowar.opta.router.solver.timefold.domain.VehicleRoutingSolution
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
