@@ -15,7 +15,7 @@ class DepotAngleCustomerFactory : SelectionSorterWeightFactory<VehicleRoutingSol
             customer,
             customer.location.getAngle(depot.location),
             customer.location.getDistanceTo(depot.location) +
-                    depot.location.getDistanceTo(customer.location)
+                depot.location.getDistanceTo(customer.location)
         )
     }
 

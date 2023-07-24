@@ -5,7 +5,11 @@ import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import io.github.pintowar.opta.router.solver.optaplanner.domain.*
+import io.github.pintowar.opta.router.solver.optaplanner.domain.Customer
+import io.github.pintowar.opta.router.solver.optaplanner.domain.Depot
+import io.github.pintowar.opta.router.solver.optaplanner.domain.RoadLocation
+import io.github.pintowar.opta.router.solver.optaplanner.domain.Vehicle
+import io.github.pintowar.opta.router.solver.optaplanner.domain.VehicleRoutingSolution
 import java.math.BigDecimal
 import java.math.RoundingMode
 

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.config.solver.termination.TerminationConfig
-
 import kotlin.coroutines.resume
 import org.optaplanner.core.config.solver.SolverConfig as SC
 

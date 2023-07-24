@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.solver.optaplanner.domain
 
-
 import org.optaplanner.core.api.domain.entity.PlanningEntity
 import org.optaplanner.core.api.domain.solution.PlanningEntityCollectionProperty
 import org.optaplanner.core.api.domain.solution.PlanningScore
@@ -52,7 +51,7 @@ class RoadLocation(
     }
 }
 
-@PlanningEntity //(difficultyWeightFactoryClass = DepotAngleCustomerFactory::class)
+@PlanningEntity // (difficultyWeightFactoryClass = DepotAngleCustomerFactory::class)
 class Customer(
     val id: Long = -1,
     val demand: Int = 0,
