@@ -10,7 +10,7 @@ plugins {
 
 allprojects {
     group = "io.github.pintowar"
-    description = "Sample VRP Application using Kotlin + Optaplanner + Graphhopper + Spring Boot + Websockets"
+    description = "Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools + Graphhopper + Spring Boot + Websockets"
 }
 
 repositories {
