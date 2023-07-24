@@ -5,12 +5,7 @@ import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
-import org.optaplanner.examples.vehiclerouting.domain.Customer
-import org.optaplanner.examples.vehiclerouting.domain.Depot
-import org.optaplanner.examples.vehiclerouting.domain.Vehicle
-import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
-import org.optaplanner.examples.vehiclerouting.domain.location.DistanceType
-import org.optaplanner.examples.vehiclerouting.domain.location.RoadLocation
+import io.github.pintowar.opta.router.solver.optaplanner.domain.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -21,34 +16,24 @@ import java.math.RoundingMode
  * @return solution representation used by the solver.
  */
 fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
-    val sol = VehicleRoutingSolution(id)
-    sol.name = this.name
-    val locs = this.locations.map {
-        RoadLocation(it.id, it.lat, it.lng).apply { name = it.name }
-    }
-    val locsIdx = locs.associateBy { it.id }
-
-    val deps = this.depots.map { Depot(it.id, locsIdx[it.id]) }.associateBy { it.id }
-
-    locs.forEach { a ->
-        a.travelDistanceMap = locs
-            .map { b -> b to dist.distance(a.id, b.id) }
-            .filter { (b, _) -> a != b }
+    val roadLocations = this.locations.map { a ->
+        val distances = locations.asSequence()
+            .map { b -> b.id to dist.distance(a.id, b.id) }
+            .filter { (bId, _) -> a.id != bId }
             .toMap()
-    }
-    sol.locationList = locs
-    sol.customerList = this.customers.map {
-        Customer(it.id, locsIdx[it.id], it.demand)
-    }
-    sol.depotList = deps.values.toList()
-
-    sol.vehicleList = this.vehicles.map {
-        Vehicle(it.id, it.capacity, deps[it.depot.id])
+        RoadLocation(a.id, a.name, a.lat, a.lng, distances)
     }
 
-    sol.distanceType = DistanceType.ROAD_DISTANCE
-    sol.distanceUnitOfMeasurement = "m"
-    return sol
+    val roadLocationIds = roadLocations.associateBy { it.id }
+    val depotIds = this.depots.map { Depot(it.id, roadLocationIds.getValue(it.id)) }.associateBy { it.id }
+    return VehicleRoutingSolution(
+        id,
+        name,
+        roadLocations,
+        depotIds.values.toList(),
+        this.vehicles.map { Vehicle(it.id, it.capacity, depotIds.getValue(it.depot.id)) },
+        this.customers.map { Customer(it.id, it.demand, roadLocationIds.getValue(it.id)) }
+    )
 }
 
 fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
@@ -56,11 +41,11 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
     val keys = solution.customerList.associateBy { it.id }
 
     routes.forEachIndexed { rIdx, route ->
-        val customers = route.customerIds.map { keys[it] }
+        val customers = route.customerIds.mapNotNull { keys[it] }
         customers.forEachIndexed { idx, customer ->
-            if (idx > 0) customer?.previousCustomer = customers[idx - 1]
-            if (idx < customers.size - 1) customer?.nextCustomer = customers[idx + 1]
-            customer?.vehicle = solution.vehicleList[rIdx]
+            if (idx > 0) customer.previousCustomer = customers[idx - 1]
+            if (idx < customers.size - 1) customer.nextCustomer = customers[idx + 1]
+            customer.vehicle = solution.vehicleList[rIdx]
         }
         solution.vehicleList[rIdx].customers = customers
     }
@@ -75,7 +60,7 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
  */
 fun VehicleRoutingSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolution {
     val vehicles = this.vehicleList
-    val routes = vehicles?.map { v ->
+    val routes = vehicles.map { v ->
         val origin = v.depot.location.let { LatLng(it.latitude, it.longitude) }
 
         var dist = 0.0
@@ -109,7 +94,7 @@ fun VehicleRoutingSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolut
             rep,
             customerIds
         )
-    } ?: emptyList()
+    }
 
     return VrpSolution(instance, routes)
 }

@@ -4,18 +4,19 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.solver.SolverConfig
 import io.github.pintowar.opta.router.core.solver.spi.Solver
+import io.github.pintowar.opta.router.solver.optaplanner.domain.VehicleRoutingSolution
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.optaplanner.core.api.solver.SolverFactory
 import org.optaplanner.core.config.solver.termination.TerminationConfig
-import org.optaplanner.examples.vehiclerouting.domain.VehicleRoutingSolution
+
 import kotlin.coroutines.resume
 import org.optaplanner.core.config.solver.SolverConfig as SC
 
 class OptaSolver : Solver {
-    private val configPath = "org/optaplanner/examples/vehiclerouting/vehicleRoutingSolverConfig.xml"
+    private val configPath = "cvrp-optaplanner-config.xml"
     private val solverConfig = SC.createFromXmlResource(configPath)
 
     override val name: String = "optaplanner"

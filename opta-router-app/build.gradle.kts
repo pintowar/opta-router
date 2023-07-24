@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":opta-router-geo"))
     implementation(project(":opta-router-solver:jenetics"))
     implementation(project(":opta-router-solver:jsprit"))
+//    implementation(project(":opta-router-solver:optaplanner"))
     implementation(project(":opta-router-solver:ortools"))
     implementation(project(":opta-router-solver:timefold"))
 
@@ -60,14 +61,6 @@ tasks {
                 logger.quiet("Cli Resources: move from $webCliOrigin to $webCliDest")
             }
         }
-//        if (project.hasProperty("prod")) {
-//
-//            dependsOn("$webCli:build")
-//
-//            doLast {
-//
-//            }
-//        }
     }
 }
 

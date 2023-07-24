@@ -2,12 +2,12 @@
 kotlin = "1.9.0"
 kotlin-coroutines = "1.7.2"
 kotlin-logging = "3.0.5"
-spring-boot = "3.1.1"
+spring-boot = "3.1.2"
 spring-dependency = "1.1.0"
 spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2"
-optaplanner = "9.40.0.Final"
+optaplanner = "9.41.0.Final"
 timefold = "1.0.0"
 jsprit = "1.9.0-beta.11"
 ortools = "9.6.2534"
@@ -60,8 +60,8 @@ jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
-timefold-examples = { module = "ai.timefold.solver:timefold-solver-examples", version.ref = "timefold" }
-optaplanner-examples = { module = "org.optaplanner:optaplanner-examples", version.ref = "optaplanner" }
+timefold-core = { module = "ai.timefold.solver:timefold-solver-core", version.ref = "timefold" }
+optaplanner-core = { module = "org.optaplanner:optaplanner-core", version.ref = "optaplanner" }
 jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
 or-tools = { module = "com.google.ortools:ortools-java", version.ref = "ortools" }
 jenetics = { module = "io.jenetics:jenetics", version.ref = "jenetics" }
@@ -79,6 +79,6 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-websocket", "spring-actuator", "spring-jooq", "flyway"]
 jooq = ["jooq-core", "jooq-kotlin"]
-optaplanner = ["optaplanner-examples"]
-timefold = ["timefold-examples"]
+optaplanner = ["optaplanner-core"]
+timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
