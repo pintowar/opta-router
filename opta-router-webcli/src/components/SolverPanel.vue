@@ -73,7 +73,7 @@ async function wrapperClear() {
         <div>
           <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
         </div>
-        <div class="tooltip" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
+        <div class="tooltip tooltip-left" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
           <div :class="`badge ${badgeColor}`">WS</div>
         </div>
       </div>
@@ -95,11 +95,21 @@ async function wrapperClear() {
     </div>
     <div class="flex space-x-2">
       <div class="card-actions">
-        <button :disabled="isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">Solve</button>
-        <button :disabled="!isRunning || waitingTermination" class="btn btn-sm btn-warning" @click="wrapperTermination">
+        <button :disabled="!isWsConnected || isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">
+          Solve<span v-if="isRunning" class="loading loading-bars loading-xs"></span>
+        </button>
+        <button
+          :disabled="!isWsConnected || !isRunning || waitingTermination"
+          class="btn btn-sm btn-warning"
+          @click="wrapperTermination"
+        >
           Terminate<span v-if="waitingTermination" class="loading loading-bars loading-xs"></span>
         </button>
-        <button :disabled="isRunning || waitingClear" class="btn btn-sm btn-error" @click="wrapperClear">
+        <button
+          :disabled="!isWsConnected || isRunning || waitingClear"
+          class="btn btn-sm btn-error"
+          @click="wrapperClear"
+        >
           Clear<span v-if="waitingClear" class="loading loading-bars loading-xs"></span>
         </button>
       </div>
