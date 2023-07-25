@@ -81,7 +81,7 @@ async function wrapperClear() {
     <div class="flex space-x-2">
       <label class="relative inline-flex items-center mb-4 cursor-pointer">
         <span class="mr-3 text-sm font-medium">Solver</span>
-        <select v-model="editorSelectedSolver" class="select select-bordered select-xs">
+        <select v-model="editorSelectedSolver" :disabled="!isWsConnected" class="select select-bordered select-xs">
           <option v-for="solver in solvers" :key="solver" :value="solver">
             {{ solver }}
           </option>
@@ -90,7 +90,7 @@ async function wrapperClear() {
 
       <label class="relative inline-flex items-center mb-4 cursor-pointer">
         <span class="mr-3 text-sm font-medium">Show Detailed Path</span>
-        <input v-model="editorDetailedPath" type="checkbox" class="toggle" />
+        <input v-model="editorDetailedPath" :disabled="!isWsConnected" type="checkbox" class="toggle" />
       </label>
     </div>
     <div class="flex space-x-2">
