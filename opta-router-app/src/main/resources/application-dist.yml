@@ -5,7 +5,6 @@ spring:
     init:
       mode: always
       data-locations: classpath*:db/data-pg.sql
-
-logging:
-  level:
-    io.github.pintowar.opta.router: DEBUG
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/specific/postgres

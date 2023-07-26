@@ -1,0 +1,10 @@
+spring:
+  jooq:
+    sql-dialect: H2
+  sql:
+    init:
+      mode: always
+      data-locations: classpath*:db/data-h2.sql
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/specific/h2

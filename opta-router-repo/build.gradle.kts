@@ -13,8 +13,8 @@ dependencies {
     api(libs.bundles.jackson)
 
     runtimeOnly(libs.slf4j)
-    runtimeOnly(if (project.isProdProfile) libs.pg.db else libs.h2.db)
-    jooqGenerator(if (project.isProdProfile) libs.pg.db else libs.h2.db)
+    runtimeOnly(if (project.isDistProfile) libs.pg.db else libs.h2.db)
+    jooqGenerator(if (project.isDistProfile) libs.pg.db else libs.h2.db)
 }
 
 tasks.flywayMigrate {

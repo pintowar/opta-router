@@ -37,3 +37,18 @@ configure<ReleaseExtension> {
 tasks.afterReleaseBuild {
     dependsOn(":opta-router-app:jib")
 }
+
+tasks.register("assembleApp") {
+    val webServ = ":opta-router-app"
+    dependsOn("${webServ}:build")
+    group = "build"
+    description = "Build web app"
+    doLast {
+        copy {
+            from(files("${project(webServ).buildDir}/libs/")) {
+                include("opta-router-app-${version}.jar")
+            }
+            into("$rootDir/build/app.jar")
+        }
+    }
+}

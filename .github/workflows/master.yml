@@ -39,7 +39,7 @@ jobs:
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
         with:
           gradle-version: wrapper
-          arguments: clean spotlessCheck release -Pprod -Prelease.useAutomaticVersion=true
+          arguments: clean spotlessCheck release -PenvironmentName=single -Prelease.useAutomaticVersion=true
 
   release:
     name: Create Release Tag
