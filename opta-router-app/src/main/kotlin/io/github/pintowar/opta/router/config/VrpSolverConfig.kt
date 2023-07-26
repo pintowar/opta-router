@@ -1,5 +1,6 @@
 package io.github.pintowar.opta.router.config
 
+import com.hazelcast.core.HazelcastInstance
 import io.github.pintowar.opta.router.adapters.handler.SolverQueueAdapter
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
@@ -9,7 +10,6 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.Duration
@@ -25,7 +25,7 @@ class VrpSolverConfig {
     ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort, vrpSolverRequestPort)
 
     @Bean
-    fun solverQueue(publisher: ApplicationEventPublisher): SolverQueuePort = SolverQueueAdapter(publisher)
+    fun solverQueue(hz: HazelcastInstance): SolverQueuePort = SolverQueueAdapter(hz)
 
     @Bean(destroyMethod = "destroy")
     fun vrpSolverManager(

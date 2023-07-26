@@ -15,6 +15,7 @@ jenetics = "7.1.3"
 graphhopper = "7.0"
 flyway = "9.17.0"
 jooq = "3.18.3"
+hazelcast = "5.3.1"
 h2 = "2.1.214"
 postgres = "42.6.0"
 sfl4j = "2.0.7"
@@ -68,6 +69,7 @@ jenetics = { module = "io.jenetics:jenetics", version.ref = "jenetics" }
 
 graphhopper-core = { module = "com.graphhopper:graphhopper-core", version.ref = "graphhopper" }
 
+hazelcast-spring = { module = "com.hazelcast:hazelcast-spring", version.ref = "hazelcast" }
 jooq-core = { module = "org.jooq:jooq", version.ref = "jooq" }
 jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
 h2-db = { module = "com.h2database:h2", version.ref = "h2" }

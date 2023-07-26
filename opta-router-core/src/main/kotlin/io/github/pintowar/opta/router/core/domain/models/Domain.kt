@@ -31,7 +31,8 @@ data class VrpProblem(
     val customers: List<Customer>
 ) {
     val depots: List<Depot> = vehicles.map { it.depot }.distinct()
-    val locations: List<Location> = depots + customers
+    val locations: List<Location>
+        get() = depots + customers
     val nLocations: Int = locations.size
     val nVehicles: Int = vehicles.size
 }

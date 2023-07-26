@@ -41,5 +41,6 @@ logging:
   level:
     io.github.pintowar.opta.router: INFO
     ai.timefold.solver.core: ERROR
+    com.hazelcast.system: ERROR
     com.graphhopper.jsprit.core: ERROR
     org.jooq: ERROR

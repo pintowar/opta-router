@@ -1,20 +1,18 @@
 package io.github.pintowar.opta.router.adapters.handler
 
+import com.hazelcast.core.HazelcastInstance
 import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
-import org.springframework.context.ApplicationEvent
-import org.springframework.context.ApplicationEventPublisher
 
-class RequestSolverEvent(val command: SolverQueuePort.RequestSolverCommand) : ApplicationEvent(command)
+class SolverQueueAdapter(hz: HazelcastInstance) : SolverQueuePort {
 
-class SolutionRequestEvent(val command: SolverQueuePort.SolutionRequestCommand) : ApplicationEvent(command)
-
-class SolverQueueAdapter(private val publisher: ApplicationEventPublisher) : SolverQueuePort {
+    private val requestSolverQueue = hz.getQueue<SolverQueuePort.RequestSolverCommand>("request-solver-queue")
+    private val solutionRequestQueue = hz.getQueue<SolverQueuePort.SolutionRequestCommand>("solution-request-queue")
 
     override fun requestSolver(command: SolverQueuePort.RequestSolverCommand) {
-        publisher.publishEvent(RequestSolverEvent(command))
+        requestSolverQueue.put(command)
     }
 
     override fun updateAndBroadcast(command: SolverQueuePort.SolutionRequestCommand) {
-        publisher.publishEvent(SolutionRequestEvent(command))
+        solutionRequestQueue.put(command)
     }
 }
