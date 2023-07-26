@@ -8,5 +8,12 @@ val Project.isSnapshotVersion: Boolean
 val Project.libs: LibrariesForLibs
     get() = the<LibrariesForLibs>()
 
-val Project.isProdProfile: Boolean
-    get() = (project.property("environmentName")?.toString() ?: "").split(",").contains("prod")
+
+val Project.buildEnv: String
+    get() = project.property("environmentName")?.toString() ?: ""
+
+val Project.isDistProfile: Boolean
+    get() = project.buildEnv == "dist"
+
+val Project.isLocalProfile: Boolean
+    get() = project.buildEnv == "local"

@@ -31,14 +31,18 @@ dependencies {
 
     testImplementation(libs.spring.test)
 
-    runtimeOnly(if (project.isProdProfile) libs.pg.db else libs.h2.db)
+    runtimeOnly(if (project.isDistProfile) libs.pg.db else libs.h2.db)
 }
 
 tasks {
+    bootJar {
+        requiresUnpack("**/ortools-*.jar") // This is required, so the native libraries can be unpacked at runtime
+    }
+
     processResources {
         val webCli = ":opta-router-webcli"
-        val isProd = project.hasProperty("prod").also {
-            if (it) dependsOn("$webCli:build")
+        val isLocalProfile = project.isLocalProfile.also {
+            if (!it) dependsOn("$webCli:build")
         }
 
         doLast {
@@ -52,7 +56,7 @@ tasks {
                 into(resourceDest)
                 logger.quiet("Replacing properties resources")
             }
-            if (isProd) {
+            if (!isLocalProfile) {
                 val webCliOrigin = project(webCli).buildDir.absolutePath
                 val webCliDest = "$resourceDest/public"
                 copy {
@@ -72,13 +76,13 @@ configure<GitPropertiesPluginExtension> {
 }
 
 jib {
-    val isSnapshot = "${project.version}".endsWith("-SNAPSHOT")
     from {
-        image = "eclipse-temurin:17-jdk-alpine"
+        image = "eclipse-temurin:17-jdk-jammy"
     }
     to {
-        image = "pintowar/${rootProject.name}"
-        tags = setOf("${project.version}") + (if (isSnapshot) setOf("snapshot") else setOf("latest"))
+        val tagVer = if (project.isSnapshotVersion) "snapshot" else "latest"
+        image = "pintowar/${rootProject.name}:${project.buildEnv}-$tagVer"
+        tags = setOf("${project.buildEnv}-${project.version}")
         auth {
             username = project.findProperty("docker.user")?.toString() ?: System.getenv("DOCKER_USER")
             password = project.findProperty("docker.pass")?.toString() ?: System.getenv("DOCKER_PASS")

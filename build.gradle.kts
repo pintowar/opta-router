@@ -10,7 +10,7 @@ plugins {
 
 allprojects {
     group = "io.github.pintowar"
-    description = "Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools + Graphhopper + Spring Boot + Websockets"
+    description = "Sample CVRP Application using Kotlin + Jenetics/Jsprit/Optaplanner/Or-Tools/Timefold + Graphhopper + Spring Boot + Websockets"
 }
 
 repositories {
@@ -36,4 +36,19 @@ configure<ReleaseExtension> {
 
 tasks.afterReleaseBuild {
     dependsOn(":opta-router-app:jib")
+}
+
+tasks.register("assembleApp") {
+    val webServ = ":opta-router-app"
+    dependsOn("${webServ}:build")
+    group = "build"
+    description = "Build web app"
+    doLast {
+        copy {
+            from(files("${project(webServ).buildDir}/libs/")) {
+                include("opta-router-app-${version}.jar")
+            }
+            into("$rootDir/build/app.jar")
+        }
+    }
 }
