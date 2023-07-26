@@ -9,7 +9,7 @@ Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jene
 
 ## What is CVRP?
 
-CVRP is a variation of VRP (Vehicle Routing Problem). VRP is a combinatorial optimization problem which asks "What is the optimal set of routes for a fleet of vehicles to traverse in order to deliver to a given set of customers?". 
+CVRP is a variation of VRP (Vehicle Routing Problem). VRP is a combinatorial optimization problem which asks "What is the optimal set of routes for a fleet of vehicles to traverse in order to deliver to a given set of customers?".
 
 On CVRP (Capacitated Vehicle Routing Problem), the vehicles have a limited carrying capacity of the goods that must be delivered and customers have a given demand.
 
@@ -22,7 +22,7 @@ This is a playground project for educational purpose. I usually use this project
 ### Project Modules
 
 The project uses a [hexagonal architecture](https://jmgarridopaz.github.io/content/articles.html) and was broken into the following modules:
- 
+
 * opta-router-core: domain modules with main business logic;
 * opta-router-geo: adapter module for reading geo data using Graphhopper;
 * opta-router-repo: adapter module for relational database persistence using Jooq;
@@ -62,7 +62,7 @@ Download it and point the ENV `GRAPH_OSM_PATH` to its system path. This way the 
 
 #### Development profile
 
-In order to run the project in development mode, the `local` profile must be used. Since it is the default profile, the explicit definition is optional. 
+In order to run the project in development mode, the `local` profile must be used. Since it is the default profile, the explicit definition is optional.
 
 ##### Web Server App
 
@@ -117,7 +117,7 @@ To build a jar that contains **only** server and client modules assembled on the
 
     gradle -PenvironmentName=dist assembleApp
 
-One pre-requisite for building with this profile is a running instance of a postgres instance with a database "opta-router" already created. This is needed in order to `opta-router-repo` module be able to run the migrations and generate the base JOOQ classes. The initial postgres connection configuration can be redefined on `gradle-dist.properties` file. 
+One pre-requisite for building with this profile is a running instance of a postgres instance with a database "opta-router" already created. This is needed in order to `opta-router-repo` module be able to run the migrations and generate the base JOOQ classes. The initial postgres connection configuration can be redefined on `gradle-dist.properties` file.
 
 This will generate a jar named `app.jar` on the `build` folder. To run the generated app, then run `GRAPH_OSM_PATH=<path_to_osm_map> GRAPH_OSM_LOCATION=<path_to_graphhopper_folder> java -jar app.jar`.
 
