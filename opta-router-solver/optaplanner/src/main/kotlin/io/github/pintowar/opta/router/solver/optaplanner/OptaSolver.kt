@@ -14,13 +14,13 @@ import org.optaplanner.core.config.solver.termination.TerminationConfig
 import kotlin.coroutines.resume
 import org.optaplanner.core.config.solver.SolverConfig as SC
 
-class OptaSolver : Solver {
+class OptaSolver : Solver() {
     private val configPath = "cvrp-optaplanner-config.xml"
     private val solverConfig = SC.createFromXmlResource(configPath)
 
     override val name: String = "optaplanner"
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val solver = SolverFactory.create<VehicleRoutingSolution>(
             solverConfig.apply {
                 terminationConfig = TerminationConfig().apply {

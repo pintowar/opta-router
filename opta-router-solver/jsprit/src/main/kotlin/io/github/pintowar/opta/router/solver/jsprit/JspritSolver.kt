@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 import java.time.Duration
 
-class JspritSolver : Solver {
+class JspritSolver : Solver() {
 
     override val name: String = "jsprit"
 
@@ -29,7 +29,7 @@ class JspritSolver : Solver {
             System.currentTimeMillis() - beginning >= totalTimeMs.toMillis()
     }
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         return callbackFlow {
             val ctx = currentCoroutineContext()
 
