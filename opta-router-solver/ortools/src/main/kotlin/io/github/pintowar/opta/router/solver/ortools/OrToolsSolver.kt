@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 
-class OrToolsSolver : Solver {
+class OrToolsSolver : Solver() {
 
     init {
         Loader.loadNativeLibraries()
@@ -23,7 +23,7 @@ class OrToolsSolver : Solver {
 
     override val name: String = "or-tools"
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val searchParameters = main.defaultRoutingSearchParameters().toBuilder()
             .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
             .setTimeLimit(Duration.newBuilder().setSeconds(config.timeLimit.toSeconds()).build())
