@@ -5,7 +5,9 @@ import java.util.*
 
 interface SolverEventsPort {
 
-    data class RequestSolverCommand(val problemId: Long, val uuid: UUID, val solverName: String)
+    data class RequestSolverCommand(val problemId: Long, val solverKey: UUID, val solverName: String)
+
+    data class CancelSolverCommand(val solverKey: UUID, val clear: Boolean = false)
 
     data class SolutionRequestCommand(val solutionRequest: VrpSolutionRequest, val clear: Boolean)
 
@@ -16,4 +18,8 @@ interface SolverEventsPort {
     fun enqueueSolutionRequest(command: SolutionRequestCommand)
 
     fun addSolutionRequestListener(listener: (SolutionRequestCommand) -> Unit)
+
+    fun broadcastCancelSolver(command: CancelSolverCommand)
+
+    fun addBroadcastCancelListener(listener: (CancelSolverCommand) -> Unit)
 }

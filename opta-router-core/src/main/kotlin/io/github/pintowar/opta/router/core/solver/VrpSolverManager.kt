@@ -37,12 +37,14 @@ class VrpSolverManager(
     private val broadcastPort: BroadcastPort
 ) {
 
-    private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val supervisorJob = SupervisorJob()
+    private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
 
     init {
-        solverEvents.addRequestSolverListener { solve(it.problemId, it.uuid, it.solverName) }
+        solverEvents.addRequestSolverListener { solve(it.problemId, it.solverKey, it.solverName) }
         solverEvents.addSolutionRequestListener { updateAndBroadcast(it.solutionRequest, it.clear) }
+        solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.clear) }
     }
 
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
@@ -69,29 +71,16 @@ class VrpSolverManager(
         }
     }
 
-    fun terminateEarly(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest?.status != SolverStatus.NOT_SOLVED) {
-            solverKeys[solverKey]?.cancel()
-        }
+    fun terminate(solverKey: UUID) {
+        solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey))
     }
 
-    fun clean(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest != null) {
-            runBlocking {
-                solverKeys[solverKey]?.cancelAndJoin()
-            }
-            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
-                enqueueSolution(it, true)
-            }
-        }
+    fun clear(solverKey: UUID) {
+        solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey, true))
     }
 
     fun destroy() {
-        solverKeys.forEach { (k, _) ->
-            terminateEarly(k)
-        }
+        supervisorJob.cancel()
     }
 
     fun solverNames() = Solver.getNamedSolvers().keys
@@ -124,6 +113,23 @@ class VrpSolverManager(
                         enqueueSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
                     }
                     .collect()
+            }
+        }
+    }
+
+    private fun cancelSolver(uuid: UUID, clear: Boolean) {
+        solverRepository.currentSolverRequest(uuid)?.also { solverRequest ->
+            if(clear) {
+                runBlocking {
+                    solverKeys[uuid]?.cancelAndJoin()
+                }
+                solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
+                    enqueueSolution(it, true)
+                }
+            } else {
+                if (solverRequest.status != SolverStatus.NOT_SOLVED) {
+                    solverKeys[uuid]?.cancel()
+                }
             }
         }
     }

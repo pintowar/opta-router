@@ -38,14 +38,14 @@ class SolverController(
     }
 
     @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::terminateEarly) }
+    fun terminate(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::terminate) }
         return ResponseEntity.ok(solverManager.showStatus(id))
     }
 
     @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun clean(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::clean) }
+    fun clear(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::clear) }
         return ResponseEntity.ok(solverManager.showStatus(id))
     }
 
