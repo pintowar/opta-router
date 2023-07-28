@@ -5,6 +5,7 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
+import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/solver")
 class SolverController(
-    private val solverManager: VrpSolverManager,
+    private val solverService: VrpSolverService,
     private val geoService: GeoPort,
     private val sessionPanel: MutableMap<String, SolverPanel>
 ) {
@@ -29,24 +30,24 @@ class SolverController(
     data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)
 
     @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun solverNames() = solverManager.solverNames().sorted()
+    fun solverNames() = solverService.solverNames().sorted()
 
     @PostMapping("/{id}/solve/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
-        solverManager.enqueueSolverRequest(id, solverName)
-        return ResponseEntity.ok(solverManager.showStatus(id))
+        solverService.enqueueSolverRequest(id, solverName)
+        return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun terminateEarly(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::terminateEarly) }
-        return ResponseEntity.ok(solverManager.showStatus(id))
+    fun terminate(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also(solverService::terminate) }
+        return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun clean(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverManager.currentSolutionRequest(id)?.also { it.solverKey?.also(solverManager::clean) }
-        return ResponseEntity.ok(solverManager.showStatus(id))
+    fun clear(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also(solverService::clear) }
+        return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -56,15 +57,15 @@ class SolverController(
         session: HttpSession
     ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
-        solverManager.updateDetailedView(id)
-        return ResponseEntity.ok(solverManager.showStatus(id))
+        solverService.updateDetailedView(id)
+        return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
         val panel = sessionPanel[session.id] ?: SolverPanel()
 
-        return solverManager.currentSolutionRequest(id)?.let {
+        return solverService.currentSolutionRequest(id)?.let {
             val sol = (if (panel.isDetailedPath) geoService.detailedPaths(it.solution) else it.solution)
             PanelSolutionState(panel, it.copy(solution = sol))
         }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()

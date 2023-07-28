@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.core.solver
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
+import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.CoroutineScope
@@ -32,66 +32,30 @@ private val logger = KotlinLogging.logger {}
  */
 class VrpSolverManager(
     private val timeLimit: Duration,
-    private val solverQueue: SolverQueuePort,
+    private val solverEvents: SolverEventsPort,
     private val solverRepository: SolverRepository,
     private val broadcastPort: BroadcastPort
 ) {
 
-    private val solverScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val supervisorJob = SupervisorJob()
+    private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return solverRepository.currentSolutionRequest(problemId)
-    }
-
-    fun showStatus(problemId: Long): SolverStatus =
-        solverRepository.refreshAndGetCurrentSolverRequest(problemId, timeLimit)?.status ?: SolverStatus.NOT_SOLVED
-
-    fun updateDetailedView(problemId: Long) {
-        solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
-    }
-
-    fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
-        return solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverQueue.requestSolver(
-                SolverQueuePort.RequestSolverCommand(
-                    request.problemId,
-                    request.requestKey,
-                    solverName
-                )
-            )
-            request.requestKey
-        }
-    }
-
-    fun terminateEarly(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest?.status != SolverStatus.NOT_SOLVED) {
-            solverKeys[solverKey]?.cancel()
-        }
-    }
-
-    fun clean(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest != null) {
-            runBlocking {
-                solverKeys[solverKey]?.cancelAndJoin()
-            }
-            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
-                broadcastSolution(it, true)
-            }
-        }
+    init {
+        solverEvents.addRequestSolverListener { solve(it.problemId, it.solverKey, it.solverName) }
+        solverEvents.addSolutionRequestListener { updateAndBroadcast(it.solutionRequest, it.clear) }
+        solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.clear) }
     }
 
     fun destroy() {
-        solverKeys.forEach { (k, _) ->
-            terminateEarly(k)
-        }
+        supervisorJob.cancel()
     }
 
-    fun solverNames() = Solver.getNamedSolvers().keys
+    private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
+        solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
+    }
 
-    fun solve(problemId: Long, uuid: UUID, solverName: String) {
+    private fun solve(problemId: Long, uuid: UUID, solverName: String) {
         if (solverKeys.containsKey(uuid)) return
 
         val currentMatrix = solverRepository.currentMatrix(problemId) ?: return
@@ -99,7 +63,7 @@ class VrpSolverManager(
         val solverKey = solutionRequest.solverKey ?: return
         val currentSolution = solutionRequest.solution
 
-        solverKeys[solverKey] = solverScope.launch {
+        solverKeys[solverKey] = managerScope.launch {
             val scope = this
             Solver.getSolverByName(solverName).also { solver ->
                 var bestSolution = currentSolution
@@ -108,18 +72,36 @@ class VrpSolverManager(
                     .onEach {
                         bestSolution = it
                         logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+                        enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
                     }
                     .onCompletion {
                         logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
+                        enqueueSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
                     }
                     .collect()
             }
         }
     }
 
-    private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
-        solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
+    private fun cancelSolver(uuid: UUID, clear: Boolean) {
+        solverRepository.currentSolverRequest(uuid)?.also { solverRequest ->
+            if (solverKeys.containsKey(uuid) && solverRequest.status != SolverStatus.NOT_SOLVED) {
+                runBlocking {
+                    solverKeys[uuid]?.cancelAndJoin()
+                    solverKeys.remove(uuid)
+                }
+                if (clear) {
+                    solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
+                        enqueueSolution(it, true)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
+        val newSolRequest = solverRepository
+            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
+        broadcastPort.broadcastSolution(newSolRequest)
     }
 }

@@ -1,14 +1,13 @@
 package io.github.pintowar.opta.router.config
 
-import com.hazelcast.core.HazelcastInstance
-import io.github.pintowar.opta.router.adapters.handler.SolverQueueAdapter
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
+import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
+import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,16 +23,22 @@ class VrpSolverConfig {
         vrpSolverRequestPort: VrpSolverRequestPort
     ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort, vrpSolverRequestPort)
 
-    @Bean
-    fun solverQueue(hz: HazelcastInstance): SolverQueuePort = SolverQueueAdapter(hz)
-
     @Bean(destroyMethod = "destroy")
     fun vrpSolverManager(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         solverRepository: SolverRepository,
-        solverQueuePort: SolverQueuePort,
+        solverEventsPort: SolverEventsPort,
         broadcastPort: BroadcastPort
     ): VrpSolverManager {
-        return VrpSolverManager(timeLimit, solverQueuePort, solverRepository, broadcastPort)
+        return VrpSolverManager(timeLimit, solverEventsPort, solverRepository, broadcastPort)
+    }
+
+    @Bean
+    fun vrpSolverService(
+        solverRepository: SolverRepository,
+        solverEventsPort: SolverEventsPort,
+        broadcastPort: BroadcastPort
+    ): VrpSolverService {
+        return VrpSolverService(solverEventsPort, solverRepository, broadcastPort)
     }
 }
