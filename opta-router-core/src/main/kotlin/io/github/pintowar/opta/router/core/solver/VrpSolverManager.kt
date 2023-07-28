@@ -12,11 +12,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -107,12 +104,7 @@ class VrpSolverManager(
             Solver.getSolverByName(solverName).also { solver ->
                 var bestSolution = currentSolution
 
-                solver.solutionFlow(currentSolution, currentMatrix, SolverConfig(timeLimit))
-                    .scan(currentSolution) { acc, req ->
-                        if (!acc.isEmpty() && req.getTotalDistance() > acc.getTotalDistance()) acc else req
-                    }
-                    .filterNot { it.isEmpty() }
-                    .distinctUntilChangedBy { it.getTotalDistance() }
+                solver.solve(currentSolution, currentMatrix, SolverConfig(timeLimit))
                     .onEach {
                         bestSolution = it
                         logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }

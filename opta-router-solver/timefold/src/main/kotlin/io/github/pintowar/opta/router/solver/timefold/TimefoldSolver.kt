@@ -14,14 +14,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import ai.timefold.solver.core.config.solver.SolverConfig as SC
 
-class TimefoldSolver : Solver {
+class TimefoldSolver : Solver() {
 
     private val configPath = "cvrp-timefold-config.xml"
     private val solverConfig = SC.createFromXmlResource(configPath)
 
     override val name: String = "timefold"
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val solver = SolverFactory.create<VehicleRoutingSolution>(
             solverConfig.apply {
                 terminationConfig = TerminationConfig().apply {

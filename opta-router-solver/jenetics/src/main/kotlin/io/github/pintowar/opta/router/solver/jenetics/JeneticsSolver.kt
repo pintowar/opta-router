@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 
-class JeneticsSolver : Solver {
+class JeneticsSolver : Solver() {
 
     override val name: String = "jenetics"
 
@@ -36,7 +36,7 @@ class JeneticsSolver : Solver {
         )
         .build()
 
-    override fun solutionFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
         val engine = buildEngine(initialSolution.problem, matrix)
 
         return callbackFlow {
