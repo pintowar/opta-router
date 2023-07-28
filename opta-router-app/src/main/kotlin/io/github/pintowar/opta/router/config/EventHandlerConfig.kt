@@ -13,11 +13,10 @@ class EventHandlerConfig {
 
     @Bean(destroyMethod = "destroy")
     fun eventHandler(
-        solver: VrpSolverManager,
         solverRepository: SolverRepository,
         broadcastPort: BroadcastPort,
         hz: HazelcastInstance
     ): HazelcastEventsHandler {
-        return HazelcastEventsHandler(solver, solverRepository, broadcastPort, hz)
+        return HazelcastEventsHandler(hz)
     }
 }

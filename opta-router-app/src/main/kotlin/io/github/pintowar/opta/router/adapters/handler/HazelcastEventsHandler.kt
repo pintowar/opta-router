@@ -1,10 +1,7 @@
 package io.github.pintowar.opta.router.adapters.handler
 
 import com.hazelcast.core.HazelcastInstance
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
-import io.github.pintowar.opta.router.core.solver.VrpSolverManager
-import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
+import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import mu.KotlinLogging
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -12,20 +9,34 @@ import java.util.concurrent.atomic.AtomicBoolean
 private val logger = KotlinLogging.logger {}
 
 class HazelcastEventsHandler(
-    private val solver: VrpSolverManager,
-    private val solverRepository: SolverRepository,
-    private val broadcastPort: BroadcastPort,
     hz: HazelcastInstance
-) {
+): SolverEventsPort {
     private val running = AtomicBoolean(true)
-    private val requestSolverQueue = hz.getQueue<SolverQueuePort.RequestSolverCommand>("request-solver-queue")
+    private val requestSolverQueue = hz.getQueue<SolverEventsPort.RequestSolverCommand>("request-solver-queue")
+    private val requestSolverListeners: MutableList<(SolverEventsPort.RequestSolverCommand) -> Unit> = mutableListOf()
     private val requestSolverEs = Executors.newSingleThreadExecutor()
-    private val solutionRequestQueue = hz.getQueue<SolverQueuePort.SolutionRequestCommand>("solution-request-queue")
-    private val solverRequestEs = Executors.newFixedThreadPool(2)
+    
+    private val solutionRequestQueue = hz.getQueue<SolverEventsPort.SolutionRequestCommand>("solution-request-queue")
+    private val solutionRequestListeners: MutableList<(SolverEventsPort.SolutionRequestCommand) -> Unit> = mutableListOf()
+    private val solverRequestEs = Executors.newSingleThreadExecutor()
 
     init {
         requestSolverEs.submit { requestSolverListener() }
-        repeat(2) { solverRequestEs.submit { solutionRequestListener() } }
+        solverRequestEs.submit { solutionRequestListener() }
+    }
+
+    override fun enqueueRequestSolver(command: SolverEventsPort.RequestSolverCommand) = requestSolverQueue.put(command)
+
+
+    override fun addRequestSolverListener(listener: (SolverEventsPort.RequestSolverCommand) -> Unit) {
+        requestSolverListeners.add(listener)
+    }
+
+    override fun enqueueSolutionRequest(command: SolverEventsPort.SolutionRequestCommand) =
+        solutionRequestQueue.put(command)
+
+    override fun addSolutionRequestListener(listener: (SolverEventsPort.SolutionRequestCommand) -> Unit) {
+        solutionRequestListeners.add(listener)
     }
 
     private fun requestSolverListener() {
@@ -33,7 +44,7 @@ class HazelcastEventsHandler(
         while (running.get()) {
             val cmd = requestSolverQueue.take()
             logger.debug { "Taking RequestSolverCommand: $cmd" }
-            solver.solve(cmd.problemId, cmd.uuid, cmd.solverName)
+            requestSolverListeners.forEach { listener -> listener(cmd) }
         }
     }
 
@@ -42,10 +53,7 @@ class HazelcastEventsHandler(
         while (running.get()) {
             val cmd = solutionRequestQueue.take()
             logger.debug { "Taking SolutionRequestCommand: ${cmd.solutionRequest.solverKey}" }
-            val (solRequest, clear) = cmd.solutionRequest to cmd.clear
-            val newSolRequest = solverRepository
-                .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
-            broadcastPort.broadcastSolution(newSolRequest)
+            solutionRequestListeners.forEach { listener -> listener(cmd) }
         }
     }
 

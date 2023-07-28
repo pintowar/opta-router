@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.core.solver
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
+import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.CoroutineScope
@@ -32,13 +32,18 @@ private val logger = KotlinLogging.logger {}
  */
 class VrpSolverManager(
     private val timeLimit: Duration,
-    private val solverQueue: SolverQueuePort,
+    private val solverEvents: SolverEventsPort,
     private val solverRepository: SolverRepository,
     private val broadcastPort: BroadcastPort
 ) {
 
-    private val solverScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val managerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
+
+    init {
+        solverEvents.addRequestSolverListener { solve(it.problemId, it.uuid, it.solverName) }
+        solverEvents.addSolutionRequestListener { updateAndBroadcast(it.solutionRequest, it.clear) }
+    }
 
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return solverRepository.currentSolutionRequest(problemId)
@@ -53,8 +58,8 @@ class VrpSolverManager(
 
     fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverQueue.requestSolver(
-                SolverQueuePort.RequestSolverCommand(
+            solverEvents.enqueueRequestSolver(
+                SolverEventsPort.RequestSolverCommand(
                     request.problemId,
                     request.requestKey,
                     solverName
@@ -78,7 +83,7 @@ class VrpSolverManager(
                 solverKeys[solverKey]?.cancelAndJoin()
             }
             solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
-                broadcastSolution(it, true)
+                enqueueSolution(it, true)
             }
         }
     }
@@ -91,7 +96,11 @@ class VrpSolverManager(
 
     fun solverNames() = Solver.getNamedSolvers().keys
 
-    fun solve(problemId: Long, uuid: UUID, solverName: String) {
+    private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
+        solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
+    }
+
+    private fun solve(problemId: Long, uuid: UUID, solverName: String) {
         if (solverKeys.containsKey(uuid)) return
 
         val currentMatrix = solverRepository.currentMatrix(problemId) ?: return
@@ -99,7 +108,7 @@ class VrpSolverManager(
         val solverKey = solutionRequest.solverKey ?: return
         val currentSolution = solutionRequest.solution
 
-        solverKeys[solverKey] = solverScope.launch {
+        solverKeys[solverKey] = managerScope.launch {
             val scope = this
             Solver.getSolverByName(solverName).also { solver ->
                 var bestSolution = currentSolution
@@ -108,18 +117,20 @@ class VrpSolverManager(
                     .onEach {
                         bestSolution = it
                         logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+                        enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
                     }
                     .onCompletion {
                         logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
+                        enqueueSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
                     }
                     .collect()
             }
         }
     }
 
-    private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
-        solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
+    private fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
+        val newSolRequest = solverRepository
+            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
+        broadcastPort.broadcastSolution(newSolRequest)
     }
 }
