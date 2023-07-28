@@ -7,6 +7,7 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
+import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,5 +31,14 @@ class VrpSolverConfig {
         broadcastPort: BroadcastPort
     ): VrpSolverManager {
         return VrpSolverManager(timeLimit, solverEventsPort, solverRepository, broadcastPort)
+    }
+
+    @Bean
+    fun vrpSolverService(
+        solverRepository: SolverRepository,
+        solverEventsPort: SolverEventsPort,
+        broadcastPort: BroadcastPort
+    ): VrpSolverService {
+        return VrpSolverService(solverEventsPort, solverRepository, broadcastPort)
     }
 }

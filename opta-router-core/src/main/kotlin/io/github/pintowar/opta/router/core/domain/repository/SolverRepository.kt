@@ -23,8 +23,12 @@ class SolverRepository(
         )
     }
 
-    fun refreshAndGetCurrentSolverRequest(problemId: Long, timeLimit: Duration): VrpSolverRequest? {
+    /*fun refreshAndGetCurrentSolverRequest(problemId: Long, timeLimit: Duration): VrpSolverRequest? {
         vrpSolverRequestPort.refreshSolverRequests(timeLimit + Duration.ofMinutes(1))
+        return vrpSolverRequestPort.currentSolverRequest(problemId)
+    }*/
+
+    fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
         return vrpSolverRequestPort.currentSolverRequest(problemId)
     }
 

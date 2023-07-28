@@ -11,12 +11,13 @@ private val logger = KotlinLogging.logger {}
 class HazelcastEventsHandler(hz: HazelcastInstance): SolverEventsPort {
 
     private val running = AtomicBoolean(true)
+
     private val requestSolverQueue = hz.getQueue<SolverEventsPort.RequestSolverCommand>("request-solver-queue")
-    private val requestSolverListeners: MutableList<(SolverEventsPort.RequestSolverCommand) -> Unit> = mutableListOf()
+    private val requestSolverListeners = mutableListOf<(SolverEventsPort.RequestSolverCommand) -> Unit>()
     private val requestSolverEs = Executors.newSingleThreadExecutor()
     
     private val solutionRequestQueue = hz.getQueue<SolverEventsPort.SolutionRequestCommand>("solution-request-queue")
-    private val solutionRequestListeners: MutableList<(SolverEventsPort.SolutionRequestCommand) -> Unit> = mutableListOf()
+    private val solutionRequestListeners = mutableListOf<(SolverEventsPort.SolutionRequestCommand) -> Unit>()
     private val solverRequestEs = Executors.newSingleThreadExecutor()
 
     private val cancelSolverTopic = hz.getReliableTopic<SolverEventsPort.CancelSolverCommand>("cancel-solver-topic")
@@ -50,24 +51,19 @@ class HazelcastEventsHandler(hz: HazelcastInstance): SolverEventsPort {
 
     private fun requestSolverListener() {
         logger.debug { "Starting request-solver-queue Handler" }
-        if (requestSolverListeners.isNotEmpty()) {
-            while (running.get()) {
-                val cmd = requestSolverQueue.take()
-                logger.debug { "Taking RequestSolverCommand: $cmd" }
-                requestSolverListeners.forEach { listener -> listener(cmd) }
-            }
+        while (running.get()) {
+            val cmd = requestSolverQueue.take()
+            logger.debug { "Taking RequestSolverCommand: $cmd" }
+            requestSolverListeners.forEach { listener -> listener(cmd) }
         }
-
     }
 
     private fun solutionRequestListener() {
         logger.debug { "Starting solution-request-queue Handler" }
-        if (solutionRequestListeners.isNotEmpty()) {
-            while (running.get()) {
-                val cmd = solutionRequestQueue.take()
-                logger.debug { "Taking SolutionRequestCommand: ${cmd.solutionRequest.solverKey}" }
-                solutionRequestListeners.forEach { listener -> listener(cmd) }
-            }
+        while (running.get()) {
+            val cmd = solutionRequestQueue.take()
+            logger.debug { "Taking SolutionRequestCommand: ${cmd.solutionRequest.solverKey}" }
+            solutionRequestListeners.forEach { listener -> listener(cmd) }
         }
     }
 

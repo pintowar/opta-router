@@ -47,43 +47,9 @@ class VrpSolverManager(
         solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.clear) }
     }
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return solverRepository.currentSolutionRequest(problemId)
-    }
-
-    fun showStatus(problemId: Long): SolverStatus =
-        solverRepository.refreshAndGetCurrentSolverRequest(problemId, timeLimit)?.status ?: SolverStatus.NOT_SOLVED
-
-    fun updateDetailedView(problemId: Long) {
-        solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
-    }
-
-    fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
-        return solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverEvents.enqueueRequestSolver(
-                SolverEventsPort.RequestSolverCommand(
-                    request.problemId,
-                    request.requestKey,
-                    solverName
-                )
-            )
-            request.requestKey
-        }
-    }
-
-    fun terminate(solverKey: UUID) {
-        solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey))
-    }
-
-    fun clear(solverKey: UUID) {
-        solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey, true))
-    }
-
     fun destroy() {
         supervisorJob.cancel()
     }
-
-    fun solverNames() = Solver.getNamedSolvers().keys
 
     private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
         solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
@@ -119,16 +85,15 @@ class VrpSolverManager(
 
     private fun cancelSolver(uuid: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(uuid)?.also { solverRequest ->
-            if(clear) {
+            if (solverKeys.containsKey(uuid) && solverRequest.status != SolverStatus.NOT_SOLVED) {
                 runBlocking {
                     solverKeys[uuid]?.cancelAndJoin()
+                    solverKeys.remove(uuid)
                 }
-                solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
-                    enqueueSolution(it, true)
-                }
-            } else {
-                if (solverRequest.status != SolverStatus.NOT_SOLVED) {
-                    solverKeys[uuid]?.cancel()
+                if (clear) {
+                    solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
+                        enqueueSolution(it, true)
+                    }
                 }
             }
         }
