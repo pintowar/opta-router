@@ -26,6 +26,10 @@ class VrpSolverService(
         private val broadcastPort: BroadcastPort
 ) {
 
+    init {
+        solverEvents.addSolutionRequestListener { updateAndBroadcast(it.solutionRequest, it.clear) }
+    }
+
     fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return solverRepository.currentSolutionRequest(problemId)
     }
@@ -60,5 +64,11 @@ class VrpSolverService(
     }
 
     fun solverNames() = Solver.getNamedSolvers().keys
+
+    private fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
+        val newSolRequest = solverRepository
+            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
+        broadcastPort.broadcastSolution(newSolRequest)
+    }
 
 }

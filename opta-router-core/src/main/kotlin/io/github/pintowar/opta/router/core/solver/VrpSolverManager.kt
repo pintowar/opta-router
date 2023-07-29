@@ -34,7 +34,6 @@ class VrpSolverManager(
     private val timeLimit: Duration,
     private val solverEvents: SolverEventsPort,
     private val solverRepository: SolverRepository,
-    private val broadcastPort: BroadcastPort
 ) {
 
     private val supervisorJob = SupervisorJob()
@@ -43,7 +42,6 @@ class VrpSolverManager(
 
     init {
         solverEvents.addRequestSolverListener { solve(it.problemId, it.solverKey, it.solverName) }
-        solverEvents.addSolutionRequestListener { updateAndBroadcast(it.solutionRequest, it.clear) }
         solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.clear) }
     }
 
@@ -65,30 +63,28 @@ class VrpSolverManager(
 
         solverKeys[solverKey] = managerScope.launch {
             val scope = this
-            Solver.getSolverByName(solverName).also { solver ->
-                var bestSolution = currentSolution
-
-                solver.solve(currentSolution, currentMatrix, SolverConfig(timeLimit))
-                    .onEach {
-                        bestSolution = it
-                        logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
-                    }
-                    .onCompletion {
-                        logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        enqueueSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
-                    }
-                    .collect()
-            }
+            var bestSolution = currentSolution
+            Solver
+                .getSolverByName(solverName)
+                .solve(currentSolution, currentMatrix, SolverConfig(timeLimit))
+                .onEach {
+                    bestSolution = it
+                    logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                    enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+                }
+                .onCompletion {
+                    logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                    enqueueSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
+                }
+                .collect()
         }
     }
 
     private fun cancelSolver(uuid: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(uuid)?.also { solverRequest ->
-            if (solverKeys.containsKey(uuid) && solverRequest.status != SolverStatus.NOT_SOLVED) {
+            if (solverRequest.status != SolverStatus.NOT_SOLVED) {
                 runBlocking {
-                    solverKeys[uuid]?.cancelAndJoin()
-                    solverKeys.remove(uuid)
+                    solverKeys.remove(uuid)?.cancelAndJoin()
                 }
                 if (clear) {
                     solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
@@ -97,11 +93,5 @@ class VrpSolverManager(
                 }
             }
         }
-    }
-
-    private fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
-        val newSolRequest = solverRepository
-            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
-        broadcastPort.broadcastSolution(newSolRequest)
     }
 }

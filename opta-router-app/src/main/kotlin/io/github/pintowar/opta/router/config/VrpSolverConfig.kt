@@ -28,9 +28,8 @@ class VrpSolverConfig {
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
         solverRepository: SolverRepository,
         solverEventsPort: SolverEventsPort,
-        broadcastPort: BroadcastPort
     ): VrpSolverManager {
-        return VrpSolverManager(timeLimit, solverEventsPort, solverRepository, broadcastPort)
+        return VrpSolverManager(timeLimit, solverEventsPort, solverRepository)
     }
 
     @Bean
