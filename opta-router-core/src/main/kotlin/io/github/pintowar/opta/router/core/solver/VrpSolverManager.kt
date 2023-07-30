@@ -25,7 +25,7 @@ private val logger = KotlinLogging.logger {}
 
 class VrpSolverManager(
     private val timeLimit: Duration,
-    private val solverEvents: SolverEventsPort,
+    private val solverEvents: SolverEventsPort
 ) {
 
     private class UserCancellationException(val clear: Boolean) : CancellationException("User cancellation command.")

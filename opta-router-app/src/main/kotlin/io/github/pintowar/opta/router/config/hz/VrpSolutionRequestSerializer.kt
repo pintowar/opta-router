@@ -8,7 +8,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import java.util.*
 
-class VrpSolutionRequestSerializer: CompactSerializer<VrpSolutionRequest> {
+class VrpSolutionRequestSerializer : CompactSerializer<VrpSolutionRequest> {
     override fun read(reader: CompactReader): VrpSolutionRequest {
         val solution = reader.readCompact<VrpSolution>("solution")!!
         val status = reader.readString("status")!!
@@ -29,5 +29,4 @@ class VrpSolutionRequestSerializer: CompactSerializer<VrpSolutionRequest> {
     override fun getCompactClass(): Class<VrpSolutionRequest> {
         return VrpSolutionRequest::class.java
     }
-
 }

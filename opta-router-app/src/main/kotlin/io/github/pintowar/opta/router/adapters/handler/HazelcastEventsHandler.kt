@@ -8,14 +8,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {}
 
-class HazelcastEventsHandler(hz: HazelcastInstance): SolverEventsPort {
+class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort {
 
     private val running = AtomicBoolean(true)
 
     private val requestSolverQueue = hz.getQueue<SolverEventsPort.RequestSolverCommand>("request-solver-queue")
     private val requestSolverListeners = mutableListOf<(SolverEventsPort.RequestSolverCommand) -> Unit>()
     private val requestSolverEs = Executors.newSingleThreadExecutor()
-    
+
     private val solutionRequestQueue = hz.getQueue<SolverEventsPort.SolutionRequestCommand>("solution-request-queue")
     private val solutionRequestListeners = mutableListOf<(SolverEventsPort.SolutionRequestCommand) -> Unit>()
     private val solverRequestEs = Executors.newSingleThreadExecutor()

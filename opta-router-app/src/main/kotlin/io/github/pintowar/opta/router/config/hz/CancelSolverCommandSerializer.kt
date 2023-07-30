@@ -7,7 +7,7 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import java.util.*
 
-class CancelSolverCommandSerializer: CompactSerializer<SolverEventsPort.CancelSolverCommand> {
+class CancelSolverCommandSerializer : CompactSerializer<SolverEventsPort.CancelSolverCommand> {
     override fun read(reader: CompactReader): SolverEventsPort.CancelSolverCommand {
         val solverKey = reader.readString("solverKey")
         val currentStatus = SolverStatus.valueOf(reader.readString("currentStatus")!!)
@@ -28,5 +28,4 @@ class CancelSolverCommandSerializer: CompactSerializer<SolverEventsPort.CancelSo
     override fun getCompactClass(): Class<SolverEventsPort.CancelSolverCommand> {
         return SolverEventsPort.CancelSolverCommand::class.java
     }
-
 }

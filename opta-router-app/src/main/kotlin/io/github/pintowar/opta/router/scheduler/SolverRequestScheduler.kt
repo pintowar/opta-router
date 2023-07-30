@@ -15,7 +15,7 @@ private val logger = KotlinLogging.logger {}
 @Profile("scheduler")
 class SolverRequestScheduler(
     @Value("\${solver.termination.time-limit}") private val timeLimit: Duration,
-    private val vrpSolverRequestPort: VrpSolverRequestPort,
+    private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)

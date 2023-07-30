@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
-import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType

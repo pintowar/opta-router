@@ -53,7 +53,9 @@ class VrpSolverService(
     private fun terminateEarly(solverKey: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
             if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
-                solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey, solverRequest.status, clear))
+                solverEvents.broadcastCancelSolver(
+                    SolverEventsPort.CancelSolverCommand(solverKey, solverRequest.status, clear)
+                )
             } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
                 solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
                     solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, true))
@@ -67,5 +69,4 @@ class VrpSolverService(
             .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
         broadcastPort.broadcastSolution(newSolRequest)
     }
-
 }

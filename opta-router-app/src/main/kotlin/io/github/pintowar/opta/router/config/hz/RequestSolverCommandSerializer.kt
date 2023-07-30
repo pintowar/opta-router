@@ -7,7 +7,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import java.util.*
 
-class RequestSolverCommandSerializer: CompactSerializer<SolverEventsPort.RequestSolverCommand> {
+class RequestSolverCommandSerializer : CompactSerializer<SolverEventsPort.RequestSolverCommand> {
     override fun read(reader: CompactReader): SolverEventsPort.RequestSolverCommand {
         val detailedSolution = reader.readCompact<VrpDetailedSolution>("detailedSolution")!!
         val solverKey = reader.readString("solverKey")
@@ -28,5 +28,4 @@ class RequestSolverCommandSerializer: CompactSerializer<SolverEventsPort.Request
     override fun getCompactClass(): Class<SolverEventsPort.RequestSolverCommand> {
         return SolverEventsPort.RequestSolverCommand::class.java
     }
-
 }
