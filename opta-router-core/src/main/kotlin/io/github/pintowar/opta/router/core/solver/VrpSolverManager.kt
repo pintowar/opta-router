@@ -1,125 +1,75 @@
 package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverQueuePort
-import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
+import io.github.pintowar.opta.router.core.domain.models.matrix.VrpCachedMatrix
+import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.time.Duration
 import java.util.UUID
+import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
-/**
- * This service is responsible to solve VRP problems asynchronously, update the application status, solver and solutions
- * storages. It also sends notifications to the WebSocket queue of the proper user (just for the one that executed the
- * application).
- *
- */
 class VrpSolverManager(
     private val timeLimit: Duration,
-    private val solverQueue: SolverQueuePort,
-    private val solverRepository: SolverRepository,
-    private val broadcastPort: BroadcastPort
+    private val solverEvents: SolverEventsPort
 ) {
 
-    private val solverScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private class UserCancellationException(val clear: Boolean) : CancellationException("User cancellation command.")
+
+    private val supervisorJob = SupervisorJob()
+    private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
+    private val blackListedKeys = ConcurrentHashMap.newKeySet<UUID>()
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return solverRepository.currentSolutionRequest(problemId)
-    }
+    fun solve(solverKey: UUID, detailedSolution: VrpDetailedSolution, solverName: String) {
+        if (blackListedKeys.remove(solverKey)) {
+            enqueueSolution(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
+            return
+        }
+        if (solverKeys.containsKey(solverKey)) return
 
-    fun showStatus(problemId: Long): SolverStatus =
-        solverRepository.refreshAndGetCurrentSolverRequest(problemId, timeLimit)?.status ?: SolverStatus.NOT_SOLVED
-
-    fun updateDetailedView(problemId: Long) {
-        solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
-    }
-
-    fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
-        return solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverQueue.requestSolver(
-                SolverQueuePort.RequestSolverCommand(
-                    request.problemId,
-                    request.requestKey,
-                    solverName
-                )
-            )
-            request.requestKey
+        solverKeys[solverKey] = managerScope.launch {
+            var bestSolution = detailedSolution.solution
+            Solver
+                .getSolverByName(solverName)
+                .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), SolverConfig(timeLimit))
+                .onEach {
+                    bestSolution = it
+                    logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                    enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+                }
+                .onCompletion { ex ->
+                    logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                    val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
+                    val shouldClear = ex is UserCancellationException && ex.clear
+                    enqueueSolution(solRequest, shouldClear)
+                }
+                .collect()
         }
     }
 
-    fun terminateEarly(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest?.status != SolverStatus.NOT_SOLVED) {
-            solverKeys[solverKey]?.cancel()
-        }
-    }
-
-    fun clean(solverKey: UUID) {
-        val solverRequest = solverRepository.currentSolverRequest(solverKey)
-        if (solverRequest != null) {
-            runBlocking {
-                solverKeys[solverKey]?.cancelAndJoin()
-            }
-            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let {
-                broadcastSolution(it, true)
-            }
-        }
+    fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
+        if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
+        solverKeys.remove(solverKey)?.cancel(UserCancellationException(clear))
     }
 
     fun destroy() {
-        solverKeys.forEach { (k, _) ->
-            terminateEarly(k)
-        }
+        supervisorJob.cancel()
     }
-
-    fun solverNames() = Solver.getNamedSolvers().keys
-
-    fun solve(problemId: Long, uuid: UUID, solverName: String) {
-        if (solverKeys.containsKey(uuid)) return
-
-        val currentMatrix = solverRepository.currentMatrix(problemId) ?: return
-        val solutionRequest = solverRepository.currentSolutionRequest(problemId) ?: return
-        val solverKey = solutionRequest.solverKey ?: return
-        val currentSolution = solutionRequest.solution
-
-        solverKeys[solverKey] = solverScope.launch {
-            val scope = this
-            Solver.getSolverByName(solverName).also { solver ->
-                var bestSolution = currentSolution
-
-                solver.solve(currentSolution, currentMatrix, SolverConfig(timeLimit))
-                    .onEach {
-                        bestSolution = it
-                        logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
-                    }
-                    .onCompletion {
-                        logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
-                        broadcastSolution(VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey))
-                    }
-                    .collect()
-            }
-        }
-    }
-
-    private fun broadcastSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
-        solverQueue.updateAndBroadcast(SolverQueuePort.SolutionRequestCommand(solutionRequest, clear))
+    private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
+        solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
     }
 }

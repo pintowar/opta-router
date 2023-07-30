@@ -13,8 +13,8 @@ class VrpSolverRequestJooqAdapter(
     private val dsl: DSLContext
 ) : VrpSolverRequestPort {
 
-    override fun refreshSolverRequests(timeout: Duration) {
-        dsl
+    override fun refreshSolverRequests(timeout: Duration): Int {
+        return dsl
             .update(VRP_SOLVER_REQUEST)
             .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.TERMINATED.name)
             .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.RUNNING.name))

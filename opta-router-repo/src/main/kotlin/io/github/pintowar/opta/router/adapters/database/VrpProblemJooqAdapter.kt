@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
-import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import org.jooq.DSLContext
@@ -67,7 +66,7 @@ class VrpProblemJooqAdapter(
         }.firstOrNull()
     }
 
-    override fun getMatrixById(problemId: Long): Matrix? {
+    override fun getMatrixById(problemId: Long): VrpProblemMatrix? {
         val matrix = dsl
             .selectFrom(VRP_PROBLEM_MATRIX)
             .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))

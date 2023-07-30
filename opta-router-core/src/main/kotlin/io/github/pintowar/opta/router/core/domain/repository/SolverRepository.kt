@@ -1,14 +1,13 @@
 package io.github.pintowar.opta.router.core.domain.repository
 
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
-import java.time.Duration
 import java.util.UUID
 
 class SolverRepository(
@@ -23,8 +22,7 @@ class SolverRepository(
         )
     }
 
-    fun refreshAndGetCurrentSolverRequest(problemId: Long, timeLimit: Duration): VrpSolverRequest? {
-        vrpSolverRequestPort.refreshSolverRequests(timeLimit + Duration.ofMinutes(1))
+    fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
         return vrpSolverRequestPort.currentSolverRequest(problemId)
     }
 
@@ -47,7 +45,11 @@ class SolverRepository(
         )
     }
 
-    fun currentMatrix(instanceId: Long): Matrix? {
-        return vrpProblemPort.getMatrixById(instanceId)
+    fun currentDetailedSolution(problemId: Long): VrpDetailedSolution? {
+        return vrpProblemPort.getMatrixById(problemId)?.let { currentMatrix ->
+            vrpSolverSolutionPort.currentSolutionRequest(problemId)?.let { solutionRequest ->
+                VrpDetailedSolution(solutionRequest.solution, currentMatrix)
+            }
+        }
     }
 }

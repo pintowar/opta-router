@@ -29,8 +29,8 @@ abstract class Solver {
 
     fun solve(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> =
         solveFlow(initialSolution, matrix, config)
-            .scan(initialSolution) { acc, req ->
-                if (!acc.isEmpty() && req.getTotalDistance() > acc.getTotalDistance()) acc else req
+            .scan(initialSolution) { acc, sol ->
+                if (!acc.isEmpty() && sol.getTotalDistance() > acc.getTotalDistance()) acc else sol
             }
             .filterNot { it.isEmpty() }
             .distinctUntilChangedBy { it.getTotalDistance() }

@@ -10,16 +10,35 @@ services:
       POSTGRES_PASSWORD: postgres # The PostgreSQL password (useful to connect to the database)
       POSTGRES_DB: opta-router # The PostgreSQL default database (automatically created at first launch)
 
-  web:
+  web-main:
     image: 'pintowar/opta-router:dist-latest'
     ports:
       - 8080:8080
+      - 5701:5701
     volumes:
       - /tmp/osm:/tmp/osm
     environment:
+      SPRING_PROFILES_ACTIVE: dist,scheduler
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/opta-router
       GRAPH_OSM_PATH: /tmp/osm/belgium-latest.osm.pbf
       GRAPH_OSM_LOCATION: /tmp/osm/gh-tmp
     depends_on:
       - database
+    restart: on-failure
+
+  web-extra:
+    image: 'pintowar/opta-router:dist-latest'
+    ports:
+      - 8081:8080
+      - 5702:5701
+    volumes:
+      - /tmp/osm:/tmp/osm
+    environment:
+      SPRING_PROFILES_ACTIVE: dist
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/opta-router
+      GRAPH_OSM_PATH: /tmp/osm/belgium-latest.osm.pbf
+      GRAPH_OSM_LOCATION: /tmp/osm/gh-tmp
+    depends_on:
+      - database
+      - web-main
     restart: on-failure
