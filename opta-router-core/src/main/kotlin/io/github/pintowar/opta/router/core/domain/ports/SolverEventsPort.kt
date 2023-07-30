@@ -1,11 +1,16 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
+import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import java.util.*
+import java.util.UUID
 
 interface SolverEventsPort {
 
-    data class RequestSolverCommand(val problemId: Long, val solverKey: UUID, val solverName: String)
+    data class RequestSolverCommand(
+        val detailedSolution: VrpDetailedSolution,
+        val solverKey: UUID,
+        val solverName: String
+    )
 
     data class CancelSolverCommand(val solverKey: UUID, val clear: Boolean = false)
 

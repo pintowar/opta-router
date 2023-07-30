@@ -29,7 +29,6 @@ class HazelcastEventsHandler(hz: HazelcastInstance): SolverEventsPort {
 
     override fun enqueueRequestSolver(command: SolverEventsPort.RequestSolverCommand) = requestSolverQueue.put(command)
 
-
     override fun addRequestSolverListener(listener: (SolverEventsPort.RequestSolverCommand) -> Unit) {
         requestSolverListeners.add(listener)
     }

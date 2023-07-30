@@ -26,10 +26,9 @@ class VrpSolverConfig {
     @Bean(destroyMethod = "destroy")
     fun vrpSolverManager(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration,
-        solverRepository: SolverRepository,
         solverEventsPort: SolverEventsPort,
     ): VrpSolverManager {
-        return VrpSolverManager(timeLimit, solverEventsPort, solverRepository)
+        return VrpSolverManager(timeLimit, solverEventsPort)
     }
 
     @Bean

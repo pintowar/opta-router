@@ -1,8 +1,9 @@
 package io.github.pintowar.opta.router.core.domain.models
 
+import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import java.math.BigDecimal
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 interface Coordinate {
     val lat: Double
@@ -93,6 +94,8 @@ data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
 
     fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
 }
+
+data class VrpDetailedSolution(val solution: VrpSolution, val matrix: VrpProblemMatrix)
 
 enum class SolverStatus {
     ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED

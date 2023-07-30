@@ -67,7 +67,7 @@ class VrpProblemJooqAdapter(
         }.firstOrNull()
     }
 
-    override fun getMatrixById(problemId: Long): Matrix? {
+    override fun getMatrixById(problemId: Long): VrpProblemMatrix? {
         val matrix = dsl
             .selectFrom(VRP_PROBLEM_MATRIX)
             .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))

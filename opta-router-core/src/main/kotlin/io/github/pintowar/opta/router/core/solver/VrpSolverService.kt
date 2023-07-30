@@ -6,13 +6,7 @@ import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import java.time.Duration
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
+import java.util.UUID
 
 class VrpSolverService(
     private val solverEvents: SolverEventsPort,
@@ -40,14 +34,16 @@ class VrpSolverService(
 
     fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverEvents.enqueueRequestSolver(
-                SolverEventsPort.RequestSolverCommand(
-                    request.problemId,
-                    request.requestKey,
-                    solverName
+            solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
+                solverEvents.enqueueRequestSolver(
+                    SolverEventsPort.RequestSolverCommand(
+                        detailedSolution,
+                        request.requestKey,
+                        solverName
+                    )
                 )
-            )
-            request.requestKey
+                request.requestKey
+            }
         }
     }
 
