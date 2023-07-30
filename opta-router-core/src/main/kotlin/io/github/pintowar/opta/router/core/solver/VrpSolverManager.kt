@@ -33,10 +33,11 @@ class VrpSolverManager(
     private val supervisorJob = SupervisorJob()
     private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
+    private val blackListedKeys = ConcurrentHashMap.newKeySet<UUID>()
 
     init {
         solverEvents.addRequestSolverListener { solve(it.solverKey, it.detailedSolution, it.solverName) }
-        solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.clear) }
+        solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.currentStatus, it.clear) }
     }
 
     fun destroy() {
@@ -48,6 +49,10 @@ class VrpSolverManager(
     }
 
     private fun solve(solverKey: UUID, detailedSolution: VrpDetailedSolution, solverName: String) {
+        if (blackListedKeys.remove(solverKey)) {
+            enqueueSolution(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
+            return
+        }
         if (solverKeys.containsKey(solverKey)) return
 
         solverKeys[solverKey] = managerScope.launch {
@@ -71,7 +76,8 @@ class VrpSolverManager(
         }
     }
 
-    private fun cancelSolver(uuid: UUID, clear: Boolean) {
-        solverKeys.remove(uuid)?.cancel(UserCancellationException(clear))
+    private fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
+        if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
+        solverKeys.remove(solverKey)?.cancel(UserCancellationException(clear))
     }
 }

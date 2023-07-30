@@ -53,9 +53,8 @@ class VrpSolverService(
 
     private fun terminateEarly(solverKey: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
-            // TODO: must act when is ENQUEUED
-            if (solverRequest.status == SolverStatus.RUNNING) {
-                solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey, clear))
+            if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
+                solverEvents.broadcastCancelSolver(SolverEventsPort.CancelSolverCommand(solverKey, solverRequest.status, clear))
             } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
                 solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
                     solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, true))

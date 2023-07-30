@@ -1,5 +1,6 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import java.util.UUID
@@ -12,7 +13,7 @@ interface SolverEventsPort {
         val solverName: String
     )
 
-    data class CancelSolverCommand(val solverKey: UUID, val clear: Boolean = false)
+    data class CancelSolverCommand(val solverKey: UUID, val currentStatus: SolverStatus, val clear: Boolean = false)
 
     data class SolutionRequestCommand(val solutionRequest: VrpSolutionRequest, val clear: Boolean)
 
