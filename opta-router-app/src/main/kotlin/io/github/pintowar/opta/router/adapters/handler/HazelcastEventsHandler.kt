@@ -51,18 +51,26 @@ class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort {
     private fun requestSolverListener() {
         logger.debug { "Starting request-solver-queue Handler" }
         while (running.get()) {
-            val cmd = requestSolverQueue.take()
-            logger.debug { "Taking RequestSolverCommand: $cmd" }
-            requestSolverListeners.forEach { listener -> listener(cmd) }
+            if (requestSolverListeners.isNotEmpty()) {
+                val cmd = requestSolverQueue.take()
+                logger.debug { "Taking RequestSolverCommand: $cmd" }
+                requestSolverListeners.forEach { listener -> listener(cmd) }
+            } else {
+                Thread.sleep(500)
+            }
         }
     }
 
     private fun solutionRequestListener() {
         logger.debug { "Starting solution-request-queue Handler" }
         while (running.get()) {
-            val cmd = solutionRequestQueue.take()
-            logger.debug { "Taking SolutionRequestCommand: ${cmd.solutionRequest.solverKey}" }
-            solutionRequestListeners.forEach { listener -> listener(cmd) }
+            if (solutionRequestListeners.isNotEmpty()) {
+                val cmd = solutionRequestQueue.take()
+                logger.debug { "Taking SolutionRequestCommand: ${cmd.solutionRequest.solverKey}" }
+                solutionRequestListeners.forEach { listener -> listener(cmd) }
+            } else {
+                Thread.sleep(500)
+            }
         }
     }
 

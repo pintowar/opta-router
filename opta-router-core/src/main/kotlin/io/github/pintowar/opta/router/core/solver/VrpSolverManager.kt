@@ -56,18 +56,17 @@ class VrpSolverManager(
         if (solverKeys.containsKey(solverKey)) return
 
         solverKeys[solverKey] = managerScope.launch {
-            val scope = this
             var bestSolution = detailedSolution.solution
             Solver
                 .getSolverByName(solverName)
                 .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), SolverConfig(timeLimit))
                 .onEach {
                     bestSolution = it
-                    logger.debug { "onEach (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                    logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
                     enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
                 }
                 .onCompletion { ex ->
-                    logger.debug { "onEnd (${scope.isActive}): $solverKey | ${bestSolution.getTotalDistance()}" }
+                    logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
                     val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
                     val shouldClear = ex is UserCancellationException && ex.clear
                     enqueueSolution(solRequest, shouldClear)
