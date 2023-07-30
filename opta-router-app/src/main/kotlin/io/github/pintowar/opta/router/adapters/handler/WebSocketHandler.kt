@@ -3,7 +3,6 @@ package io.github.pintowar.opta.router.adapters.handler
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
@@ -20,15 +19,10 @@ private val logger = KotlinLogging.logger {}
 class WebSocketHandler(
     private val sessionPanel: MutableMap<String, SolverPanel>,
     private val mapper: ObjectMapper,
-    private val geoService: GeoPort,
-    broadcastPort: BroadcastPort
+    private val geoService: GeoPort
 ) : TextWebSocketHandler() {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
-
-    init {
-        broadcastPort.addBroadcastSolution { broadcast(it.solutionRequest) }
-    }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val sessionId = sessionIdFromSession(session)
@@ -45,11 +39,7 @@ class WebSocketHandler(
         sessions.remove(sessionId)
     }
 
-    private fun sessionIdFromSession(session: WebSocketSession): String {
-        return session.attributes["HTTP.SESSION.ID"]!!.toString()
-    }
-
-    private fun broadcast(data: VrpSolutionRequest) {
+    fun broadcast(data: VrpSolutionRequest) {
         val cache = mutableMapOf<Boolean, String>()
         sessions.forEach { (sessionId, session) ->
             val panel = sessionPanel[sessionId] ?: SolverPanel()
@@ -61,6 +51,10 @@ class WebSocketHandler(
 
             notifyUser(session, data.solution.problem.id, textData)
         }
+    }
+
+    private fun sessionIdFromSession(session: WebSocketSession): String {
+        return session.attributes["HTTP.SESSION.ID"]!!.toString()
     }
 
     private fun notifyUser(session: WebSocketSession, instanceId: Long, data: String) {

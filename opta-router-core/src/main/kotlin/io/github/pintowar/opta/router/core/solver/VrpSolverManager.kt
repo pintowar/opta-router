@@ -34,20 +34,7 @@ class VrpSolverManager(
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
     private val blackListedKeys = ConcurrentHashMap.newKeySet<UUID>()
 
-    init {
-        solverEvents.addRequestSolverListener { solve(it.solverKey, it.detailedSolution, it.solverName) }
-        solverEvents.addBroadcastCancelListener { cancelSolver(it.solverKey, it.currentStatus, it.clear) }
-    }
-
-    fun destroy() {
-        supervisorJob.cancel()
-    }
-
-    private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
-        solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
-    }
-
-    private fun solve(solverKey: UUID, detailedSolution: VrpDetailedSolution, solverName: String) {
+    fun solve(solverKey: UUID, detailedSolution: VrpDetailedSolution, solverName: String) {
         if (blackListedKeys.remove(solverKey)) {
             enqueueSolution(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
             return
@@ -74,8 +61,15 @@ class VrpSolverManager(
         }
     }
 
-    private fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
+    fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
         if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
         solverKeys.remove(solverKey)?.cancel(UserCancellationException(clear))
+    }
+
+    fun destroy() {
+        supervisorJob.cancel()
+    }
+    private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
+        solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
     }
 }

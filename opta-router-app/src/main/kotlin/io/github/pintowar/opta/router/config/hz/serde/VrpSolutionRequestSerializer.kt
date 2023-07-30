@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.config.hz
+package io.github.pintowar.opta.router.config.hz.serde
 
 import com.hazelcast.nio.serialization.compact.CompactReader
 import com.hazelcast.nio.serialization.compact.CompactSerializer

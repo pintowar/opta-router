@@ -3,6 +3,6 @@ hazelcast:
   serialization:
     compact-serialization:
       serializers:
-        - serializer: io.github.pintowar.opta.router.config.hz.RequestSolverCommandSerializer
-        - serializer: io.github.pintowar.opta.router.config.hz.CancelSolverCommandSerializer
-        - serializer: io.github.pintowar.opta.router.config.hz.VrpSolutionRequestSerializer
+        - serializer: io.github.pintowar.opta.router.config.hz.serde.RequestSolverCommandSerializer
+        - serializer: io.github.pintowar.opta.router.config.hz.serde.CancelSolverCommandSerializer
+        - serializer: io.github.pintowar.opta.router.config.hz.serde.VrpSolutionRequestSerializer

@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.config
 
 import com.hazelcast.core.HazelcastInstance
-import io.github.pintowar.opta.router.adapters.handler.HazelcastEventsHandler
+import io.github.pintowar.opta.router.config.hz.HazelcastEventsRegistry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 class EventHandlerConfig {
 
     @Bean(destroyMethod = "destroy")
-    fun eventHandler(hz: HazelcastInstance): HazelcastEventsHandler {
-        return HazelcastEventsHandler(hz)
+    fun eventRegistry(hz: HazelcastInstance): HazelcastEventsRegistry {
+        return HazelcastEventsRegistry(hz)
     }
 }
