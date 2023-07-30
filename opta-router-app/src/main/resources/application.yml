@@ -1,6 +1,9 @@
 spring:
   profiles:
     active: '@environmentName@'
+    group:
+      local: scheduler
+      single: scheduler
   jackson:
     serialization:
       indent_output: true

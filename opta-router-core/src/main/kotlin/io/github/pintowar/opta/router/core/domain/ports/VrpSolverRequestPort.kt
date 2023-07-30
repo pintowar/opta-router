@@ -6,7 +6,7 @@ import java.util.*
 
 interface VrpSolverRequestPort {
 
-    fun refreshSolverRequests(timeout: Duration)
+    fun refreshSolverRequests(timeout: Duration): Int
 
     fun createRequest(request: VrpSolverRequest): VrpSolverRequest?
 
