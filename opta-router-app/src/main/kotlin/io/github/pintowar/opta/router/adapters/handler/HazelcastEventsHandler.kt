@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.adapters.handler
 
 import com.hazelcast.core.HazelcastInstance
+import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import mu.KotlinLogging
 import java.util.concurrent.Executors
@@ -8,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 private val logger = KotlinLogging.logger {}
 
-class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort {
+class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort, BroadcastPort {
 
     private val running = AtomicBoolean(true)
 
@@ -21,6 +22,7 @@ class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort {
     private val solverRequestEs = Executors.newSingleThreadExecutor()
 
     private val cancelSolverTopic = hz.getReliableTopic<SolverEventsPort.CancelSolverCommand>("cancel-solver-topic")
+    private val solutionTopic = hz.getTopic<BroadcastPort.SolutionCommand>("solution-topic")
 
     init {
         requestSolverEs.submit { requestSolverListener() }
@@ -46,6 +48,14 @@ class HazelcastEventsHandler(hz: HazelcastInstance) : SolverEventsPort {
 
     override fun addBroadcastCancelListener(listener: (SolverEventsPort.CancelSolverCommand) -> Unit) {
         cancelSolverTopic.addMessageListener { listener(it.messageObject) }
+    }
+
+    override fun broadcastSolution(command: BroadcastPort.SolutionCommand) {
+        solutionTopic.publish(command)
+    }
+
+    override fun addBroadcastSolution(listener: (BroadcastPort.SolutionCommand) -> Unit) {
+        solutionTopic.addMessageListener { listener(it.messageObject) }
     }
 
     private fun requestSolverListener() {

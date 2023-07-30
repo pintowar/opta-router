@@ -4,5 +4,9 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 
 interface BroadcastPort {
 
-    fun broadcastSolution(data: VrpSolutionRequest)
+    data class SolutionCommand(val solutionRequest: VrpSolutionRequest)
+
+    fun broadcastSolution(command: SolutionCommand)
+
+    fun addBroadcastSolution(listener: (SolutionCommand) -> Unit)
 }

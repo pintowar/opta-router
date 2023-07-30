@@ -28,7 +28,7 @@ class VrpSolverService(
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
 
     fun updateDetailedView(problemId: Long) {
-        solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
+        solverRepository.currentSolutionRequest(problemId)?.let(::broadcastSolution)
     }
 
     fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
@@ -64,9 +64,13 @@ class VrpSolverService(
         }
     }
 
+    private fun broadcastSolution(solRequest: VrpSolutionRequest) {
+        broadcastPort.broadcastSolution(BroadcastPort.SolutionCommand(solRequest))
+    }
+
     private fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
         val newSolRequest = solverRepository
             .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
-        broadcastPort.broadcastSolution(newSolRequest)
+        broadcastSolution(newSolRequest)
     }
 }

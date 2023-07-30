@@ -20,10 +20,15 @@ private val logger = KotlinLogging.logger {}
 class WebSocketHandler(
     private val sessionPanel: MutableMap<String, SolverPanel>,
     private val mapper: ObjectMapper,
-    private val geoService: GeoPort
-) : TextWebSocketHandler(), BroadcastPort {
+    private val geoService: GeoPort,
+    broadcastPort: BroadcastPort
+) : TextWebSocketHandler() {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
+
+    init {
+        broadcastPort.addBroadcastSolution { broadcast(it.solutionRequest) }
+    }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val sessionId = sessionIdFromSession(session)
@@ -68,9 +73,5 @@ class WebSocketHandler(
         } catch (e: Exception) {
             logger.warn("Could not send message message through web socket!", e)
         }
-    }
-
-    override fun broadcastSolution(data: VrpSolutionRequest) {
-        broadcast(data)
     }
 }
