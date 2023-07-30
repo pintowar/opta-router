@@ -26,7 +26,6 @@ class VrpSolverService(
 
     fun showStatus(problemId: Long): SolverStatus =
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
-//        solverRepository.refreshAndGetCurrentSolverRequest(problemId, timeLimit)?.status ?: SolverStatus.NOT_SOLVED
 
     fun updateDetailedView(problemId: Long) {
         solverRepository.currentSolutionRequest(problemId)?.let(broadcastPort::broadcastSolution)
