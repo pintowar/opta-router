@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { localThemes } from "./themes";
 import { themeChange } from "theme-change";
 import { ref, onMounted } from "vue";
 
-const themes = ["black", "cupcake", "dark", "dracula", "light", "pastel"];
-const selectedTheme = ref(themes[0]);
+const selectedTheme = ref(localThemes[0]);
 
 onMounted(() => themeChange(true));
 </script>
@@ -21,7 +21,6 @@ onMounted(() => themeChange(true));
           height="32"
           width="32"
           viewBox="0 0 16 16"
-          version="1.1"
           data-view-component="true"
           class="fill-current"
         >
@@ -31,7 +30,7 @@ onMounted(() => themeChange(true));
         </svg>
       </a>
       <select v-model="selectedTheme" class="select w-full max-w-xs" data-choose-theme>
-        <option v-for="theme in themes" :key="theme" :value="theme">{{ theme }}</option>
+        <option v-for="theme in localThemes" :key="theme" :value="theme">{{ theme }}</option>
       </select>
     </div>
   </header>
