@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { computed, toRefs } from "vue";
+import { useColorMode } from "@vueuse/core";
 import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 
+import { categories } from "../themes.ts";
 import { VrpSolverRequest, VrpSolverObjective } from "../api";
 
 const props = defineProps<{
@@ -12,6 +14,15 @@ const props = defineProps<{
 }>();
 
 const { solutions, request } = toRefs(props);
+
+const mode = useColorMode({
+    attribute: "data-theme",
+});
+
+const themeCategory = computed(() => {
+    const category = mode.value === "auto" ? mode.system.value : categories[mode.value];
+    return category === "dark" ? "light" : "dark";
+});
 
 const colors = createRainbow(Math.max(props.solvers.length, 9))
   .map((c) => rgbaString(c))
@@ -46,10 +57,12 @@ const chartOptions = computed(() => {
     chart: {
       height: 350,
       type: "line",
+      background: "transparent",
       zoom: {
         enabled: false,
       },
     },
+    theme: { mode: themeCategory.value },
     dataLabels: {
       enabled: false,
     },

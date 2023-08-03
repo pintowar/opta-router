@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { useColorMode } from '@vueuse/core'
 import { localThemes } from "./themes";
-import { themeChange } from "theme-change";
-import { ref, onMounted } from "vue";
 
-const selectedTheme = ref(localThemes[0]);
-
-onMounted(() => themeChange(true));
+const mode = useColorMode({
+    attribute: "data-theme",
+    modes: localThemes
+});
 </script>
 
 <template>
@@ -29,7 +29,7 @@ onMounted(() => themeChange(true));
           ></path>
         </svg>
       </a>
-      <select v-model="selectedTheme" class="select w-full max-w-xs" data-choose-theme>
+      <select v-model="mode" class="select w-full max-w-xs" data-choose-theme>
         <option v-for="theme in localThemes" :key="theme" :value="theme">{{ theme }}</option>
       </select>
     </div>
