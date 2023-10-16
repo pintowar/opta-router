@@ -1,9 +1,9 @@
 [versions]
-kotlin = "1.9.0"
-kotlin-coroutines = "1.7.2"
-kotlin-logging = "3.0.5"
-spring-boot = "3.1.2"
-spring-dependency = "1.1.0"
+kotlin = "1.9.10"
+kotlin-coroutines = "1.7.3"
+kotlin-logging = "5.1.0"
+spring-boot = "3.1.4"
+spring-dependency = "1.1.3"
 spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2"
@@ -16,6 +16,7 @@ graphhopper = "7.0"
 flyway = "9.17.0"
 jooq = "3.18.3"
 hazelcast = "5.3.1"
+camel = "4.1.0"
 h2 = "2.1.214"
 postgres = "42.6.0"
 sfl4j = "2.0.7"
@@ -45,7 +46,7 @@ gradleplugin-properties = { module = "net.saliman:gradle-properties-plugin", ver
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring-boot" }
@@ -75,6 +76,11 @@ jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
 h2-db = { module = "com.h2database:h2", version.ref = "h2" }
 pg-db = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 
+camel-endpointdsl = { module = "org.apache.camel:camel-endpointdsl", version.ref = "camel" }
+camel-boot = { module = "org.apache.camel.springboot:camel-spring-boot-starter", version.ref = "camel" }
+camel-bean = { module = "org.apache.camel.springboot:camel-bean-starter", version.ref = "camel" }
+camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starter", version.ref = "camel" }
+
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 [bundles]
@@ -84,3 +90,4 @@ jooq = ["jooq-core", "jooq-kotlin"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
+camel = ["camel-endpointdsl", "camel-boot", "camel-bean", "camel-hazelcast"]

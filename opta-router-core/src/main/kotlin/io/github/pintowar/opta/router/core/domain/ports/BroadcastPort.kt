@@ -8,5 +8,4 @@ interface BroadcastPort {
 
     fun broadcastSolution(command: SolutionCommand)
 
-    fun addBroadcastSolution(listener: (SolutionCommand) -> Unit)
 }

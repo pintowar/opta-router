@@ -18,6 +18,10 @@ spring:
   flyway:
     enabled: false
 
+camel:
+  springboot:
+    name: opta-router-routes
+
 endpoints:
   health:
     sensitive: false

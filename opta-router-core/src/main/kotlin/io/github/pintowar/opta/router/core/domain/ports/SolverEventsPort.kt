@@ -19,13 +19,8 @@ interface SolverEventsPort {
 
     fun enqueueRequestSolver(command: RequestSolverCommand)
 
-    fun addRequestSolverListener(listener: (RequestSolverCommand) -> Unit)
-
     fun enqueueSolutionRequest(command: SolutionRequestCommand)
-
-    fun addSolutionRequestListener(listener: (SolutionRequestCommand) -> Unit)
 
     fun broadcastCancelSolver(command: CancelSolverCommand)
 
-    fun addBroadcastCancelListener(listener: (CancelSolverCommand) -> Unit)
 }
