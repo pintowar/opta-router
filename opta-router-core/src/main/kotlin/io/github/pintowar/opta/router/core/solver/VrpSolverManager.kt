@@ -1,5 +1,6 @@
 package io.github.pintowar.opta.router.core.solver
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import mu.KotlinLogging
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.CancellationException

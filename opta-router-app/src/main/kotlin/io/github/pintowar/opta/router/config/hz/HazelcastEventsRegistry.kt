@@ -1,9 +1,9 @@
 package io.github.pintowar.opta.router.config.hz
 
 import com.hazelcast.core.HazelcastInstance
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
-import mu.KotlinLogging
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 

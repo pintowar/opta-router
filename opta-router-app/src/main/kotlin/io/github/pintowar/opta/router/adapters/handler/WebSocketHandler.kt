@@ -1,10 +1,10 @@
 package io.github.pintowar.opta.router.adapters.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
-import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
@@ -65,7 +65,7 @@ class WebSocketHandler(
                 session.sendMessage(TextMessage(data))
             }
         } catch (e: Exception) {
-            logger.warn("Could not send message message through web socket!", e)
+            logger.warn(e) { "Could not send message message through web socket!" }
         }
     }
 }

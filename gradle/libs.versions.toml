@@ -1,9 +1,9 @@
 [versions]
-kotlin = "1.9.0"
-kotlin-coroutines = "1.7.2"
-kotlin-logging = "3.0.5"
-spring-boot = "3.1.2"
-spring-dependency = "1.1.0"
+kotlin = "1.9.10"
+kotlin-coroutines = "1.7.3"
+kotlin-logging = "5.1.0"
+spring-boot = "3.1.4"
+spring-dependency = "1.1.3"
 spotless = "6.18.0"
 springdoc = "2.1.0"
 jackson = "2.14.2"
@@ -45,7 +45,7 @@ gradleplugin-properties = { module = "net.saliman:gradle-properties-plugin", ver
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 spring-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "spring-boot" }
