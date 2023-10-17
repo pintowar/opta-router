@@ -76,7 +76,6 @@ jooq-kotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
 h2-db = { module = "com.h2database:h2", version.ref = "h2" }
 pg-db = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 
-camel-endpointdsl = { module = "org.apache.camel:camel-endpointdsl", version.ref = "camel" }
 camel-boot = { module = "org.apache.camel.springboot:camel-spring-boot-starter", version.ref = "camel" }
 camel-bean = { module = "org.apache.camel.springboot:camel-bean-starter", version.ref = "camel" }
 camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starter", version.ref = "camel" }
@@ -90,4 +89,4 @@ jooq = ["jooq-core", "jooq-kotlin"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
-camel = ["camel-endpointdsl", "camel-boot", "camel-bean", "camel-hazelcast"]
+camel = ["camel-boot", "camel-bean", "camel-hazelcast"]

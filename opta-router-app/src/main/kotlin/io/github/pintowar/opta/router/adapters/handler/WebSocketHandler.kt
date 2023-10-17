@@ -65,7 +65,7 @@ class WebSocketHandler(
                 session.sendMessage(TextMessage(data))
             }
         } catch (e: Exception) {
-            logger.warn("Could not send message message through web socket!", e)
+            logger.warn(e) { "Could not send message message through web socket!" }
         }
     }
 }
