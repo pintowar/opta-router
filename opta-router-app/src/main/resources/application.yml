@@ -21,6 +21,17 @@ spring:
 camel:
   springboot:
     name: opta-router-routes
+  route:
+    producer:
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
+    consumer:
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
 
 endpoints:
   health:
