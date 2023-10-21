@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "generate-ts-api": "openapi-typescript http://localhost:8080/v3/api-docs.yaml --output src/api/generated/api.d.ts",
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ./src/**/*.{js,vue,html,ts} ./*.{js,html,ts}",
-    "lint": "eslint --ext .ts,js,vue --ignore-path .gitignore ."
+    "lint": "eslint --ext .ts,js,vue,svg --ignore-path .gitignore ."
   },
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.10.1",
@@ -19,6 +19,7 @@
     "leaflet": "^1.9.3",
     "rainbow-color": "^2.0.0",
     "vanilla-jsoneditor": "^0.17.1",
+    "vite-svg-loader": "^4.0.0",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
     "vue3-apexcharts": "^1.4.1"
