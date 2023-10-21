@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { useColorMode } from '@vueuse/core'
+import { useColorMode } from "@vueuse/core";
 import { localThemes } from "./themes";
 import Icon from "./components/Icon.vue";
 
 const mode = useColorMode({
-    attribute: "data-theme",
-    modes: localThemes
+  attribute: "data-theme",
+  modes: localThemes,
 });
 </script>
 
@@ -29,7 +29,7 @@ const mode = useColorMode({
 
   <footer class="footer items-center p-4 bg-neutral text-neutral-content fixed bottom-0">
     <div class="items-center grid-flow-col">
-        <Icon name="hash" />
+      <Icon name="hash" />
       <p>Copyright © 2023 - All right reserved</p>
     </div>
   </footer>

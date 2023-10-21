@@ -17,9 +17,7 @@ const { isFetching, error, data: instances } = useFetch(url).get().json<VrpProbl
       <div>
         <h1 class="text-2xl my-2">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
-          <router-link to="/problem/new" class="btn btn-circle">
-              New
-          </router-link>
+          <router-link to="/problem/new" class="btn btn-circle"> New </router-link>
         </div>
         <table class="table table-zebra w-full">
           <thead>
@@ -40,16 +38,16 @@ const { isFetching, error, data: instances } = useFetch(url).get().json<VrpProbl
                   <Icon name="gears" />
                 </router-link>
               </div>
-                <div class="tooltip" data-tip="Edit">
-                    <router-link :to="`/problem/${instance.id}/edit`" class="btn btn-circle">
-                        <Icon name="edit" />
-                    </router-link>
-                </div>
-                <div class="tooltip" data-tip="Delete">
-                    <button class="btn btn-circle">
-                        <Icon name="trash" />
-                    </button>
-                </div>
+              <div class="tooltip" data-tip="Edit">
+                <router-link :to="`/problem/${instance.id}/edit`" class="btn btn-circle">
+                  <Icon name="edit" />
+                </router-link>
+              </div>
+              <div class="tooltip" data-tip="Delete">
+                <button class="btn btn-circle">
+                  <Icon name="trash" />
+                </button>
+              </div>
             </td>
           </tbody>
         </table>
