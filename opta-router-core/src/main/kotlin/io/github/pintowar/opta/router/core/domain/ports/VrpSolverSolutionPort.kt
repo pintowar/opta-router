@@ -4,15 +4,16 @@ import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 interface VrpSolverSolutionPort {
 
-    fun currentSolution(problemId: Long): List<Route>
+    suspend fun currentSolution(problemId: Long): List<Route>
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest?
+    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest?
 
-    fun upsertSolution(
+    suspend fun upsertSolution(
         problemId: Long,
         solverStatus: SolverStatus,
         paths: List<Route>,
@@ -21,5 +22,5 @@ interface VrpSolverSolutionPort {
         uuid: UUID
     ): VrpSolutionRequest
 
-    fun solutionHistory(problemId: Long): List<VrpSolverObjective>
+    fun solutionHistory(problemId: Long): Flow<VrpSolverObjective>
 }

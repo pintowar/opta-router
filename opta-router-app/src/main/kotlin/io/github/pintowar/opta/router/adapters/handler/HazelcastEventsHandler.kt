@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.adapters.handler
 import io.github.pintowar.opta.router.config.hz.HazelcastEventsRegistry
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
 
 @Component
@@ -16,7 +17,9 @@ class HazelcastEventsHandler(
     init {
         hazelcastEventsRegistry.addBroadcastSolution { webSocketHandler.broadcast(it.solutionRequest) }
         hazelcastEventsRegistry.addSolutionRequestListener {
-            vrpSolverService.updateAndBroadcast(it.solutionRequest, it.clear)
+            runBlocking {
+                vrpSolverService.updateAndBroadcast(it.solutionRequest, it.clear)
+            }
         }
 
         hazelcastEventsRegistry.addRequestSolverListener {

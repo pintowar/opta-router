@@ -16,24 +16,24 @@ class VrpSolverService(
 
     fun solverNames() = Solver.getNamedSolvers().keys
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return solverRepository.currentSolutionRequest(problemId)
     }
 
-    fun showStatus(problemId: Long): SolverStatus =
+    suspend fun showStatus(problemId: Long): SolverStatus =
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
 
-    fun updateDetailedView(problemId: Long) {
+    suspend fun updateDetailedView(problemId: Long) {
         solverRepository.currentSolutionRequest(problemId)?.let(::broadcastSolution)
     }
 
-    fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
+    suspend fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
         val newSolRequest = solverRepository
             .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
         broadcastSolution(newSolRequest)
     }
 
-    fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
+    suspend fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
             solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
                 solverEvents.enqueueRequestSolver(
@@ -48,11 +48,11 @@ class VrpSolverService(
         }
     }
 
-    fun terminate(solverKey: UUID): Unit = terminateEarly(solverKey, false)
+    suspend fun terminate(solverKey: UUID): Unit = terminateEarly(solverKey, false)
 
-    fun clear(solverKey: UUID): Unit = terminateEarly(solverKey, true)
+    suspend fun clear(solverKey: UUID): Unit = terminateEarly(solverKey, true)
 
-    private fun terminateEarly(solverKey: UUID, clear: Boolean) {
+    private suspend fun terminateEarly(solverKey: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
             if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
                 solverEvents.broadcastCancelSolver(

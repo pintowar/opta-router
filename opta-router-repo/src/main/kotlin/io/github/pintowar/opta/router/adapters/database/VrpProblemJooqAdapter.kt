@@ -6,6 +6,10 @@ import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.jooq.DSLContext
 import org.jooq.Records
 import org.jooq.generated.tables.records.LocationRecord
@@ -54,23 +58,25 @@ class VrpProblemJooqAdapter(
         }
     }
 
-    override fun listAll(): List<VrpProblem> {
-        return problemQuery(dsl).limit(0, 10).fetch { (r, c, v) ->
+    override fun listAll(): Flow<VrpProblem> {
+        return problemQuery(dsl).limit(0, 10).asFlow().map { (r, c, v) ->
             VrpProblem(r.id!!, r.name, v, c)
         }
     }
 
-    override fun getById(problemId: Long): VrpProblem? {
-        return problemQuery(dsl).where(VRP_PROBLEM.ID.eq(problemId)).fetch { (r, c, v) ->
-            VrpProblem(r.id!!, r.name, v, c)
-        }.firstOrNull()
+    override suspend fun getById(problemId: Long): VrpProblem? {
+        return problemQuery(dsl).where(VRP_PROBLEM.ID.eq(problemId))
+            .awaitFirstOrNull()
+            ?.let { (r, c, v) ->
+                VrpProblem(r.id!!, r.name, v, c)
+            }
     }
 
-    override fun getMatrixById(problemId: Long): VrpProblemMatrix? {
+    override suspend fun getMatrixById(problemId: Long): VrpProblemMatrix? {
         val matrix = dsl
             .selectFrom(VRP_PROBLEM_MATRIX)
             .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))
-            .fetchOne()
+            .awaitFirstOrNull()
 
         return matrix?.let {
             VrpProblemMatrix(

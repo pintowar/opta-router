@@ -4,6 +4,7 @@ import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import kotlinx.coroutines.flow.Flow
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,7 +27,7 @@ class SolverHistoryController(
     fun requests(
         @PathVariable problemId: Long,
         @PathVariable solverName: String
-    ): ResponseEntity<List<VrpSolverRequest>> {
+    ): ResponseEntity<Flow<VrpSolverRequest>> {
         return vrpSolverRequestPort.requestsByProblemIdAndSolverName(problemId, solverName).let {
             ResponseEntity.ok(it)
         }
@@ -35,7 +36,7 @@ class SolverHistoryController(
     @GetMapping("/{problemId}/solutions", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutions(
         @PathVariable problemId: Long
-    ): ResponseEntity<List<VrpSolverObjective>> {
+    ): ResponseEntity<Flow<VrpSolverObjective>> {
         return vrpSolverSolutionPort.solutionHistory(problemId).let {
             ResponseEntity.ok(it)
         }
