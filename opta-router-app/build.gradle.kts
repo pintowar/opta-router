@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":opta-router-solver:ortools"))
     implementation(project(":opta-router-solver:timefold"))
 
+    implementation(libs.kotlin.coroutines.reactive)
     implementation(libs.bundles.spring) {
         exclude(module = "jooq")
     }
