@@ -5,7 +5,6 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.WebSession
 
 /**
  * The Controller that contains all REST functions to be used on the application.
@@ -53,7 +53,7 @@ class SolverController(
     suspend fun detailedPath(
         @PathVariable id: Long,
         @PathVariable isDetailed: Boolean,
-        session: HttpSession
+        session: WebSession
     ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
         solverService.updateDetailedView(id)
@@ -61,7 +61,7 @@ class SolverController(
     }
 
     @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
+    suspend fun solutionState(@PathVariable id: Long, session: WebSession): ResponseEntity<PanelSolutionState> {
         val panel = sessionPanel[session.id] ?: SolverPanel()
 
         return solverService.currentSolutionRequest(id)?.let {
