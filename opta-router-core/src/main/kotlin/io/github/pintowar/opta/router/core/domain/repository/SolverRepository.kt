@@ -16,25 +16,31 @@ class SolverRepository(
     private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
 
-    fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
+    suspend fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
         return vrpSolverRequestPort.createRequest(
             VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
         )
     }
 
-    fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
+    suspend fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
         return vrpSolverRequestPort.currentSolverRequest(problemId)
     }
 
-    fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? {
+    suspend fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? {
         return vrpSolverRequestPort.currentSolverRequest(requestKey)
     }
 
-    fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
+    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return vrpSolverSolutionPort.currentSolutionRequest(problemId)
     }
 
-    fun addNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
+    suspend fun addNewSolution(
+        sol: VrpSolution,
+        uuid: UUID,
+        solverStatus:
+        SolverStatus,
+        clear: Boolean
+    ): VrpSolutionRequest {
         return vrpSolverSolutionPort.upsertSolution(
             sol.problem.id,
             solverStatus,
@@ -45,7 +51,7 @@ class SolverRepository(
         )
     }
 
-    fun currentDetailedSolution(problemId: Long): VrpDetailedSolution? {
+    suspend fun currentDetailedSolution(problemId: Long): VrpDetailedSolution? {
         return vrpProblemPort.getMatrixById(problemId)?.let { currentMatrix ->
             vrpSolverSolutionPort.currentSolutionRequest(problemId)?.let { solutionRequest ->
                 VrpDetailedSolution(solutionRequest.solution, currentMatrix)
