@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
@@ -62,9 +61,7 @@ class WebSocketHandler(
 
     fun broadcast(data: VrpSolutionRequest) {
         runBlocking {
-//            launch {
-                sharedFlow.emit(data)
-//            }
+            sharedFlow.emit(data)
         }
     }
 }

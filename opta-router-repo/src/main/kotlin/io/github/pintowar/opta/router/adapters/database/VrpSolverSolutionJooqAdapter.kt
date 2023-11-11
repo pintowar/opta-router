@@ -61,17 +61,17 @@ class VrpSolverSolutionJooqAdapter(
         val now = Instant.now()
         val jsonPaths = if (clear) JSON.json("[]") else JSON.json(mapper.writeValueAsString(paths))
 
-        return dsl.transactionCoroutine {  trx ->
+        return dsl.transactionCoroutine { trx ->
             trx.dsl()
                 .update(VRP_SOLVER_REQUEST)
                 .set(VRP_SOLVER_REQUEST.STATUS, if (clear) SolverStatus.NOT_SOLVED.name else solverStatus.name)
                 .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
                 .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(uuid))
-                .execute()
+                .awaitSingle()
 
-            val numSolutions = dsl.selectFrom(VRP_SOLUTION)
+            val (numSolutions) = dsl.selectCount().from(VRP_SOLUTION)
                 .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-                .count()
+                .awaitSingle()
 
             if (numSolutions == 0) {
                 trx.dsl()
@@ -81,7 +81,6 @@ class VrpSolverSolutionJooqAdapter(
                     .set(VRP_SOLUTION.CREATED_AT, now)
                     .set(VRP_SOLUTION.UPDATED_AT, now)
                     .awaitSingle()
-//                    .execute()
             } else {
                 trx.dsl()
                     .update(VRP_SOLUTION)
@@ -89,7 +88,6 @@ class VrpSolverSolutionJooqAdapter(
                     .set(VRP_SOLUTION.UPDATED_AT, now)
                     .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
                     .awaitSingle()
-//                    .execute()
             }
 
             if (!clear) {
@@ -103,7 +101,6 @@ class VrpSolverSolutionJooqAdapter(
                     .set(VRP_SOLVER_SOLUTION.CREATED_AT, now)
                     .set(VRP_SOLVER_SOLUTION.UPDATED_AT, now)
                     .awaitSingle()
-//                    .execute()
             }
 
             currentSolutionRequestQuery(trx.dsl(), problemId)

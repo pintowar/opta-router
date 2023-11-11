@@ -34,7 +34,13 @@ class SolverRepository(
         return vrpSolverSolutionPort.currentSolutionRequest(problemId)
     }
 
-    suspend fun addNewSolution(sol: VrpSolution, uuid: UUID, solverStatus: SolverStatus, clear: Boolean): VrpSolutionRequest {
+    suspend fun addNewSolution(
+        sol: VrpSolution,
+        uuid: UUID,
+        solverStatus:
+        SolverStatus,
+        clear: Boolean
+    ): VrpSolutionRequest {
         return vrpSolverSolutionPort.upsertSolution(
             sol.problem.id,
             solverStatus,

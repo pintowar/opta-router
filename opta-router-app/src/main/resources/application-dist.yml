@@ -1,10 +1,14 @@
 spring:
   jooq:
     sql-dialect: POSTGRES
+    bind-offset-date-time-type: false
   sql:
     init:
       mode: always
       data-locations: classpath*:db/data-pg.sql
   flyway:
     enabled: true
+    url: '@flyway.url@'
+    user: '@flyway.user@'
+    password: '@flyway.password@'
     locations: classpath:db/migration,classpath:db/specific/postgres

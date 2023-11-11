@@ -7,7 +7,7 @@ plugins {
 project.buildDir = file("dist")
 
 node {
-    version.set("16.15.1")
+    version.set("18.18.2")
     download.set(true)
 }
 

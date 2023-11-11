@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { useColorMode } from '@vueuse/core'
-import { localThemes } from "./themes";
+import { useColorMode } from "@vueuse/core";
+import { localThemes, modes } from "./themes";
 
 const mode = useColorMode({
-    attribute: "data-theme",
-    modes: localThemes
+  attribute: "data-theme",
+  modes: modes,
 });
 </script>
 

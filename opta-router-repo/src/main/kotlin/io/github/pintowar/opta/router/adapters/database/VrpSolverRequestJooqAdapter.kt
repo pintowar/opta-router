@@ -6,7 +6,6 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirstOrElse
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
@@ -26,14 +25,13 @@ class VrpSolverRequestJooqAdapter(
             .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.RUNNING.name))
             .and(VRP_SOLVER_REQUEST.UPDATED_AT.lt(Instant.now() - timeout))
             .awaitSingle()
-//            .execute()
     }
 
     override suspend fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
-        val numEnqueued = dsl.selectFrom(VRP_SOLVER_REQUEST)
+        val (numEnqueued) = dsl.selectCount().from(VRP_SOLVER_REQUEST)
             .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(request.problemId))
             .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverStatus.ENQUEUED.name, SolverStatus.RUNNING.name))
-            .count()
+            .awaitSingle()
 
         if (numEnqueued > 0) return null
 
@@ -45,10 +43,10 @@ class VrpSolverRequestJooqAdapter(
             .set(VRP_SOLVER_REQUEST.STATUS, request.status.name)
             .set(VRP_SOLVER_REQUEST.CREATED_AT, now)
             .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
-            .awaitSingle()
-//            .execute()
+            .returning()
+            .awaitFirstOrNull()
 
-        return if (result == 1) request else null
+        return request.takeIf { result != null }
     }
 
     override suspend fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
