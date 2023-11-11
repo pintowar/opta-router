@@ -8,4 +8,7 @@ spring:
       data-locations: classpath*:db/data-h2.sql
   flyway:
     enabled: true
+    url: '@flyway.url@'
+    user: '@flyway.user@'
+    password: '@flyway.password@'
     locations: classpath:db/migration,classpath:db/specific/h2
