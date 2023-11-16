@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":opta-router-solver:ortools"))
     implementation(project(":opta-router-solver:timefold"))
 
+    implementation(libs.kotlin.coroutines.reactive)
     implementation(libs.bundles.spring) {
         exclude(module = "jooq")
     }
@@ -28,10 +29,10 @@ dependencies {
     implementation(libs.bundles.jooq)
     implementation(libs.bundles.jackson)
     runtimeOnly(libs.slf4j)
+    runtimeOnly(if (project.isDistProfile) libs.pg.r2dbc else libs.h2.r2dbc)
+    runtimeOnly(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 
     testImplementation(libs.spring.test)
-
-    runtimeOnly(if (project.isDistProfile) libs.pg.db else libs.h2.db)
 }
 
 tasks {
@@ -47,7 +48,9 @@ tasks {
 
         doLast {
             val resourceDest = "${project.buildDir.absolutePath}/resources/main"
-            val appProps = project.properties.filterKeys { it == "environmentName" || it.startsWith("flyway") }
+            val appProps = project.properties.filterKeys {
+                it == "environmentName" || it.startsWith("flyway") || it.startsWith("db")
+            }
 
             copy {
                 from("src/main/resources")

@@ -14,8 +14,8 @@ const { isFetching, error, data: instances } = useFetch(url).get().json<VrpProbl
 <template>
   <vrp-page-layout :is-fetching="isFetching" :error="error">
     <main>
-      <div>
-        <h1 class="text-2xl my-2">Routes</h1>
+      <div class="mx-2 my-2 space-x-2">
+        <h1 class="text-2xl">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
           <router-link to="/problem/new" class="btn btn-circle"> New </router-link>
         </div>

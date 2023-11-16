@@ -8,6 +8,7 @@ import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
 import { VrpSolution } from "../api";
+import {icon} from "leaflet";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -25,6 +26,18 @@ const maxZoom = 18;
 
 const layerUrl = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
 const layerOptions = { subdomains: ["a", "b", "c"] };
+
+const icons = computed(() => {
+    const problem = solution.value?.problem;
+    const depotsIds = new Set(problem?.depots.map(depot => depot.id));
+    return problem?.locations.map(location => {
+        const isDepot = depotsIds.has(location.id);
+        return new icon({
+            iconUrl: (isDepot ? "/industry.svg" : "/building.svg"),
+            iconSize: [35,45]
+        });
+    });
+});
 
 const polylines = computed(() => {
   const routes = solution.value?.routes || [];
@@ -81,7 +94,7 @@ watchEffect(() => {
       :use-global-leaflet="false"
     >
       <l-tile-layer :url="layerUrl" :options="layerOptions" />
-      <l-marker v-for="stop in solution?.problem?.locations || []" :key="stop.id" :lat-lng="stop" :visible="true">
+      <l-marker v-for="(stop, idx) in solution?.problem?.locations || []" :key="stop.id" :icon="icons[idx]" :lat-lng="stop">
         <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
       </l-marker>
       <l-polyline

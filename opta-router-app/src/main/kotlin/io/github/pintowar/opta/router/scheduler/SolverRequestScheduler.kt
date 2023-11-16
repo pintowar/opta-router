@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.scheduler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Profile
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -22,7 +23,9 @@ class SolverRequestScheduler(
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     fun refreshAbandonedSolverRequests() {
-        val numUpdates = vrpSolverRequestPort.refreshSolverRequests(timeLimit)
-        logger.info { "Refreshed $numUpdates abandoned SolverRequests" }
+        runBlocking {
+            val numUpdates = vrpSolverRequestPort.refreshSolverRequests(timeLimit)
+            logger.info { "Refreshed $numUpdates abandoned SolverRequests" }
+        }
     }
 }

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { useColorMode } from "@vueuse/core";
-import { localThemes } from "./themes";
+import { localThemes, modes } from "./themes";
 import Icon from "./components/Icon.vue";
 
 const mode = useColorMode({
   attribute: "data-theme",
-  modes: localThemes,
+  modes: modes,
 });
 </script>
 

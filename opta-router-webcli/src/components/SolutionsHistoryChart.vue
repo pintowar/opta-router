@@ -21,7 +21,7 @@ const mode = useColorMode({
 
 const themeCategory = computed(() => {
   const category = mode.value === "auto" ? mode.system.value : categories[mode.value];
-  return category === "dark" ? "light" : "dark";
+  return category === "dark" ? "dark" : "light";
 });
 
 const colors = createRainbow(Math.max(props.solvers.length, 9))

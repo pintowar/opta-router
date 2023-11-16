@@ -5,7 +5,6 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
-import jakarta.servlet.http.HttpSession
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.WebSession
 
 /**
  * The Controller that contains all REST functions to be used on the application.
@@ -32,28 +32,28 @@ class SolverController(
     fun solverNames() = solverService.solverNames().sorted()
 
     @PostMapping("/{id}/solve/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
+    suspend fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
         solverService.enqueueSolverRequest(id, solverName)
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun terminate(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also(solverService::terminate) }
+    suspend fun terminate(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also { key -> solverService.terminate(key) } }
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun clear(@PathVariable id: Long): ResponseEntity<SolverStatus> {
-        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also(solverService::clear) }
+    suspend fun clear(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+        solverService.currentSolutionRequest(id)?.also { it.solverKey?.also { key -> solverService.clear(key) } }
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun detailedPath(
+    suspend fun detailedPath(
         @PathVariable id: Long,
         @PathVariable isDetailed: Boolean,
-        session: HttpSession
+        session: WebSession
     ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
         solverService.updateDetailedView(id)
@@ -61,7 +61,7 @@ class SolverController(
     }
 
     @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun solutionState(@PathVariable id: Long, session: HttpSession): ResponseEntity<PanelSolutionState> {
+    suspend fun solutionState(@PathVariable id: Long, session: WebSession): ResponseEntity<PanelSolutionState> {
         val panel = sessionPanel[session.id] ?: SolverPanel()
 
         return solverService.currentSolutionRequest(id)?.let {
