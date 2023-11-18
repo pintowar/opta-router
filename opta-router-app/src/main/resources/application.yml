@@ -2,8 +2,9 @@ spring:
   profiles:
     active: '@environmentName@'
     group:
-      local: scheduler
-      single: scheduler
+      local: rest-api,scheduler
+      single: rest-api,scheduler
+      dist: rest-api
   jackson:
     serialization:
       indent_output: true
