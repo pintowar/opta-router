@@ -30,7 +30,7 @@ const layerOptions = { subdomains: ["a", "b", "c"] };
 const icons = computed(() => {
   const problem = solution.value?.problem;
   const depotsIds = new Set(problem?.depots.map((depot) => depot.id));
-  return (problem?.locations  || []).map((location) => {
+  return (problem?.locations || []).map((location) => {
     const isDepot = depotsIds.has(location.id);
     return icon({
       iconUrl: isDepot ? "/industry.svg" : "/building.svg",
