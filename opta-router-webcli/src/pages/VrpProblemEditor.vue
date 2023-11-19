@@ -10,17 +10,17 @@ const route = useRoute();
 
 const problemUrl = computed(() => `/api/vrp-problems/${route.params.id}`);
 const { isFetching, error, data: problem } = useFetch(problemUrl).get().json<VrpProblem>();
-const solution = computed<VrpSolution>(() => ({
+const solution = computed<VrpSolution | null>(() => problem.value ? ({
   problem: problem.value,
   routes: [],
   empty: true,
   totalDistance: 0,
   feasible: false,
   totalTime: 0,
-}));
-const customers = computed<Customer>(() => problem?.value?.customers || []);
-const depots = computed<Depot>(() => problem?.value?.depots || []);
-const vehicles = computed<Vehicle>(() => problem?.value?.vehicles || []);
+}) : null);
+const customers = computed<Customer[]>(() => problem?.value?.customers || []);
+const depots = computed<Depot[]>(() => problem?.value?.depots || []);
+const vehicles = computed<Vehicle[]>(() => problem?.value?.vehicles || []);
 </script>
 
 <template>
@@ -62,7 +62,7 @@ const vehicles = computed<Vehicle>(() => problem?.value?.vehicles || []);
         </div>
       </div>
       <div class="flex-auto">
-        <solver-map :solution="solution" />
+        <solver-map v-if="solution" :solution="solution" />
       </div>
       <!--          <div class="flex my-2 mx-2 space-x-2" style="height: calc(100vh - 140px)">
               <div class="flex-initial w-6/12">

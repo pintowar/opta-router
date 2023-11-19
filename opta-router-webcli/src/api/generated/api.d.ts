@@ -117,7 +117,7 @@ export interface components {
       empty: boolean;
       totalDistance: number;
       feasible: boolean;
-      totalTime: Record<string, never>;
+      totalTime: number;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
