@@ -20,7 +20,7 @@ CREATE TABLE vrp_problem_matrix (
     travel_times BIGINT ARRAY NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE location_pk_seq
@@ -48,7 +48,7 @@ CREATE TABLE vrp_problem_location (
     location_id BIGINT,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id),
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE,
     FOREIGN KEY (location_id) REFERENCES location(id)
 );
 
@@ -101,7 +101,7 @@ CREATE TABLE vrp_solver_solution (
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id),
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE,
     FOREIGN KEY (request_key) REFERENCES vrp_solver_request(request_key)
 );
 
@@ -110,5 +110,5 @@ CREATE TABLE vrp_solution (
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE
 );

@@ -6,6 +6,7 @@ import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
@@ -70,6 +71,12 @@ class VrpProblemJooqAdapter(
             ?.let { (r, c, v) ->
                 VrpProblem(r.id!!, r.name, v, c)
             }
+    }
+
+    override suspend fun deleteById(problemId: Long) {
+        dsl.deleteFrom(VRP_PROBLEM)
+            .where(VRP_PROBLEM.ID.eq(problemId))
+            .awaitFirstOrNull()
     }
 
     override suspend fun getMatrixById(problemId: Long): VrpProblemMatrix? {

@@ -36,7 +36,6 @@ const editorSelectedSolver = computed({
 
 const isRunning = computed(() => ["ENQUEUED", "RUNNING"].includes(solverStatus.value || ""));
 const isWsConnected = computed(() => wsStatus.value === "OPEN");
-const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
 
 const waitingTermination = ref(false);
 const waitingClear = ref(false);
@@ -74,7 +73,7 @@ async function wrapperClear() {
           <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
         </div>
         <div class="tooltip tooltip-left" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
-          <div :class="`badge ${badgeColor}`">WS</div>
+          <span :class="`badge badge-${isWsConnected ? 'success' : 'error'}`">WS</span>
         </div>
       </div>
     </div>

@@ -10,5 +10,7 @@ interface VrpProblemPort {
 
     suspend fun getById(problemId: Long): VrpProblem?
 
+    suspend fun deleteById(problemId: Long): Unit
+
     suspend fun getMatrixById(problemId: Long): VrpProblemMatrix?
 }
