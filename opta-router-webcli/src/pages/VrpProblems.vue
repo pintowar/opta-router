@@ -5,7 +5,7 @@ import { useFetch } from "@vueuse/core";
 import { VrpProblem } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
-import Icon from "../components/Icon.vue";
+import IconType from "../components/IconType.vue";
 
 const url = ref("/api/vrp-problems");
 const { isFetching, error, data: instances } = useFetch(url).get().json<VrpProblem[]>();
@@ -35,17 +35,17 @@ const { isFetching, error, data: instances } = useFetch(url).get().json<VrpProbl
             <td class="space-x-2">
               <div class="tooltip" data-tip="Solve it">
                 <router-link :to="`/solve/${instance.id}`" class="btn btn-circle">
-                  <Icon name="gears" />
+                  <icon-type name="gears" />
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Edit">
                 <router-link :to="`/problem/${instance.id}/edit`" class="btn btn-circle">
-                  <Icon name="edit" />
+                  <icon-type name="edit" />
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Delete">
                 <button class="btn btn-circle">
-                  <Icon name="trash" />
+                  <icon-type name="trash" />
                 </button>
               </div>
             </td>
