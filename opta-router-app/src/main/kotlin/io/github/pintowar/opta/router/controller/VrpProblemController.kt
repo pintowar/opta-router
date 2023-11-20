@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -23,6 +25,13 @@ class VrpProblemController(val repo: VrpProblemPort) {
     suspend fun show(@PathVariable id: Long): ResponseEntity<VrpProblem> {
         return repo.getById(id)
             ?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
+    }
+
+    @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun update(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Unit> {
+        println(problem.name)
+        delay(1000)
+        return ResponseEntity.ok().build()
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
