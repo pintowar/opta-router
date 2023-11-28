@@ -1,5 +1,7 @@
-const themesCategory = {
-  "dark": [
+const themesCategory = new Map<string, string[]>([
+  [
+    "light",
+    [
       "light",
       "cupcake",
       "bumblebee",
@@ -19,26 +21,27 @@ const themesCategory = {
       "acid",
       "lemonade",
       "winter",
+    ],
   ],
-  "light": [
-      "dark",
-      "synthwave",
-      "halloween",
-      "forest",
-      "black",
-      "dracula",
-      "luxury",
-      "business",
-      "night",
-      "coffee",
-  ]
-};
+  ["dark", ["dark", "synthwave", "halloween", "forest", "black", "dracula", "luxury", "business", "night", "coffee"]],
+]);
 
-const categories = Object.keys(themesCategory).reduce((acc, cat) => ({
+const categories: Record<string, "light" | "dark"> = [...themesCategory.keys()].reduce(
+  (acc, cat) => ({
     ...acc,
-    ...(themesCategory[cat].reduce((ac, theme) => ({...ac, [theme]: cat}), {}))
-}), {});
+    ...themesCategory.get(cat)?.reduce((ac, theme) => ({ ...ac, [theme]: cat }), {}),
+  }),
+  {}
+);
 
-const localThemes = Object.keys(categories).sort()
+const localThemes = Object.keys(categories).sort();
 
-export { categories, localThemes };
+const modes = localThemes.reduce(
+  (acc, mode) => ({
+    ...acc,
+    [mode]: mode,
+  }),
+  {}
+);
+
+export { categories, localThemes, modes };

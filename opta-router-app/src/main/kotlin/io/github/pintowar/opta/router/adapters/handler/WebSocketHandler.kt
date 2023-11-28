@@ -5,12 +5,19 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asPublisher
+import kotlinx.coroutines.runBlocking
+
 import org.springframework.stereotype.Component
-import org.springframework.web.socket.CloseStatus
-import org.springframework.web.socket.TextMessage
-import org.springframework.web.socket.WebSocketSession
-import org.springframework.web.socket.handler.TextWebSocketHandler
+import org.springframework.web.reactive.socket.WebSocketHandler
+import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.util.UriTemplate
+import reactor.core.publisher.Mono
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
@@ -20,52 +27,41 @@ class WebSocketHandler(
     private val sessionPanel: MutableMap<String, SolverPanel>,
     private val mapper: ObjectMapper,
     private val geoService: GeoPort
-) : TextWebSocketHandler() {
+) : WebSocketHandler {
 
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
+    private val sharedFlow = MutableSharedFlow<VrpSolutionRequest>()
+    private val uriTemplate = UriTemplate("/ws/solution-state/{instanceId}")
+    override fun handle(session: WebSocketSession): Mono<Void> {
+        val webSessionId = session.attributes["websession-id"]!! as String
+        sessions[webSessionId] = session
 
-    override fun afterConnectionEstablished(session: WebSocketSession) {
-        val sessionId = sessionIdFromSession(session)
-        sessions[sessionId] = session
+        val uriInstanceId = uriTemplate.match(session.handshakeInfo.uri.path)["instanceId"]
+        val source = fromChannel(webSessionId, uriInstanceId)
+
+        return session
+            .send(source.map(session::textMessage).asPublisher())
+            .doOnError { e ->
+                logger.warn(e) { "WebSocket Error!!" }
+            }
+            .doFinally {
+                sessions.remove(session.id)
+            }
     }
 
-    override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        val sessionId = sessionIdFromSession(session)
-        sessions.remove(sessionId)
-    }
-
-    override fun handleTransportError(session: WebSocketSession, exception: Throwable) {
-        val sessionId = sessionIdFromSession(session)
-        sessions.remove(sessionId)
-    }
-
-    fun broadcast(data: VrpSolutionRequest) {
-        val cache = mutableMapOf<Boolean, String>()
-        sessions.forEach { (sessionId, session) ->
-            val panel = sessionPanel[sessionId] ?: SolverPanel()
-
-            val textData = cache.computeIfAbsent(panel.isDetailedPath) {
-                val sol = if (it) geoService.detailedPaths(data.solution) else data.solution
+    fun fromChannel(webSessionId: String, uriInstanceId: String?): Flow<String> {
+        return sharedFlow
+            .filter {
+                "${it.solution.problem.id}" == uriInstanceId
+            }
+            .map { data ->
+                val panel = sessionPanel[webSessionId] ?: SolverPanel()
+                val sol = if (panel.isDetailedPath) geoService.detailedPaths(data.solution) else data.solution
                 mapper.writeValueAsString(data.copy(solution = sol))
             }
-
-            notifyUser(session, data.solution.problem.id, textData)
-        }
     }
 
-    private fun sessionIdFromSession(session: WebSocketSession): String {
-        return session.attributes["HTTP.SESSION.ID"]!!.toString()
-    }
-
-    private fun notifyUser(session: WebSocketSession, instanceId: Long, data: String) {
-        try {
-            val template = UriTemplate("/ws/solution-state/{instanceId}")
-            val uriInstanceId = template.match(session.uri!!.path)["instanceId"]
-            if ("$instanceId" == uriInstanceId) {
-                session.sendMessage(TextMessage(data))
-            }
-        } catch (e: Exception) {
-            logger.warn(e) { "Could not send message message through web socket!" }
-        }
+    suspend fun broadcast(data: VrpSolutionRequest) {
+        sharedFlow.emit(data)
     }
 }

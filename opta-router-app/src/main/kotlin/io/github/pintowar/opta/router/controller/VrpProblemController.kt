@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import kotlinx.coroutines.flow.Flow
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 class VrpProblemController(val repo: VrpProblemPort) {
 
     @GetMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun index(): List<VrpProblem> = repo.listAll()
+    fun index(): Flow<VrpProblem> = repo.listAll()
 
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun show(@PathVariable id: Long): ResponseEntity<VrpProblem> {
+    suspend fun show(@PathVariable id: Long): ResponseEntity<VrpProblem> {
         val current = repo.getById(id)
         return if (current != null) {
             ResponseEntity.ok(current)

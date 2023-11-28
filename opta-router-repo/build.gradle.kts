@@ -7,18 +7,25 @@ plugins {
     `java-library`
 }
 
+val flywayMigration = configurations.create("flywayMigration")
+
 dependencies {
     implementation(project(":opta-router-core"))
     api(libs.bundles.jooq)
     api(libs.bundles.jackson)
 
     runtimeOnly(libs.slf4j)
-    runtimeOnly(if (project.isDistProfile) libs.pg.db else libs.h2.db)
-    jooqGenerator(if (project.isDistProfile) libs.pg.db else libs.h2.db)
+    runtimeOnly(if (project.isDistProfile) libs.pg.r2dbc else libs.h2.r2dbc)
+    jooqGenerator(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
+    flywayMigration(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 }
 
 tasks.flywayMigrate {
     dependsOn("processResources")
+}
+
+flyway {
+    configurations = arrayOf("flywayMigration")
 }
 
 jooq {

@@ -16,12 +16,12 @@ const props = defineProps<{
 const { solutions, request } = toRefs(props);
 
 const mode = useColorMode({
-    attribute: "data-theme",
+  attribute: "data-theme",
 });
 
 const themeCategory = computed(() => {
-    const category = mode.value === "auto" ? mode.system.value : categories[mode.value];
-    return category === "dark" ? "light" : "dark";
+  const category = mode.value === "auto" ? mode.system.value : categories[mode.value];
+  return category === "dark" ? "dark" : "light";
 });
 
 const colors = createRainbow(Math.max(props.solvers.length, 9))
