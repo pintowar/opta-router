@@ -8,7 +8,6 @@ import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
 import { VrpSolution } from "../api";
-import { icon } from "leaflet";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -32,7 +31,7 @@ const icons = computed(() => {
   const depotsIds = new Set(problem?.depots.map((depot) => depot.id));
   return (problem?.locations || []).map((location) => {
     const isDepot = depotsIds.has(location.id);
-    return icon({
+    return L.icon({
       iconUrl: isDepot ? "/industry.svg" : "/building.svg",
       iconSize: [35, 45],
     });

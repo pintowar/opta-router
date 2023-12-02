@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import IconType from "../components/IconType.vue";
-
 const props = defineProps<{
   isFetching: boolean | null;
   error: unknown | null;
@@ -14,7 +12,7 @@ const props = defineProps<{
   </main>
   <main v-else-if="props.error" class="flex items-center justify-center h-full">
     <div class="mx-32 mt-16 alert alert-error">
-      <icon-type name="error" />
+      <v-icon name="md-erroroutline" />
       <span>Error! Failed to load data</span>
     </div>
   </main>

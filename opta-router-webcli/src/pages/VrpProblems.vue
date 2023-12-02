@@ -5,7 +5,6 @@ import { useFetch } from "@vueuse/core";
 import { VrpProblem } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
-import IconType from "../components/IconType.vue";
 
 const url = ref("/api/vrp-problems");
 const { isFetching, error, data: instances, execute: fetchProblems } = useFetch(url).get().json<VrpProblem[]>();
@@ -37,12 +36,14 @@ const removeProblem = async () => {
     <main>
       <div class="mx-2 my-2 space-x-2">
         <div v-if="removeError" role="alert" class="alert alert-error">
-          <icon-type name="error" />
+          <v-icon name="md-erroroutline" />
           <span>Could not remove VrpProblem: {{ selectedProblem?.name }}</span>
         </div>
         <h1 class="text-2xl">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
-          <router-link to="/problem/new" class="btn btn-circle"> New </router-link>
+          <router-link to="/problem/new" class="btn btn-circle"> 
+            <v-icon name="md-add" />
+          </router-link>
         </div>
 
         <table class="table table-zebra w-full">
@@ -61,17 +62,17 @@ const removeProblem = async () => {
             <td class="space-x-2">
               <div class="tooltip" data-tip="Solve it">
                 <router-link :to="`/solve/${instance.id}`" class="btn btn-circle">
-                  <icon-type name="gears" />
+                  <v-icon name="oi-gear" />
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Edit">
                 <router-link :to="`/problem/${instance.id}/edit`" class="btn btn-circle">
-                  <icon-type name="edit" />
+                  <v-icon name="md-edit-twotone" />
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Delete">
                 <button class="btn btn-circle" @click="showDeleteModal(instance)">
-                  <icon-type name="trash" />
+                  <v-icon name="la-trash-solid" />
                 </button>
               </div>
             </td>
