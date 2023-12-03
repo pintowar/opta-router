@@ -4,14 +4,15 @@ import { computed } from "vue";
 import { Customer, Depot, Vehicle, VrpProblem, VrpSolution } from "../api";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
-import SolverMap from "../components/SolverMap.vue";
+// import SolverMap from "../components/SolverMap.vue";
+import LocationMap from "../components/LocationMap.vue";
 
 const route = useRoute();
 
 const problemUrl = computed(() => `/api/vrp-problems/${route.params.id}`);
 const updateUrl = computed(() => `${problemUrl.value}/update`);
 const { isFetching, error, data: problem } = useFetch(problemUrl).get().json<VrpProblem>();
-const { isFetching: isUpdating, error: updateError, execute: update } = useFetch(updateUrl).put(problem);
+const { isFetching: isUpdating, execute: update } = useFetch(updateUrl).put(problem);
 const solution = computed<VrpSolution | null>(() =>
   problem.value
     ? {
@@ -91,14 +92,14 @@ const totalDemand = computed(() => customers.value.map((it) => it.demand).reduce
         <div class="flex flex-row-reverse">
           <form class="space-x-2">
             <router-link to="/" class="btn">Cancel</router-link>
-            <button class="btn btn-success" @click="update">
+            <button class="btn btn-success" @click="() => update()">
               Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
             </button>
           </form>
         </div>
       </div>
       <div class="flex-auto">
-        <solver-map v-if="solution" :solution="solution" />
+        <location-map v-if="solution" :locations="depots.concat(customers)" />
       </div>
     </main>
   </vrp-page-layout>

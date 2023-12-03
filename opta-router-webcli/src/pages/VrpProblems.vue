@@ -17,7 +17,7 @@ const {
   execute: remove,
 } = useFetch(removeUrl, { immediate: false }).delete();
 
-const deleteModal = ref<typeof HTMLDialogElement | null>(null);
+const deleteModal = ref<HTMLDialogElement | null>(null);
 
 const showDeleteModal = (instance: VrpProblem) => {
   selectedProblem.value = instance;
@@ -41,7 +41,7 @@ const removeProblem = async () => {
         </div>
         <h1 class="text-2xl">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
-          <router-link to="/problem/new" class="btn btn-circle"> 
+          <router-link to="/problem/new" class="btn btn-circle">
             <v-icon name="md-add" />
           </router-link>
         </div>

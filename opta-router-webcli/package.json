@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "generate-ts-api": "openapi-typescript http://localhost:8080/v3/api-docs.yaml --output src/api/generated/api.d.ts",
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. ./src/*.{js,vue,html,ts} ./src/**/*.{js,vue,html,ts} ./*.{js,html,ts}",
-    "lint": "eslint --ext .ts,js,vue,svg --ignore-path .gitignore ."
+    "lint": "eslint --ext .ts,js,vue --ignore-path .gitignore ."
   },
   "dependencies": {
     "@vue-leaflet/vue-leaflet": "^0.10.1",

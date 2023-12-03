@@ -10,6 +10,11 @@ type VrpSolverObjective = components["schemas"]["VrpSolverObjective"];
 type PanelSolutionState = components["schemas"]["PanelSolutionState"];
 type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 
+type VehicleRoute = {
+  vehicle?: Vehicle;
+  route: Route;
+};
+
 export type {
   Customer,
   Depot,
@@ -17,6 +22,7 @@ export type {
   Route,
   SolverState,
   Vehicle,
+  VehicleRoute,
   VrpProblem,
   VrpSolution,
   VrpSolverRequest,

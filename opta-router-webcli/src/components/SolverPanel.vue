@@ -73,7 +73,7 @@ async function wrapperClear() {
           <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
         </div>
         <div class="tooltip tooltip-left" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
-          <span :class="`badge badge-${isWsConnected ? 'success' : 'error'}`">WS</span>
+          <span :class="`badge ${isWsConnected ? 'badge-success' : 'badge-error'}`">WS</span>
         </div>
       </div>
     </div>
