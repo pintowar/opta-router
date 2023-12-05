@@ -49,7 +49,7 @@ CREATE TABLE vrp_problem_location (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE,
-    FOREIGN KEY (location_id) REFERENCES location(id)
+    FOREIGN KEY (location_id) REFERENCES location(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX idx_unique_vrp_problem_location ON vrp_problem_location (

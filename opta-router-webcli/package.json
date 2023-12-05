@@ -15,11 +15,9 @@
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.5.0",
     "apexcharts": "^3.44.0",
-    "json-editor-vue": "^0.10.19",
     "leaflet": "^1.9.4",
     "oh-vue-icons": "^1.0.0-rc3",
     "rainbow-color": "^2.0.0",
-    "vanilla-jsoneditor": "^0.18.10",
     "vue": "^3.3.6",
     "vue-router": "^4.2.5",
     "vue3-apexcharts": "^1.4.4"

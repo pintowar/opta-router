@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import AlertMessage from "../components/AlertMessage.vue";
+
 const props = defineProps<{
   isFetching: boolean | null;
   error: unknown | null;
@@ -11,10 +13,7 @@ const props = defineProps<{
     </div>
   </main>
   <main v-else-if="props.error" class="flex items-center justify-center h-full">
-    <div class="mx-32 mt-16 alert alert-error">
-      <v-icon name="md-erroroutline" />
-      <span>Error! Failed to load data</span>
-    </div>
+    <alert-message message="Error! Failed to load data" variant="error" />
   </main>
   <slot v-else></slot>
 </template>

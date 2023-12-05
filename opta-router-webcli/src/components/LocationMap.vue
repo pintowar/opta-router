@@ -12,17 +12,29 @@ import { Customer, Depot, VehicleRoute } from "../api";
 const props = defineProps<{
   locations: (Depot | Customer)[];
   routes?: VehicleRoute[];
+  selectedLocation?: Depot | Customer | null;
 }>();
 
-const { locations, routes } = toRefs(props);
+const emit = defineEmits<{
+  (e: "update:selectedLocation", val: Depot | Customer | null | undefined): void;
+}>();
+
+const { locations, routes, selectedLocation } = toRefs(props);
+
+const componentLocation = computed({
+  get: () => selectedLocation?.value,
+  set: (val) => emit("update:selectedLocation", val),
+});
 
 const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 
 const routerMap = ref<typeof LMap | null>(null);
-const center = ref<L.PointExpression>([47.41322, -1.219482]);
+
+const center = ref<L.PointExpression>([0, 0]);
 const zoom = ref(3);
 const minZoom = 2;
 const maxZoom = 18;
+const mapOptions = { attributionControl: false };
 
 const layerUrl = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
 const layerOptions = { subdomains: ["a", "b", "c"] };
@@ -66,6 +78,35 @@ const polylines = computed(() => {
   });
 });
 
+function locationKey(location: Depot | Customer): string {
+  return `${location.name} (${location.lat}, ${location.lng})`;
+}
+
+function clearTooltips() {
+  routerMap?.value?.leafletObject?.eachLayer((layer: L.Layer) => {
+    if (layer.options.pane === "tooltipPane") {
+      routerMap?.value?.leafletObject?.closeTooltip(layer);
+    }
+  });
+}
+
+function markerClickHandler(e: L.LeafletMouseEvent) {
+  if (!componentLocation.value) {
+    const attribution = JSON.parse(e.target.options.attribution);
+    const location = locations.value.find((loc) => loc.id === attribution.locationId);
+    componentLocation.value = location;
+  }
+}
+
+function markerDropHandler(e: L.DragEndEvent) {
+  if (componentLocation.value) {
+    const actual = componentLocation.value;
+    const coord = e.target._latlng;
+    const updated = { ...actual, ...{ lat: coord.lat, lng: coord.lng } };
+    componentLocation.value = updated;
+  }
+}
+
 watchEffect(() => {
   const bounds: L.LatLngBounds = L.featureGroup(
     (locations.value || []).map((e) => new L.Marker([e.lat, e.lng]))
@@ -77,6 +118,22 @@ watchEffect(() => {
       [bounds.getNorthEast().lat, bounds.getNorthEast().lng],
     ];
     routerMap?.value?.leafletObject?.fitBounds(tmp);
+    center.value = componentLocation?.value
+      ? [componentLocation.value.lat, componentLocation.value.lng]
+      : [
+          (bounds.getSouthWest().lat + bounds.getNorthEast().lat) / 2,
+          (bounds.getSouthWest().lng + bounds.getNorthEast().lng) / 2,
+        ];
+
+    clearTooltips();
+
+    if (componentLocation?.value) {
+      const location = componentLocation.value;
+      const key = locationKey(location);
+      routerMap?.value?.leafletObject?.openTooltip(key, new L.LatLng(location.lat, location.lng), {
+        pane: "tooltipPane",
+      });
+    }
   }
 });
 </script>
@@ -91,10 +148,21 @@ watchEffect(() => {
       :max-zoom="maxZoom"
       :center="center"
       :use-global-leaflet="false"
+      :options="mapOptions"
     >
       <l-tile-layer :url="layerUrl" :options="layerOptions" />
-      <l-marker v-for="(stop, idx) in locations || []" :key="stop.id" :icon="icons[idx]" :lat-lng="stop">
-        <l-popup :content="stop.name + ' (' + stop.lat + ', ' + stop.lng + ')'" />
+      <l-marker
+        v-for="(location, idx) in locations || []"
+        :key="locationKey(location)"
+        :name="locationKey(location)"
+        :icon="icons[idx]"
+        :lat-lng="location"
+        :draggable="location.id === componentLocation?.id"
+        :attribution="`{ &quot;locationId&quot;: ${location.id} }`"
+        @click="markerClickHandler"
+        @dragend="markerDropHandler"
+      >
+        <l-popup v-if="location.id !== componentLocation?.id" :content="locationKey(location)" />
       </l-marker>
       <l-polyline
         v-for="item in polylines"

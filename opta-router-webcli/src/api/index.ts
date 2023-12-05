@@ -15,9 +15,22 @@ type VehicleRoute = {
   route: Route;
 };
 
+type Page<T> = {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  numberOfElements: number;
+  number: number;
+  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+};
+
 export type {
   Customer,
   Depot,
+  Page,
   PanelSolutionState,
   Route,
   SolverState,

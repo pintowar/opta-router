@@ -13,6 +13,7 @@ const mode = useColorMode({
     <div class="flex-1">
       <a class="btn btn-ghost normal-case text-xl">Opta Router</a>
       <router-link to="/" class="btn btn-ghost normal-case text-l">Home</router-link>
+      <router-link to="/locations" class="btn btn-ghost normal-case text-l">Locations</router-link>
     </div>
     <div class="justify-end space-x-4">
       <a href="https://github.com/pintowar/opta-router">

@@ -5,6 +5,7 @@ import { useFetch } from "@vueuse/core";
 import { VrpProblem } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
+import AlertMessage from "../components/AlertMessage.vue";
 
 const url = ref("/api/vrp-problems");
 const { isFetching, error, data: instances, execute: fetchProblems } = useFetch(url).get().json<VrpProblem[]>();
@@ -35,10 +36,11 @@ const removeProblem = async () => {
   <vrp-page-layout :is-fetching="isFetching" :error="error">
     <main>
       <div class="mx-2 my-2 space-x-2">
-        <div v-if="removeError" role="alert" class="alert alert-error">
-          <v-icon name="md-erroroutline" />
-          <span>Could not remove VrpProblem: {{ selectedProblem?.name }}</span>
-        </div>
+        <alert-message
+          v-if="removeError"
+          :message="`Could not remove VrpProblem: ${selectedProblem?.name}`"
+          variant="error"
+        />
         <h1 class="text-2xl">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
           <router-link to="/problem/new" class="btn btn-circle">
