@@ -16,7 +16,7 @@ class VrpLocationJooqAdapter(
     private val dsl: DSLContext
 ) : VrpLocationPort {
 
-    override fun locations(offset: Int, limit: Int): Flow<Location> {
+    override fun findAll(offset: Int, limit: Int): Flow<Location> {
         return dsl
             .selectFrom(LOCATION)
             .limit(offset, limit)
@@ -29,7 +29,7 @@ class VrpLocationJooqAdapter(
             }
     }
 
-    override suspend fun totalLocations(): Long {
+    override suspend fun count(): Long {
         val (total) = dsl.selectCount().from(LOCATION).awaitSingle()
         return total.toLong()
     }

@@ -2,13 +2,22 @@
 import { computed, ref } from "vue";
 import { useFetch } from "@vueuse/core";
 
-import { VrpProblem } from "../api";
+import { Page, VrpProblem } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
 import AlertMessage from "../components/AlertMessage.vue";
+import PaginatedTable from "../components/PaginatedTable.vue";
+import { useRoute } from "vue-router";
 
-const url = ref("/api/vrp-problems");
-const { isFetching, error, data: instances, execute: fetchProblems } = useFetch(url).get().json<VrpProblem[]>();
+const route = useRoute();
+
+const url = computed(() => `/api/vrp-problems?page=${route.query.page || 0}&size=${route.query.size || 10}`);
+const {
+  isFetching,
+  error,
+  data: page,
+  execute: fetchProblems,
+} = useFetch(url, { refetch: true }).get().json<Page<VrpProblem>>();
 
 const selectedProblem = ref<VrpProblem | null>(null);
 const removeUrl = computed(() => `/api/vrp-problems/${selectedProblem.value?.id}/remove`);
@@ -48,38 +57,42 @@ const removeProblem = async () => {
           </router-link>
         </div>
 
-        <table class="table table-zebra w-full">
-          <thead>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Num Locations</th>
-            <th>Num Vehicles</th>
-            <th>Actions</th>
-          </thead>
-          <tbody v-for="instance in instances" :key="instance.id">
-            <td>{{ instance.id }}</td>
-            <td>{{ instance.name }}</td>
-            <td>{{ instance.nlocations }}</td>
-            <td>{{ instance.nvehicles }}</td>
-            <td class="space-x-2">
-              <div class="tooltip" data-tip="Solve it">
-                <router-link :to="`/solve/${instance.id}`" class="btn btn-circle">
-                  <v-icon name="oi-gear" />
-                </router-link>
-              </div>
-              <div class="tooltip" data-tip="Edit">
-                <router-link :to="`/problem/${instance.id}/edit`" class="btn btn-circle">
-                  <v-icon name="md-edit-twotone" />
-                </router-link>
-              </div>
-              <div class="tooltip" data-tip="Delete">
-                <button class="btn btn-circle" @click="showDeleteModal(instance)">
-                  <v-icon name="la-trash-solid" />
-                </button>
-              </div>
-            </td>
-          </tbody>
-        </table>
+        <paginated-table :page="page" style="height: calc(100vh - 320px)">
+          <template #head>
+            <tr>
+              <th>Id</th>
+              <th>Name</th>
+              <th>Num Locations</th>
+              <th>Num Vehicles</th>
+              <th>Actions</th>
+            </tr>
+          </template>
+          <template #body="{ row }">
+            <tr>
+              <td>{{ row.id }}</td>
+              <td>{{ row.name }}</td>
+              <td>{{ row.nlocations }}</td>
+              <td>{{ row.nvehicles }}</td>
+              <td class="space-x-2">
+                <div class="tooltip" data-tip="Solve it">
+                  <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">
+                    <v-icon name="oi-gear" />
+                  </router-link>
+                </div>
+                <div class="tooltip" data-tip="Edit">
+                  <router-link :to="`/problem/${row.id}/edit`" class="btn btn-sm btn-circle">
+                    <v-icon name="md-edit-twotone" />
+                  </router-link>
+                </div>
+                <div class="tooltip" data-tip="Delete">
+                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                    <v-icon name="la-trash-solid" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </paginated-table>
 
         <dialog id="delete_modal" ref="deleteModal" class="modal">
           <div class="modal-box">

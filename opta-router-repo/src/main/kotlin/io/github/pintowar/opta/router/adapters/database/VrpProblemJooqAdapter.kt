@@ -6,20 +6,16 @@ import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
 import org.jooq.Records
 import org.jooq.generated.tables.records.LocationRecord
 import org.jooq.generated.tables.records.VehicleRecord
-import org.jooq.generated.tables.references.LOCATION
-import org.jooq.generated.tables.references.VEHICLE
-import org.jooq.generated.tables.references.VRP_PROBLEM
-import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
-import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
+import org.jooq.generated.tables.references.*
 import org.jooq.impl.DSL.multiset
 import org.jooq.impl.DSL.select
 
@@ -59,10 +55,15 @@ class VrpProblemJooqAdapter(
         }
     }
 
-    override fun listAll(): Flow<VrpProblem> {
-        return problemQuery(dsl).limit(0, 10).asFlow().map { (r, c, v) ->
+    override fun findAll(offset: Int, limit: Int): Flow<VrpProblem> {
+        return problemQuery(dsl).limit(offset, limit).asFlow().map { (r, c, v) ->
             VrpProblem(r.id!!, r.name, v, c)
         }
+    }
+
+    override suspend fun count(): Long {
+        val (total) = dsl.selectCount().from(VRP_PROBLEM).awaitSingle()
+        return total.toLong()
     }
 
     override suspend fun getById(problemId: Long): VrpProblem? {

@@ -2,8 +2,6 @@ package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.ports.VrpLocationPort
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -23,9 +21,9 @@ class VrpLocationController(
         @RequestParam("page", defaultValue = "0") page: Int,
         @RequestParam("size", defaultValue = "25") size: Int
     ): Page<Location> {
-        val total = repo.totalLocations()
-        val locations = repo.locations(page * size, size).toList()
-        return PageImpl(locations, PageRequest.of(page, size), total)
+        val count = repo.count()
+        val locations = repo.findAll(page * size, size).toList()
+        return PageImpl(locations, PageRequest.of(page, size), count)
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])

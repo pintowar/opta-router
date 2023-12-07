@@ -1,18 +1,16 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { AfterFetchContext, useFetch } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 
 import { Customer, Depot, Page } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
 import LocationMap from "../components/LocationMap.vue";
 import AlertMessage from "../components/AlertMessage.vue";
+import PaginatedTable from "../components/PaginatedTable.vue";
 
-const router = useRouter();
 const route = useRoute();
-
-const selectedLocation = ref<Customer | Depot | null>(null);
 
 const url = computed(() => `/api/vrp-locations?page=${route.query.page || 0}&size=${route.query.size || 10}`);
 const {
@@ -23,6 +21,7 @@ const {
 } = useFetch(url, { refetch: true, afterFetch: afterLocationsFetch }).get().json<Page<Customer | Depot>>();
 const locations = computed(() => page.value?.content || []);
 
+const selectedLocation = ref<Customer | Depot | null>(null);
 const hoveredLine = ref<number | null>(null);
 const removeUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/remove`);
 const {
@@ -57,15 +56,6 @@ async function removeLocation() {
 function isDepot(obj: unknown): obj is Depot {
   return Boolean(obj && typeof obj === "object" && !("demand" in obj));
 }
-
-function paginate(next: number) {
-  router.push({
-    query: {
-      ...route.query,
-      page: (page.value?.number || 0) + next,
-    },
-  });
-}
 </script>
 
 <template>
@@ -79,42 +69,44 @@ function paginate(next: number) {
         />
         <h1 class="text-2xl">Locations</h1>
 
-        <table class="table table-sm table-zebra w-full">
-          <thead>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Type</th>
-            <th class="w-24"></th>
-          </thead>
-          <tbody v-for="(location, idx) in locations" :key="location.id">
+        <paginated-table :page="page" style="height: calc(100vh - 260px)">
+          <template #head>
+            <tr>
+              <th>Id</th>
+              <th>Name</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Type</th>
+              <th class="w-24"></th>
+            </tr>
+          </template>
+          <template #body="{ idx, row }">
             <tr
-              v-if="location.id !== selectedLocation?.id"
+              v-if="row.id !== selectedLocation?.id"
               :class="`${idx === hoveredLine ? 'hover' : ''}`"
               @mouseenter="() => (hoveredLine = idx)"
               @mouseleave="() => (hoveredLine = null)"
             >
-              <td>{{ location.id }}</td>
-              <td>{{ location.name }}</td>
-              <td>{{ location.lat }}</td>
-              <td>{{ location.lng }}</td>
-              <td>{{ isDepot(location) ? "Depot" : "Customer" }}</td>
+              <td>{{ row.id }}</td>
+              <td>{{ row.name }}</td>
+              <td>{{ row.lat }}</td>
+              <td>{{ row.lng }}</td>
+              <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
               <td class="space-x-2">
                 <div class="tooltip" data-tip="Edit">
-                  <button class="btn btn-sm btn-circle" @click="editLocation(location)">
+                  <button class="btn btn-sm btn-circle" @click="editLocation(row)">
                     <v-icon name="md-edit-twotone" />
                   </button>
                 </div>
                 <div class="tooltip" data-tip="Delete">
-                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(location)">
+                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
                     <v-icon name="la-trash-solid" />
                   </button>
                 </div>
               </td>
             </tr>
             <tr v-else class="bg-primary-content">
-              <td>{{ location.id }}</td>
+              <td>{{ row.id }}</td>
               <td>
                 <input v-model="selectedLocation.name" name="name" class="input input-bordered w-full input-xs" />
               </td>
@@ -124,7 +116,7 @@ function paginate(next: number) {
               <td>
                 <input v-model.number="selectedLocation.lng" name="lng" class="input input-bordered w-full input-xs" />
               </td>
-              <td>{{ isDepot(location) ? "Depot" : "Customer" }}</td>
+              <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
               <td class="space-x-2">
                 <div class="tooltip" data-tip="Update">
                   <button class="btn btn-sm btn-circle">
@@ -138,13 +130,8 @@ function paginate(next: number) {
                 </div>
               </td>
             </tr>
-          </tbody>
-        </table>
-        <div class="join justify-center w-full">
-          <button :class="`join-item btn ${page?.first ? 'btn-disabled' : ''}`" @click="paginate(-1)">«</button>
-          <button class="join-item btn">Page {{ (page?.number || 0) + 1 }}</button>
-          <button :class="`join-item btn ${page?.last ? 'btn-disabled' : ''}`" @click="paginate(1)">»</button>
-        </div>
+          </template>
+        </paginated-table>
 
         <dialog id="delete_modal" ref="deleteModal" class="modal">
           <div class="modal-box">
