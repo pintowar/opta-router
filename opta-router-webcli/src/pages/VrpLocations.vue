@@ -39,6 +39,9 @@ function showDeleteModal(location: Customer | Depot) {
 
 function editLocation(location: Customer | Depot | null) {
   selectedLocation.value = location;
+  if (location === null) {
+    fetchLocations();
+  }
 }
 
 function afterLocationsFetch(ctx: AfterFetchContext) {
