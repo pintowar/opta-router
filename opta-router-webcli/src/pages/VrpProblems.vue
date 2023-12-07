@@ -107,7 +107,7 @@ const removeProblem = async () => {
               <form method="dialog">
                 <button class="btn">Close</button>
               </form>
-              <button class="btn btn-error" @click="removeProblem">
+              <button :disabled="isRemoving" class="btn btn-error" @click="removeProblem">
                 Delete<span v-if="isRemoving" class="loading loading-bars loading-xs"></span>
               </button>
             </div>

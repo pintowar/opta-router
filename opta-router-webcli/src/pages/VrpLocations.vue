@@ -30,11 +30,25 @@ const {
   execute: remove,
 } = useFetch(removeUrl, { immediate: false }).delete();
 
+const updateUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/update`);
+const {
+  isFetching: isUpdating,
+  error: updateError,
+  execute: update,
+} = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
+
 const deleteModal = ref<HTMLDialogElement | null>(null);
 
 function showDeleteModal(location: Customer | Depot) {
   selectedLocation.value = location;
   deleteModal?.value?.showModal();
+}
+
+async function updateLocation(location: Customer | Depot | null) {
+  if (location) {
+    await update();
+    await fetchLocations();
+  }
 }
 
 function editLocation(location: Customer | Depot | null) {
@@ -66,8 +80,8 @@ function isDepot(obj: unknown): obj is Depot {
     <main class="flex my-2 mx-2 space-x-2 h-full" style="height: calc(100vh - 155px)">
       <div class="flex-initial flex-col w-7/12 space-y-2">
         <alert-message
-          v-if="removeError"
-          :message="`Could not remove Location: ${selectedLocation?.name}`"
+          v-if="removeError || updateError"
+          :message="`${removeError ? 'Could not remove Location' : 'Could not update Location'}`"
           variant="error"
         />
         <h1 class="text-2xl">Locations</h1>
@@ -79,6 +93,7 @@ function isDepot(obj: unknown): obj is Depot {
               <th>Name</th>
               <th>Latitude</th>
               <th>Longitude</th>
+              <th>Demand</th>
               <th>Type</th>
               <th class="w-24"></th>
             </tr>
@@ -94,6 +109,7 @@ function isDepot(obj: unknown): obj is Depot {
               <td>{{ row.name }}</td>
               <td>{{ row.lat }}</td>
               <td>{{ row.lng }}</td>
+              <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
               <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
               <td class="space-x-2">
                 <div class="tooltip" data-tip="Edit">
@@ -109,21 +125,50 @@ function isDepot(obj: unknown): obj is Depot {
               </td>
             </tr>
             <tr v-else class="bg-primary-content">
-              <td>{{ row.id }}</td>
+              <td>{{ selectedLocation.id }}</td>
               <td>
-                <input v-model="selectedLocation.name" name="name" class="input input-bordered w-full input-xs" />
+                <input
+                  v-model="selectedLocation.name"
+                  :disabled="isUpdating"
+                  name="name"
+                  class="input input-bordered w-full input-xs"
+                />
               </td>
               <td>
-                <input v-model.number="selectedLocation.lat" name="lat" class="input input-bordered w-full input-xs" />
+                <input
+                  v-model.number="selectedLocation.lat"
+                  :disabled="isUpdating"
+                  name="lat"
+                  class="input input-bordered w-full input-xs"
+                />
               </td>
               <td>
-                <input v-model.number="selectedLocation.lng" name="lng" class="input input-bordered w-full input-xs" />
+                <input
+                  v-model.number="selectedLocation.lng"
+                  :disabled="isUpdating"
+                  name="lng"
+                  class="input input-bordered w-full input-xs"
+                />
               </td>
-              <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
+              <td>
+                <input
+                  v-if="!isDepot(selectedLocation)"
+                  v-model.number="(selectedLocation as Customer).demand"
+                  :disabled="isUpdating"
+                  name="demand"
+                  class="input input-bordered w-full input-xs"
+                />
+              </td>
+              <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
               <td class="space-x-2">
                 <div class="tooltip" data-tip="Update">
-                  <button class="btn btn-sm btn-circle">
-                    <v-icon name="bi-check-lg" />
+                  <button
+                    :disabled="isUpdating"
+                    class="btn btn-sm btn-circle"
+                    @click="() => updateLocation(selectedLocation)"
+                  >
+                    <v-icon v-if="!isUpdating" name="bi-check-lg" />
+                    <span v-else class="loading loading-bars loading-xs"></span>
                   </button>
                 </div>
                 <div class="tooltip" data-tip="Cancel">
@@ -149,7 +194,7 @@ function isDepot(obj: unknown): obj is Depot {
               <form method="dialog">
                 <button class="btn">Close</button>
               </form>
-              <button class="btn btn-error" @click="removeLocation">
+              <button :disabled="isRemoving" class="btn btn-error" @click="removeLocation">
                 Delete<span v-if="isRemoving" class="loading loading-bars loading-xs"></span>
               </button>
             </div>

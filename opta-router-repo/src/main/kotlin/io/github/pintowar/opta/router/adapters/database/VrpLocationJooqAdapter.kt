@@ -40,4 +40,17 @@ class VrpLocationJooqAdapter(
             .where(LOCATION.ID.eq(locationId))
             .awaitFirstOrNull()
     }
+
+    override suspend fun update(id: Long, location: Location) {
+        val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
+
+        dsl.update(LOCATION)
+            .set(LOCATION.NAME, location.name)
+            .set(LOCATION.LATITUDE, location.lat)
+            .set(LOCATION.LONGITUDE, location.lng)
+            .set(LOCATION.KIND, kind)
+            .set(LOCATION.DEMAND, demand)
+            .where(LOCATION.ID.eq(id))
+            .awaitSingle()
+    }
 }

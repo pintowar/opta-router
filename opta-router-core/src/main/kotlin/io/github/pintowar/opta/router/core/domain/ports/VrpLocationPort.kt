@@ -10,4 +10,6 @@ interface VrpLocationPort {
     suspend fun count(): Long
 
     suspend fun deleteById(locationId: Long)
+
+    suspend fun update(id: Long, location: Location)
 }
