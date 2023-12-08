@@ -24,6 +24,7 @@ import VrpSolver from "./pages/VrpSolver.vue";
 import VrpSolverHistory from "./pages/VrpSolverHistory.vue";
 import VrpProblemEditor from "./pages/VrpProblemEditor.vue";
 import VrpLocations from "./pages/VrpLocations.vue";
+import VrpVehicles from "./pages/VrpVehicles.vue";
 
 addIcons(
   BiCheckLg,
@@ -45,6 +46,7 @@ const routes = [
   { path: "/solve/:id", component: VrpSolver },
   { path: "/solver-history/:id", component: VrpSolverHistory },
   { path: "/locations", component: VrpLocations },
+  { path: "/vehicles", component: VrpVehicles },
   { path: "/problem/new", component: VrpProblemEditor },
   { path: "/problem/:id/edit", component: VrpProblemEditor },
 ];

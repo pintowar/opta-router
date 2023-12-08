@@ -12,6 +12,7 @@
     "lint": "eslint --ext .ts,js,vue --ignore-path .gitignore ."
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.16",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.5.0",
     "apexcharts": "^3.44.0",

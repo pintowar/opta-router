@@ -53,4 +53,17 @@ class VrpLocationJooqAdapter(
             .where(LOCATION.ID.eq(id))
             .awaitSingle()
     }
+
+    override fun listAllByKind(kind: String): Flow<Location> {
+        return dsl
+            .selectFrom(LOCATION)
+            .where(LOCATION.KIND.eq(kind))
+            .asFlow()
+            .map { loc ->
+                when (kind) {
+                    "depot" -> Depot(loc.id!!, loc.name, loc.latitude, loc.longitude)
+                    else -> Customer(loc.id!!, loc.name, loc.latitude, loc.longitude, loc.demand)
+                }
+            }
+    }
 }

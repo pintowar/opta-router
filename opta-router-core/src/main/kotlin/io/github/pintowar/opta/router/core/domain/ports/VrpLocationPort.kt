@@ -1,5 +1,6 @@
 package io.github.pintowar.opta.router.core.domain.ports
 
+import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Location
 import kotlinx.coroutines.flow.Flow
 
@@ -12,4 +13,6 @@ interface VrpLocationPort {
     suspend fun deleteById(locationId: Long)
 
     suspend fun update(id: Long, location: Location)
+
+    fun listAllByKind(kind: String): Flow<Location>
 }
