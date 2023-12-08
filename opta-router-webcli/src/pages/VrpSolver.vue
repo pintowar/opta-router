@@ -5,8 +5,7 @@ import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
 import { PanelSolutionState, VrpProblem, VrpSolution } from "../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
-import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
+import { VrpPageLayout, VrpSolverPanelLayout } from "../layout";
 import SolverMap from "../components/SolverMap.vue";
 import SolverPanel from "../components/SolverPanel.vue";
 

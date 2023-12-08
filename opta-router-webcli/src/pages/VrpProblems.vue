@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 
 import { Page, VrpProblem } from "../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
+import { VrpPageLayout } from "../layout";
 import AlertMessage from "../components/AlertMessage.vue";
 import PaginatedTable from "../components/PaginatedTable.vue";
 import DeleteDialog from "../components/DeleteDialog.vue";
@@ -59,38 +59,34 @@ const showDeleteModal = (instance: VrpProblem) => {
 
         <paginated-table :page="page" style="height: calc(100vh - 320px)">
           <template #head>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Num Locations</th>
-              <th>Num Vehicles</th>
-              <th>Actions</th>
-            </tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Num Locations</th>
+            <th>Num Vehicles</th>
+            <th>Actions</th>
           </template>
-          <template #body="{ row }">
-            <tr>
-              <td>{{ row.id }}</td>
-              <td>{{ row.name }}</td>
-              <td>{{ row.nlocations }}</td>
-              <td>{{ row.nvehicles }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Solve it">
-                  <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">
-                    <v-icon name="oi-gear" />
-                  </router-link>
-                </div>
-                <div class="tooltip" data-tip="Edit">
-                  <router-link :to="`/problem/${row.id}/edit`" class="btn btn-sm btn-circle">
-                    <v-icon name="md-edit-twotone" />
-                  </router-link>
-                </div>
-                <div class="tooltip" data-tip="Delete">
-                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                    <v-icon name="la-trash-solid" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+          <template #show="{ row }">
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.nlocations }}</td>
+            <td>{{ row.nvehicles }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Solve it">
+                <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">
+                  <v-icon name="oi-gear" />
+                </router-link>
+              </div>
+              <div class="tooltip" data-tip="Edit">
+                <router-link :to="`/problem/${row.id}/edit`" class="btn btn-sm btn-circle">
+                  <v-icon name="md-edit-twotone" />
+                </router-link>
+              </div>
+              <div class="tooltip" data-tip="Delete">
+                <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                  <v-icon name="la-trash-solid" />
+                </button>
+              </div>
+            </td>
           </template>
         </paginated-table>
       </div>

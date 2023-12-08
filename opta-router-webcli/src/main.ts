@@ -19,12 +19,7 @@ import {
 } from "oh-vue-icons/icons";
 import VueApexCharts from "vue3-apexcharts";
 
-import VrpProblems from "./pages/VrpProblems.vue";
-import VrpSolver from "./pages/VrpSolver.vue";
-import VrpSolverHistory from "./pages/VrpSolverHistory.vue";
-import VrpProblemEditor from "./pages/VrpProblemEditor.vue";
-import VrpLocations from "./pages/VrpLocations.vue";
-import VrpVehicles from "./pages/VrpVehicles.vue";
+import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
 
 addIcons(
   BiCheckLg,

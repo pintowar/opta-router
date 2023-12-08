@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
+import { VrpPageLayout } from "../layout";
 import { computed } from "vue";
 import { Customer, Depot, Vehicle, VrpProblem, VrpSolution } from "../api";
 import { useFetch } from "@vueuse/core";

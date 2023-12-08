@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 
 import { Vehicle, Page, Depot } from "../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
+import { VrpPageLayout } from "../layout";
 import AlertMessage from "../components/AlertMessage.vue";
 import PaginatedTable from "../components/PaginatedTable.vue";
 import DeleteDialog from "../components/DeleteDialog.vue";
@@ -21,7 +21,6 @@ const {
 } = useFetch(url, { refetch: true, afterFetch: afterVehiclesFetch }).get().json<Page<Vehicle>>();
 
 const selectedVehicle = ref<Vehicle | null>(null);
-const hoveredLine = ref<number | null>(null);
 
 const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-vehicles/${selectedVehicle.value?.id}/remove`);
@@ -87,83 +86,74 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
           </router-link>
         </div>
 
-        <paginated-table :page="page" style="height: calc(100vh - 320px)">
+        <paginated-table :page="page" :selected="selectedVehicle" style="height: calc(100vh - 320px)">
           <template #head>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Capacity</th>
-              <th>Depot</th>
-              <th class="w-24"></th>
-            </tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Capacity</th>
+            <th>Depot</th>
+            <th class="w-24"></th>
           </template>
-          <template #body="{ idx, row }">
-            <tr
-              v-if="row.id !== selectedVehicle?.id"
-              :class="`${idx === hoveredLine ? 'hover' : ''}`"
-              @mouseenter="() => (hoveredLine = idx)"
-              @mouseleave="() => (hoveredLine = null)"
-            >
-              <td>{{ row.id }}</td>
-              <td>{{ row.name }}</td>
-              <td>{{ row.capacity }}</td>
-              <td>{{ row.depot.name }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Edit">
-                  <button class="btn btn-sm btn-circle" @click="editVehicle(row)">
-                    <v-icon name="md-edit-twotone" />
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Delete">
-                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                    <v-icon name="la-trash-solid" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-else class="bg-primary-content">
-              <td>{{ selectedVehicle.id }}</td>
-              <td>
-                <input
-                  v-model="selectedVehicle.name"
+          <template #show="{ row }">
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.capacity }}</td>
+            <td>{{ row.depot.name }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Edit">
+                <button class="btn btn-sm btn-circle" @click="editVehicle(row)">
+                  <v-icon name="md-edit-twotone" />
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Delete">
+                <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                  <v-icon name="la-trash-solid" />
+                </button>
+              </div>
+            </td>
+          </template>
+          <template #edit="{ item }">
+            <td>{{ item.id }}</td>
+            <td>
+              <input
+                v-model="item.name"
+                :disabled="isUpdating"
+                name="name"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-model="item.capacity"
+                :disabled="isUpdating"
+                name="capacity"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <select v-model="item.depot" class="select select-bordered select-xs">
+                <option v-for="depot in depots" :key="depot.id" :value="depot">
+                  {{ depot.name }}
+                </option>
+              </select>
+            </td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Update">
+                <button
                   :disabled="isUpdating"
-                  name="name"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-model="selectedVehicle.capacity"
-                  :disabled="isUpdating"
-                  name="capacity"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <select v-model="selectedVehicle.depot" class="select select-bordered select-xs">
-                  <option v-for="depot in depots" :key="depot.id" :value="depot">
-                    {{ depot.name }}
-                  </option>
-                </select>
-              </td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Update">
-                  <button
-                    :disabled="isUpdating"
-                    class="btn btn-sm btn-circle"
-                    @click="() => updateVehicle(selectedVehicle)"
-                  >
-                    <v-icon v-if="!isUpdating" name="bi-check-lg" />
-                    <span v-else class="loading loading-bars loading-xs"></span>
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Cancel">
-                  <button class="btn btn-sm btn-circle" @click="() => editVehicle(null)">
-                    <v-icon name="bi-x" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+                  class="btn btn-sm btn-circle"
+                  @click="() => updateVehicle(selectedVehicle)"
+                >
+                  <v-icon v-if="!isUpdating" name="bi-check-lg" />
+                  <span v-else class="loading loading-bars loading-xs"></span>
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Cancel">
+                <button class="btn btn-sm btn-circle" @click="() => editVehicle(null)">
+                  <v-icon name="bi-x" />
+                </button>
+              </div>
+            </td>
           </template>
         </paginated-table>
       </div>

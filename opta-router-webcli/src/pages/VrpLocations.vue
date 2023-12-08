@@ -5,7 +5,7 @@ import { useRoute } from "vue-router";
 
 import { Customer, Depot, Page } from "../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
+import { VrpPageLayout } from "../layout";
 import LocationMap from "../components/LocationMap.vue";
 import AlertMessage from "../components/AlertMessage.vue";
 import PaginatedTable from "../components/PaginatedTable.vue";
@@ -23,7 +23,6 @@ const {
 const locations = computed(() => page.value?.content || []);
 
 const selectedLocation = ref<Customer | Depot | null>(null);
-const hoveredLine = ref<number | null>(null);
 
 const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/remove`);
@@ -90,98 +89,89 @@ function isDepot(obj: unknown): obj is Depot {
           </router-link>
         </div>
 
-        <paginated-table :page="page" style="height: calc(100vh - 320px)">
+        <paginated-table :page="page" :selected="selectedLocation" style="height: calc(100vh - 320px)">
           <template #head>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Demand</th>
-              <th>Type</th>
-              <th class="w-24"></th>
-            </tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Demand</th>
+            <th>Type</th>
+            <th class="w-24"></th>
           </template>
-          <template #body="{ idx, row }">
-            <tr
-              v-if="row.id !== selectedLocation?.id"
-              :class="`${idx === hoveredLine ? 'hover' : ''}`"
-              @mouseenter="() => (hoveredLine = idx)"
-              @mouseleave="() => (hoveredLine = null)"
-            >
-              <td>{{ row.id }}</td>
-              <td>{{ row.name }}</td>
-              <td>{{ row.lat }}</td>
-              <td>{{ row.lng }}</td>
-              <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
-              <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Edit">
-                  <button class="btn btn-sm btn-circle" @click="editLocation(row)">
-                    <v-icon name="md-edit-twotone" />
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Delete">
-                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                    <v-icon name="la-trash-solid" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-else class="bg-primary-content">
-              <td>{{ selectedLocation.id }}</td>
-              <td>
-                <input
-                  v-model="selectedLocation.name"
+          <template #show="{ row }">
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.lat }}</td>
+            <td>{{ row.lng }}</td>
+            <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
+            <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Edit">
+                <button class="btn btn-sm btn-circle" @click="editLocation(row)">
+                  <v-icon name="md-edit-twotone" />
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Delete">
+                <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                  <v-icon name="la-trash-solid" />
+                </button>
+              </div>
+            </td>
+          </template>
+          <template #edit="{ item }">
+            <td>{{ item.id }}</td>
+            <td>
+              <input
+                v-model="item.name"
+                :disabled="isUpdating"
+                name="name"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-model.number="item.lat"
+                :disabled="isUpdating"
+                name="lat"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-model.number="item.lng"
+                :disabled="isUpdating"
+                name="lng"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-if="!isDepot(selectedLocation)"
+                v-model.number="(item as Customer).demand"
+                :disabled="isUpdating"
+                name="demand"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Update">
+                <button
                   :disabled="isUpdating"
-                  name="name"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-model.number="selectedLocation.lat"
-                  :disabled="isUpdating"
-                  name="lat"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-model.number="selectedLocation.lng"
-                  :disabled="isUpdating"
-                  name="lng"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-if="!isDepot(selectedLocation)"
-                  v-model.number="(selectedLocation as Customer).demand"
-                  :disabled="isUpdating"
-                  name="demand"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Update">
-                  <button
-                    :disabled="isUpdating"
-                    class="btn btn-sm btn-circle"
-                    @click="() => updateLocation(selectedLocation)"
-                  >
-                    <v-icon v-if="!isUpdating" name="bi-check-lg" />
-                    <span v-else class="loading loading-bars loading-xs"></span>
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Cancel">
-                  <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
-                    <v-icon name="bi-x" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+                  class="btn btn-sm btn-circle"
+                  @click="() => updateLocation(selectedLocation)"
+                >
+                  <v-icon v-if="!isUpdating" name="bi-check-lg" />
+                  <span v-else class="loading loading-bars loading-xs"></span>
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Cancel">
+                <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
+                  <v-icon name="bi-x" />
+                </button>
+              </div>
+            </td>
           </template>
         </paginated-table>
       </div>

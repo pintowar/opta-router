@@ -5,8 +5,7 @@ import { useRoute } from "vue-router";
 
 import { VrpSolverRequest, VrpSolverObjective } from "../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
-import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
+import { VrpPageLayout, VrpSolverPanelLayout } from "../layout";
 import SolutionsHistoryChart from "../components/SolutionsHistoryChart.vue";
 
 const route = useRoute();

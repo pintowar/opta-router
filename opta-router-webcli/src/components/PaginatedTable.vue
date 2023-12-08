@@ -1,20 +1,22 @@
-<script lang="ts" generic="T" setup>
+<script lang="ts" generic="T extends { id: number }" setup>
 import { StyleValue, ref, toRefs, watch } from "vue";
 import { Page } from "../api";
 import { useRouter, useRoute } from "vue-router";
 
 const props = defineProps<{
   page: Page<T> | null;
+  selected?: T | null;
   style?: StyleValue;
 }>();
 
-const { page } = toRefs(props);
+const { page, selected, style } = toRefs(props);
 
 const router = useRouter();
 const route = useRoute();
 
 const pageSizes = [5, 10, 25];
 const pageSize = ref(route.query.size || 10);
+const hoveredLine = ref<number | null>(null);
 
 watch(pageSize, (size) => {
   router.push({
@@ -56,10 +58,22 @@ function last() {
     <div class="overflow-y-auto overflow-x-hidden" :style="style">
       <table class="table table-sm table-zebra w-full">
         <thead>
-          <slot name="head"></slot>
+          <tr>
+            <slot name="head"></slot>
+          </tr>
         </thead>
-        <tbody>
-          <slot v-for="(row, idx) in page?.content || []" :key="idx" :idx="idx" :row="row" name="body"></slot>
+        <tbody v-for="(row, idx) in page?.content || []" :key="idx">
+          <tr
+            v-if="row.id !== selected?.id"
+            :class="`${idx === hoveredLine ? 'hover' : ''}`"
+            @mouseenter="() => (hoveredLine = idx)"
+            @mouseleave="() => (hoveredLine = null)"
+          >
+            <slot name="show" :idx="idx" :row="row"></slot>
+          </tr>
+          <tr v-else class="bg-primary-content">
+            <slot name="edit" :item="selected"></slot>
+          </tr>
         </tbody>
         <tfoot>
           <slot name="foot"></slot>
