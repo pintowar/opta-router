@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { useFetch } from "@vueuse/core";
+import { useRoute } from "vue-router";
 
 import { Page, VrpProblem } from "../api";
 
 import VrpPageLayout from "../layout/VrpPageLayout.vue";
 import AlertMessage from "../components/AlertMessage.vue";
 import PaginatedTable from "../components/PaginatedTable.vue";
-import { useRoute } from "vue-router";
+import DeleteDialog from "../components/DeleteDialog.vue";
 
 const route = useRoute();
 
@@ -20,24 +21,14 @@ const {
 } = useFetch(url, { refetch: true }).get().json<Page<VrpProblem>>();
 
 const selectedProblem = ref<VrpProblem | null>(null);
-const removeUrl = computed(() => `/api/vrp-problems/${selectedProblem.value?.id}/remove`);
-const {
-  isFetching: isRemoving,
-  error: removeError,
-  execute: remove,
-} = useFetch(removeUrl, { immediate: false }).delete();
 
-const deleteModal = ref<HTMLDialogElement | null>(null);
+const openRemove = ref<boolean>(false);
+const removeUrl = computed(() => `/api/vrp-problems/${selectedProblem.value?.id}/remove`);
+const removeError = ref(false);
 
 const showDeleteModal = (instance: VrpProblem) => {
   selectedProblem.value = instance;
-  deleteModal?.value?.showModal();
-};
-
-const removeProblem = async () => {
-  await remove();
-  deleteModal?.value?.close();
-  await fetchProblems();
+  openRemove.value = true;
 };
 </script>
 
@@ -50,6 +41,15 @@ const removeProblem = async () => {
           :message="`Could not remove VrpProblem: ${selectedProblem?.name}`"
           variant="error"
         />
+
+        <delete-dialog
+          v-model:url="removeUrl"
+          v-model:open="openRemove"
+          :message="`Are you sure you want to delete ${selectedProblem?.name} (id: ${selectedProblem?.id})?`"
+          @success-remove="fetchProblems"
+          @fail-remove="removeError = true"
+        />
+
         <h1 class="text-2xl">Routes</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
           <router-link to="/problem/new" class="btn btn-circle">
@@ -93,26 +93,6 @@ const removeProblem = async () => {
             </tr>
           </template>
         </paginated-table>
-
-        <dialog id="delete_modal" ref="deleteModal" class="modal">
-          <div class="modal-box">
-            <form method="dialog">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg text-warning">Warning!</h3>
-            <p class="py-4">
-              Are you sure you want to delete {{ selectedProblem?.name }} (id: {{ selectedProblem?.id }})?
-            </p>
-            <div class="modal-action space-x-2">
-              <form method="dialog">
-                <button class="btn">Close</button>
-              </form>
-              <button :disabled="isRemoving" class="btn btn-error" @click="removeProblem">
-                Delete<span v-if="isRemoving" class="loading loading-bars loading-xs"></span>
-              </button>
-            </div>
-          </div>
-        </dialog>
       </div>
     </main>
   </vrp-page-layout>

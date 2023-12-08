@@ -9,6 +9,7 @@ import VrpPageLayout from "../layout/VrpPageLayout.vue";
 import LocationMap from "../components/LocationMap.vue";
 import AlertMessage from "../components/AlertMessage.vue";
 import PaginatedTable from "../components/PaginatedTable.vue";
+import DeleteDialog from "../components/DeleteDialog.vue";
 
 const route = useRoute();
 
@@ -23,12 +24,10 @@ const locations = computed(() => page.value?.content || []);
 
 const selectedLocation = ref<Customer | Depot | null>(null);
 const hoveredLine = ref<number | null>(null);
+
+const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/remove`);
-const {
-  isFetching: isRemoving,
-  error: removeError,
-  execute: remove,
-} = useFetch(removeUrl, { immediate: false }).delete();
+const removeError = ref(false);
 
 const updateUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/update`);
 const {
@@ -37,11 +36,9 @@ const {
   execute: update,
 } = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
 
-const deleteModal = ref<HTMLDialogElement | null>(null);
-
 function showDeleteModal(location: Customer | Depot) {
   selectedLocation.value = location;
-  deleteModal?.value?.showModal();
+  openRemove.value = true;
 }
 
 async function updateLocation(location: Customer | Depot | null) {
@@ -63,13 +60,6 @@ function afterLocationsFetch(ctx: AfterFetchContext) {
   return ctx;
 }
 
-async function removeLocation() {
-  await remove();
-  selectedLocation.value = null;
-  deleteModal?.value?.close();
-  await fetchLocations();
-}
-
 function isDepot(obj: unknown): obj is Depot {
   return Boolean(obj && typeof obj === "object" && !("demand" in obj));
 }
@@ -84,6 +74,15 @@ function isDepot(obj: unknown): obj is Depot {
           :message="`${removeError ? 'Could not remove Location' : 'Could not update Location'}`"
           variant="error"
         />
+
+        <delete-dialog
+          v-model:url="removeUrl"
+          v-model:open="openRemove"
+          :message="`Are you sure you want to delete ${selectedLocation?.name} (id: ${selectedLocation?.id})?`"
+          @success-remove="fetchLocations"
+          @fail-remove="removeError = true"
+        />
+
         <h1 class="text-2xl">Locations</h1>
         <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
           <router-link to="/location/new" class="btn btn-circle">
@@ -185,26 +184,6 @@ function isDepot(obj: unknown): obj is Depot {
             </tr>
           </template>
         </paginated-table>
-
-        <dialog id="delete_modal" ref="deleteModal" class="modal">
-          <div class="modal-box">
-            <form method="dialog">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg text-warning">Warning!</h3>
-            <p class="py-4">
-              Are you sure you want to delete {{ selectedLocation?.name }} (id: {{ selectedLocation?.id }})?
-            </p>
-            <div class="modal-action space-x-2">
-              <form method="dialog">
-                <button class="btn">Close</button>
-              </form>
-              <button :disabled="isRemoving" class="btn btn-error" @click="removeLocation">
-                Delete<span v-if="isRemoving" class="loading loading-bars loading-xs"></span>
-              </button>
-            </div>
-          </div>
-        </dialog>
       </div>
       <div class="flex-auto">
         <location-map v-model:selected-location="selectedLocation" :locations="locations || []" />
