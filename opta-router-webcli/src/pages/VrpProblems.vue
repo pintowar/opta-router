@@ -6,9 +6,7 @@ import { useRoute } from "vue-router";
 import { Page, VrpProblem } from "../api";
 
 import { VrpPageLayout } from "../layout";
-import AlertMessage from "../components/AlertMessage.vue";
-import PaginatedTable from "../components/PaginatedTable.vue";
-import DeleteDialog from "../components/DeleteDialog.vue";
+import { AlertMessage, DeleteDialog, PaginatedTable } from "../components";
 
 const route = useRoute();
 

@@ -4,7 +4,7 @@ import { computed } from "vue";
 import { Customer, Depot, Vehicle, VrpProblem, VrpSolution } from "../api";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
-import LocationMap from "../components/LocationMap.vue";
+import { LocationMap } from "../components";
 
 const route = useRoute();
 

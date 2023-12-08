@@ -3,11 +3,11 @@ import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
-import { PanelSolutionState, VrpProblem, VrpSolution } from "../api";
+import { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 
-import { VrpPageLayout, VrpSolverPanelLayout } from "../layout";
-import SolverMap from "../components/SolverMap.vue";
-import SolverPanel from "../components/SolverPanel.vue";
+import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
+import SolverMap from "./SolverMap.vue";
+import SolverPanel from "./SolverPanel.vue";
 
 const route = useRoute();
 

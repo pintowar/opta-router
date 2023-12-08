@@ -3,10 +3,10 @@ import { ref, watch, computed } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { VrpSolverRequest, VrpSolverObjective } from "../api";
+import { VrpSolverRequest, VrpSolverObjective } from "../../api";
 
-import { VrpPageLayout, VrpSolverPanelLayout } from "../layout";
-import SolutionsHistoryChart from "../components/SolutionsHistoryChart.vue";
+import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
+import SolutionsHistoryChart from "./SolutionsHistoryChart.vue";
 
 const route = useRoute();
 const url = ref(`/api/solver-history/${route.params.id}/solutions`);

@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import { Customer, Depot, VehicleRoute } from "../api";
-
-import LocationMap from "./LocationMap.vue";
-
 import { toRefs, computed } from "vue";
+import { Customer, Depot, VehicleRoute, VrpSolution } from "../../api";
 
-import { VrpSolution } from "../api";
+import { LocationMap } from "../../components";
 
 const props = defineProps<{
   solution: VrpSolution | null;

@@ -4,8 +4,8 @@ import { useColorMode } from "@vueuse/core";
 import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 
-import { categories } from "../themes.ts";
-import { VrpSolverRequest, VrpSolverObjective } from "../api";
+import { categories } from "../../themes.ts";
+import { VrpSolverRequest, VrpSolverObjective } from "../../api";
 
 const props = defineProps<{
   solutions: VrpSolverObjective[];

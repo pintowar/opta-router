@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { toRefs, computed, ref } from "vue";
 import { until } from "@vueuse/core";
-import { VrpSolution } from "../api";
+import { VrpSolution } from "../../api";
 
-import SolverVehicles from "../components/SolverVehicles.vue";
+import SolverVehicles from "./SolverVehicles.vue";
 
 const props = defineProps<{
   solution: VrpSolution | null;
