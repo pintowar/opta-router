@@ -24,6 +24,7 @@ const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-vehicles/${selectedVehicle.value?.id}/remove`);
 const removeError = ref(false);
 
+const isEditing = ref(false);
 const updateUrl = computed(() => `/api/vrp-vehicles/${selectedVehicle.value?.id}/update`);
 const {
   isFetching: isUpdating,
@@ -35,6 +36,7 @@ const depotsUrl = "/api/vrp-locations/depot";
 const { data: depots } = useFetch(depotsUrl, { initialData: [] }).get().json<Depot[]>();
 
 function showDeleteModal(vehicle: Vehicle) {
+  isEditing.value = false;
   selectedVehicle.value = vehicle;
   openRemove.value = true;
 }
@@ -48,6 +50,7 @@ async function updateVehicle(vehicle: Vehicle | null) {
 
 function editVehicle(vehicle: Vehicle | null) {
   selectedVehicle.value = vehicle;
+  isEditing.value = vehicle !== null;
   if (vehicle === null) {
     fetchVehicles();
   }
@@ -84,7 +87,12 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
           </router-link>
         </div>
 
-        <paginated-table :page="page" :selected="selectedVehicle" style="height: calc(100vh - 320px)">
+        <paginated-table
+          :page="page"
+          :selected="selectedVehicle"
+          :is-editing="isEditing"
+          style="height: calc(100vh - 320px)"
+        >
           <template #head>
             <th>Id</th>
             <th>Name</th>
@@ -111,9 +119,10 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
             </td>
           </template>
           <template #edit="{ item }">
-            <td>{{ item.id }}</td>
+            <td>{{ item?.id }}</td>
             <td>
               <input
+                v-if="item"
                 v-model="item.name"
                 :disabled="isUpdating"
                 name="name"
@@ -122,6 +131,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
             </td>
             <td>
               <input
+                v-if="item"
                 v-model="item.capacity"
                 :disabled="isUpdating"
                 name="capacity"
@@ -129,7 +139,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
               />
             </td>
             <td>
-              <select v-model="item.depot" class="select select-bordered select-xs">
+              <select v-if="item" v-model="item.depot" class="select select-bordered select-xs">
                 <option v-for="depot in depots" :key="depot.id" :value="depot">
                   {{ depot.name }}
                 </option>

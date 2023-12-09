@@ -25,6 +25,7 @@ const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/remove`);
 const removeError = ref(false);
 
+const isEditing = ref(false);
 const updateUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/update`);
 const {
   isFetching: isUpdating,
@@ -33,6 +34,7 @@ const {
 } = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
 
 function showDeleteModal(location: Customer | Depot) {
+  isEditing.value = false;
   selectedLocation.value = location;
   openRemove.value = true;
 }
@@ -46,6 +48,7 @@ async function updateLocation(location: Customer | Depot | null) {
 
 function editLocation(location: Customer | Depot | null) {
   selectedLocation.value = location;
+  isEditing.value = location !== null;
   if (location === null) {
     fetchLocations();
   }
@@ -86,7 +89,12 @@ function isDepot(obj: unknown): obj is Depot {
           </router-link>
         </div>
 
-        <paginated-table :page="page" :selected="selectedLocation" style="height: calc(100vh - 320px)">
+        <paginated-table
+          :page="page"
+          :selected="selectedLocation"
+          :is-editing="isEditing"
+          style="height: calc(100vh - 320px)"
+        >
           <template #head>
             <th>Id</th>
             <th>Name</th>
@@ -117,9 +125,10 @@ function isDepot(obj: unknown): obj is Depot {
             </td>
           </template>
           <template #edit="{ item }">
-            <td>{{ item.id }}</td>
+            <td>{{ item?.id }}</td>
             <td>
               <input
+                v-if="item"
                 v-model="item.name"
                 :disabled="isUpdating"
                 name="name"
@@ -128,6 +137,7 @@ function isDepot(obj: unknown): obj is Depot {
             </td>
             <td>
               <input
+                v-if="item"
                 v-model.number="item.lat"
                 :disabled="isUpdating"
                 name="lat"
@@ -136,6 +146,7 @@ function isDepot(obj: unknown): obj is Depot {
             </td>
             <td>
               <input
+                v-if="item"
                 v-model.number="item.lng"
                 :disabled="isUpdating"
                 name="lng"

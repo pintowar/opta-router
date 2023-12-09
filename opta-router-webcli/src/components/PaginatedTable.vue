@@ -3,13 +3,21 @@ import { StyleValue, ref, toRefs, watch } from "vue";
 import { Page } from "../api";
 import { useRouter, useRoute } from "vue-router";
 
-const props = defineProps<{
-  page: Page<T> | null;
-  selected?: T | null;
-  style?: StyleValue;
-}>();
+const props = withDefaults(
+  defineProps<{
+    page: Page<T> | null;
+    selected?: T | null;
+    style?: StyleValue;
+    isEditing?: boolean;
+  }>(),
+  {
+    selected: null,
+    isEditing: false,
+    style: undefined,
+  }
+);
 
-const { page, selected, style } = toRefs(props);
+const { page, isEditing, selected, style } = toRefs(props);
 
 const router = useRouter();
 const route = useRoute();
@@ -26,6 +34,10 @@ watch(pageSize, (size) => {
     },
   });
 });
+
+function isSelectedRow(row: T) {
+  return isEditing.value && row.id === selected?.value?.id;
+}
 
 function paginate(page: number) {
   router.push({
@@ -63,16 +75,16 @@ function last() {
           </tr>
         </thead>
         <tbody v-for="(row, idx) in page?.content || []" :key="idx">
+          <tr v-if="isSelectedRow(row)" class="bg-primary-content">
+            <slot name="edit" :item="selected"></slot>
+          </tr>
           <tr
-            v-if="row.id !== selected?.id"
+            v-else
             :class="`${idx === hoveredLine ? 'hover' : ''}`"
             @mouseenter="() => (hoveredLine = idx)"
             @mouseleave="() => (hoveredLine = null)"
           >
             <slot name="show" :idx="idx" :row="row"></slot>
-          </tr>
-          <tr v-else class="bg-primary-content">
-            <slot name="edit" :item="selected"></slot>
           </tr>
         </tbody>
         <tfoot>
