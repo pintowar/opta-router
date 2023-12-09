@@ -173,13 +173,13 @@ function isDepot(obj: unknown): obj is Depot {
                   class="btn btn-sm btn-circle"
                   @click="() => updateLocation(selectedLocation)"
                 >
-                  <v-icon v-if="!isUpdating" name="bi-check-lg" />
+                  <v-icon v-if="!isUpdating" name="md-check" />
                   <span v-else class="loading loading-bars loading-xs"></span>
                 </button>
               </div>
               <div class="tooltip" data-tip="Cancel">
                 <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
-                  <v-icon name="bi-x" />
+                  <v-icon name="md-close" />
                 </button>
               </div>
             </td>
@@ -187,7 +187,11 @@ function isDepot(obj: unknown): obj is Depot {
         </paginated-table>
       </div>
       <div class="flex-auto">
-        <location-map v-model:selected-location="selectedLocation" :locations="locations || []" />
+        <location-map
+          v-model:selected-location="selectedLocation"
+          v-model:edit-mode="isEditing"
+          :locations="locations || []"
+        />
       </div>
     </main>
   </vrp-page-layout>

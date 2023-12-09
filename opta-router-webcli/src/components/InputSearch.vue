@@ -12,15 +12,23 @@ const content = ref<string>(query.value);
 const router = useRouter();
 const route = useRoute();
 
-function search(e: KeyboardEvent) {
+function handleKeypress(e: KeyboardEvent) {
   if (e.code === "Enter") {
-    router.push({
-      query: {
-        ...route.query,
-        q: content.value,
-      },
-    });
+    search(content.value);
   }
+}
+
+function clear() {
+  search("");
+}
+
+function search(q: string) {
+  router.push({
+    query: {
+      ...route.query,
+      q,
+    },
+  });
 }
 </script>
 
@@ -34,8 +42,11 @@ function search(e: KeyboardEvent) {
         v-model="content"
         class="input input-bordered block w-full p-2.5 ps-10"
         placeholder="Search..."
-        @keypress="search"
+        @keypress="handleKeypress"
       />
+      <div class="absolute inset-y-0 end-0 flex items-center pe-3 cursor-pointer" @click="clear">
+        <v-icon name="md-close" />
+      </div>
     </div>
   </div>
 </template>

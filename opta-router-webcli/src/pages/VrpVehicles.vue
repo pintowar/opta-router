@@ -155,13 +155,13 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
                   class="btn btn-sm btn-circle"
                   @click="() => updateVehicle(selectedVehicle)"
                 >
-                  <v-icon v-if="!isUpdating" name="bi-check-lg" />
+                  <v-icon v-if="!isUpdating" name="md-check" />
                   <span v-else class="loading loading-bars loading-xs"></span>
                 </button>
               </div>
               <div class="tooltip" data-tip="Cancel">
                 <button class="btn btn-sm btn-circle" @click="() => editVehicle(null)">
-                  <v-icon name="bi-x" />
+                  <v-icon name="md-close" />
                 </button>
               </div>
             </td>

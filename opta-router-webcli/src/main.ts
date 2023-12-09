@@ -4,14 +4,14 @@ import App from "./App.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import {
-  BiCheckLg,
-  BiX,
   FaGithub,
   FaSlackHash,
   LaTrashSolid,
   MdAdd,
   MdCancelOutlined,
+  MdCheck,
   MdCheckcircleOutlined,
+  MdClose,
   MdInfoOutlined,
   MdEditTwotone,
   MdSearch,
@@ -23,14 +23,14 @@ import VueApexCharts from "vue3-apexcharts";
 import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
 
 addIcons(
-  BiCheckLg,
-  BiX,
   FaGithub,
   FaSlackHash,
   LaTrashSolid,
   MdAdd,
   MdCancelOutlined,
+  MdCheck,
   MdCheckcircleOutlined,
+  MdClose,
   MdInfoOutlined,
   MdEditTwotone,
   MdSearch,

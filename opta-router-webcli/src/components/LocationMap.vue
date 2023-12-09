@@ -13,17 +13,24 @@ const props = defineProps<{
   locations: (Depot | Customer)[];
   routes?: VehicleRoute[];
   selectedLocation?: Depot | Customer | null;
+  editMode?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: "update:selectedLocation", val: Depot | Customer | null | undefined): void;
+  (e: "update:editMode", val: boolean): void;
 }>();
 
-const { locations, routes, selectedLocation } = toRefs(props);
+const { locations, routes, selectedLocation, editMode } = toRefs(props);
 
 const componentLocation = computed({
   get: () => selectedLocation?.value,
   set: (val) => emit("update:selectedLocation", val),
+});
+
+const isEditing = computed({
+  get: () => editMode?.value,
+  set: (val) => emit("update:editMode", val),
 });
 
 const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
@@ -42,15 +49,6 @@ const layerOptions = { subdomains: ["a", "b", "c"] };
 function isDepot(obj: unknown): obj is Depot {
   return Boolean(obj && typeof obj === "object" && !("demand" in obj));
 }
-
-const icons = computed(() => {
-  return (locations.value || []).map((location) => {
-    return L.icon({
-      iconUrl: isDepot(location) ? "/industry.svg" : "/building.svg",
-      iconSize: [35, 45],
-    });
-  });
-});
 
 const polylines = computed(() => {
   const colors = createRainbow(Math.max(routes?.value?.length || 0, 9)).map((c) => rgbaString(c));
@@ -78,16 +76,16 @@ const polylines = computed(() => {
   });
 });
 
-function locationKey(location: Depot | Customer): string {
-  return `${location.name} (${location.lat}, ${location.lng})`;
+function getIcon(location: Depot | Customer) {
+  return L.icon({
+    iconUrl: isDepot(location) ? "/industry.svg" : "/building.svg",
+    iconSize: [40, 40],
+    className: isHighlighted(location) ? "rounded-full bg-orange-300" : "",
+  });
 }
 
-function clearTooltips() {
-  routerMap?.value?.leafletObject?.eachLayer((layer: L.Layer) => {
-    if (layer.options.pane === "tooltipPane") {
-      routerMap?.value?.leafletObject?.closeTooltip(layer);
-    }
-  });
+function locationKey(location: Depot | Customer): string {
+  return `${location.name} (${location.lat}, ${location.lng})`;
 }
 
 function markerClickHandler(e: L.LeafletMouseEvent) {
@@ -95,6 +93,7 @@ function markerClickHandler(e: L.LeafletMouseEvent) {
     const attribution = JSON.parse(e.target.options.attribution);
     const location = locations.value.find((loc) => loc.id === attribution.locationId);
     componentLocation.value = location;
+    isEditing.value = true;
   }
 }
 
@@ -107,10 +106,13 @@ function markerDropHandler(e: L.DragEndEvent) {
   }
 }
 
+function isHighlighted(location: Depot | Customer) {
+  return isEditing.value && location.id === componentLocation.value?.id;
+}
+
 watchEffect(() => {
-  const bounds: L.LatLngBounds = L.featureGroup(
-    (locations.value || []).map((e) => new L.Marker([e.lat, e.lng]))
-  ).getBounds();
+  const points = locations.value.concat(componentLocation?.value ? [componentLocation?.value] : []);
+  const bounds: L.LatLngBounds = L.featureGroup(points.map((e) => new L.Marker([e.lat, e.lng]))).getBounds();
 
   if (bounds.isValid()) {
     const tmp = [
@@ -118,21 +120,8 @@ watchEffect(() => {
       [bounds.getNorthEast().lat, bounds.getNorthEast().lng],
     ];
     routerMap?.value?.leafletObject?.fitBounds(tmp);
-    center.value = componentLocation?.value
-      ? [componentLocation.value.lat, componentLocation.value.lng]
-      : [
-          (bounds.getSouthWest().lat + bounds.getNorthEast().lat) / 2,
-          (bounds.getSouthWest().lng + bounds.getNorthEast().lng) / 2,
-        ];
-
-    clearTooltips();
-
     if (componentLocation?.value) {
-      const location = componentLocation.value;
-      const key = locationKey(location);
-      routerMap?.value?.leafletObject?.openTooltip(key, new L.LatLng(location.lat, location.lng), {
-        pane: "tooltipPane",
-      });
+      center.value = [componentLocation.value.lat, componentLocation.value.lng];
     }
   }
 });
@@ -152,17 +141,17 @@ watchEffect(() => {
     >
       <l-tile-layer :url="layerUrl" :options="layerOptions" />
       <l-marker
-        v-for="(location, idx) in locations || []"
+        v-for="location in locations || []"
         :key="locationKey(location)"
         :name="locationKey(location)"
-        :icon="icons[idx]"
+        :icon="getIcon(location)"
         :lat-lng="location"
-        :draggable="location.id === componentLocation?.id"
+        :draggable="isHighlighted(location)"
         :attribution="`{ &quot;locationId&quot;: ${location.id} }`"
         @click="markerClickHandler"
         @dragend="markerDropHandler"
       >
-        <l-popup v-if="location.id !== componentLocation?.id" :content="locationKey(location)" />
+        <l-popup v-if="!isHighlighted(location)" :content="locationKey(location)" />
       </l-marker>
       <l-polyline
         v-for="item in polylines"
