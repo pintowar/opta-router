@@ -116,7 +116,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
               </div>
               <div class="tooltip" data-tip="Delete">
                 <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                  <v-icon name="la-trash-solid" />
+                  <v-icon name="md-deleteoutline" />
                 </button>
               </div>
             </td>

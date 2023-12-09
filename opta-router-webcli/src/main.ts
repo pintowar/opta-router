@@ -4,20 +4,19 @@ import App from "./App.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import {
-  FaGithub,
-  FaSlackHash,
-  LaTrashSolid,
   MdAdd,
   MdCancelOutlined,
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,
+  MdDeleteoutline,
   MdInfoOutlined,
   MdEditTwotone,
   MdSearch,
   MdWarningamberRound,
-  OiGear,
-} from "oh-vue-icons/icons";
+} from "oh-vue-icons/icons/md";
+import { FaGithub, FaSlackHash } from "oh-vue-icons/icons/fa";
+import { OiGear } from "oh-vue-icons/icons/oi";
 import VueApexCharts from "vue3-apexcharts";
 
 import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
@@ -25,12 +24,12 @@ import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, Vr
 addIcons(
   FaGithub,
   FaSlackHash,
-  LaTrashSolid,
   MdAdd,
   MdCancelOutlined,
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,
+  MdDeleteoutline,
   MdInfoOutlined,
   MdEditTwotone,
   MdSearch,
