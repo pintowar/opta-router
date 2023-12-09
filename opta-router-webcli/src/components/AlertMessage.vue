@@ -32,7 +32,7 @@ const alerts = new Map<"info" | "success" | "warning" | "error", string>([
 </script>
 
 <template>
-  <div v-if="isOpen" role="alert" :class="`alert ${alerts.get(variant)}`">
+  <div v-if="isOpen" role="alert" :class="`alert fixed ${alerts.get(variant)}`">
     <v-icon :name="icons.get(variant)" />
     <div>
       <h3 class="font-bold capitalize">{{ variant }}</h3>

@@ -18,14 +18,17 @@ class VrpVehicleJooqAdapter(
     private val dsl: DSLContext
 ) : VrpVehiclePort {
 
-    override fun findAll(offset: Int, limit: Int): Flow<Vehicle> {
+    override fun findAll(query: String, offset: Int, limit: Int): Flow<Vehicle> {
         return dsl
             .select(VEHICLE, LOCATION)
             .from(
                 VEHICLE
                     .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
             )
-            .where(LOCATION.KIND.eq("depot"))
+            .where(
+                LOCATION.KIND.eq("depot")
+                    .and(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
+            )
             .limit(offset, limit)
             .asFlow()
             .map { (vehicle, loc) ->
@@ -35,8 +38,9 @@ class VrpVehicleJooqAdapter(
             }
     }
 
-    override suspend fun count(): Long {
-        val (total) = dsl.selectCount().from(VEHICLE).awaitSingle()
+    override suspend fun count(query: String): Long {
+        val (total) = dsl.selectCount().from(VEHICLE).where(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
+            .awaitSingle()
         return total.toLong()
     }
 

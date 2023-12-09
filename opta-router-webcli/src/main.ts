@@ -14,6 +14,7 @@ import {
   MdCheckcircleOutlined,
   MdInfoOutlined,
   MdEditTwotone,
+  MdSearch,
   MdWarningamberRound,
   OiGear,
 } from "oh-vue-icons/icons";
@@ -32,6 +33,7 @@ addIcons(
   MdCheckcircleOutlined,
   MdInfoOutlined,
   MdEditTwotone,
+  MdSearch,
   MdWarningamberRound,
   OiGear
 );

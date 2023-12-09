@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface VrpVehiclePort {
 
-    fun findAll(offset: Int = 0, limit: Int = 25): Flow<Vehicle>
+    fun findAll(query: String = "", offset: Int = 0, limit: Int = 25): Flow<Vehicle>
 
-    suspend fun count(): Long
+    suspend fun count(query: String = ""): Long
 
     suspend fun deleteById(id: Long)
 

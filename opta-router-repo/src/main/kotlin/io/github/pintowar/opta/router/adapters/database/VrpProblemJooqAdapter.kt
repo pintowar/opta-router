@@ -55,14 +55,17 @@ class VrpProblemJooqAdapter(
         }
     }
 
-    override fun findAll(offset: Int, limit: Int): Flow<VrpProblem> {
-        return problemQuery(dsl).limit(offset, limit).asFlow().map { (r, c, v) ->
-            VrpProblem(r.id!!, r.name, v, c)
-        }
+    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblem> {
+        return problemQuery(dsl)
+            .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
+            .limit(offset, limit).asFlow().map { (r, c, v) ->
+                VrpProblem(r.id!!, r.name, v, c)
+            }
     }
 
-    override suspend fun count(): Long {
-        val (total) = dsl.selectCount().from(VRP_PROBLEM).awaitSingle()
+    override suspend fun count(query: String): Long {
+        val (total) = dsl.selectCount().from(VRP_PROBLEM).where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
+            .awaitSingle()
         return total.toLong()
     }
 

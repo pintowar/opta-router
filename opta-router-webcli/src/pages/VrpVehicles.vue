@@ -6,11 +6,13 @@ import { useRoute } from "vue-router";
 import { Vehicle, Page, Depot } from "../api";
 
 import { VrpPageLayout } from "../layout";
-import { AlertMessage, DeleteDialog, PaginatedTable } from "../components";
+import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../components";
 
 const route = useRoute();
 
-const url = computed(() => `/api/vrp-vehicles?page=${route.query.page || 0}&size=${route.query.size || 10}`);
+const url = computed(
+  () => `/api/vrp-vehicles?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
+);
 const {
   isFetching,
   data: page,
@@ -81,7 +83,8 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
         />
 
         <h1 class="text-2xl">Vehicles</h1>
-        <div class="grid justify-items-end my-2 mx-2" data-tip="Create">
+        <div class="flex w-full justify-between">
+          <input-search :query="`${route.query.q || ''}`" />
           <router-link to="/vehicle/new" class="btn btn-circle">
             <v-icon name="md-add" />
           </router-link>

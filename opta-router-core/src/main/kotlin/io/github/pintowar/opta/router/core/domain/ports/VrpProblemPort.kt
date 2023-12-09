@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface VrpProblemPort {
 
-    fun findAll(offset: Int = 0, limit: Int = 25): Flow<VrpProblem>
+    fun findAll(query: String = "", offset: Int = 0, limit: Int = 25): Flow<VrpProblem>
 
-    suspend fun count(): Long
+    suspend fun count(query: String = ""): Long
 
     suspend fun getById(problemId: Long): VrpProblem?
 

@@ -16,9 +16,10 @@ class VrpLocationJooqAdapter(
     private val dsl: DSLContext
 ) : VrpLocationPort {
 
-    override fun findAll(offset: Int, limit: Int): Flow<Location> {
+    override fun findAll(query: String, offset: Int, limit: Int): Flow<Location> {
         return dsl
             .selectFrom(LOCATION)
+            .where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
             .limit(offset, limit)
             .asFlow()
             .map { loc ->
@@ -29,8 +30,9 @@ class VrpLocationJooqAdapter(
             }
     }
 
-    override suspend fun count(): Long {
-        val (total) = dsl.selectCount().from(LOCATION).awaitSingle()
+    override suspend fun count(query: String): Long {
+        val (total) = dsl.selectCount().from(LOCATION).where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
+            .awaitSingle()
         return total.toLong()
     }
 
