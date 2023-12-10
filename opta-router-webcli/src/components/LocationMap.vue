@@ -101,7 +101,7 @@ function markerDropHandler(e: L.DragEndEvent) {
   if (componentLocation.value) {
     const actual = componentLocation.value;
     const coord = e.target._latlng;
-    const updated = { ...actual, ...{ lat: coord.lat, lng: coord.lng } };
+    const updated = { ...actual, ...{ lat: coord.lat.toFixed(6), lng: coord.lng.toFixed(6) } };
     componentLocation.value = updated;
   }
 }

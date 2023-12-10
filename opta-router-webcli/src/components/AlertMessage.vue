@@ -41,3 +41,12 @@ const alerts = new Map<"info" | "success" | "warning" | "error", string>([
     <button v-if="closable" class="btn btn-xs btn-circle" @click="isOpen = false">X</button>
   </div>
 </template>
+
+<style>
+.alert {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  z-index: 1001;
+  width: 98%;
+}
+</style>

@@ -32,7 +32,9 @@ const {
   isFetching: isUpdating,
   error: updateError,
   execute: update,
+  statusCode: updateCode,
 } = useFetch(updateUrl, { immediate: false }).put(selectedVehicle);
+const successUpdate = computed(() => (updateCode.value || 0) >= 200 && (updateCode.value || 0) < 300);
 
 const depotsUrl = "/api/vrp-locations/depot";
 const { data: depots } = useFetch(depotsUrl, { initialData: [] }).get().json<Depot[]>();
@@ -73,6 +75,8 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
           :message="`${removeError ? 'Could not remove Vehicle' : 'Could not update Vehicle'}`"
           variant="error"
         />
+
+        <alert-message v-if="successUpdate" message="Succcessfully update Vehicle" variant="success" />
 
         <delete-dialog
           v-model:url="removeUrl"

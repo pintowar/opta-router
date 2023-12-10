@@ -33,7 +33,9 @@ const {
   isFetching: isUpdating,
   error: updateError,
   execute: update,
+  statusCode: updateCode,
 } = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
+const successUpdate = computed(() => (updateCode.value || 0) >= 200 && (updateCode.value || 0) < 300);
 
 function showDeleteModal(location: Customer | Depot) {
   isEditing.value = false;
@@ -76,6 +78,8 @@ function isDepot(obj: unknown): obj is Depot {
             :message="`${removeError ? 'Could not remove Location' : 'Could not update Location'}`"
             variant="error"
           />
+
+          <alert-message v-if="successUpdate" message="Succcessfully update Location" variant="success" />
 
           <delete-dialog
             v-model:url="removeUrl"
