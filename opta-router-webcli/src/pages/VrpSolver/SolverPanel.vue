@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { toRefs, computed, ref } from "vue";
+import { toRefs, computed, ref, StyleValue } from "vue";
 import { until } from "@vueuse/core";
 import { VrpSolution } from "../../api";
 
@@ -12,6 +12,7 @@ const props = defineProps<{
   selectedSolver: string;
   solvers: string[];
   isDetailedPath: boolean;
+  style?: StyleValue;
 }>();
 
 const emit = defineEmits<{
@@ -22,7 +23,7 @@ const emit = defineEmits<{
   (e: "update:selectedSolver", val: string): void;
 }>();
 
-const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath } = toRefs(props);
+const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath, style } = toRefs(props);
 
 const editorDetailedPath = computed({
   get: () => isDetailedPath.value,
@@ -56,7 +57,7 @@ async function wrapperClear() {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="flex flex-col overflow-y-auto space-y-2" :style="style">
     <div class="flex space-x-2">
       <div class="basis-1/2">
         <h1>Solver</h1>

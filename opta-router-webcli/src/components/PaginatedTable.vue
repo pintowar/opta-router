@@ -93,8 +93,8 @@ function last() {
       </table>
     </div>
 
-    <div class="flex justify-around">
-      <div>
+    <div class="flex justify-between">
+      <div class="flex">
         <select v-model="pageSize" class="select select-sm select-bordered">
           <option v-for="size in pageSizes" :key="size" :value="size">
             {{ size }}

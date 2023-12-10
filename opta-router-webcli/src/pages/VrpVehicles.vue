@@ -65,7 +65,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
+  <vrp-page-layout v-slot="{ tableFooterHeight }" :is-fetching="isFetching" :error="error">
     <main>
       <div class="mx-2 my-2 space-x-2">
         <alert-message
@@ -83,7 +83,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
         />
 
         <h1 class="text-2xl">Vehicles</h1>
-        <div class="flex w-full justify-between">
+        <div class="flex justify-between">
           <input-search :query="`${route.query.q || ''}`" />
           <router-link to="/vehicle/new" class="btn btn-circle">
             <v-icon name="md-add" />
@@ -94,7 +94,7 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
           :page="page"
           :selected="selectedVehicle"
           :is-editing="isEditing"
-          style="height: calc(100vh - 320px)"
+          :style="`height: calc(100vh - ${tableFooterHeight})`"
         >
           <template #head>
             <th>Id</th>

@@ -18,9 +18,9 @@ const mode = useColorMode({
     </div>
     <div class="justify-end space-x-4">
       <a href="https://github.com/pintowar/opta-router">
-        <v-icon name="fa-github" scale="2.5" />
+        <v-icon name="fa-github" scale="2" />
       </a>
-      <select v-model="mode" class="select w-full max-w-xs" data-choose-theme>
+      <select v-model="mode" class="select select-sm w-full max-w-xs" data-choose-theme>
         <option v-for="theme in localThemes" :key="theme" :value="theme">{{ theme }}</option>
       </select>
     </div>
@@ -30,7 +30,7 @@ const mode = useColorMode({
 
   <footer class="footer items-center p-4 bg-neutral text-neutral-content fixed bottom-0">
     <div class="items-center grid-flow-col">
-      <v-icon name="fa-slack-hash" scale="2.5" />
+      <v-icon name="fa-slack-hash" scale="2" />
       <p>Copyright © 2023 - All right reserved</p>
     </div>
   </footer>

@@ -33,7 +33,7 @@ const showDeleteModal = (instance: VrpProblem) => {
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
+  <vrp-page-layout v-slot="{ tableFooterHeight }" :is-fetching="isFetching" :error="error">
     <main>
       <div class="mx-2 my-2 space-x-2">
         <alert-message
@@ -58,7 +58,7 @@ const showDeleteModal = (instance: VrpProblem) => {
           </router-link>
         </div>
 
-        <paginated-table :page="page" style="height: calc(100vh - 320px)">
+        <paginated-table :page="page" :style="`height: calc(100vh - ${tableFooterHeight})`">
           <template #head>
             <th>Id</th>
             <th>Name</th>

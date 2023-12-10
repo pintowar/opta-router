@@ -79,7 +79,7 @@ async function cleanAction() {
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
+  <vrp-page-layout v-slot="{ mapFooterHeight }" :is-fetching="isFetching" :error="error">
     <vrp-solver-panel-layout>
       <template #menu>
         <solver-panel
@@ -89,6 +89,7 @@ async function cleanAction() {
           :solvers="solvers || []"
           :solver-status="solverStatus"
           :ws-status="status"
+          :style="`height: calc(100vh - ${mapFooterHeight})`"
           @on-solve="solveAction"
           @on-terminate="terminateAction"
           @on-clear="cleanAction"

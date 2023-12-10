@@ -33,8 +33,8 @@ const totalDemand = computed(() => customers.value.map((it) => it.demand).reduce
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
-    <main class="flex my-2 mx-2 space-x-2 h-full" style="height: calc(100vh - 140px)">
+  <vrp-page-layout v-slot="{ mapFooterHeight }" :is-fetching="isFetching" :error="error">
+    <main class="flex my-2 mx-2 space-x-2 h-full" :style="`height: calc(100vh - ${mapFooterHeight})`">
       <div class="flex-initial flex-col w-7/12 space-y-2">
         <div>
           <table class="table table-sm table-zebra">
@@ -70,7 +70,7 @@ const totalDemand = computed(() => customers.value.map((it) => it.demand).reduce
           </div>
 
           <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
-          <div role="tabpanel" class="tab-content overflow-x-auto" style="height: calc(100vh - 370px)">
+          <div role="tabpanel" class="tab-content overflow-x-auto">
             <table class="table table-sm table-zebra w-full">
               <thead>
                 <th>Name</th>
