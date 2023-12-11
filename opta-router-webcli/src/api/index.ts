@@ -27,6 +27,10 @@ type Page<T> = {
   empty: boolean;
 };
 
+function isDepot(obj: unknown): obj is Depot {
+  return Boolean(obj && typeof obj === "object" && !("demand" in obj));
+}
+
 export type {
   Customer,
   Depot,
@@ -41,3 +45,5 @@ export type {
   VrpSolverRequest,
   VrpSolverObjective,
 };
+
+export { isDepot };

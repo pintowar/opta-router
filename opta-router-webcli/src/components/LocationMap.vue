@@ -7,7 +7,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
-import { Customer, Depot, VehicleRoute } from "../api";
+import { Customer, Depot, VehicleRoute, isDepot } from "../api";
 
 const props = defineProps<{
   locations: (Depot | Customer)[];
@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "update:selectedLocation", val: Depot | Customer | null | undefined): void;
-  (e: "update:editMode", val: boolean): void;
+  (e: "markerClick", val: L.LeafletMouseEvent): void;
 }>();
 
 const { locations, routes, selectedLocation, editMode } = toRefs(props);
@@ -26,11 +26,6 @@ const { locations, routes, selectedLocation, editMode } = toRefs(props);
 const componentLocation = computed({
   get: () => selectedLocation?.value,
   set: (val) => emit("update:selectedLocation", val),
-});
-
-const isEditing = computed({
-  get: () => editMode?.value,
-  set: (val) => emit("update:editMode", val),
 });
 
 const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
@@ -45,10 +40,6 @@ const mapOptions = { attributionControl: false };
 
 const layerUrl = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
 const layerOptions = { subdomains: ["a", "b", "c"] };
-
-function isDepot(obj: unknown): obj is Depot {
-  return Boolean(obj && typeof obj === "object" && !("demand" in obj));
-}
 
 const polylines = computed(() => {
   const colors = createRainbow(Math.max(routes?.value?.length || 0, 9)).map((c) => rgbaString(c));
@@ -93,7 +84,7 @@ function markerClickHandler(e: L.LeafletMouseEvent) {
     const attribution = JSON.parse(e.target.options.attribution);
     const location = locations.value.find((loc) => loc.id === attribution.locationId);
     componentLocation.value = location;
-    isEditing.value = true;
+    emit("markerClick", e);
   }
 }
 
@@ -107,7 +98,7 @@ function markerDropHandler(e: L.DragEndEvent) {
 }
 
 function isHighlighted(location: Depot | Customer) {
-  return isEditing.value && location.id === componentLocation.value?.id;
+  return editMode.value && location.id === componentLocation.value?.id;
 }
 
 watchEffect(() => {

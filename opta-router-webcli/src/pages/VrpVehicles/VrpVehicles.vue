@@ -3,15 +3,17 @@ import { computed, ref } from "vue";
 import { AfterFetchContext, useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Vehicle, Page, Depot } from "../api";
+import { Vehicle, Page, Depot } from "../../api";
 
-import { VrpPageLayout } from "../layout";
-import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../components";
+import { VrpPageLayout } from "../../layout";
+import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";
+import VrpVehicleForm from "./VrpVehicleForm.vue";
 
+const baseRestUrl = "/api/vrp-vehicles";
 const route = useRoute();
 
 const url = computed(
-  () => `/api/vrp-vehicles?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
+  () => `${baseRestUrl}?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
 );
 const {
   isFetching,
@@ -22,12 +24,23 @@ const {
 
 const selectedVehicle = ref<Vehicle | null>(null);
 
+const openInsert = ref<boolean>(false);
+const baseIdRestUrl = computed(() => `${baseRestUrl}/${selectedVehicle.value?.id}`);
+const insertUrl = `${baseRestUrl}/insert`;
+const {
+  isFetching: isInserting,
+  error: insertError,
+  execute: insert,
+  statusCode: insertCode,
+} = useFetch(insertUrl, { immediate: false }).post(selectedVehicle);
+const successInsert = computed(() => (insertCode.value || 0) >= 200 && (insertCode.value || 0) < 300);
+
 const openRemove = ref<boolean>(false);
-const removeUrl = computed(() => `/api/vrp-vehicles/${selectedVehicle.value?.id}/remove`);
+const removeUrl = computed(() => `${baseIdRestUrl.value}/remove`);
 const removeError = ref(false);
 
 const isEditing = ref(false);
-const updateUrl = computed(() => `/api/vrp-vehicles/${selectedVehicle.value?.id}/update`);
+const updateUrl = computed(() => `${baseIdRestUrl.value}/update`);
 const {
   isFetching: isUpdating,
   error: updateError,
@@ -38,6 +51,25 @@ const successUpdate = computed(() => (updateCode.value || 0) >= 200 && (updateCo
 
 const depotsUrl = "/api/vrp-locations/depot";
 const { data: depots } = useFetch(depotsUrl, { initialData: [] }).get().json<Depot[]>();
+
+function toogleInsert() {
+  if (!openInsert.value) {
+    const depot = depots.value[0] || { id: -1, name: "", lat: 0, lng: 0 };
+    const newVehicle = { id: -1, name: "", capacity: 0, depot };
+    selectedVehicle.value = newVehicle;
+  } else {
+    selectedVehicle.value = null;
+  }
+  openInsert.value = !openInsert.value;
+}
+
+async function insertVehicle(vehicle: Vehicle | null) {
+  if (vehicle) {
+    await insert();
+    toogleInsert();
+    await fetchVehicles();
+  }
+}
 
 function showDeleteModal(vehicle: Vehicle) {
   isEditing.value = false;
@@ -71,12 +103,16 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
     <main>
       <div class="mx-2 my-2 space-x-2">
         <alert-message
-          v-if="removeError || updateError"
-          :message="`${removeError ? 'Could not remove Vehicle' : 'Could not update Vehicle'}`"
+          v-if="removeError || updateError || insertError"
+          :message="`${removeError ? 'Could not remove Vehicle' : 'Could not save/update Vehicle'}`"
           variant="error"
         />
 
-        <alert-message v-if="successUpdate" message="Succcessfully update Vehicle" variant="success" />
+        <alert-message
+          v-if="successUpdate || successInsert"
+          :message="`${successUpdate ? 'Succcessfully update Vehicle' : 'Succcessfully save Vehicle'}`"
+          variant="success"
+        />
 
         <delete-dialog
           v-model:url="removeUrl"
@@ -88,13 +124,26 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
 
         <h1 class="text-2xl">Vehicles</h1>
         <div class="flex justify-between">
-          <input-search :query="`${route.query.q || ''}`" />
-          <router-link to="/vehicle/new" class="btn btn-circle">
+          <input-search v-if="!openInsert" :query="`${route.query.q || ''}`" />
+          <div v-else></div>
+          <button class="btn btn-circle" @click="toogleInsert">
             <v-icon name="md-add" />
-          </router-link>
+          </button>
+        </div>
+
+        <div v-if="openInsert">
+          <vrp-vehicle-form
+            v-if="selectedVehicle"
+            v-model:vehicle="selectedVehicle"
+            :depots="depots || []"
+            :is-loading="isInserting"
+            @execute="() => insertVehicle(selectedVehicle)"
+            @close="toogleInsert"
+          />
         </div>
 
         <paginated-table
+          v-else
           :page="page"
           :selected="selectedVehicle"
           :is-editing="isEditing"

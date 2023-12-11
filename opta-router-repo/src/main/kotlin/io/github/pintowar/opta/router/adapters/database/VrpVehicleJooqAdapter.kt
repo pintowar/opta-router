@@ -13,6 +13,7 @@ import org.jooq.generated.tables.references.LOCATION
 import org.jooq.generated.tables.references.VEHICLE
 import org.jooq.generated.tables.references.VRP_PROBLEM
 import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
+import java.time.Instant
 
 class VrpVehicleJooqAdapter(
     private val dsl: DSLContext
@@ -44,6 +45,18 @@ class VrpVehicleJooqAdapter(
         return total.toLong()
     }
 
+    override suspend fun create(vehicle: Vehicle) {
+        val now = Instant.now()
+
+        dsl.insertInto(VEHICLE)
+            .set(VEHICLE.NAME, vehicle.name)
+            .set(VEHICLE.CAPACITY, vehicle.capacity)
+            .set(VEHICLE.DEPOT_ID, vehicle.depot.id)
+            .set(VEHICLE.CREATED_AT, now)
+            .set(VEHICLE.UPDATED_AT, now)
+            .awaitSingle()
+    }
+
     override suspend fun deleteById(id: Long) {
         dsl
             .deleteFrom(VEHICLE)
@@ -52,10 +65,13 @@ class VrpVehicleJooqAdapter(
     }
 
     override suspend fun update(id: Long, vehicle: Vehicle) {
+        val now = Instant.now()
+
         dsl.update(VEHICLE)
             .set(VEHICLE.NAME, vehicle.name)
             .set(VEHICLE.CAPACITY, vehicle.capacity)
             .set(VEHICLE.DEPOT_ID, vehicle.depot.id)
+            .set(VEHICLE.UPDATED_AT, now)
             .where(VEHICLE.ID.eq(id))
             .awaitSingle()
     }

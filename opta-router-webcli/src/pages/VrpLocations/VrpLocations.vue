@@ -3,15 +3,17 @@ import { computed, ref } from "vue";
 import { AfterFetchContext, useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Customer, Depot, Page } from "../api";
+import { Customer, Depot, Page, isDepot } from "../../api";
 
-import { VrpPageLayout } from "../layout";
-import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../components";
+import { VrpPageLayout } from "../../layout";
+import VrpLocationForm from "./VrpLocationForm.vue";
+import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../../components";
 
+const baseRestUrl = "/api/vrp-locations";
 const route = useRoute();
 
 const url = computed(
-  () => `/api/vrp-locations?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
+  () => `${baseRestUrl}?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
 );
 const {
   isFetching,
@@ -23,12 +25,23 @@ const locations = computed(() => page.value?.content || []);
 
 const selectedLocation = ref<Customer | Depot | null>(null);
 
+const openInsert = ref<boolean>(false);
+const baseIdRestUrl = computed(() => `${baseRestUrl}/${selectedLocation.value?.id}`);
+const insertUrl = `${baseRestUrl}/insert`;
+const {
+  isFetching: isInserting,
+  error: insertError,
+  execute: insert,
+  statusCode: insertCode,
+} = useFetch(insertUrl, { immediate: false }).post(selectedLocation);
+const successInsert = computed(() => (insertCode.value || 0) >= 200 && (insertCode.value || 0) < 300);
+
 const openRemove = ref<boolean>(false);
-const removeUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/remove`);
+const removeUrl = computed(() => `${baseIdRestUrl.value}/remove`);
 const removeError = ref(false);
 
 const isEditing = ref(false);
-const updateUrl = computed(() => `/api/vrp-locations/${selectedLocation.value?.id}/update`);
+const updateUrl = computed(() => `${baseIdRestUrl.value}/update`);
 const {
   isFetching: isUpdating,
   error: updateError,
@@ -36,6 +49,36 @@ const {
   statusCode: updateCode,
 } = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
 const successUpdate = computed(() => (updateCode.value || 0) >= 200 && (updateCode.value || 0) < 300);
+
+function toogleInsert() {
+  if (!openInsert.value) {
+    const accCoord = locations.value.reduce(
+      (acc, { lat, lng }) => ({
+        lat: acc.lat + lat,
+        lng: acc.lng + lng,
+      }),
+      { lat: 0, lng: 0 }
+    );
+    const newCoord = {
+      lat: Number((accCoord.lat / locations.value.length).toFixed(6)),
+      lng: Number((accCoord.lng / locations.value.length).toFixed(6)),
+    };
+    const newLocation = { id: -1, name: "", demand: 0, ...newCoord };
+
+    selectedLocation.value = newLocation;
+  } else {
+    selectedLocation.value = null;
+  }
+  openInsert.value = !openInsert.value;
+}
+
+async function insertLocation(location: Customer | Depot | null) {
+  if (location) {
+    await insert();
+    toogleInsert();
+    await fetchLocations();
+  }
+}
 
 function showDeleteModal(location: Customer | Depot) {
   isEditing.value = false;
@@ -62,10 +105,6 @@ function afterLocationsFetch(ctx: AfterFetchContext) {
   selectedLocation.value = null;
   return ctx;
 }
-
-function isDepot(obj: unknown): obj is Depot {
-  return Boolean(obj && typeof obj === "object" && !("demand" in obj));
-}
 </script>
 
 <template>
@@ -74,12 +113,16 @@ function isDepot(obj: unknown): obj is Depot {
       <div class="flex my-2 mx-2 space-x-2">
         <div class="flex flex-col w-7/12">
           <alert-message
-            v-if="removeError || updateError"
-            :message="`${removeError ? 'Could not remove Location' : 'Could not update Location'}`"
+            v-if="removeError || updateError || insertError"
+            :message="`${removeError ? 'Could not remove Location' : 'Could not save/update Location'}`"
             variant="error"
           />
 
-          <alert-message v-if="successUpdate" message="Succcessfully update Location" variant="success" />
+          <alert-message
+            v-if="successUpdate || successInsert"
+            :message="`${successUpdate ? 'Succcessfully update Location' : 'Succcessfully save Location'}`"
+            variant="success"
+          />
 
           <delete-dialog
             v-model:url="removeUrl"
@@ -91,13 +134,25 @@ function isDepot(obj: unknown): obj is Depot {
 
           <h1 class="text-2xl">Locations</h1>
           <div class="flex w-full justify-between">
-            <input-search :query="`${route.query.q || ''}`" />
-            <router-link to="/location/new" class="btn btn-circle">
-              <v-icon name="md-add" />
-            </router-link>
+            <input-search v-if="!openInsert" :query="`${route.query.q || ''}`" />
+            <div v-else></div>
+            <button class="btn btn-circle" @click="toogleInsert">
+              <v-icon :name="`${!openInsert ? 'md-add' : 'md-close'}`" />
+            </button>
+          </div>
+
+          <div v-if="openInsert" :style="`height: calc(100vh - ${tableFooterHeight})`">
+            <vrp-location-form
+              v-if="selectedLocation"
+              v-model:location="selectedLocation"
+              :is-loading="isInserting"
+              @execute="() => insertLocation(selectedLocation)"
+              @close="toogleInsert"
+            />
           </div>
 
           <paginated-table
+            v-else
             :page="page"
             :selected="selectedLocation"
             :is-editing="isEditing"
@@ -193,9 +248,17 @@ function isDepot(obj: unknown): obj is Depot {
         </div>
         <div class="flex-auto">
           <location-map
+            v-if="!openInsert"
             v-model:selected-location="selectedLocation"
-            v-model:edit-mode="isEditing"
+            :edit-mode="isEditing"
             :locations="locations || []"
+            @marker-click="isEditing = true"
+          />
+          <location-map
+            v-if="openInsert"
+            v-model:selected-location="selectedLocation"
+            :edit-mode="true"
+            :locations="locations.concat(selectedLocation ? [selectedLocation] : [])"
           />
         </div>
       </div>

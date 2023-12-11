@@ -27,6 +27,12 @@ class VrpVehicleController(
         return PageImpl(locations, PageRequest.of(page, size), count)
     }
 
+    @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun insert(@RequestBody vehicle: Vehicle): ResponseEntity<Unit> {
+        return repo.create(vehicle)
+            .let { ResponseEntity.ok().build() }
+    }
+
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(@PathVariable id: Long): ResponseEntity<Unit> {
         return repo.deleteById(id)

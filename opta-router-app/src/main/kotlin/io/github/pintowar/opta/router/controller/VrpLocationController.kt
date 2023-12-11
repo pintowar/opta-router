@@ -25,7 +25,9 @@ class VrpLocationController(
         val lat: Double,
         val lng: Double,
         val demand: Int? = null
-    )
+    ) {
+        fun toLocation() = demand?.let { Customer(id, name, lat, lng, it) } ?: Depot(id, name, lat, lng)
+    }
 
     @GetMapping
     suspend fun index(
@@ -43,6 +45,12 @@ class VrpLocationController(
         return repo.listAllByKind(kind)
     }
 
+    @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
+    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Unit> {
+        return repo.create(req.toLocation())
+            .let { ResponseEntity.ok().build() }
+    }
+
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(@PathVariable id: Long): ResponseEntity<Unit> {
         return repo.deleteById(id)
@@ -51,11 +59,7 @@ class VrpLocationController(
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Unit> {
-        val location = req.demand
-            ?.let { Customer(req.id, req.name, req.lat, req.lng, it) }
-            ?: Depot(req.id, req.name, req.lat, req.lng)
-
-        return repo.update(id, location)
+        return repo.update(id, req.toLocation())
             .let { ResponseEntity.ok().build() }
     }
 

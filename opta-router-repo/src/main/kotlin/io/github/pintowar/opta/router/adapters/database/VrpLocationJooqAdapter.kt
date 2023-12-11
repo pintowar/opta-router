@@ -11,6 +11,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
 import org.jooq.generated.tables.references.LOCATION
+import java.time.Instant
 
 class VrpLocationJooqAdapter(
     private val dsl: DSLContext
@@ -36,6 +37,21 @@ class VrpLocationJooqAdapter(
         return total.toLong()
     }
 
+    override suspend fun create(location: Location) {
+        val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
+        val now = Instant.now()
+
+        dsl.insertInto(LOCATION)
+            .set(LOCATION.NAME, location.name)
+            .set(LOCATION.LATITUDE, location.lat)
+            .set(LOCATION.LONGITUDE, location.lng)
+            .set(LOCATION.KIND, kind)
+            .set(LOCATION.DEMAND, demand)
+            .set(LOCATION.CREATED_AT, now)
+            .set(LOCATION.UPDATED_AT, now)
+            .awaitSingle()
+    }
+
     override suspend fun deleteById(locationId: Long) {
         dsl
             .deleteFrom(LOCATION)
@@ -45,6 +61,7 @@ class VrpLocationJooqAdapter(
 
     override suspend fun update(id: Long, location: Location) {
         val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
+        val now = Instant.now()
 
         dsl.update(LOCATION)
             .set(LOCATION.NAME, location.name)
@@ -52,6 +69,7 @@ class VrpLocationJooqAdapter(
             .set(LOCATION.LONGITUDE, location.lng)
             .set(LOCATION.KIND, kind)
             .set(LOCATION.DEMAND, demand)
+            .set(LOCATION.UPDATED_AT, now)
             .where(LOCATION.ID.eq(id))
             .awaitSingle()
     }

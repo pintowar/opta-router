@@ -10,6 +10,8 @@ interface VrpVehiclePort {
 
     suspend fun count(query: String = ""): Long
 
+    suspend fun create(vehicle: Vehicle)
+
     suspend fun deleteById(id: Long)
 
     suspend fun update(id: Long, vehicle: Vehicle)
