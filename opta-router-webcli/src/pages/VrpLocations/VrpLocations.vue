@@ -25,6 +25,15 @@ const locations = computed(() => page.value?.content || []);
 
 const selectedLocation = ref<Customer | Depot | null>(null);
 
+const allLocations = computed(() => {
+  if (selectedLocation.value) {
+    const found = locations.value.find(({ id }) => id === selectedLocation.value?.id);
+    return found ? locations.value : locations.value.concat([selectedLocation.value]);
+  } else {
+    return locations.value;
+  }
+});
+
 const openInsert = ref<boolean>(false);
 const baseIdRestUrl = computed(() => `${baseRestUrl}/${selectedLocation.value?.id}`);
 const insertUrl = `${baseRestUrl}/insert`;
@@ -255,10 +264,10 @@ function afterLocationsFetch(ctx: AfterFetchContext) {
             @marker-click="isEditing = true"
           />
           <location-map
-            v-if="openInsert"
+            v-else
             v-model:selected-location="selectedLocation"
             :edit-mode="true"
-            :locations="locations.concat(selectedLocation ? [selectedLocation] : [])"
+            :locations="allLocations"
           />
         </div>
       </div>

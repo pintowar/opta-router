@@ -133,7 +133,7 @@ watchEffect(() => {
       <l-tile-layer :url="layerUrl" :options="layerOptions" />
       <l-marker
         v-for="location in locations || []"
-        :key="locationKey(location)"
+        :key="location.id"
         :name="locationKey(location)"
         :icon="getIcon(location)"
         :lat-lng="location"
@@ -142,7 +142,7 @@ watchEffect(() => {
         @click="markerClickHandler"
         @dragend="markerDropHandler"
       >
-        <l-popup v-if="!isHighlighted(location)" :content="locationKey(location)" />
+        <l-popup v-if="!isHighlighted(location)" :key="location.id" :content="locationKey(location)" />
       </l-marker>
       <l-polyline
         v-for="item in polylines"
