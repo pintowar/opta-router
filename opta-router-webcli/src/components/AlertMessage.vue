@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ref, toRefs } from "vue";
+import { TransitionPresets, useTransition, useTimeoutFn } from "@vueuse/core";
+import { ref, toRefs, watch, onMounted } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -16,6 +17,17 @@ const props = withDefaults(
 const { message, variant } = toRefs(props);
 
 const isOpen = ref(true);
+const source = ref(1);
+
+const opacity = useTransition(source, {
+  duration: 2000,
+  transition: TransitionPresets.easeInOutCubic,
+  onFinished() {
+    isOpen.value = false;
+  },
+});
+
+useTimeoutFn(() => (source.value = 0), 2000, { immediate: true });
 
 const icons = new Map<"info" | "success" | "warning" | "error", string>([
   ["info", "md-info-outlined"],
@@ -32,7 +44,7 @@ const alerts = new Map<"info" | "success" | "warning" | "error", string>([
 </script>
 
 <template>
-  <div v-if="isOpen" role="alert" :class="`alert fixed ${alerts.get(variant)}`">
+  <div v-if="isOpen" role="alert" :class="`alert fixed ${alerts.get(variant)}`" :style="{ opacity }">
     <v-icon :name="icons.get(variant)" />
     <div>
       <h3 class="font-bold capitalize">{{ variant }}</h3>
