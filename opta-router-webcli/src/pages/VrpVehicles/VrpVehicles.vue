@@ -96,6 +96,17 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
   selectedVehicle.value = null;
   return ctx;
 }
+
+function errorClose() {
+  removeError.value = false;
+  insertError.value = null;
+  updateError.value = null;
+}
+
+function successClose() {
+  updateCode.value = null;
+  insertCode.value = null;
+}
 </script>
 
 <template>
@@ -106,12 +117,14 @@ function afterVehiclesFetch(ctx: AfterFetchContext) {
           v-if="removeError || updateError || insertError"
           :message="`${removeError ? 'Could not remove Vehicle' : 'Could not save/update Vehicle'}`"
           variant="error"
+          @close="errorClose"
         />
 
         <alert-message
           v-if="successUpdate || successInsert"
           :message="`${successUpdate ? 'Succcessfully update Vehicle' : 'Succcessfully save Vehicle'}`"
           variant="success"
+          @close="successClose"
         />
 
         <delete-dialog

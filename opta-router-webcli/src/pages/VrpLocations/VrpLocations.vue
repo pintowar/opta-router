@@ -114,6 +114,17 @@ function afterLocationsFetch(ctx: AfterFetchContext) {
   selectedLocation.value = null;
   return ctx;
 }
+
+function errorClose() {
+  removeError.value = false;
+  insertError.value = null;
+  updateError.value = null;
+}
+
+function successClose() {
+  updateCode.value = null;
+  insertCode.value = null;
+}
 </script>
 
 <template>
@@ -125,12 +136,14 @@ function afterLocationsFetch(ctx: AfterFetchContext) {
             v-if="removeError || updateError || insertError"
             :message="`${removeError ? 'Could not remove Location' : 'Could not save/update Location'}`"
             variant="error"
+            @close="errorClose"
           />
 
           <alert-message
             v-if="successUpdate || successInsert"
             :message="`${successUpdate ? 'Succcessfully update Location' : 'Succcessfully save Location'}`"
             variant="success"
+            @close="successClose"
           />
 
           <delete-dialog

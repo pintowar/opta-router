@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TransitionPresets, useTransition, useTimeoutFn } from "@vueuse/core";
-import { ref, toRefs, watch, onMounted } from "vue";
+import { ref, toRefs } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -14,6 +14,10 @@ const props = withDefaults(
   }
 );
 
+const emit = defineEmits<{
+  (e: "close"): void;
+}>();
+
 const { message, variant } = toRefs(props);
 
 const isOpen = ref(true);
@@ -23,7 +27,7 @@ const opacity = useTransition(source, {
   duration: 2000,
   transition: TransitionPresets.easeInOutCubic,
   onFinished() {
-    isOpen.value = false;
+    closeAlert();
   },
 });
 
@@ -41,6 +45,11 @@ const alerts = new Map<"info" | "success" | "warning" | "error", string>([
   ["warning", "alert-warning"],
   ["error", "alert-error"],
 ]);
+
+function closeAlert() {
+  isOpen.value = false;
+  emit("close");
+}
 </script>
 
 <template>
@@ -50,7 +59,7 @@ const alerts = new Map<"info" | "success" | "warning" | "error", string>([
       <h3 class="font-bold capitalize">{{ variant }}</h3>
       <div class="text-xs">{{ message }}</div>
     </div>
-    <button v-if="closable" class="btn btn-xs btn-circle" @click="isOpen = false">X</button>
+    <button v-if="closable" class="btn btn-xs btn-circle" @click="closeAlert()">X</button>
   </div>
 </template>
 
