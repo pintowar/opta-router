@@ -45,7 +45,7 @@ tasks.register("assembleApp") {
     description = "Build web app"
     doLast {
         copy {
-            from(files("${project(webServ).buildDir}/libs/")) {
+            from(files(project(webServ).layout.buildDirectory.dir("libs").get())) {
                 include("opta-router-app-${version}.jar")
             }
             into("$rootDir/build/app.jar")

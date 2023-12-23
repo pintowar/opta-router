@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.node)
 }
 
-project.buildDir = file("dist")
+project.layout.buildDirectory.set(file("dist"))
 
 node {
     version.set("18.18.2")
@@ -31,6 +31,6 @@ tasks {
     }
 
     register<Delete>("clean") {
-        delete(project.buildDir)
+        delete(project.layout.buildDirectory.get())
     }
 }

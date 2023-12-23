@@ -54,7 +54,7 @@ const { data: depots } = useFetch(depotsUrl, { initialData: [] }).get().json<Dep
 
 function toogleInsert() {
   if (!openInsert.value) {
-    const depot = depots.value[0] || { id: -1, name: "", lat: 0, lng: 0 };
+    const depot = (depots.value && depots.value[0]) || { id: -1, name: "", lat: 0, lng: 0 };
     const newVehicle = { id: -1, name: "", capacity: 0, depot };
     selectedVehicle.value = newVehicle;
   } else {

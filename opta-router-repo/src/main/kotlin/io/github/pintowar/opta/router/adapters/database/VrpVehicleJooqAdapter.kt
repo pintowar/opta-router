@@ -11,8 +11,6 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
 import org.jooq.generated.tables.references.LOCATION
 import org.jooq.generated.tables.references.VEHICLE
-import org.jooq.generated.tables.references.VRP_PROBLEM
-import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
 import java.time.Instant
 
 class VrpVehicleJooqAdapter(
