@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
+    "@types/lodash": "^4.14.202",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.5.0",
     "apexcharts": "^3.44.0",
     "leaflet": "^1.9.4",
+    "lodash": "^4.17.21",
     "oh-vue-icons": "^1.0.0-rc3",
     "rainbow-color": "^2.0.0",
     "vue": "^3.3.6",

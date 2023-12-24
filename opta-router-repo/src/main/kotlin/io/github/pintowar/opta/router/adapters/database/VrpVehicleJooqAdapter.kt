@@ -73,4 +73,23 @@ class VrpVehicleJooqAdapter(
             .where(VEHICLE.ID.eq(id))
             .awaitSingle()
     }
+
+    override fun listByDepots(depotIds: List<Long>): Flow<Vehicle> {
+        return dsl
+            .select(VEHICLE, LOCATION)
+            .from(
+                VEHICLE
+                    .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
+            )
+            .where(
+                LOCATION.KIND.eq("depot")
+                    .and(LOCATION.ID.`in`(depotIds))
+            )
+            .asFlow()
+            .map { (vehicle, loc) ->
+                Depot(loc.id!!, loc.name, loc.latitude, loc.longitude).let { depot ->
+                    Vehicle(vehicle.id!!, vehicle.name, vehicle.capacity, depot)
+                }
+            }
+    }
 }

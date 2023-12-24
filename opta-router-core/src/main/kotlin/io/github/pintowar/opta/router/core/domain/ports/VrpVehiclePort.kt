@@ -14,4 +14,6 @@ interface VrpVehiclePort {
     suspend fun deleteById(id: Long)
 
     suspend fun update(id: Long, vehicle: Vehicle)
+
+    fun listByDepots(depotIds: List<Long>): Flow<Vehicle>
 }

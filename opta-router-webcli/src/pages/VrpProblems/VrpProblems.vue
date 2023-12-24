@@ -3,10 +3,10 @@ import { computed, ref } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Page, VrpProblem } from "../api";
+import { Page, VrpProblem } from "../../api";
 
-import { VrpPageLayout } from "../layout";
-import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../components";
+import { VrpPageLayout } from "../../layout";
+import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";
 
 const route = useRoute();
 

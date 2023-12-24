@@ -6,6 +6,7 @@ import { OhVueIcon, addIcons } from "oh-vue-icons";
 import {
   MdAdd,
   MdCancelOutlined,
+  MdChangecircle,
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,
@@ -26,6 +27,7 @@ addIcons(
   FaSlackHash,
   MdAdd,
   MdCancelOutlined,
+  MdChangecircle,
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,

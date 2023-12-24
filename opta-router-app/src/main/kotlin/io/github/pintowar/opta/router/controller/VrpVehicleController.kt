@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.controller
 
 import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.ports.VrpVehiclePort
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -33,6 +34,13 @@ class VrpVehicleController(
         val count = repo.count(q)
         val locations = repo.findAll(q, page * size, size).toList()
         return PageImpl(locations, PageRequest.of(page, size), count)
+    }
+
+    @GetMapping("/by-depots")
+    fun listByDepot(
+        @RequestParam("ids", defaultValue = "") ids: List<Long>
+    ): Flow<Vehicle> {
+        return repo.listByDepots(ids)
     }
 
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
