@@ -19,9 +19,10 @@ import {
 } from "oh-vue-icons/icons/md";
 import { FaGithub, FaSlackHash } from "oh-vue-icons/icons/fa";
 import { OiGear } from "oh-vue-icons/icons/oi";
-// import VueApexCharts from "vue3-apexcharts";
 
 import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
+
+const VueApexCharts = defineAsyncComponent(() => import("vue3-apexcharts"));
 
 addIcons(
   FaGithub,
@@ -56,7 +57,5 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
-
-const VueApexCharts = defineAsyncComponent(() => import("vue3-apexcharts"));
 
 createApp(App).use(router).component("apexchart", VueApexCharts).component("v-icon", OhVueIcon).mount("#app");
