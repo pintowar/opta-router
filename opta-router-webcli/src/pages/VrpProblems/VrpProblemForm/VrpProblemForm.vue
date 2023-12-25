@@ -132,11 +132,7 @@ function successClose() {
 
       <div role="tablist" class="tabs tabs-bordered">
         <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Vehicles" checked />
-        <div
-          role="tabpanel"
-          class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-          :style="style"
-        >
+        <div role="tabpanel" class="tab-content pt-2 overflow-y-auto overflow-x-hidden" :style="style">
           <vrp-vehicles-tab
             v-if="problem"
             :vehicles="problem.vehicles"
@@ -147,11 +143,7 @@ function successClose() {
         </div>
 
         <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
-        <div
-          role="tabpanel"
-          class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-          :style="style"
-        >
+        <div role="tabpanel" class="tab-content pt-2 overflow-y-auto overflow-x-hidden" :style="style">
           <vrp-customers-tab
             v-if="problem"
             :customers="problem?.customers"
