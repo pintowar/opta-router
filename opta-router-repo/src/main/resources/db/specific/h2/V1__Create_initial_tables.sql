@@ -9,6 +9,8 @@ CREATE SEQUENCE vrp_problem_pk_seq
 CREATE TABLE vrp_problem (
     id BIGINT DEFAULT NEXT VALUE FOR vrp_problem_pk_seq PRIMARY KEY,
     name VARCHAR (100) NOT NULL,
+    customers JSON NOT NULL,
+    vehicles JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
@@ -20,7 +22,7 @@ CREATE TABLE vrp_problem_matrix (
     travel_times BIGINT ARRAY NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE
 );
 
 CREATE SEQUENCE location_pk_seq
@@ -41,19 +43,6 @@ CREATE TABLE location (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     CHECK (kind in ('depot', 'customer'))
-);
-
-CREATE TABLE vrp_problem_location (
-    vrp_problem_id BIGINT,
-    location_id BIGINT,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id),
-    FOREIGN KEY (location_id) REFERENCES location(id)
-);
-
-CREATE UNIQUE INDEX idx_unique_vrp_problem_location ON vrp_problem_location (
-    vrp_problem_id, location_id
 );
 
 CREATE SEQUENCE vehicle_pk_seq
@@ -101,7 +90,7 @@ CREATE TABLE vrp_solver_solution (
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id),
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE,
     FOREIGN KEY (request_key) REFERENCES vrp_solver_request(request_key)
 );
 
@@ -110,5 +99,5 @@ CREATE TABLE vrp_solution (
     paths JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id)
+    FOREIGN KEY (vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE
 );

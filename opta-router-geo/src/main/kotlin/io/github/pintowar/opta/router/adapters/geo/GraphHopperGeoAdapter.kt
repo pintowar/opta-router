@@ -7,9 +7,11 @@ import com.graphhopper.config.Profile
 import com.graphhopper.util.Parameters
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.models.Path
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -70,6 +72,14 @@ class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
             Route(dist, time, route.totalDemand, rep, route.customerIds)
         }
         return solution.copy(routes = newRoutes)
+    }
+
+    override fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
+        val ids = locations.map { it.id }
+        val (travelDistances, travelTimes) = locations.flatMap { a ->
+            locations.map { b -> simplePath(a, b).let { it.distance to it.time } }
+        }.unzip()
+        return VrpProblemMatrix(ids, travelDistances, travelTimes)
     }
 
     private fun detailedSimplePath(origin: Coordinate, target: Coordinate): Path {
