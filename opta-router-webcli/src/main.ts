@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import { createApp, defineAsyncComponent } from "vue";
 import "./app.css";
 import App from "./App.vue";
 import { createRouter, createWebHashHistory } from "vue-router";
@@ -19,7 +19,7 @@ import {
 } from "oh-vue-icons/icons/md";
 import { FaGithub, FaSlackHash } from "oh-vue-icons/icons/fa";
 import { OiGear } from "oh-vue-icons/icons/oi";
-import VueApexCharts from "vue3-apexcharts";
+// import VueApexCharts from "vue3-apexcharts";
 
 import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
 
@@ -57,4 +57,6 @@ const router = createRouter({
   routes,
 });
 
-createApp(App).use(router).use(VueApexCharts).component("v-icon", OhVueIcon).mount("#app");
+const VueApexCharts = defineAsyncComponent(() => import("vue3-apexcharts"));
+
+createApp(App).use(router).component("apexchart", VueApexCharts).component("v-icon", OhVueIcon).mount("#app");
