@@ -3,12 +3,11 @@ import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
-import { PanelSolutionState, VrpProblem, VrpSolution } from "../api";
+import { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 
-import VrpPageLayout from "../layout/VrpPageLayout.vue";
-import VrpSolverPanelLayout from "../layout/VrpSolverPanelLayout.vue";
-import SolverMap from "../components/SolverMap.vue";
-import SolverPanel from "../components/SolverPanel.vue";
+import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
+import SolverMap from "./SolverMap.vue";
+import SolverPanel from "./SolverPanel.vue";
 
 const route = useRoute();
 
@@ -80,7 +79,7 @@ async function cleanAction() {
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
+  <vrp-page-layout v-slot="{ mapFooterHeight }" :is-fetching="isFetching" :error="error">
     <vrp-solver-panel-layout>
       <template #menu>
         <solver-panel
@@ -90,6 +89,7 @@ async function cleanAction() {
           :solvers="solvers || []"
           :solver-status="solverStatus"
           :ws-status="status"
+          :style="`height: calc(100vh - ${mapFooterHeight})`"
           @on-solve="solveAction"
           @on-terminate="terminateAction"
           @on-clear="cleanAction"

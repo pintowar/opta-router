@@ -47,7 +47,8 @@ tasks {
         }
 
         doLast {
-            val resourceDest = "${project.buildDir.absolutePath}/resources/main"
+            val resourceDest = layout.buildDirectory.dir("resources/main").get()
+
             val appProps = project.properties.filterKeys {
                 it == "environmentName" || it.startsWith("flyway") || it.startsWith("db")
             }
@@ -60,7 +61,7 @@ tasks {
                 logger.quiet("Replacing properties resources")
             }
             if (!isLocalProfile) {
-                val webCliOrigin = project(webCli).buildDir.absolutePath
+                val webCliOrigin = project(webCli).layout.buildDirectory.get()
                 val webCliDest = "$resourceDest/public"
                 copy {
                     from(webCliOrigin)

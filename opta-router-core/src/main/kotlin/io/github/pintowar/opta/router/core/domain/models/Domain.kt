@@ -25,6 +25,16 @@ data class LatLng(override val lat: Double, override val lng: Double) : Coordina
 /**
  * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
  */
+data class VrpProblemSummary(
+    val id: Long,
+    val name: String,
+    val nLocations: Int,
+    val nVehicles: Int,
+    val totalCapacity: Int,
+    val totalDemand: Int,
+    val numSolverRequests: Int
+)
+
 data class VrpProblem(
     val id: Long,
     val name: String,

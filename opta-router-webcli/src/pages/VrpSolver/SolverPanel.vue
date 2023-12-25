@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { toRefs, computed, ref } from "vue";
+import { toRefs, computed, ref, StyleValue } from "vue";
 import { until } from "@vueuse/core";
-import { VrpSolution } from "../api";
+import { VrpSolution } from "../../api";
 
-import SolverVehicles from "../components/SolverVehicles.vue";
+import SolverVehicles from "./SolverVehicles.vue";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -12,6 +12,7 @@ const props = defineProps<{
   selectedSolver: string;
   solvers: string[];
   isDetailedPath: boolean;
+  style?: StyleValue;
 }>();
 
 const emit = defineEmits<{
@@ -22,7 +23,7 @@ const emit = defineEmits<{
   (e: "update:selectedSolver", val: string): void;
 }>();
 
-const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath } = toRefs(props);
+const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath, style } = toRefs(props);
 
 const editorDetailedPath = computed({
   get: () => isDetailedPath.value,
@@ -36,7 +37,6 @@ const editorSelectedSolver = computed({
 
 const isRunning = computed(() => ["ENQUEUED", "RUNNING"].includes(solverStatus.value || ""));
 const isWsConnected = computed(() => wsStatus.value === "OPEN");
-const badgeColor = computed(() => `badge-${isWsConnected.value ? "success" : "error"}`);
 
 const waitingTermination = ref(false);
 const waitingClear = ref(false);
@@ -57,7 +57,7 @@ async function wrapperClear() {
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="flex flex-col overflow-y-auto space-y-2" :style="style">
     <div class="flex space-x-2">
       <div class="basis-1/2">
         <h1>Solver</h1>
@@ -74,7 +74,7 @@ async function wrapperClear() {
           <span v-if="solverStatus" class="badge badge-outline">{{ solverStatus }}</span>
         </div>
         <div class="tooltip tooltip-left" :data-tip="`Web Socket ${isWsConnected ? 'connected' : 'disconnected'}`">
-          <div :class="`badge ${badgeColor}`">WS</div>
+          <span :class="`badge ${isWsConnected ? 'badge-success' : 'badge-error'}`">WS</span>
         </div>
       </div>
     </div>

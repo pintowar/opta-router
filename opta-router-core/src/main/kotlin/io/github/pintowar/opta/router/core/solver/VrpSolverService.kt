@@ -48,9 +48,9 @@ class VrpSolverService(
         }
     }
 
-    suspend fun terminate(solverKey: UUID): Unit = terminateEarly(solverKey, false)
+    suspend fun terminate(solverKey: UUID) = terminateEarly(solverKey, false)
 
-    suspend fun clear(solverKey: UUID): Unit = terminateEarly(solverKey, true)
+    suspend fun clear(solverKey: UUID) = terminateEarly(solverKey, true)
 
     private suspend fun terminateEarly(solverKey: UUID, clear: Boolean) {
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
