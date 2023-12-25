@@ -71,7 +71,7 @@ function getIcon(location: Depot | Customer) {
   return L.icon({
     iconUrl: isDepot(location) ? "/industry.svg" : "/building.svg",
     iconSize: [40, 40],
-    className: isHighlighted(location) ? "rounded-full bg-orange-300" : "",
+    className: isHighlighted(location) ? "rounded-full bg-orange-300 border-2 border-dashed border-green-800" : "",
   });
 }
 
