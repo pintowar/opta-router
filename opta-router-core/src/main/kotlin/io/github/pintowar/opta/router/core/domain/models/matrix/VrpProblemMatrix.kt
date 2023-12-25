@@ -29,4 +29,10 @@ class VrpProblemMatrix(
         val (i, j) = locationIdxById.getValue(originId) to locationIdxById.getValue(targetId)
         return travelTimes[realIdx(i, j)]
     }
+
+    fun locationIds(): Array<Long?> = Array(locationIds.size) { locationIds.getOrNull(it) }
+
+    fun travelDistances(): Array<Double?> = Array(travelDistances.size) { travelDistances.getOrNull(it) }
+
+    fun travelTimes(): Array<Long?> = Array(travelTimes.size) { travelTimes.getOrNull(it) }
 }

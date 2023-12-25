@@ -6,6 +6,7 @@ import io.github.pintowar.opta.router.adapters.database.VrpProblemJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpSolverRequestJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpSolverSolutionJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpVehicleJooqAdapter
+import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpLocationPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
@@ -21,8 +22,9 @@ class RepositoryConfig {
     @Bean
     fun vrpProblemRepository(
         objectMapper: ObjectMapper,
+        geoPort: GeoPort,
         dslContext: DSLContext
-    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, objectMapper)
+    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, geoPort, objectMapper)
 
     @Bean
     fun vrpLocationRepository(
