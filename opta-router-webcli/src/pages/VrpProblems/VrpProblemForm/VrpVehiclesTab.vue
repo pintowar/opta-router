@@ -13,6 +13,7 @@ const { vehicles } = toRefs(props);
 const emit = defineEmits<{
   (e: "selectValue", val: Vehicle[]): void;
   (e: "removeVehicle", val: Vehicle): void;
+  (e: "changeCapacity", val: Vehicle): void;
 }>();
 
 const isChangingDepot = ref(false);
@@ -40,6 +41,10 @@ const vehicleUrl = computed(() => `/api/vrp-vehicles/by-depots?ids=${selectedDep
 const { data, execute: listVehicles } = useFetch(vehicleUrl, { immediate: false, initialData: [] })
   .get()
   .json<Vehicle[]>();
+
+function handleChangeCapacity(vehicle: Vehicle) {
+  emit("changeCapacity", vehicle);
+}
 
 async function handleSelectDepot() {
   await listVehicles();
@@ -88,7 +93,15 @@ async function handleSelectDepot() {
           :key="vehicle.id"
         >
           <td>{{ vehicle.name }}</td>
-          <td>{{ vehicle.capacity }}</td>
+          <!-- <td>{{ vehicle.capacity }}</td> -->
+          <td>
+            <input
+              v-model.number="vehicle.capacity"
+              name="capacity"
+              class="input input-bordered input-xs"
+              @change="handleChangeCapacity(vehicle)"
+            />
+          </td>
           <td>
             <div class="tooltip" data-tip="Remove">
               <button class="btn btn-sm btn-circle" @click="emit('removeVehicle', vehicle)">

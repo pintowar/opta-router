@@ -94,7 +94,11 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Delete">
-                <button :disabled="row.numSolverRequests > 0" class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                <button
+                  :disabled="row.numSolverRequests > 0"
+                  class="btn btn-sm btn-circle"
+                  @click="showDeleteModal(row)"
+                >
                   <v-icon name="md-deleteoutline" />
                 </button>
               </div>

@@ -4,7 +4,7 @@ import { useFetch, useVModels } from "@vueuse/core";
 import { uniqBy, sortBy } from "lodash";
 import { Customer, EditableVrpProblem, Vehicle } from "../../../api";
 import { AlertMessage, LocationMap } from "../../../components";
-import VrpDepotTab from "./VrpDepotTab.vue";
+import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
 
 const props = defineProps<{
@@ -55,6 +55,15 @@ function removeVehicle(vehicle: Vehicle) {
   }
 }
 
+function changeCapacity(vehicle: Vehicle) {
+  if (problem.value) {
+    const idx = problem.value.vehicles.findIndex((v) => v.id === vehicle.id);
+    const copy = [...problem.value.vehicles];
+    copy.splice(idx, 1, vehicle);
+    problem.value = { ...problem.value, ...{ vehicles: copy } };
+  }
+}
+
 function addCustomer(customer: Customer) {
   if (problem.value) {
     const newCustomers = uniqBy((problem.value?.customers || []).concat(customer), "id");
@@ -66,6 +75,15 @@ function removeCustomer(customer: Customer) {
   if (problem.value) {
     const filteredCustomers = problem.value?.customers?.filter(({ id }) => id !== customer.id) || [];
     problem.value = { ...problem.value, ...{ customers: filteredCustomers } };
+  }
+}
+
+function changeDemand(customer: Customer) {
+  if (problem.value) {
+    const idx = problem.value.customers.findIndex((c) => c.id === customer.id);
+    const copy = [...problem.value.customers];
+    copy.splice(idx, 1, customer);
+    problem.value = { ...problem.value, ...{ customers: copy } };
   }
 }
 
@@ -113,17 +131,18 @@ function successClose() {
       </div>
 
       <div role="tablist" class="tabs tabs-bordered">
-        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Depot" checked />
+        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Vehicles" checked />
         <div
           role="tabpanel"
           class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
           :style="`height: calc(100vh - 330px)`"
         >
-          <vrp-depot-tab
+          <vrp-vehicles-tab
             v-if="problem"
             :vehicles="problem.vehicles"
             @select-value="handleSelectDepot"
             @remove-vehicle="removeVehicle"
+            @change-capacity="changeCapacity"
           />
         </div>
 
@@ -138,6 +157,7 @@ function successClose() {
             :customers="problem?.customers"
             @remove-customer="removeCustomer"
             @add-customer="addCustomer"
+            @change-demand="changeDemand"
           />
         </div>
       </div>

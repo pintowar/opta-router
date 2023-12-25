@@ -14,6 +14,7 @@ const isEditing = ref(false);
 const emit = defineEmits<{
   (e: "addCustomer", val: Customer): void;
   (e: "removeCustomer", val: Customer): void;
+  (e: "changeDemand", val: Customer): void;
 }>();
 
 const selectedCustomer = ref<Customer | null>(null);
@@ -25,6 +26,10 @@ function handleSelectCustomer() {
     selectedCustomer.value = null;
   }
   isEditing.value = false;
+}
+
+function handleChangeDemand(customer: Customer) {
+  emit("changeDemand", customer);
 }
 </script>
 
@@ -58,7 +63,14 @@ function handleSelectCustomer() {
         <td>{{ customer.name }}</td>
         <td>{{ customer.lat }}</td>
         <td>{{ customer.lng }}</td>
-        <td>{{ customer.demand }}</td>
+        <td>
+          <input
+            v-model.number="customer.demand"
+            name="demand"
+            class="input input-bordered input-xs"
+            @change="handleChangeDemand(customer)"
+          />
+        </td>
         <td>
           <div class="tooltip" data-tip="Remove">
             <button class="btn btn-sm btn-circle" @click="emit('removeCustomer', customer)">
