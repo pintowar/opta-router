@@ -22,14 +22,16 @@ const { data: allDepots } = useFetch("/api/vrp-locations/depot").get().json<Depo
 const localDepots = ref<(Depot | null)[]>([]);
 const depots = computed<(Depot | null)[]>({
   get() {
-    return vehicles.value.length > 0 ? uniqBy(
-      vehicles.value.map((v) => v.depot),
-      "id"
-    ) : [null];
-  }, 
+    return vehicles.value.length > 0
+      ? uniqBy(
+          vehicles.value.map((v) => v.depot),
+          "id"
+        )
+      : [null];
+  },
   set(deps: (Depot | null)[]) {
     localDepots.value = deps;
-  }
+  },
 });
 
 const selectedDepot = ref<Depot | null>(depots.value.length > 0 ? depots.value[0] : null);
@@ -81,7 +83,10 @@ async function handleSelectDepot() {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="vehicle in vehicles.filter((v) => depots.map((it) => it?.id).includes(v.depot.id))" :key="vehicle.id">
+        <tr
+          v-for="vehicle in vehicles.filter((v) => depots.map((it) => it?.id).includes(v.depot.id))"
+          :key="vehicle.id"
+        >
           <td>{{ vehicle.name }}</td>
           <td>{{ vehicle.capacity }}</td>
           <td>

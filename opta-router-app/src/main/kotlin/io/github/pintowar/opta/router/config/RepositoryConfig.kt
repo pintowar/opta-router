@@ -20,8 +20,9 @@ class RepositoryConfig {
 
     @Bean
     fun vrpProblemRepository(
+        objectMapper: ObjectMapper,
         dslContext: DSLContext
-    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext)
+    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, objectMapper)
 
     @Bean
     fun vrpLocationRepository(

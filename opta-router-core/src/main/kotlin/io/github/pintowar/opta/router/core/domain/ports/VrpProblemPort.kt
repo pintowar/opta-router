@@ -13,7 +13,11 @@ interface VrpProblemPort {
 
     suspend fun getById(problemId: Long): VrpProblem?
 
+    suspend fun create(problem: VrpProblem)
+
     suspend fun deleteById(problemId: Long)
+
+    suspend fun update(id: Long, problem: VrpProblem)
 
     suspend fun getMatrixById(problemId: Long): VrpProblemMatrix?
 }

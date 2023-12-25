@@ -18,7 +18,7 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
 import org.jooq.JSON
-import org.jooq.Record
+import org.jooq.Record3
 import org.jooq.generated.tables.records.VrpProblemRecord
 import org.jooq.generated.tables.records.VrpSolutionRecord
 import org.jooq.generated.tables.records.VrpSolverRequestRecord
@@ -129,9 +129,8 @@ class VrpSolverSolutionJooqAdapter(
             }
     }
 
-    private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = VrpProblemJooqAdapter
-        .problemSelect(dsl)
-        .select(VRP_SOLUTION, VRP_SOLVER_REQUEST)
+    private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = dsl
+        .select(VRP_PROBLEM, VRP_SOLUTION, VRP_SOLVER_REQUEST)
         .from(VRP_PROBLEM)
         .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
         .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
@@ -139,19 +138,19 @@ class VrpSolverSolutionJooqAdapter(
         .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
         .limit(1)
 
-    private fun convertRecordToSolutionRequest(record: Record): VrpSolutionRequest {
-        val problem = record.get(0, VrpProblemRecord::class.java).let {
-            VrpProblem(it.id!!, it.name, emptyList(), emptyList())
-        }.copy(
-            customers = record.get(1, List::class.java).filterIsInstance<Customer>(),
-            vehicles = record.get(2, List::class.java).filterIsInstance<Vehicle>()
-        )
-        val solution = record.get(4, VrpSolutionRecord::class.java)
-        val solverRequest = record.get(5, VrpSolverRequestRecord::class.java)
+    private fun convertRecordToSolutionRequest(
+        record: Record3<VrpProblemRecord, VrpSolutionRecord, VrpSolverRequestRecord>
+    ): VrpSolutionRequest {
+        val (problem, solution, solverRequest) = record
 
         return VrpSolutionRequest(
             VrpSolution(
-                problem,
+                VrpProblem(
+                    problem.id!!,
+                    problem.name,
+                    mapper.readValue<List<Vehicle>>(problem.vehicles.data()),
+                    mapper.readValue<List<Customer>>(problem.customers.data())
+                ),
                 solution.get(solution.field2())?.let { mapper.readValue<List<Route>>(it.data()) } ?: emptyList()
             ),
             solverRequest.get(solverRequest.field4())?.let(SolverStatus::valueOf) ?: SolverStatus.NOT_SOLVED,

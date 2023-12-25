@@ -3,7 +3,7 @@ import { StyleValue, computed, toRefs } from "vue";
 import { useFetch, useVModels } from "@vueuse/core";
 import { uniqBy, sortBy } from "lodash";
 import { Customer, EditableVrpProblem, Vehicle } from "../../../api";
-import { LocationMap } from "../../../components";
+import { AlertMessage, LocationMap } from "../../../components";
 import VrpDepotTab from "./VrpDepotTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
 
@@ -23,7 +23,13 @@ const { problem } = useVModels(props, emit);
 
 const fetcher = useFetch(persistUrl, { immediate: false });
 const creationMethod = computed(() => !persistUrl.value.endsWith("update"));
-const { isFetching: isUpdating, execute: persist } = creationMethod.value ? fetcher.post(problem) : fetcher.put(problem);
+const {
+  isFetching: isUpdating,
+  execute: persist,
+  error: persistError,
+  statusCode: updateCode,
+} = creationMethod.value ? fetcher.post(problem) : fetcher.put(problem);
+const successPersist = computed(() => (updateCode.value || 0) >= 200 && (updateCode.value || 0) < 300);
 
 const depots = computed(() =>
   uniqBy(
@@ -62,69 +68,91 @@ function removeCustomer(customer: Customer) {
     problem.value = { ...problem.value, ...{ customers: filteredCustomers } };
   }
 }
+
+function errorClose() {
+  persistError.value = null;
+}
+
+function successClose() {
+  updateCode.value = null;
+}
 </script>
 
 <template>
-    <div class="flex my-2 mx-2 space-x-2 h-full" :style="style">
-      <div class="flex-initial flex-col w-7/12 space-y-2">
-        <div>
-          <table class="table table-sm table-zebra">
-            <thead>
-              <th>Name</th>
-              <th>Total Capacity</th>
-              <th>Total Demand</th>
-            </thead>
-            <tbody>
-              <td>
-                <input v-if="problem" v-model="problem.name" name="name" class="input input-bordered w-full input-xs" />
-              </td>
-              <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
-              <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
-            </tbody>
-          </table>
+  <div class="flex my-2 mx-2 space-x-2 h-full" :style="style">
+    <div class="flex-initial flex-col w-7/12 space-y-2">
+      <alert-message
+        v-if="persistError"
+        message="Could not save/update VrpProblem"
+        variant="error"
+        @close="errorClose"
+      />
+
+      <alert-message
+        v-if="successPersist"
+        message="Succcessfully save/update Location"
+        variant="success"
+        @close="successClose"
+      />
+
+      <div>
+        <table class="table table-sm table-zebra">
+          <thead>
+            <th>Name</th>
+            <th>Total Capacity</th>
+            <th>Total Demand</th>
+          </thead>
+          <tbody>
+            <td>
+              <input v-if="problem" v-model="problem.name" name="name" class="input input-bordered w-full input-xs" />
+            </td>
+            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
+            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
+          </tbody>
+        </table>
+      </div>
+
+      <div role="tablist" class="tabs tabs-bordered">
+        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Depot" checked />
+        <div
+          role="tabpanel"
+          class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
+          :style="`height: calc(100vh - 330px)`"
+        >
+          <vrp-depot-tab
+            v-if="problem"
+            :vehicles="problem.vehicles"
+            @select-value="handleSelectDepot"
+            @remove-vehicle="removeVehicle"
+          />
         </div>
 
-        <div role="tablist" class="tabs tabs-bordered">
-          <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Depot" checked />
-          <div
-            role="tabpanel"
-            class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-            :style="`height: calc(100vh - 330px)`"
-          >
-            <vrp-depot-tab
-              v-if="problem"
-              :vehicles="problem.vehicles"
-              @select-value="handleSelectDepot"
-              @remove-vehicle="removeVehicle"
-            />
-          </div>
-
-          <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
-          <div
-            role="tabpanel"
-            class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-            :style="`height: calc(100vh - 330px)`"
-          >
-            <vrp-customers-tab
-              v-if="problem"
-              :customers="problem?.customers"
-              @remove-customer="removeCustomer"
-              @add-customer="addCustomer"
-            />
-          </div>
-        </div>
-
-        <div class="flex flex-row-reverse">
-          <form class="space-x-2">
-            <router-link to="/" class="btn">Cancel</router-link>
-            <button class="btn btn-success" :disabled="isUpdating || !isValidCapDem" @click="() => persist()">
-              Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
-            </button>
-          </form>
+        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
+        <div
+          role="tabpanel"
+          class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
+          :style="`height: calc(100vh - 330px)`"
+        >
+          <vrp-customers-tab
+            v-if="problem"
+            :customers="problem?.customers"
+            @remove-customer="removeCustomer"
+            @add-customer="addCustomer"
+          />
         </div>
       </div>
-      <div class="flex-auto">
-        <location-map :locations="depots.concat(problem?.customers || [])" />
+
+      <div class="flex flex-row-reverse">
+        <form class="space-x-2">
+          <router-link to="/" class="btn">Cancel</router-link>
+          <button class="btn btn-success" :disabled="isUpdating || !isValidCapDem" @click="() => persist()">
+            Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
+          </button>
+        </form>
       </div>
     </div>
+    <div class="flex-auto">
+      <location-map :locations="depots.concat(problem?.customers || [])" />
+    </div>
+  </div>
 </template>

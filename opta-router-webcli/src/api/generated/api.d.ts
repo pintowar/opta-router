@@ -3,7 +3,6 @@
  * Do not make direct changes to the file.
  */
 
-
 export interface paths {
   "/api/vrp-vehicles/{id}/update": {
     put: operations["update"];
@@ -149,10 +148,10 @@ export interface components {
         negative?: boolean;
         positive?: boolean;
         units?: {
-            durationEstimated?: boolean;
-            timeBased?: boolean;
-            dateBased?: boolean;
-          }[];
+          durationEstimated?: boolean;
+          timeBased?: boolean;
+          dateBased?: boolean;
+        }[];
       };
       id?: string;
       started?: boolean;
@@ -319,7 +318,6 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
-
   update: {
     parameters: {
       path: {

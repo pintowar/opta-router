@@ -1,6 +1,11 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.core.domain.models.*
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.github.pintowar.opta.router.core.domain.models.Customer
+import io.github.pintowar.opta.router.core.domain.models.Vehicle
+import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import kotlinx.coroutines.flow.Flow
@@ -9,62 +14,32 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.DSLContext
-import org.jooq.Records
-import org.jooq.generated.tables.records.LocationRecord
-import org.jooq.generated.tables.records.VehicleRecord
-import org.jooq.generated.tables.references.LOCATION
-import org.jooq.generated.tables.references.VEHICLE
+import org.jooq.JSON
+import org.jooq.generated.tables.records.VrpProblemRecord
 import org.jooq.generated.tables.references.VRP_PROBLEM
-import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
 import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
 import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
 import org.jooq.impl.DSL.field
-import org.jooq.impl.DSL.multiset
-import org.jooq.impl.DSL.select
 import org.jooq.impl.DSL.selectCount
+import java.time.Instant
 
 class VrpProblemJooqAdapter(
-    private val dsl: DSLContext
+    private val dsl: DSLContext,
+    private val mapper: ObjectMapper
 ) : VrpProblemPort {
 
-    companion object {
-        fun problemSelect(dsl: DSLContext) = dsl
+    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
+        return dsl
             .select(
                 VRP_PROBLEM,
-                multiset(
-                    select(LOCATION)
-                        .from(
-                            VRP_PROBLEM_LOCATION
-                                .leftJoin(LOCATION).on(VRP_PROBLEM_LOCATION.LOCATION_ID.eq(LOCATION.ID))
-                        )
-                        .where(VRP_PROBLEM_LOCATION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID).and(LOCATION.KIND.eq("customer")))
-                ).convertFrom { r -> r.map(Records.mapping(convertCustomer)) },
-                multiset(
-                    select(VEHICLE, LOCATION)
-                        .from(
-                            VEHICLE
-                                .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
-                                .leftJoin(VRP_PROBLEM_LOCATION).on(VRP_PROBLEM_LOCATION.LOCATION_ID.eq(LOCATION.ID))
-                        ).where(VRP_PROBLEM_LOCATION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID).and(LOCATION.KIND.eq("depot")))
-                ).convertFrom { r -> r.map(Records.mapping(convertVehicle)) },
-                field(selectCount().from(VRP_SOLVER_REQUEST).where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID)))
+                field(
+                    selectCount().from(VRP_SOLVER_REQUEST).where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+                )
             )
-
-        private fun problemQuery(dsl: DSLContext) = problemSelect(dsl).from(VRP_PROBLEM)
-
-        private val convertCustomer: (l: LocationRecord) -> Customer = { l ->
-            Customer(l.id!!, l.name, l.latitude, l.longitude, l.demand)
-        }
-        private val convertVehicle: (v: VehicleRecord, l: LocationRecord) -> Vehicle = { v, l ->
-            Vehicle(v.id!!, v.name, v.capacity, Depot(l.id!!, l.name, l.latitude, l.longitude))
-        }
-    }
-
-    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
-        return problemQuery(dsl)
+            .from(VRP_PROBLEM)
             .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
-            .limit(offset, limit).asFlow().map { (p, c, v, t) ->
-                VrpProblem(p.id!!, p.name, v, c).let {
+            .limit(offset, limit).asFlow().map { (p, t) ->
+                toProblem(p).let {
                     VrpProblemSummary(it.id, it.name, it.nLocations, it.nVehicles, t)
                 }
             }
@@ -77,17 +52,40 @@ class VrpProblemJooqAdapter(
     }
 
     override suspend fun getById(problemId: Long): VrpProblem? {
-        return problemQuery(dsl).where(VRP_PROBLEM.ID.eq(problemId))
+        return dsl.selectFrom(VRP_PROBLEM)
+            .where(VRP_PROBLEM.ID.eq(problemId))
             .awaitFirstOrNull()
-            ?.let { (r, c, v) ->
-                VrpProblem(r.id!!, r.name, v, c)
-            }
+            ?.let(::toProblem)
+    }
+
+    override suspend fun create(problem: VrpProblem) {
+        val now = Instant.now()
+
+        dsl.insertInto(VRP_PROBLEM)
+            .set(VRP_PROBLEM.NAME, problem.name)
+            .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.writeValueAsString(problem.customers)))
+            .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.writeValueAsString(problem.vehicles)))
+            .set(VRP_PROBLEM.CREATED_AT, now)
+            .set(VRP_PROBLEM.UPDATED_AT, now)
+            .awaitSingle()
     }
 
     override suspend fun deleteById(problemId: Long) {
         dsl.deleteFrom(VRP_PROBLEM)
             .where(VRP_PROBLEM.ID.eq(problemId))
             .awaitFirstOrNull()
+    }
+
+    override suspend fun update(id: Long, problem: VrpProblem) {
+        val now = Instant.now()
+
+        dsl.update(VRP_PROBLEM)
+            .set(VRP_PROBLEM.NAME, problem.name)
+            .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.writeValueAsString(problem.customers)))
+            .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.writeValueAsString(problem.vehicles)))
+            .set(VRP_PROBLEM.UPDATED_AT, now)
+            .where(VRP_PROBLEM.ID.eq(id))
+            .awaitSingle()
     }
 
     override suspend fun getMatrixById(problemId: Long): VrpProblemMatrix? {
@@ -103,5 +101,14 @@ class VrpProblemJooqAdapter(
                 it.travelTimes.filterNotNull()
             )
         }
+    }
+
+    private fun toProblem(problem: VrpProblemRecord): VrpProblem {
+        return VrpProblem(
+            problem.id!!,
+            problem.name,
+            mapper.readValue<List<Vehicle>>(problem.vehicles.data()),
+            mapper.readValue<List<Customer>>(problem.customers.data())
+        )
     }
 }
