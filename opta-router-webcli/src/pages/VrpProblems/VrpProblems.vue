@@ -64,7 +64,9 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
             <th>Name</th>
             <th>Num Locations</th>
             <th>Num Vehicles</th>
-            <th>Total Solver Requests</th>
+            <th>Total Demand</th>
+            <th>Total Capacity</th>
+            <th>Num Solver Requests</th>
             <th>Actions</th>
           </template>
           <template #show="{ row }">
@@ -72,14 +74,16 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
             <td>{{ row.name }}</td>
             <td>{{ row.nlocations }}</td>
             <td>{{ row.nvehicles }}</td>
-            <td>{{ row.totalRequests }}</td>
+            <td>{{ row.totalDemand }}</td>
+            <td>{{ row.totalCapacity }}</td>
+            <td>{{ row.numSolverRequests }}</td>
             <td class="space-x-2">
               <div class="tooltip" data-tip="Solve it">
                 <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">
                   <v-icon name="oi-gear" />
                 </router-link>
               </div>
-              <div v-if="row.totalRequests === 0" class="tooltip" data-tip="Edit">
+              <div v-if="row.numSolverRequests === 0" class="tooltip" data-tip="Edit">
                 <router-link :to="`/problem/${row.id}/edit`" class="btn btn-sm btn-circle">
                   <v-icon name="md-edit-twotone" />
                 </router-link>
@@ -90,7 +94,7 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Delete">
-                <button :disabled="row.totalRequests > 0" class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                <button :disabled="row.numSolverRequests > 0" class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
                   <v-icon name="md-deleteoutline" />
                 </button>
               </div>

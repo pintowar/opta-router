@@ -30,7 +30,9 @@ data class VrpProblemSummary(
     val name: String,
     val nLocations: Int,
     val nVehicles: Int,
-    val totalRequests: Int
+    val totalCapacity: Int,
+    val totalDemand: Int,
+    val numSolverRequests: Int
 )
 
 data class VrpProblem(

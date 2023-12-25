@@ -43,7 +43,9 @@ class VrpProblemJooqAdapter(
             .groupBy(VRP_PROBLEM)
             .limit(offset, limit).asFlow().map { (p, t) ->
                 toProblem(p).let {
-                    VrpProblemSummary(it.id, it.name, it.nLocations, it.nVehicles, t)
+                    val totalCapacity = it.vehicles.sumOf { v -> v.capacity }
+                    val totalDemand = it.customers.sumOf { c -> c.demand }
+                    VrpProblemSummary(it.id, it.name, it.nLocations, it.nVehicles, totalCapacity, totalDemand, t)
                 }
             }
     }

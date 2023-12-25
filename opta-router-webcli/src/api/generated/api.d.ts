@@ -3,6 +3,7 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
   "/api/vrp-vehicles/{id}/update": {
     put: operations["update"];
@@ -18,6 +19,13 @@ export interface paths {
   };
   "/api/vrp-vehicles/insert": {
     post: operations["insert"];
+  };
+  "/api/vrp-problems/{id}/copy": {
+    post: operations["copy"];
+  };
+  "/api/vrp-problems": {
+    get: operations["index_1"];
+    post: operations["create"];
   };
   "/api/vrp-locations/insert": {
     post: operations["insert_1"];
@@ -39,9 +47,6 @@ export interface paths {
   };
   "/api/vrp-problems/{id}": {
     get: operations["show"];
-  };
-  "/api/vrp-problems": {
-    get: operations["index_1"];
   };
   "/api/vrp-locations": {
     get: operations["index_2"];
@@ -148,10 +153,10 @@ export interface components {
         negative?: boolean;
         positive?: boolean;
         units?: {
-          durationEstimated?: boolean;
-          timeBased?: boolean;
-          dateBased?: boolean;
-        }[];
+            durationEstimated?: boolean;
+            timeBased?: boolean;
+            dateBased?: boolean;
+          }[];
       };
       id?: string;
       started?: boolean;
@@ -225,7 +230,11 @@ export interface components {
       /** Format: int32 */
       nVehicles?: number;
       /** Format: int32 */
-      totalRequests: number;
+      totalCapacity: number;
+      /** Format: int32 */
+      totalDemand: number;
+      /** Format: int32 */
+      numSolverRequests: number;
       /** Format: int32 */
       nlocations: number;
       /** Format: int32 */
@@ -275,8 +284,8 @@ export interface components {
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
-      feasible: boolean;
       totalTime: Record<string, never>;
+      feasible: boolean;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -318,6 +327,7 @@ export type $defs = Record<string, never>;
 export type external = Record<string, never>;
 
 export interface operations {
+
   update: {
     parameters: {
       path: {
@@ -401,6 +411,58 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["Vehicle"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  copy: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VrpProblem"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  index_1: {
+    parameters: {
+      query?: {
+        page?: number;
+        size?: number;
+        q?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PageVrpProblemSummary"];
+        };
+      };
+    };
+  };
+  create: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VrpProblem"];
       };
     };
     responses: {
@@ -516,23 +578,6 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["VrpProblem"];
-        };
-      };
-    };
-  };
-  index_1: {
-    parameters: {
-      query?: {
-        page?: number;
-        size?: number;
-        q?: string;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["PageVrpProblemSummary"];
         };
       };
     };
