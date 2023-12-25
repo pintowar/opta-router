@@ -10,6 +10,7 @@ import {
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,
+  MdContentcopy,
   MdDeleteoutline,
   MdInfoOutlined,
   MdEditTwotone,
@@ -31,6 +32,7 @@ addIcons(
   MdCheck,
   MdCheckcircleOutlined,
   MdClose,
+  MdContentcopy,
   MdDeleteoutline,
   MdInfoOutlined,
   MdEditTwotone,
@@ -45,8 +47,9 @@ const routes = [
   { path: "/solver-history/:id", component: VrpSolverHistory },
   { path: "/locations", component: VrpLocations },
   { path: "/vehicles", component: VrpVehicles },
-  { path: "/problem/new", component: VrpProblemEditor },
-  { path: "/problem/:id/edit", component: VrpProblemEditor },
+  { path: "/problem/new", component: VrpProblemEditor, props: { mode: "create" } },
+  { path: "/problem/:id/edit", component: VrpProblemEditor, props: { mode: "update" } },
+  { path: "/problem/:id/copy", component: VrpProblemEditor, props: { mode: "copy" } },
 ];
 
 const router = createRouter({

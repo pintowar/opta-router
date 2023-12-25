@@ -4,6 +4,7 @@ type Depot = components["schemas"]["Depot"];
 type Route = components["schemas"]["Route"];
 type Vehicle = components["schemas"]["Vehicle"];
 type VrpProblem = components["schemas"]["VrpProblem"];
+type VrpProblemSummary = components["schemas"]["VrpProblemSummary"];
 type VrpSolution = components["schemas"]["VrpSolution"];
 type VrpSolverRequest = components["schemas"]["VrpSolverRequest"];
 type VrpSolverObjective = components["schemas"]["VrpSolverObjective"];
@@ -13,6 +14,13 @@ type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 type VehicleRoute = {
   vehicle?: Vehicle;
   route: Route;
+};
+
+type EditableVrpProblem = {
+  id: number;
+  name: string;
+  vehicles: Vehicle[];
+  customers: Customer[];
 };
 
 type Page<T> = {
@@ -34,6 +42,7 @@ function isDepot(obj: unknown): obj is Depot {
 export type {
   Customer,
   Depot,
+  EditableVrpProblem,
   Page,
   PanelSolutionState,
   Route,
@@ -41,6 +50,7 @@ export type {
   Vehicle,
   VehicleRoute,
   VrpProblem,
+  VrpProblemSummary,
   VrpSolution,
   VrpSolverRequest,
   VrpSolverObjective,

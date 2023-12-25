@@ -146,8 +146,8 @@ class VrpSolverSolutionJooqAdapter(
             customers = record.get(1, List::class.java).filterIsInstance<Customer>(),
             vehicles = record.get(2, List::class.java).filterIsInstance<Vehicle>()
         )
-        val solution = record.get(3, VrpSolutionRecord::class.java)
-        val solverRequest = record.get(4, VrpSolverRequestRecord::class.java)
+        val solution = record.get(4, VrpSolutionRecord::class.java)
+        val solverRequest = record.get(5, VrpSolverRequestRecord::class.java)
 
         return VrpSolutionRequest(
             VrpSolution(

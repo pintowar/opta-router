@@ -1,9 +1,6 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.core.domain.models.Customer
-import io.github.pintowar.opta.router.core.domain.models.Depot
-import io.github.pintowar.opta.router.core.domain.models.Vehicle
-import io.github.pintowar.opta.router.core.domain.models.VrpProblem
+import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import kotlinx.coroutines.flow.Flow
@@ -20,8 +17,11 @@ import org.jooq.generated.tables.references.VEHICLE
 import org.jooq.generated.tables.references.VRP_PROBLEM
 import org.jooq.generated.tables.references.VRP_PROBLEM_LOCATION
 import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
+import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
+import org.jooq.impl.DSL.field
 import org.jooq.impl.DSL.multiset
 import org.jooq.impl.DSL.select
+import org.jooq.impl.DSL.selectCount
 
 class VrpProblemJooqAdapter(
     private val dsl: DSLContext
@@ -46,7 +46,8 @@ class VrpProblemJooqAdapter(
                                 .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
                                 .leftJoin(VRP_PROBLEM_LOCATION).on(VRP_PROBLEM_LOCATION.LOCATION_ID.eq(LOCATION.ID))
                         ).where(VRP_PROBLEM_LOCATION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID).and(LOCATION.KIND.eq("depot")))
-                ).convertFrom { r -> r.map(Records.mapping(convertVehicle)) }
+                ).convertFrom { r -> r.map(Records.mapping(convertVehicle)) },
+                field(selectCount().from(VRP_SOLVER_REQUEST).where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID)))
             )
 
         private fun problemQuery(dsl: DSLContext) = problemSelect(dsl).from(VRP_PROBLEM)
@@ -59,11 +60,13 @@ class VrpProblemJooqAdapter(
         }
     }
 
-    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblem> {
+    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
         return problemQuery(dsl)
             .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
-            .limit(offset, limit).asFlow().map { (r, c, v) ->
-                VrpProblem(r.id!!, r.name, v, c)
+            .limit(offset, limit).asFlow().map { (p, c, v, t) ->
+                VrpProblem(p.id!!, p.name, v, c).let {
+                    VrpProblemSummary(it.id, it.name, it.nLocations, it.nVehicles, t)
+                }
             }
     }
 

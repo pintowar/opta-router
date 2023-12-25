@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Page, VrpProblem } from "../../api";
+import { Page, VrpProblemSummary } from "../../api";
 
 import { VrpPageLayout } from "../../layout";
 import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";
@@ -18,15 +18,15 @@ const {
   error,
   data: page,
   execute: fetchProblems,
-} = useFetch(url, { refetch: true }).get().json<Page<VrpProblem>>();
+} = useFetch(url, { refetch: true }).get().json<Page<VrpProblemSummary>>();
 
-const selectedProblem = ref<VrpProblem | null>(null);
+const selectedProblem = ref<VrpProblemSummary | null>(null);
 
 const openRemove = ref<boolean>(false);
 const removeUrl = computed(() => `/api/vrp-problems/${selectedProblem.value?.id}/remove`);
 const removeError = ref(false);
 
-const showDeleteModal = (instance: VrpProblem) => {
+const showDeleteModal = (instance: VrpProblemSummary) => {
   selectedProblem.value = instance;
   openRemove.value = true;
 };
@@ -51,7 +51,7 @@ const showDeleteModal = (instance: VrpProblem) => {
         />
 
         <h1 class="text-2xl">Routes</h1>
-        <div class="flex w-full justify-between">
+        <div class="flex w-full justify-between pr-2">
           <input-search :query="`${route.query.q || ''}`" />
           <router-link to="/problem/new" class="btn btn-circle">
             <v-icon name="md-add" />
@@ -64,6 +64,7 @@ const showDeleteModal = (instance: VrpProblem) => {
             <th>Name</th>
             <th>Num Locations</th>
             <th>Num Vehicles</th>
+            <th>Total Solver Requests</th>
             <th>Actions</th>
           </template>
           <template #show="{ row }">
@@ -71,15 +72,21 @@ const showDeleteModal = (instance: VrpProblem) => {
             <td>{{ row.name }}</td>
             <td>{{ row.nlocations }}</td>
             <td>{{ row.nvehicles }}</td>
+            <td>{{ row.totalRequests }}</td>
             <td class="space-x-2">
               <div class="tooltip" data-tip="Solve it">
                 <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">
                   <v-icon name="oi-gear" />
                 </router-link>
               </div>
-              <div class="tooltip" data-tip="Edit">
+              <div v-if="row.totalRequests === 0" class="tooltip" data-tip="Edit">
                 <router-link :to="`/problem/${row.id}/edit`" class="btn btn-sm btn-circle">
                   <v-icon name="md-edit-twotone" />
+                </router-link>
+              </div>
+              <div v-else class="tooltip" data-tip="Copy">
+                <router-link :to="`/problem/${row.id}/copy`" class="btn btn-sm btn-circle">
+                  <v-icon name="md-contentcopy" />
                 </router-link>
               </div>
               <div class="tooltip" data-tip="Delete">

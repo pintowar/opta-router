@@ -3,24 +3,52 @@
  * Do not make direct changes to the file.
  */
 
+
 export interface paths {
+  "/api/vrp-vehicles/{id}/update": {
+    put: operations["update"];
+  };
+  "/api/vrp-problems/{id}/update": {
+    put: operations["update_1"];
+  };
+  "/api/vrp-locations/{id}/update": {
+    put: operations["update_2"];
+  };
   "/api/solver/{id}/detailed-path/{isDetailed}": {
     put: operations["detailedPath"];
   };
+  "/api/vrp-vehicles/insert": {
+    post: operations["insert"];
+  };
+  "/api/vrp-locations/insert": {
+    post: operations["insert_1"];
+  };
   "/api/solver/{id}/terminate": {
-    post: operations["terminateEarly"];
+    post: operations["terminate"];
   };
   "/api/solver/{id}/solve/{solverName}": {
     post: operations["solve"];
   };
   "/api/solver/{id}/clean": {
-    post: operations["clean"];
+    post: operations["clear"];
   };
-  "/api/vrp-problems": {
+  "/api/vrp-vehicles": {
     get: operations["index"];
+  };
+  "/api/vrp-vehicles/by-depots": {
+    get: operations["listByDepot"];
   };
   "/api/vrp-problems/{id}": {
     get: operations["show"];
+  };
+  "/api/vrp-problems": {
+    get: operations["index_1"];
+  };
+  "/api/vrp-locations": {
+    get: operations["index_2"];
+  };
+  "/api/vrp-locations/{kind}": {
+    get: operations["list"];
   };
   "/api/solver/{id}/solution-panel": {
     get: operations["solutionState"];
@@ -34,36 +62,25 @@ export interface paths {
   "/api/solver-history/{problemId}/requests/{solverName}": {
     get: operations["requests"];
   };
+  "/api/vrp-vehicles/{id}/remove": {
+    delete: operations["remove"];
+  };
+  "/api/vrp-problems/{id}/remove": {
+    delete: operations["remove_1"];
+  };
+  "/api/vrp-locations/{id}/remove": {
+    delete: operations["remove_2"];
+  };
 }
 
 export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
-    Customer: {
-      /** Format: int64 */
-      id: number;
-      name: string;
-      /** Format: double */
-      lat: number;
-      /** Format: double */
-      lng: number;
-      /** Format: int32 */
-      demand: number;
-    };
     Depot: {
       /** Format: int64 */
       id: number;
       name: string;
-      /** Format: double */
-      lat: number;
-      /** Format: double */
-      lng: number;
-    };
-    Location: {
-      name: string;
-      /** Format: int64 */
-      id: number;
       /** Format: double */
       lat: number;
       /** Format: double */
@@ -77,6 +94,27 @@ export interface components {
       capacity: number;
       depot: components["schemas"]["Depot"];
     };
+    Unit: Record<string, never>;
+    Customer: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
+      /** Format: int32 */
+      demand: number;
+    };
+    Location: {
+      name: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
+    };
     VrpProblem: {
       /** Format: int64 */
       id: number;
@@ -89,6 +127,128 @@ export interface components {
       nlocations: number;
       /** Format: int32 */
       nvehicles: number;
+    };
+    LocationRequest: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
+      /** Format: int32 */
+      demand?: number;
+    };
+    WebSession: {
+      maxIdleTime?: {
+        /** Format: int64 */
+        seconds?: number;
+        zero?: boolean;
+        /** Format: int32 */
+        nano?: number;
+        negative?: boolean;
+        positive?: boolean;
+        units?: {
+            durationEstimated?: boolean;
+            timeBased?: boolean;
+            dateBased?: boolean;
+          }[];
+      };
+      id?: string;
+      started?: boolean;
+      attributes?: {
+        [key: string]: Record<string, never>;
+      };
+      /** Format: date-time */
+      lastAccessTime?: string;
+      /** Format: date-time */
+      creationTime?: string;
+      expired?: boolean;
+    };
+    PageVehicle: {
+      /** Format: int32 */
+      totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
+      first?: boolean;
+      last?: boolean;
+      /** Format: int32 */
+      size?: number;
+      content?: components["schemas"]["Vehicle"][];
+      /** Format: int32 */
+      number?: number;
+      sort?: components["schemas"]["SortObject"];
+      /** Format: int32 */
+      numberOfElements?: number;
+      pageable?: components["schemas"]["PageableObject"];
+      empty?: boolean;
+    };
+    PageableObject: {
+      /** Format: int64 */
+      offset?: number;
+      sort?: components["schemas"]["SortObject"];
+      /** Format: int32 */
+      pageNumber?: number;
+      /** Format: int32 */
+      pageSize?: number;
+      paged?: boolean;
+      unpaged?: boolean;
+    };
+    SortObject: {
+      empty?: boolean;
+      sorted?: boolean;
+      unsorted?: boolean;
+    };
+    PageVrpProblemSummary: {
+      /** Format: int32 */
+      totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
+      first?: boolean;
+      last?: boolean;
+      /** Format: int32 */
+      size?: number;
+      content?: components["schemas"]["VrpProblemSummary"][];
+      /** Format: int32 */
+      number?: number;
+      sort?: components["schemas"]["SortObject"];
+      /** Format: int32 */
+      numberOfElements?: number;
+      pageable?: components["schemas"]["PageableObject"];
+      empty?: boolean;
+    };
+    VrpProblemSummary: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /** Format: int32 */
+      nLocations?: number;
+      /** Format: int32 */
+      nVehicles?: number;
+      /** Format: int32 */
+      totalRequests: number;
+      /** Format: int32 */
+      nlocations: number;
+      /** Format: int32 */
+      nvehicles: number;
+    };
+    PageLocation: {
+      /** Format: int32 */
+      totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
+      first?: boolean;
+      last?: boolean;
+      /** Format: int32 */
+      size?: number;
+      content?: components["schemas"]["Location"][];
+      /** Format: int32 */
+      number?: number;
+      sort?: components["schemas"]["SortObject"];
+      /** Format: int32 */
+      numberOfElements?: number;
+      pageable?: components["schemas"]["PageableObject"];
+      empty?: boolean;
     };
     LatLng: {
       /** Format: double */
@@ -117,7 +277,7 @@ export interface components {
       empty: boolean;
       totalDistance: number;
       feasible: boolean;
-      totalTime: number;
+      totalTime: Record<string, never>;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -154,11 +314,77 @@ export interface components {
   pathItems: never;
 }
 
+export type $defs = Record<string, never>;
+
 export type external = Record<string, never>;
 
 export interface operations {
+
+  update: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Vehicle"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  update_1: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VrpProblem"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  update_2: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LocationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
   detailedPath: {
     parameters: {
+      query: {
+        session: components["schemas"]["WebSession"];
+      };
       path: {
         id: number;
         isDetailed: boolean;
@@ -173,7 +399,37 @@ export interface operations {
       };
     };
   };
-  terminateEarly: {
+  insert: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Vehicle"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  insert_1: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["LocationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  terminate: {
     parameters: {
       path: {
         id: number;
@@ -204,7 +460,7 @@ export interface operations {
       };
     };
   };
-  clean: {
+  clear: {
     parameters: {
       path: {
         id: number;
@@ -220,11 +476,33 @@ export interface operations {
     };
   };
   index: {
+    parameters: {
+      query?: {
+        page?: number;
+        size?: number;
+        q?: string;
+      };
+    };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["VrpProblem"][];
+          "*/*": components["schemas"]["PageVehicle"];
+        };
+      };
+    };
+  };
+  listByDepot: {
+    parameters: {
+      query?: {
+        ids?: number[];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["Vehicle"][];
         };
       };
     };
@@ -244,8 +522,60 @@ export interface operations {
       };
     };
   };
+  index_1: {
+    parameters: {
+      query?: {
+        page?: number;
+        size?: number;
+        q?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PageVrpProblemSummary"];
+        };
+      };
+    };
+  };
+  index_2: {
+    parameters: {
+      query?: {
+        page?: number;
+        size?: number;
+        q?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["PageLocation"];
+        };
+      };
+    };
+  };
+  list: {
+    parameters: {
+      path: {
+        kind: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "*/*": components["schemas"]["Location"][];
+        };
+      };
+    };
+  };
   solutionState: {
     parameters: {
+      query: {
+        session: components["schemas"]["WebSession"];
+      };
       path: {
         id: number;
       };
@@ -296,6 +626,51 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["VrpSolverRequest"][];
+        };
+      };
+    };
+  };
+  remove: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  remove_1: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
+        };
+      };
+    };
+  };
+  remove_2: {
+    parameters: {
+      path: {
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Unit"];
         };
       };
     };

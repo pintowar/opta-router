@@ -2,7 +2,7 @@
 import { computed, ref, toRefs } from "vue";
 import { useFetch } from "@vueuse/core";
 import { uniqBy } from "lodash";
-import { Depot, Vehicle } from "../../api";
+import { Depot, Vehicle } from "../../../api";
 
 const props = defineProps<{
   vehicles: Vehicle[];
@@ -17,12 +17,20 @@ const emit = defineEmits<{
 
 const isChangingDepot = ref(false);
 
-const depots = ref(
-  uniqBy(
-    vehicles.value.map((v) => v.depot),
-    "id"
-  )
-);
+const { data: allDepots } = useFetch("/api/vrp-locations/depot").get().json<Depot[]>();
+
+const localDepots = ref<(Depot | null)[]>([]);
+const depots = computed<(Depot | null)[]>({
+  get() {
+    return vehicles.value.length > 0 ? uniqBy(
+      vehicles.value.map((v) => v.depot),
+      "id"
+    ) : [null];
+  }, 
+  set(deps: (Depot | null)[]) {
+    localDepots.value = deps;
+  }
+});
 
 const selectedDepot = ref<Depot | null>(depots.value.length > 0 ? depots.value[0] : null);
 
@@ -30,8 +38,6 @@ const vehicleUrl = computed(() => `/api/vrp-vehicles/by-depots?ids=${selectedDep
 const { data, execute: listVehicles } = useFetch(vehicleUrl, { immediate: false, initialData: [] })
   .get()
   .json<Vehicle[]>();
-
-const { data: allDepots } = useFetch("/api/vrp-locations/depot").get().json<Depot[]>();
 
 async function handleSelectDepot() {
   await listVehicles();
@@ -45,19 +51,20 @@ async function handleSelectDepot() {
 </script>
 
 <template>
-  <div v-for="depot in depots" :key="depot.id">
+  <div v-for="depot in depots" :key="depot?.id">
     <div class="flex items-center space-x-2 h-8">
       <span>Total vehicles: {{ vehicles.length }}</span>
 
       <div class="flex flex-grow justify-end items-center space-x-2">
         <span>Depot: </span>
         <div v-if="!isChangingDepot" class="flex space-x-2">
-          <span> {{ depot.name }} ({{ depot.lat }}, {{ depot.lng }}) </span>
+          <span> {{ depot?.name || "None" }} ({{ depot?.lat }}, {{ depot?.lng }}) </span>
           <button class="btn btn-circle btn-xs" @click="isChangingDepot = true">
             <v-icon name="md-changecircle" />
           </button>
         </div>
         <select v-else v-model="selectedDepot" class="select select-xs" @change="handleSelectDepot">
+          <option v-if="vehicles.length === 0" :key="0" :value="null">None</option>
           <option v-for="depo in allDepots" :key="depo.id" :value="depo">
             {{ depo.name }} ({{ depo.lat }}, {{ depo.lng }})
           </option>
@@ -74,7 +81,7 @@ async function handleSelectDepot() {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="vehicle in vehicles.filter((v) => depots.map((it) => it.id).includes(v.depot.id))" :key="vehicle.id">
+        <tr v-for="vehicle in vehicles.filter((v) => depots.map((it) => it?.id).includes(v.depot.id))" :key="vehicle.id">
           <td>{{ vehicle.name }}</td>
           <td>{{ vehicle.capacity }}</td>
           <td>
