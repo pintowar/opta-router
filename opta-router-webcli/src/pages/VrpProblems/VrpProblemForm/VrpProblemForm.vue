@@ -17,7 +17,7 @@ const emit = defineEmits<{
   (e: "update:problem", val: EditableVrpProblem): void;
 }>();
 
-const { persistUrl } = toRefs(props);
+const { persistUrl, style } = toRefs(props);
 
 const { problem } = useVModels(props, emit);
 
@@ -97,8 +97,8 @@ function successClose() {
 </script>
 
 <template>
-  <div class="flex my-2 mx-2 space-x-2 h-full" :style="style">
-    <div class="flex-initial flex-col w-7/12 space-y-2">
+  <div class="flex my-2 mx-2 space-x-2 h-full">
+    <div class="flex-initial flex-col w-7/12">
       <alert-message
         v-if="persistError"
         message="Could not save/update VrpProblem"
@@ -113,7 +113,7 @@ function successClose() {
         @close="successClose"
       />
 
-      <div>
+      <div class="pb-2">
         <table class="table table-sm table-zebra">
           <thead>
             <th>Name</th>
@@ -135,7 +135,7 @@ function successClose() {
         <div
           role="tabpanel"
           class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-          :style="`height: calc(100vh - 330px)`"
+          :style="style"
         >
           <vrp-vehicles-tab
             v-if="problem"
@@ -150,7 +150,7 @@ function successClose() {
         <div
           role="tabpanel"
           class="tab-content pt-2 overflow-y-auto overflow-x-hidden"
-          :style="`height: calc(100vh - 330px)`"
+          :style="style"
         >
           <vrp-customers-tab
             v-if="problem"
@@ -162,7 +162,7 @@ function successClose() {
         </div>
       </div>
 
-      <div class="flex flex-row-reverse">
+      <div class="flex flex-row-reverse pt-2">
         <form class="space-x-2">
           <router-link to="/" class="btn">Cancel</router-link>
           <button class="btn btn-success" :disabled="isUpdating || !isValidCapDem" @click="() => persist()">

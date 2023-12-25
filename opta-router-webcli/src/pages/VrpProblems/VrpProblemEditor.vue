@@ -46,19 +46,19 @@ function afterProblemFetch(ctx: AfterFetchContext<EditableVrpProblem>) {
 </script>
 
 <template>
-  <vrp-page-layout v-slot="{ mapFooterHeight }" :is-fetching="isFetching" :error="error">
+  <vrp-page-layout v-slot="{ tabFooterHeight }" :is-fetching="isFetching" :error="error">
     <main>
       <vrp-problem-form
         v-if="data"
         v-model:problem="data"
         :persist-url="persistUrl"
-        :style="`height: calc(100vh - ${mapFooterHeight})`"
+        :style="`height: calc(100vh - ${tabFooterHeight})`"
       />
       <vrp-problem-form
         v-else
         :problem="defaultProblem"
         :persist-url="persistUrl"
-        :style="`height: calc(100vh - ${mapFooterHeight})`"
+        :style="`height: calc(100vh - ${tabFooterHeight})`"
       />
     </main>
   </vrp-page-layout>
