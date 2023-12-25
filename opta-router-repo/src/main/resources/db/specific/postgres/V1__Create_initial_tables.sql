@@ -9,6 +9,8 @@ CREATE SEQUENCE vrp_problem_pk_seq
 CREATE TABLE vrp_problem (
     id BIGINT NOT NULL DEFAULT nextval('vrp_problem_pk_seq'),
     name VARCHAR (100) NOT NULL,
+    customers JSON NOT NULL,
+    vehicles JSON NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     PRIMARY KEY(id)
@@ -43,19 +45,6 @@ CREATE TABLE location (
     updated_at TIMESTAMP NOT NULL,
     PRIMARY KEY(id),
     CHECK (kind in ('depot', 'customer'))
-);
-
-CREATE TABLE vrp_problem_location (
-    vrp_problem_id BIGINT,
-    location_id BIGINT,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    CONSTRAINT fk_vrp_problem FOREIGN KEY(vrp_problem_id) REFERENCES vrp_problem(id) ON DELETE CASCADE,
-    CONSTRAINT fk_location FOREIGN KEY(location_id) REFERENCES location(id) ON DELETE CASCADE
-);
-
-CREATE UNIQUE INDEX idx_unique_vrp_problem_location ON vrp_problem_location (
-    vrp_problem_id, location_id
 );
 
 CREATE SEQUENCE vehicle_pk_seq
