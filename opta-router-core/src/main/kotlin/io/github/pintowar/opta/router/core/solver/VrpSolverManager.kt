@@ -3,6 +3,7 @@ package io.github.pintowar.opta.router.core.solver
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpCachedMatrix
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
@@ -11,10 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.CancellationException
@@ -34,6 +33,28 @@ class VrpSolverManager(
     private val solverKeys = ConcurrentHashMap<UUID, Job>()
     private val blackListedKeys = ConcurrentHashMap.newKeySet<UUID>()
 
+    private fun solverFlow(
+        solverKey: UUID,
+        detailedSolution: VrpDetailedSolution,
+        solverName: String
+    ): Flow<VrpSolution> {
+        var bestSolution = detailedSolution.solution
+        return Solver
+            .getSolverByName(solverName)
+            .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), SolverConfig(timeLimit))
+            .onEach {
+                bestSolution = it
+                logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
+            }
+            .onCompletion { ex ->
+                logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
+                val shouldClear = ex is UserCancellationException && ex.clear
+                enqueueSolution(solRequest, shouldClear)
+            }
+    }
+
     fun solve(solverKey: UUID, detailedSolution: VrpDetailedSolution, solverName: String) {
         if (blackListedKeys.remove(solverKey)) {
             enqueueSolution(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
@@ -41,24 +62,7 @@ class VrpSolverManager(
         }
         if (solverKeys.containsKey(solverKey)) return
 
-        solverKeys[solverKey] = managerScope.launch {
-            var bestSolution = detailedSolution.solution
-            Solver
-                .getSolverByName(solverName)
-                .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), SolverConfig(timeLimit))
-                .onEach {
-                    bestSolution = it
-                    logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
-                    enqueueSolution(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey))
-                }
-                .onCompletion { ex ->
-                    logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
-                    val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
-                    val shouldClear = ex is UserCancellationException && ex.clear
-                    enqueueSolution(solRequest, shouldClear)
-                }
-                .collect()
-        }
+        solverKeys[solverKey] = solverFlow(solverKey, detailedSolution, solverName).launchIn(managerScope)
     }
 
     fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
@@ -69,6 +73,7 @@ class VrpSolverManager(
     fun destroy() {
         supervisorJob.cancel()
     }
+
     private fun enqueueSolution(solutionRequest: VrpSolutionRequest, clear: Boolean = false) {
         solverEvents.enqueueSolutionRequest(SolverEventsPort.SolutionRequestCommand(solutionRequest, clear))
     }

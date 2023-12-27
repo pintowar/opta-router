@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono
 class WebSessionIdFilterConfig : WebFilter {
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        exchange.session.subscribe { it.attributes["websession-id"] = it.id }
+        exchange.session.subscribe { it.attributes[ConfigData.WEBSESSION_ID] = it.id }
         return chain.filter(exchange)
     }
 }
