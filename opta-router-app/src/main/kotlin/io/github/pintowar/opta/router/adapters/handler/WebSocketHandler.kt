@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.adapters.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
@@ -32,8 +33,9 @@ class WebSocketHandler(
     private val sessions: MutableMap<String, WebSocketSession> = ConcurrentHashMap()
     private val sharedFlow = MutableSharedFlow<VrpSolutionRequest>()
     private val uriTemplate = UriTemplate("/ws/solution-state/{instanceId}")
+
     override fun handle(session: WebSocketSession): Mono<Void> {
-        val webSessionId = session.attributes["websession-id"]!! as String
+        val webSessionId = session.attributes[ConfigData.WEBSESSION_ID]!! as String
         sessions[webSessionId] = session
 
         val uriInstanceId = uriTemplate.match(session.handshakeInfo.uri.path)["instanceId"]
