@@ -24,7 +24,9 @@ class VrpSolverService(
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
 
     suspend fun showDetailedPath(problemId: Long) {
-        solverRepository.currentSolutionRequest(problemId)?.let(::broadcastSolution)
+        solverRepository.currentSolutionRequest(problemId)?.let {
+            broadcastPort.broadcastSolution(BroadcastPort.SolutionCommand(it))
+        }
     }
 
     suspend fun update(solRequest: VrpSolutionRequest, clear: Boolean): VrpSolutionRequest {
@@ -62,9 +64,5 @@ class VrpSolverService(
                 }
             }
         }
-    }
-
-    private fun broadcastSolution(solRequest: VrpSolutionRequest) {
-        broadcastPort.broadcastSolution(BroadcastPort.SolutionCommand(solRequest))
     }
 }

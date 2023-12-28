@@ -25,11 +25,28 @@ class CamelEventsRegistry : RouteBuilder() {
             resumePercentOfMax = 50
         }
 
+        from("{{camel.route.consumer.enqueue-request-solver}}")
+            .routeId("enqueue.request.solver")
+            .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
+            .to("{{camel.route.producer.request-solver}}")
+
+        from("{{camel.route.consumer.enqueue-solution-request}}")
+            .routeId("enqueue.solution.request")
+            .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
+            .to("{{camel.route.producer.solution-request}}")
+
+        from("{{camel.route.consumer.broadcast-solution}}")
+            .routeId("broadcast.solution")
+            .to("{{camel.route.producer.solution-topic}}")
+
+        from("{{camel.route.consumer.broadcast-cancel-solver}}")
+            .routeId("broadcast.broadcast.cancel.solver")
+            .to("{{camel.route.producer.cancel-solver-topic}}")
+
         from("{{camel.route.consumer.request-solver}}")
             .routeId("request.solver.queue")
             .routePolicy(incomingThrottling)
             .bean(AsyncPipe::class.java, "solve")
-            .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
             .process(SplitStreamProcessorTo("{{camel.route.producer.solution-request}}", context))
 
         from("{{camel.route.consumer.solution-request}}")

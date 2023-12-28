@@ -22,11 +22,21 @@ camel:
     name: opta-router-routes
   route:
     producer:
+      enqueue-request-solver: direct:enqueue-request-solver
+      enqueue-solution-request: direct:enqueue-solution-request
+      broadcast-solution: direct:broadcast-solution
+      broadcast-cancel-solver: direct:broadcast-cancel-solver
+
       request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router
       solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router
       solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
       cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
     consumer:
+      enqueue-request-solver: direct:enqueue-request-solver
+      enqueue-solution-request: direct:enqueue-solution-request
+      broadcast-solution: direct:broadcast-solution
+      broadcast-cancel-solver: direct:broadcast-cancel-solver
+
       request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
       solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
       solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
