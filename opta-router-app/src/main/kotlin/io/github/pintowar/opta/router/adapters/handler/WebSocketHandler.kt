@@ -6,14 +6,11 @@ import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
-
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asPublisher
-import kotlinx.coroutines.runBlocking
-
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession

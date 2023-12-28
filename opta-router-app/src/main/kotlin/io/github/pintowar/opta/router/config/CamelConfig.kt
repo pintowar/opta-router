@@ -14,7 +14,7 @@ class CamelConfig(
     @Value("\${camel.route.producer.solution-request}") private val solutionRequest: String,
     @Value("\${camel.route.producer.solution-topic}") private val solutionTopic: String,
     @Value("\${camel.route.producer.cancel-solver-topic}") private val cancelSolverTopic: String,
-    private val template: ProducerTemplate,
+    private val template: ProducerTemplate
 ) : SolverEventsPort, BroadcastPort {
 
     private val hazelHeaders = mapOf(HazelcastConstants.OPERATION to HazelcastOperation.PUT)
@@ -34,5 +34,4 @@ class CamelConfig(
     override fun broadcastCancelSolver(command: SolverEventsPort.CancelSolverCommand) {
         template.sendBody(cancelSolverTopic, command)
     }
-
 }

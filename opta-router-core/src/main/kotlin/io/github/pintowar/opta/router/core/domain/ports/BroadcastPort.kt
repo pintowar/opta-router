@@ -7,5 +7,4 @@ interface BroadcastPort {
     data class SolutionCommand(val solutionRequest: VrpSolutionRequest)
 
     fun broadcastSolution(command: SolutionCommand)
-
 }

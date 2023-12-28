@@ -22,5 +22,4 @@ interface SolverEventsPort {
     fun enqueueSolutionRequest(command: SolutionRequestCommand)
 
     fun broadcastCancelSolver(command: CancelSolverCommand)
-
 }

@@ -56,7 +56,7 @@ class SolverController(
         session: WebSession
     ): ResponseEntity<SolverStatus> {
         sessionPanel[session.id] = SolverPanel(isDetailed)
-        solverService.updateDetailedView(id)
+        solverService.showDetailedPath(id)
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 

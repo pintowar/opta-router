@@ -23,14 +23,12 @@ class VrpSolverService(
     suspend fun showStatus(problemId: Long): SolverStatus =
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
 
-    suspend fun updateDetailedView(problemId: Long) {
+    suspend fun showDetailedPath(problemId: Long) {
         solverRepository.currentSolutionRequest(problemId)?.let(::broadcastSolution)
     }
 
-    suspend fun updateAndBroadcast(solRequest: VrpSolutionRequest, clear: Boolean) {
-        val newSolRequest = solverRepository
-            .addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
-        broadcastSolution(newSolRequest)
+    suspend fun update(solRequest: VrpSolutionRequest, clear: Boolean): VrpSolutionRequest {
+        return solverRepository.addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
     }
 
     suspend fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
