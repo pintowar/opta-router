@@ -93,7 +93,6 @@ async function handleSelectDepot() {
           :key="vehicle.id"
         >
           <td>{{ vehicle.name }}</td>
-          <!-- <td>{{ vehicle.capacity }}</td> -->
           <td>
             <input
               v-model.number="vehicle.capacity"

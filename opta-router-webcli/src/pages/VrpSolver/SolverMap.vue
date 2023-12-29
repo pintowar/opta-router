@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { toRefs, computed } from "vue";
+import { uniqBy } from "lodash";
 import { Customer, Depot, VehicleRoute, VrpSolution } from "../../api";
 
 import { LocationMap } from "../../components";
@@ -12,8 +13,10 @@ const { solution } = toRefs(props);
 
 const problem = computed(() => solution.value?.problem);
 
+const depots = computed(() => uniqBy(problem.value?.vehicles?.map((v) => v.depot) || [], "id"));
+
 const locations = computed<(Depot | Customer)[]>(() => {
-  return (problem.value?.depots || []).concat(problem.value?.customers || []);
+  return (depots.value || []).concat(problem.value?.customers || []);
 });
 
 const routes = computed<VehicleRoute[]>(() =>
