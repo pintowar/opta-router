@@ -1,14 +1,12 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.pintowar.opta.router.core.domain.models.Customer
-import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import io.github.pintowar.opta.router.core.serde.Serde
+import io.github.pintowar.opta.router.core.serde.fromJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
@@ -20,7 +18,6 @@ import org.jooq.generated.tables.records.VrpProblemRecord
 import org.jooq.generated.tables.references.VRP_PROBLEM
 import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
 import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
-import org.jooq.impl.DSL.selectCount
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import java.time.Instant
 import org.jooq.impl.DSL.count as dslCount
@@ -28,7 +25,7 @@ import org.jooq.impl.DSL.count as dslCount
 class VrpProblemJooqAdapter(
     private val dsl: DSLContext,
     private val geo: GeoPort,
-    private val mapper: ObjectMapper
+    private val mapper: Serde
 ) : VrpProblemPort {
 
     override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
@@ -72,8 +69,8 @@ class VrpProblemJooqAdapter(
             val result = trx.dsl()
                 .insertInto(VRP_PROBLEM)
                 .set(VRP_PROBLEM.NAME, problem.name)
-                .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.writeValueAsString(problem.customers)))
-                .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.writeValueAsString(problem.vehicles)))
+                .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
+                .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.toJson(problem.vehicles)))
                 .set(VRP_PROBLEM.CREATED_AT, now)
                 .set(VRP_PROBLEM.UPDATED_AT, now)
                 .returning()
@@ -105,8 +102,8 @@ class VrpProblemJooqAdapter(
         dsl.transactionCoroutine { trx ->
             dsl.update(VRP_PROBLEM)
                 .set(VRP_PROBLEM.NAME, problem.name)
-                .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.writeValueAsString(problem.customers)))
-                .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.writeValueAsString(problem.vehicles)))
+                .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
+                .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.toJson(problem.vehicles)))
                 .set(VRP_PROBLEM.UPDATED_AT, now)
                 .where(VRP_PROBLEM.ID.eq(id))
                 .awaitSingle()
@@ -141,8 +138,8 @@ class VrpProblemJooqAdapter(
         return VrpProblem(
             problem.id!!,
             problem.name,
-            mapper.readValue<List<Vehicle>>(problem.vehicles.data()),
-            mapper.readValue<List<Customer>>(problem.customers.data())
+            mapper.fromJson(problem.vehicles.data()),
+            mapper.fromJson(problem.customers.data())
         )
     }
 }

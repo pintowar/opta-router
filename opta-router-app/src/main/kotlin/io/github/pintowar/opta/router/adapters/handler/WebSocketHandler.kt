@@ -1,11 +1,11 @@
 package io.github.pintowar.opta.router.adapters.handler
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.serde.Serde
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
@@ -24,7 +24,7 @@ private val logger = KotlinLogging.logger {}
 @Component
 class WebSocketHandler(
     private val sessionPanel: MutableMap<String, SolverPanel>,
-    private val mapper: ObjectMapper,
+    private val serde: Serde,
     private val geoService: GeoPort
 ) : WebSocketHandler {
 
@@ -57,7 +57,7 @@ class WebSocketHandler(
             .map { data ->
                 val panel = sessionPanel[webSessionId] ?: SolverPanel()
                 val sol = if (panel.isDetailedPath) geoService.detailedPaths(data.solution) else data.solution
-                mapper.writeValueAsString(data.copy(solution = sol))
+                serde.toJson(data.copy(solution = sol))
             }
     }
 

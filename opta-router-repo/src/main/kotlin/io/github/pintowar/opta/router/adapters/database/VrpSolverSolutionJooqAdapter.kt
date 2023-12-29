@@ -1,16 +1,14 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.models.Vehicle
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import io.github.pintowar.opta.router.core.serde.Serde
+import io.github.pintowar.opta.router.core.serde.fromJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
@@ -31,7 +29,7 @@ import java.time.Instant
 import java.util.*
 
 class VrpSolverSolutionJooqAdapter(
-    private val mapper: ObjectMapper,
+    private val serde: Serde,
     private val dsl: DSLContext
 ) : VrpSolverSolutionPort {
 
@@ -41,7 +39,8 @@ class VrpSolverSolutionJooqAdapter(
         .limit(1)
         .awaitFirstOrNull()
         ?.let { sol ->
-            mapper.readValue<List<Route>>(sol.paths.data())
+//            mapper.readValue<List<Route>>(sol.paths.data())
+            serde.fromJson(sol.paths.data())
         } ?: emptyList()
 
     override suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
@@ -59,7 +58,7 @@ class VrpSolverSolutionJooqAdapter(
         uuid: UUID
     ): VrpSolutionRequest {
         val now = Instant.now()
-        val jsonPaths = if (clear) JSON.json("[]") else JSON.json(mapper.writeValueAsString(paths))
+        val jsonPaths = if (clear) JSON.json("[]") else JSON.json(serde.toJson(paths))
 
         return dsl.transactionCoroutine { trx ->
             trx.dsl()
@@ -148,10 +147,10 @@ class VrpSolverSolutionJooqAdapter(
                 VrpProblem(
                     problem.id!!,
                     problem.name,
-                    mapper.readValue<List<Vehicle>>(problem.vehicles.data()),
-                    mapper.readValue<List<Customer>>(problem.customers.data())
+                    serde.fromJson(problem.vehicles.data()),
+                    serde.fromJson(problem.customers.data())
                 ),
-                solution.get(solution.field2())?.let { mapper.readValue<List<Route>>(it.data()) } ?: emptyList()
+                solution.get(solution.field2())?.let { serde.fromJson(it.data()) } ?: emptyList()
             ),
             solverRequest.get(solverRequest.field4())?.let(SolverStatus::valueOf) ?: SolverStatus.NOT_SOLVED,
             solverRequest.get(solverRequest.field1())
