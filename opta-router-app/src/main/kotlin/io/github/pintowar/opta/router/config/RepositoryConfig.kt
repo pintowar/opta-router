@@ -1,6 +1,5 @@
 package io.github.pintowar.opta.router.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.pintowar.opta.router.adapters.database.VrpLocationJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpProblemJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpSolverRequestJooqAdapter
@@ -12,6 +11,7 @@ import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.ports.VrpVehiclePort
+import io.github.pintowar.opta.router.core.serde.Serde
 import org.jooq.DSLContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,10 +21,10 @@ class RepositoryConfig {
 
     @Bean
     fun vrpProblemRepository(
-        objectMapper: ObjectMapper,
+        serde: Serde,
         geoPort: GeoPort,
         dslContext: DSLContext
-    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, geoPort, objectMapper)
+    ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, geoPort, serde)
 
     @Bean
     fun vrpLocationRepository(
@@ -38,9 +38,9 @@ class RepositoryConfig {
 
     @Bean
     fun vrpSolverSolutionRepository(
-        objectMapper: ObjectMapper,
+        serde: Serde,
         dslContext: DSLContext
-    ): VrpSolverSolutionPort = VrpSolverSolutionJooqAdapter(objectMapper, dslContext)
+    ): VrpSolverSolutionPort = VrpSolverSolutionJooqAdapter(serde, dslContext)
 
     @Bean
     fun vrpSolverRequestRepository(

@@ -12,7 +12,6 @@ val flywayMigration = configurations.create("flywayMigration")
 dependencies {
     implementation(project(":opta-router-core"))
     api(libs.bundles.jooq)
-    api(libs.bundles.jackson)
 
     runtimeOnly(libs.slf4j)
     runtimeOnly(if (project.isDistProfile) libs.pg.r2dbc else libs.h2.r2dbc)
