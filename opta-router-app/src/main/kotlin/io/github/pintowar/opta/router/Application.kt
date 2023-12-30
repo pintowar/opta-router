@@ -7,11 +7,7 @@ import org.springframework.context.annotation.Bean
 import java.util.concurrent.ConcurrentHashMap
 
 @SpringBootApplication
-class Application {
-
-    @Bean
-    fun sessionPanel(): MutableMap<String, SolverPanel> = ConcurrentHashMap()
-}
+class Application
 
 fun main(args: Array<String>) {
     SpringApplication.run(Application::class.java, *args)
