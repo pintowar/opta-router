@@ -6,7 +6,7 @@ import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 
 class SolverPanelStorage(
     private val sessionPanel: MutableMap<String, SolverPanel>,
-    private val geoPort: GeoPort,
+    private val geoPort: GeoPort
 ) {
 
     fun store(key: String, panel: SolverPanel) = sessionPanel.put(key, panel)

@@ -23,7 +23,7 @@ import org.springframework.web.server.WebSession
 @RequestMapping("/api/solver")
 class SolverController(
     private val solverService: VrpSolverService,
-    private val solverPanelStorage: SolverPanelStorage,
+    private val solverPanelStorage: SolverPanelStorage
 ) {
 
     data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)

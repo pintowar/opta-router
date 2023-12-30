@@ -12,6 +12,4 @@ class SessionPanelStorageConfig {
     @Bean
     fun sessionPanelStorage(geoPort: GeoPort): SolverPanelStorage =
         SolverPanelStorage(ConcurrentHashMap(), geoPort)
-
 }
-

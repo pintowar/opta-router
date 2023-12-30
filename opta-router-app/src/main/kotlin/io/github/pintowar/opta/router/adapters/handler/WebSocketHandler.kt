@@ -16,14 +16,13 @@ import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
 import org.springframework.web.util.UriTemplate
 import reactor.core.publisher.Mono
-import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
 @Component
 class WebSocketHandler(
     private val solverPanelStorage: SolverPanelStorage,
-    private val serde: Serde,
+    private val serde: Serde
 ) : WebSocketHandler {
 
     private val sharedFlow = MutableSharedFlow<VrpSolutionRequest>()
