@@ -1,11 +1,13 @@
 package io.github.pintowar.opta.router.controller
 
+import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.solver.SolverPanelStorage
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,6 +22,7 @@ import org.springframework.web.server.WebSession
  * The Controller that contains all REST functions to be used on the application.
  */
 @RestController
+@Profile(ConfigData.REST_PROFILE)
 @RequestMapping("/api/solver")
 class SolverController(
     private val solverService: VrpSolverService,

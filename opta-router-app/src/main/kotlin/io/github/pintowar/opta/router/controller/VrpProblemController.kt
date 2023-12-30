@@ -1,9 +1,11 @@
 package io.github.pintowar.opta.router.controller
 
+import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
 import kotlinx.coroutines.flow.toList
+import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Profile(ConfigData.REST_PROFILE)
 @RequestMapping("/api/vrp-problems")
 class VrpProblemController(val repo: VrpProblemPort) {
 

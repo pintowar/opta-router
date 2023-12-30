@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asPublisher
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono
 private val logger = KotlinLogging.logger {}
 
 @Component
+@Profile(ConfigData.REST_PROFILE)
 class WebSocketHandler(
     private val solverPanelStorage: SolverPanelStorage,
     private val serde: Serde

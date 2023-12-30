@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
-class CamelConfig(
+class CamelTemplateConfig(
     @Value("\${camel.route.producer.enqueue-request-solver}") private val enqueueRequestSolver: String,
     @Value("\${camel.route.producer.enqueue-solution-request}") private val enqueueSolutionRequest: String,
     @Value("\${camel.route.producer.broadcast-solution}") private val broadcastSolution: String,

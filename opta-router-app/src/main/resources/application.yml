@@ -2,14 +2,17 @@ spring:
   profiles:
     active: '@environmentName@'
     group:
-      local: scheduler
-      single: scheduler
+      local: rest,solver
+      single: rest,solver
   jackson:
     serialization:
       indent_output: true
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
-
+  data:
+    r2dbc:
+      repositories:
+        enabled: false
   r2dbc:
     url: '@db.url@'
     username: '@db.user@'
@@ -49,6 +52,10 @@ endpoints:
 management:
   security:
     enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,loggers,mappings,scheduledtasks,threaddump,heapdump,beans,sessions
 
 springdoc:
   api-docs:
@@ -71,3 +78,13 @@ logging:
     com.hazelcast.system: ERROR
     com.graphhopper.jsprit.core: ERROR
     org.jooq: ERROR
+
+---
+spring:
+  config:
+    activate:
+      on-profile: rest
+  r2dbc:
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'
