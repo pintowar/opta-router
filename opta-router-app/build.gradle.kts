@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.springdoc.openapi)
 
     implementation(libs.hazelcast.spring)
+    implementation(libs.bundles.shedlock)
     implementation(libs.bundles.jooq)
     implementation(libs.bundles.jackson)
     runtimeOnly(libs.slf4j)

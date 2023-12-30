@@ -18,6 +18,7 @@ jooq = "3.18.3"
 hazelcast = "5.3.1"
 h2 = "2.1.214"
 postgres = "42.6.0"
+shedlock = "5.10.2"
 sfl4j = "2.0.7"
 gradle-jooq = "8.2.1"
 gradle-node = "5.0.0"
@@ -79,6 +80,8 @@ h2-jdbc = { module = "com.h2database:h2", version.ref = "h2" }
 h2-r2dbc = { module = "io.r2dbc:r2dbc-h2", version = "1.0.0.RELEASE" }
 pg-jdbc = { module = "org.postgresql:postgresql", version.ref = "postgres" }
 pg-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version = "1.0.2.RELEASE" }
+shedlock = { module = "net.javacrumbs.shedlock:shedlock-spring", version.ref = "shedlock" }
+shedlock-hazelcast = { module = "net.javacrumbs.shedlock:shedlock-provider-hazelcast4", version.ref = "shedlock" }
 
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
@@ -89,3 +92,4 @@ jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
+shedlock = ["shedlock", "shedlock-hazelcast"]
