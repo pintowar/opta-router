@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
+import { AfterFetchContext, useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
 import { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 
@@ -25,9 +25,15 @@ const solveUrl = computed(() => `/api/solver/${route.params.id}/solve/${selected
 const terminateUrl = computed(() => `/api/solver/${route.params.id}/terminate`);
 const cleanUrl = computed(() => `/api/solver/${route.params.id}/clean`);
 
-const { status, data: wsData } = useWebSocket<string>(webSocketUrl);
-const { isFetching, error, data: solutionPanel } = useFetch(solutionPanelUrl).get().json<PanelSolutionState>();
-const { data: solvers } = useFetch(solverNamesUrl, { initialData: [] }).get().json<string[]>();
+const { status, data: wsData, open: wsOpen } = useWebSocket<string>(webSocketUrl, { immediate: false });
+const {
+  isFetching,
+  error,
+  data: solutionPanel,
+} = useFetch(solutionPanelUrl, { afterFetch: afterPanelFetch }).get().json<PanelSolutionState>();
+const { data: solvers, execute: fetchSolvers } = useFetch(solverNamesUrl, { initialData: [], immediate: false })
+  .get()
+  .json<string[]>();
 const { execute: detailedPath } = useFetch(detailedPathUrl, { immediate: false }).put();
 const { data: solveStatus, execute: solve } = useFetch(solveUrl, { immediate: false }).post().json<string>();
 const { execute: terminate } = useFetch(terminateUrl, { immediate: false }).post().json<string>();
@@ -57,6 +63,12 @@ watch(wsData, () => {
     solverStatus.value = payload.status;
   }
 });
+
+function afterPanelFetch(ctx: AfterFetchContext) {
+  fetchSolvers();
+  wsOpen();
+  return ctx;
+}
 
 async function solveAction() {
   if (problem.value) {

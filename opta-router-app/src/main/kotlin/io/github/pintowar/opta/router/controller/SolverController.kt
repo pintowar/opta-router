@@ -3,8 +3,9 @@ package io.github.pintowar.opta.router.controller
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.solver.SolverPanelStorage
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
+import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,8 +23,7 @@ import org.springframework.web.server.WebSession
 @RequestMapping("/api/solver")
 class SolverController(
     private val solverService: VrpSolverService,
-    private val geoService: GeoPort,
-    private val sessionPanel: MutableMap<String, SolverPanel>
+    private val solverPanelStorage: SolverPanelStorage
 ) {
 
     data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)
@@ -53,19 +53,21 @@ class SolverController(
     suspend fun detailedPath(
         @PathVariable id: Long,
         @PathVariable isDetailed: Boolean,
-        session: WebSession
+        @Parameter(hidden = true) session: WebSession
     ): ResponseEntity<SolverStatus> {
-        sessionPanel[session.id] = SolverPanel(isDetailed)
+        solverPanelStorage.store(session.id, SolverPanel(isDetailed))
         solverService.showDetailedPath(id)
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun solutionState(@PathVariable id: Long, session: WebSession): ResponseEntity<PanelSolutionState> {
-        val panel = sessionPanel[session.id] ?: SolverPanel()
-
+    suspend fun solutionState(
+        @PathVariable id: Long,
+        @Parameter(hidden = true) session: WebSession
+    ): ResponseEntity<PanelSolutionState> {
         return solverService.currentSolutionRequest(id)?.let {
-            val sol = (if (panel.isDetailedPath) geoService.detailedPaths(it.solution) else it.solution)
+            val panel = solverPanelStorage.getOrDefault(session.id)
+            val sol = solverPanelStorage.convertSolutionForPanelId(session.id, it.solution)
             PanelSolutionState(panel, it.copy(solution = sol))
         }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }

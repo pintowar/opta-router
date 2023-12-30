@@ -142,37 +142,11 @@ export interface components {
       /** Format: int32 */
       demand?: number;
     };
-    WebSession: {
-      maxIdleTime?: {
-        /** Format: int64 */
-        seconds?: number;
-        zero?: boolean;
-        /** Format: int32 */
-        nano?: number;
-        negative?: boolean;
-        positive?: boolean;
-        units?: {
-          durationEstimated?: boolean;
-          timeBased?: boolean;
-          dateBased?: boolean;
-        }[];
-      };
-      id?: string;
-      started?: boolean;
-      attributes?: {
-        [key: string]: Record<string, never>;
-      };
-      /** Format: date-time */
-      lastAccessTime?: string;
-      /** Format: date-time */
-      creationTime?: string;
-      expired?: boolean;
-    };
     PageVehicle: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -203,10 +177,10 @@ export interface components {
       unsorted?: boolean;
     };
     PageVrpProblemSummary: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -240,10 +214,10 @@ export interface components {
       nvehicles: number;
     };
     PageLocation: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -388,9 +362,6 @@ export interface operations {
   };
   detailedPath: {
     parameters: {
-      query: {
-        session: components["schemas"]["WebSession"];
-      };
       path: {
         id: number;
         isDetailed: boolean;
@@ -614,9 +585,6 @@ export interface operations {
   };
   solutionState: {
     parameters: {
-      query: {
-        session: components["schemas"]["WebSession"];
-      };
       path: {
         id: number;
       };
