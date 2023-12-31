@@ -82,7 +82,7 @@ configure<GitPropertiesPluginExtension> {
 
 jib {
     from {
-        image = "eclipse-temurin:17-jdk-jammy"
+        image = "eclipse-temurin:21-jdk-jammy"
     }
     to {
         val tagVer = if (project.isSnapshotVersion) "snapshot" else "latest"

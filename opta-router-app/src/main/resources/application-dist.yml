@@ -24,3 +24,7 @@ spring:
   web:
     resources:
       add-mappings: false
+management:
+  health:
+    r2dbc:
+      enabled: false
