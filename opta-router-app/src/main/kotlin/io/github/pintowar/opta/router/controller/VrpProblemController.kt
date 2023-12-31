@@ -44,25 +44,25 @@ class VrpProblemController(val repo: VrpProblemPort) {
     }
 
     @PostMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun create(@RequestBody problem: VrpProblem): ResponseEntity<Unit> {
+    suspend fun create(@RequestBody problem: VrpProblem): ResponseEntity<Void> {
         return repo.create(problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @PostMapping("/{id}/copy", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun copy(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Unit> {
+    suspend fun copy(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Void> {
         return repo.create(problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun update(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Unit> {
+    suspend fun update(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Void> {
         return repo.update(id, problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun remove(@PathVariable id: Long): ResponseEntity<Unit> {
+    suspend fun remove(@PathVariable id: Long): ResponseEntity<Void> {
         return repo.deleteById(id)
             .let { ResponseEntity.ok().build() }
     }

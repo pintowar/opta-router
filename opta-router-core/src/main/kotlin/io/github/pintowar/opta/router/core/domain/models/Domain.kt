@@ -32,6 +32,10 @@ data class VrpProblemSummary(
     val nVehicles: Int,
     val totalCapacity: Int,
     val totalDemand: Int,
+    val numEnqueuedRequests: Int,
+    val numRunningRequests: Int,
+    val numTerminatedRequests: Int,
+    val numNotSolvedRequests: Int,
     val numSolverRequests: Int
 )
 

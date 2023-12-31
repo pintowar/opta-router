@@ -97,7 +97,6 @@ export interface components {
       capacity: number;
       depot: components["schemas"]["Depot"];
     };
-    Unit: Record<string, never>;
     Customer: {
       /** Format: int64 */
       id: number;
@@ -143,10 +142,10 @@ export interface components {
       demand?: number;
     };
     PageVehicle: {
-      /** Format: int64 */
-      totalElements?: number;
       /** Format: int32 */
       totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -177,10 +176,10 @@ export interface components {
       unsorted?: boolean;
     };
     PageVrpProblemSummary: {
-      /** Format: int64 */
-      totalElements?: number;
       /** Format: int32 */
       totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -207,6 +206,12 @@ export interface components {
       /** Format: int32 */
       totalDemand: number;
       /** Format: int32 */
+      numEnqueuedRequests: number;
+      /** Format: int32 */
+      numRunningRequests: number;
+      /** Format: int32 */
+      numTerminatedRequests: number;
+      /** Format: int32 */
       numSolverRequests: number;
       /** Format: int32 */
       nlocations: number;
@@ -214,10 +219,10 @@ export interface components {
       nvehicles: number;
     };
     PageLocation: {
-      /** Format: int64 */
-      totalElements?: number;
       /** Format: int32 */
       totalPages?: number;
+      /** Format: int64 */
+      totalElements?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -257,8 +262,8 @@ export interface components {
       routes: components["schemas"]["Route"][];
       empty: boolean;
       totalDistance: number;
-      totalTime: Record<string, never>;
       feasible: boolean;
+      totalTime: Record<string, never>;
     };
     VrpSolutionRequest: {
       solution: components["schemas"]["VrpSolution"];
@@ -314,9 +319,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -334,9 +337,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -354,9 +355,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -385,9 +384,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -405,9 +402,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -437,9 +432,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -452,9 +445,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -648,9 +639,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -663,9 +652,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };
@@ -678,9 +665,7 @@ export interface operations {
     responses: {
       /** @description OK */
       200: {
-        content: {
-          "application/json": components["schemas"]["Unit"];
-        };
+        content: never;
       };
     };
   };

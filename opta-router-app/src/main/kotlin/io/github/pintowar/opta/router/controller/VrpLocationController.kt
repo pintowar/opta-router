@@ -57,19 +57,19 @@ class VrpLocationController(
     }
 
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Unit> {
+    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Void> {
         return repo.create(req.toLocation())
             .let { ResponseEntity.ok().build() }
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun remove(@PathVariable id: Long): ResponseEntity<Unit> {
+    suspend fun remove(@PathVariable id: Long): ResponseEntity<Void> {
         return repo.deleteById(id)
             .let { ResponseEntity.ok().build() }
     }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Unit> {
+    suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Void> {
         return repo.update(id, req.toLocation())
             .let { ResponseEntity.ok().build() }
     }
