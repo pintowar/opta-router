@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "oh-vue-icons": "^1.0.0-rc3",
     "rainbow-color": "^2.0.0",
-    "vue": "^3.3.6",
+    "vue": "^3.4.3",
     "vue-router": "^4.2.5",
     "vue3-apexcharts": "^1.4.4"
   },
