@@ -10,14 +10,13 @@ import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.models.Path
 import io.github.pintowar.opta.router.core.domain.models.Route
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.GeoPort
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
+class GraphHopperGeoAdapter(private val path: String, private val location: String) : GeoPort {
 
     companion object {
         const val VEHICLE = "car"
@@ -48,7 +47,7 @@ class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
      * @param target
      * @return
      */
-    override fun simplePath(origin: Coordinate, target: Coordinate): Path {
+    override suspend fun simplePath(origin: Coordinate, target: Coordinate): Path {
         val req = GHRequest(origin.lat, origin.lng, target.lat, target.lng)
             .setProfile(PROFILE)
             .putHint(Parameters.Routing.INSTRUCTIONS, false)
@@ -59,8 +58,8 @@ class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
         }
     }
 
-    override fun detailedPaths(solution: VrpSolution): VrpSolution {
-        val newRoutes = solution.routes.map { route ->
+    override suspend fun detailedPaths(routes: List<Route>): List<Route> {
+        return routes.map { route ->
             val aux = route.order
                 .windowed(2, 1, false)
                 .map { (a, b) -> detailedSimplePath(a, b) }
@@ -71,10 +70,9 @@ class GraphHopperGeoAdapter(val path: String, val location: String) : GeoPort {
 
             Route(dist, time, route.totalDemand, rep, route.customerIds)
         }
-        return solution.copy(routes = newRoutes)
     }
 
-    override fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
+    override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
         val ids = locations.map { it.id }
         val (travelDistances, travelTimes) = locations.flatMap { a ->
             locations.map { b -> simplePath(a, b).let { it.distance to it.time } }

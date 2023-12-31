@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.config.rest
+package io.github.pintowar.opta.router.config.geo
 
 import io.github.pintowar.opta.router.adapters.geo.GraphHopperGeoAdapter
 import io.github.pintowar.opta.router.config.ConfigData
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 
 @Configuration
-@Profile(ConfigData.REST_PROFILE)
+@Profile(ConfigData.GEO_LOCAL_PROFILE, ConfigData.GEO_SERVER_PROFILE)
 class GeoConfig {
 
     /**

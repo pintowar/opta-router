@@ -20,7 +20,7 @@ spring:
 spring:
   config:
     activate:
-      on-profile: solver
+      on-profile: solver,geo-server
   web:
     resources:
       add-mappings: false

@@ -18,11 +18,6 @@ class CamelRestEvents : RouteBuilder() {
             .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
             .to("{{camel.route.producer.request-solver}}")
 
-//        from("{{camel.route.consumer.request-solver}}")
-//            .routeId("request.solver.queue")
-//            .bean(AsyncPipe::class.java, "solve")
-//            .process(SplitStreamProcessorTo("{{camel.route.producer.solution-request}}", context))
-
         from("{{camel.route.consumer.enqueue-solution-request}}")
             .routeId("enqueue.solution.request")
             .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
@@ -48,12 +43,5 @@ class CamelRestEvents : RouteBuilder() {
         from("{{camel.route.consumer.broadcast-cancel-solver}}")
             .routeId("broadcast.broadcast.cancel.solver")
             .to("{{camel.route.producer.cancel-solver-topic}}")
-
-//        from("{{camel.route.consumer.cancel-solver-topic}}")
-//            .routeId("cancel.solver.topic")
-//            .transform().spel("#{body.messageObject}")
-//            .bean(AsyncPipe::class.java, "cancelSolver")
-//            .process(UnwrapStreamProcessor())
-//            .end()
     }
 }

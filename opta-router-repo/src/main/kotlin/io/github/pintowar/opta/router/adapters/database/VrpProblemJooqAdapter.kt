@@ -43,7 +43,7 @@ class VrpProblemJooqAdapter(
                 sumStatuses(SolverStatus.ENQUEUED),
                 sumStatuses(SolverStatus.RUNNING),
                 sumStatuses(SolverStatus.TERMINATED),
-                sumStatuses(SolverStatus.NOT_SOLVED),
+                sumStatuses(SolverStatus.NOT_SOLVED)
             )
             .from(VRP_PROBLEM)
             .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
@@ -91,9 +91,9 @@ class VrpProblemJooqAdapter(
             trx.dsl()
                 .insertInto(VRP_PROBLEM_MATRIX)
                 .set(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID, result.id)
-                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.locationIds())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.travelDistances())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.travelTimes())
+                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.getTravelDistances())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.getTravelTimes())
                 .set(VRP_PROBLEM_MATRIX.CREATED_AT, now)
                 .set(VRP_PROBLEM_MATRIX.UPDATED_AT, now)
                 .awaitSingle()
@@ -122,9 +122,9 @@ class VrpProblemJooqAdapter(
 
             trx.dsl()
                 .update(VRP_PROBLEM_MATRIX)
-                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.locationIds())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.travelDistances())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.travelTimes())
+                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.getTravelDistances())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.getTravelTimes())
                 .set(VRP_PROBLEM_MATRIX.UPDATED_AT, now)
                 .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(id))
                 .awaitSingle()
