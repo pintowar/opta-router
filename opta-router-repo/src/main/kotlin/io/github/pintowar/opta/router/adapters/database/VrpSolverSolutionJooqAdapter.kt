@@ -39,7 +39,6 @@ class VrpSolverSolutionJooqAdapter(
         .limit(1)
         .awaitFirstOrNull()
         ?.let { sol ->
-//            mapper.readValue<List<Route>>(sol.paths.data())
             serde.fromJson(sol.paths.data())
         } ?: emptyList()
 
@@ -150,10 +149,10 @@ class VrpSolverSolutionJooqAdapter(
                     serde.fromJson(problem.vehicles.data()),
                     serde.fromJson(problem.customers.data())
                 ),
-                solution.get(solution.field2())?.let { serde.fromJson(it.data()) } ?: emptyList()
+                solution.paths.let { serde.fromJson(it.data()) }
             ),
-            solverRequest.get(solverRequest.field4())?.let(SolverStatus::valueOf) ?: SolverStatus.NOT_SOLVED,
-            solverRequest.get(solverRequest.field1())
+            solverRequest.status.let(SolverStatus::valueOf),
+            solverRequest.requestKey
         )
     }
 }
