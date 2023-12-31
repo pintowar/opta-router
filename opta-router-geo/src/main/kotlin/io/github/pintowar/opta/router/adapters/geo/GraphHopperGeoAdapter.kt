@@ -4,6 +4,7 @@ import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
+import com.graphhopper.util.CustomModel
 import com.graphhopper.util.Parameters
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.LatLng
@@ -20,7 +21,7 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
 
     companion object {
         const val VEHICLE = "car"
-        const val WEIGHTING = "shortest"
+        const val WEIGHTING = "custom"
         const val PROFILE = "${VEHICLE}_$WEIGHTING"
     }
 
@@ -29,6 +30,7 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
             Profile(PROFILE).apply {
                 vehicle = VEHICLE
                 weighting = WEIGHTING
+                customModel = CustomModel()
             }
         )
 

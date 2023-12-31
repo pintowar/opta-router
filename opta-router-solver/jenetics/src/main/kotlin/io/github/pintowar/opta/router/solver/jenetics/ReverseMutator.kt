@@ -20,7 +20,7 @@ class ReverseMutator<G : Gene<*, G>?, C : Comparable<C>?>(
     ): MutatorResult<Chromosome<G>> {
         return if (chromosome.length() > 1) {
             val genes = chromosome.toMutableList()
-            val points = Subset.next(genes.size, 2, RandomRegistry.random())
+            val points = Subset.next(RandomRegistry.random(), genes.size, 2)
 
             val newSeq = genes.subList(points[0], points[1]).reversed()
             val mutations = (points[0]..<points[1]).onEachIndexed { idx, i ->
