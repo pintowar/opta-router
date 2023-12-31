@@ -2,20 +2,48 @@ spring:
   profiles:
     active: '@environmentName@'
     group:
-      local: scheduler
-      single: scheduler
+      local: rest,solver,geo-local
+      single: rest,solver,geo-local
   jackson:
     serialization:
       indent_output: true
       write_dates_as_timestamps: false
       write_durations_as_timestamps: false
-
+  data:
+    r2dbc:
+      repositories:
+        enabled: false
   r2dbc:
     url: '@db.url@'
     username: '@db.user@'
     password: '@db.password@'
   flyway:
     enabled: false
+
+camel:
+  springboot:
+    name: opta-router-routes
+  route:
+    producer:
+      enqueue-request-solver: direct://enqueue-request-solver
+      enqueue-solution-request: direct://enqueue-solution-request
+      broadcast-solution: direct://broadcast-solution
+      broadcast-cancel-solver: direct://broadcast-cancel-solver
+
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
+    consumer:
+      enqueue-request-solver: direct://enqueue-request-solver
+      enqueue-solution-request: direct://enqueue-solution-request
+      broadcast-solution: direct://broadcast-solution
+      broadcast-cancel-solver: direct://broadcast-cancel-solver
+
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
 
 endpoints:
   health:
@@ -24,6 +52,13 @@ endpoints:
 management:
   security:
     enabled: false
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,loggers,mappings,scheduledtasks,threaddump,heapdump,beans,sessions
 
 springdoc:
   api-docs:
@@ -38,6 +73,9 @@ app:
     osm:
       path: ${GRAPH_OSM_PATH:/home/thiago/Downloads/belgium-latest.osm.pbf}
       location: ${GRAPH_OSM_LOCATION:/tmp/gh-tmp}
+  geo:
+    remote:
+      url: ${GEO_REMOTE_URL:http://localhost:8082}
 
 logging:
   level:
@@ -46,3 +84,13 @@ logging:
     com.hazelcast.system: ERROR
     com.graphhopper.jsprit.core: ERROR
     org.jooq: ERROR
+
+---
+spring:
+  config:
+    activate:
+      on-profile: rest
+  r2dbc:
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'

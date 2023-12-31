@@ -25,7 +25,7 @@ dependencies {
     }
     implementation(libs.springdoc.openapi)
 
-    implementation(libs.hazelcast.spring)
+    implementation(libs.bundles.camel)
     implementation(libs.bundles.shedlock)
     implementation(libs.bundles.jooq)
     implementation(libs.bundles.jackson)
@@ -82,7 +82,7 @@ configure<GitPropertiesPluginExtension> {
 
 jib {
     from {
-        image = "eclipse-temurin:17-jdk-jammy"
+        image = "eclipse-temurin:21-jdk-jammy"
     }
     to {
         val tagVer = if (project.isSnapshotVersion) "snapshot" else "latest"

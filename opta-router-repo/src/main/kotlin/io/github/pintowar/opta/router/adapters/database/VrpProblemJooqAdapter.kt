@@ -1,5 +1,6 @@
 package io.github.pintowar.opta.router.adapters.database
 
+import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
@@ -18,6 +19,8 @@ import org.jooq.generated.tables.records.VrpProblemRecord
 import org.jooq.generated.tables.references.VRP_PROBLEM
 import org.jooq.generated.tables.references.VRP_PROBLEM_MATRIX
 import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
+import org.jooq.impl.DSL.sum
+import org.jooq.impl.DSL.`when`
 import org.jooq.kotlin.coroutines.transactionCoroutine
 import java.time.Instant
 import org.jooq.impl.DSL.count as dslCount
@@ -29,20 +32,29 @@ class VrpProblemJooqAdapter(
 ) : VrpProblemPort {
 
     override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
+        val sumStatuses = { status: SolverStatus ->
+            sum(`when`(VRP_SOLVER_REQUEST.STATUS.eq(status.name), 1).otherwise(0)).cast(Int::class.java)
+        }
+
         return dsl
             .select(
                 VRP_PROBLEM,
-                dslCount(VRP_SOLVER_REQUEST)
+                dslCount(VRP_SOLVER_REQUEST),
+                sumStatuses(SolverStatus.ENQUEUED),
+                sumStatuses(SolverStatus.RUNNING),
+                sumStatuses(SolverStatus.TERMINATED),
+                sumStatuses(SolverStatus.NOT_SOLVED)
             )
             .from(VRP_PROBLEM)
             .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
             .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
             .groupBy(VRP_PROBLEM)
-            .limit(offset, limit).asFlow().map { (p, t) ->
+            .limit(offset, limit).asFlow().map { (p, t, e, r, f, c) ->
                 toProblem(p).let {
                     val totalCapacity = it.vehicles.sumOf { v -> v.capacity }
                     val totalDemand = it.customers.sumOf { c -> c.demand }
-                    VrpProblemSummary(it.id, it.name, it.nLocations, it.nVehicles, totalCapacity, totalDemand, t)
+                    val (nl, nv) = it.nLocations to it.nVehicles
+                    VrpProblemSummary(it.id, it.name, nl, nv, totalCapacity, totalDemand, e, r, f, c, t)
                 }
             }
     }
@@ -79,9 +91,9 @@ class VrpProblemJooqAdapter(
             trx.dsl()
                 .insertInto(VRP_PROBLEM_MATRIX)
                 .set(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID, result.id)
-                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.locationIds())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.travelDistances())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.travelTimes())
+                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.getTravelDistances())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.getTravelTimes())
                 .set(VRP_PROBLEM_MATRIX.CREATED_AT, now)
                 .set(VRP_PROBLEM_MATRIX.UPDATED_AT, now)
                 .awaitSingle()
@@ -110,9 +122,9 @@ class VrpProblemJooqAdapter(
 
             trx.dsl()
                 .update(VRP_PROBLEM_MATRIX)
-                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.locationIds())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.travelDistances())
-                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.travelTimes())
+                .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.getTravelDistances())
+                .set(VRP_PROBLEM_MATRIX.TRAVEL_TIMES, matrix.getTravelTimes())
                 .set(VRP_PROBLEM_MATRIX.UPDATED_AT, now)
                 .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(id))
                 .awaitSingle()

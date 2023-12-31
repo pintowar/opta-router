@@ -1,5 +1,6 @@
-package io.github.pintowar.opta.router.config
+package io.github.pintowar.opta.router.config.rest
 
+import io.github.pintowar.opta.router.config.ConfigData
 import io.r2dbc.spi.ConnectionFactory
 import org.flywaydb.core.Flyway
 import org.jooq.DSLContext
@@ -16,11 +17,13 @@ import org.springframework.boot.autoconfigure.jooq.JooqExceptionTranslator
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.core.annotation.Order
 import org.springframework.data.r2dbc.config.EnableR2dbcAuditing
 import org.springframework.r2dbc.connection.TransactionAwareConnectionFactoryProxy
 
 @Configuration
+@Profile(ConfigData.REST_PROFILE)
 @EnableR2dbcAuditing
 @EnableConfigurationProperties(FlywayProperties::class)
 class DatabaseConfig(

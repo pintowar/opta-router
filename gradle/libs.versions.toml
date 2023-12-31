@@ -16,6 +16,7 @@ graphhopper = "7.0"
 flyway = "9.17.0"
 jooq = "3.18.3"
 hazelcast = "5.3.1"
+camel = "4.1.0"
 h2 = "2.1.214"
 postgres = "42.6.0"
 shedlock = "5.10.2"
@@ -83,6 +84,11 @@ pg-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version = "1.0.2.RELEAS
 shedlock = { module = "net.javacrumbs.shedlock:shedlock-spring", version.ref = "shedlock" }
 shedlock-hazelcast = { module = "net.javacrumbs.shedlock:shedlock-provider-hazelcast4", version.ref = "shedlock" }
 
+camel-boot = { module = "org.apache.camel.springboot:camel-spring-boot-starter", version.ref = "camel" }
+camel-bean = { module = "org.apache.camel.springboot:camel-bean-starter", version.ref = "camel" }
+camel-stream = { module = "org.apache.camel.springboot:camel-reactive-streams-starter", version.ref = "camel" }
+camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starter", version.ref = "camel" }
+
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 [bundles]
@@ -93,3 +99,4 @@ optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
+camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]

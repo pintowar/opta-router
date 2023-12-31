@@ -1,11 +1,13 @@
 package io.github.pintowar.opta.router.controller
 
+import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.ports.VrpLocationPort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
+import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Profile(ConfigData.REST_PROFILE)
 @RequestMapping("/api/vrp-locations")
 class VrpLocationController(
     private val repo: VrpLocationPort
@@ -54,19 +57,19 @@ class VrpLocationController(
     }
 
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Unit> {
+    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Void> {
         return repo.create(req.toLocation())
             .let { ResponseEntity.ok().build() }
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun remove(@PathVariable id: Long): ResponseEntity<Unit> {
+    suspend fun remove(@PathVariable id: Long): ResponseEntity<Void> {
         return repo.deleteById(id)
             .let { ResponseEntity.ok().build() }
     }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Unit> {
+    suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Void> {
         return repo.update(id, req.toLocation())
             .let { ResponseEntity.ok().build() }
     }

@@ -1,6 +1,7 @@
 package io.github.pintowar.opta.router.scheduler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit
 private val logger = KotlinLogging.logger {}
 
 @Component
-@Profile("scheduler")
+@Profile(ConfigData.REST_PROFILE)
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "24h")
 class SolverRequestScheduler(

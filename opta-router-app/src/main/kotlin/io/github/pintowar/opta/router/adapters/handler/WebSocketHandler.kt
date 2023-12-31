@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asPublisher
-import kotlinx.coroutines.runBlocking
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.socket.WebSocketSession
@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono
 private val logger = KotlinLogging.logger {}
 
 @Component
+@Profile(ConfigData.REST_PROFILE)
 class WebSocketHandler(
     private val solverPanelStorage: SolverPanelStorage,
     private val serde: Serde
@@ -52,9 +53,7 @@ class WebSocketHandler(
             }
     }
 
-    fun broadcast(data: VrpSolutionRequest) {
-        runBlocking {
-            sharedFlow.emit(data)
-        }
+    suspend fun broadcast(data: VrpSolutionRequest) {
+        sharedFlow.emit(data)
     }
 }

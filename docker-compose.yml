@@ -9,36 +9,69 @@ services:
       POSTGRES_USER: postgres # The PostgreSQL user (useful to connect to the database)
       POSTGRES_PASSWORD: postgres # The PostgreSQL password (useful to connect to the database)
       POSTGRES_DB: opta-router # The PostgreSQL default database (automatically created at first launch)
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  web-main:
+  geo-app:
     image: 'pintowar/opta-router:dist-latest'
+    volumes:
+      - /tmp/osm:/tmp/osm
+    environment:
+      SPRING_PROFILES_ACTIVE: dist,geo-server
+      GRAPH_OSM_PATH: /tmp/osm/belgium-latest.osm.pbf
+      GRAPH_OSM_LOCATION: /tmp/osm/gh-tmp
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  solver-app:
+    image: 'pintowar/opta-router:dist-latest'
+    environment:
+      SPRING_PROFILES_ACTIVE: dist,solver
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rest-app:
+    image: 'pintowar/opta-router:dist-latest'
+    environment:
+      SPRING_PROFILES_ACTIVE: dist,rest,geo-remote
+      SPRING_R2DBC_URL: r2dbc:postgresql://database:5432/opta-router
+      SPRING_FLYWAY_URL: jdbc:postgresql://database:5432/opta-router
+      GEO_REMOTE_URL: http://app-gateway:8082
+    depends_on:
+      database:
+        condition: service_healthy
+      geo-app:
+        condition: service_healthy
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app-gateway:
+    image: 'nginx:alpine'
     ports:
       - 8080:8080
-      - 5701:5701
+      - 8081:8081
+      - 8082:8082
     volumes:
-      - /tmp/osm:/tmp/osm
-    environment:
-      SPRING_PROFILES_ACTIVE: dist,scheduler
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/opta-router
-      GRAPH_OSM_PATH: /tmp/osm/belgium-latest.osm.pbf
-      GRAPH_OSM_LOCATION: /tmp/osm/gh-tmp
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - database
-    restart: on-failure
-
-  web-extra:
-    image: 'pintowar/opta-router:dist-latest'
-    ports:
-      - 8081:8080
-      - 5702:5701
-    volumes:
-      - /tmp/osm:/tmp/osm
-    environment:
-      SPRING_PROFILES_ACTIVE: dist
-      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/opta-router
-      GRAPH_OSM_PATH: /tmp/osm/belgium-latest.osm.pbf
-      GRAPH_OSM_LOCATION: /tmp/osm/gh-tmp
-    depends_on:
-      - database
-      - web-main
-    restart: on-failure
+      geo-app:
+        condition: service_healthy
+      solver-app:
+        condition: service_healthy
+      rest-app:
+        condition: service_healthy

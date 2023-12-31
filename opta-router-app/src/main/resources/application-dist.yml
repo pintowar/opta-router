@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: rest
   jooq:
     sql-dialect: POSTGRES
     bind-offset-date-time-type: false
@@ -12,3 +15,16 @@ spring:
     user: '@flyway.user@'
     password: '@flyway.password@'
     locations: classpath:db/migration,classpath:db/specific/postgres
+
+---
+spring:
+  config:
+    activate:
+      on-profile: solver,geo-server
+  web:
+    resources:
+      add-mappings: false
+management:
+  health:
+    r2dbc:
+      enabled: false

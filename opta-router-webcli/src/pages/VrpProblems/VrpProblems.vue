@@ -67,6 +67,7 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
             <th>Total Demand</th>
             <th>Total Capacity</th>
             <th>Num Solver Requests</th>
+            <th>Request Statuses</th>
             <th>Actions</th>
           </template>
           <template #show="{ row }">
@@ -77,6 +78,11 @@ const showDeleteModal = (instance: VrpProblemSummary) => {
             <td>{{ row.totalDemand }}</td>
             <td>{{ row.totalCapacity }}</td>
             <td>{{ row.numSolverRequests }}</td>
+            <td class="space-x-2">
+              <div class="badge badge-warning tooltip" data-tip="Enqueued">{{ row.numEnqueuedRequests }}</div>
+              <div class="badge badge-success tooltip" data-tip="Running">{{ row.numRunningRequests }}</div>
+              <div class="badge badge-error tooltip" data-tip="Terminated">{{ row.numTerminatedRequests }}</div>
+            </td>
             <td class="space-x-2">
               <div class="tooltip" data-tip="Solve it">
                 <router-link :to="`/solve/${row.id}`" class="btn btn-sm btn-circle">

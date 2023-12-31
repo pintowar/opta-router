@@ -3,14 +3,14 @@ package io.github.pintowar.opta.router.core.domain.ports
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.models.Path
-import io.github.pintowar.opta.router.core.domain.models.VrpSolution
+import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 
 interface GeoPort {
 
-    fun simplePath(origin: Coordinate, target: Coordinate): Path
+    suspend fun simplePath(origin: Coordinate, target: Coordinate): Path
 
-    fun detailedPaths(solution: VrpSolution): VrpSolution
+    suspend fun detailedPaths(routes: List<Route>): List<Route>
 
-    fun generateMatrix(locations: Set<Location>): VrpProblemMatrix
+    suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix
 }

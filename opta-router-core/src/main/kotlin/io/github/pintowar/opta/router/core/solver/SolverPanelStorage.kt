@@ -13,8 +13,9 @@ class SolverPanelStorage(
 
     fun getOrDefault(key: String) = sessionPanel.getOrPut(key) { SolverPanel() }
 
-    fun convertSolutionForPanelId(key: String, solution: VrpSolution): VrpSolution {
+    suspend fun convertSolutionForPanelId(key: String, solution: VrpSolution): VrpSolution {
         val panel = getOrDefault(key)
-        return if (panel.isDetailedPath) geoPort.detailedPaths(solution) else solution
+        val routes = if (panel.isDetailedPath) geoPort.detailedPaths(solution.routes) else solution.routes
+        return solution.copy(routes = routes)
     }
 }

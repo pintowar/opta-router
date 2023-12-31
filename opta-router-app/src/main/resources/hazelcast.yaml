@@ -1,4 +1,5 @@
 hazelcast:
+  instance-name: opta_router
   cluster-name: opta-router-cluster
   serialization:
     compact-serialization:
