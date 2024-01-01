@@ -149,10 +149,10 @@ class VrpSolverSolutionJooqAdapter(
                     serde.fromJson(problem.vehicles.data()),
                     serde.fromJson(problem.customers.data())
                 ),
-                solution.paths.let { serde.fromJson(it.data()) }
+                solution.get(VRP_SOLUTION.PATHS)?.let { serde.fromJson(it.data()) } ?: emptyList()
             ),
-            solverRequest.status.let(SolverStatus::valueOf),
-            solverRequest.requestKey
+            solverRequest.get(VRP_SOLVER_REQUEST.STATUS)?.let(SolverStatus::valueOf) ?: SolverStatus.NOT_SOLVED,
+            solverRequest.get(VRP_SOLVER_REQUEST.REQUEST_KEY)
         )
     }
 }
