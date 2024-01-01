@@ -5,7 +5,6 @@ import com.hazelcast.nio.serialization.compact.CompactSerializer
 import com.hazelcast.nio.serialization.compact.CompactWriter
 import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import java.util.*
 
 class CancelSolverCommandSerializer : CompactSerializer<CancelSolverCommand> {

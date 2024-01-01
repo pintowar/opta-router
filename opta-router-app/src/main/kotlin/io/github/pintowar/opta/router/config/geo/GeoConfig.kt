@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.config.geo
 
 import io.github.pintowar.opta.router.adapters.geo.GraphHopperGeoAdapter
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

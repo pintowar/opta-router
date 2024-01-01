@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.domain.ports
+package io.github.pintowar.opta.router.core.domain.ports.service
 
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.Location

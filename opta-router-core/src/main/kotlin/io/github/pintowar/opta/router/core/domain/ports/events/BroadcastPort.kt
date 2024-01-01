@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.domain.ports
+package io.github.pintowar.opta.router.core.domain.ports.events
 
 import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
 

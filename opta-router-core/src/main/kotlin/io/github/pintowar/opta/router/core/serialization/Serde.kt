@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.serde
+package io.github.pintowar.opta.router.core.serialization
 
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type

@@ -6,8 +6,8 @@ import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
 import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
+import io.github.pintowar.opta.router.core.domain.ports.events.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.events.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import java.util.UUID

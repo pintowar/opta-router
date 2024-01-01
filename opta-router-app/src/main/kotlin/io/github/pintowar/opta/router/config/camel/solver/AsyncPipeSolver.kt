@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.solver.VrpSolverManager
 import kotlinx.coroutines.reactive.asPublisher
 import kotlinx.coroutines.reactive.publish

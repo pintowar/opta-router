@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
 import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
+import io.github.pintowar.opta.router.core.domain.ports.events.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.events.SolverEventsPort
 import org.apache.camel.ProducerTemplate
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

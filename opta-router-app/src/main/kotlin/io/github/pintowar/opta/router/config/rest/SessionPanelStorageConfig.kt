@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.config.rest
 
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.solver.SolverPanelStorage
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

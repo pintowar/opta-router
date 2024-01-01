@@ -1,11 +1,11 @@
 package io.github.pintowar.opta.router.config.rest
 
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import io.github.pintowar.opta.router.core.domain.ports.events.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.events.SolverEventsPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
 import org.springframework.context.annotation.Bean

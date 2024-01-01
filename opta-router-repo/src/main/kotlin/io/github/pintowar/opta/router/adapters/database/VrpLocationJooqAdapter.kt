@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.adapters.database
 import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Location
-import io.github.pintowar.opta.router.core.domain.ports.VrpLocationPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpLocationPort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow

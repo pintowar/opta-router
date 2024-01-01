@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.scheduler
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
 import kotlinx.coroutines.runBlocking
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock

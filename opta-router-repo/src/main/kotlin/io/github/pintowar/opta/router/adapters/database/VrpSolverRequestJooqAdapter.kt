@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.adapters.database
 
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow

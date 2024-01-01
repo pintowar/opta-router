@@ -1,7 +1,7 @@
 package io.github.pintowar.opta.router.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.github.pintowar.opta.router.core.serde.Serde
+import io.github.pintowar.opta.router.core.serialization.Serde
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.lang.reflect.Type

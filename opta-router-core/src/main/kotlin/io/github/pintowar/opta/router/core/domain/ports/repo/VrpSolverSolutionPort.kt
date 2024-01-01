@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.domain.ports
+package io.github.pintowar.opta.router.core.domain.ports.repo
 
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
