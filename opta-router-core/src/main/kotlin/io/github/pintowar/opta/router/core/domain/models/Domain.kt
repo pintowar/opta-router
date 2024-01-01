@@ -10,9 +10,6 @@ interface Coordinate {
     val lng: Double
 }
 
-/**
- * DTO class with the representation of locations.
- */
 interface Location : Coordinate {
     val id: Long
     val name: String
@@ -22,9 +19,6 @@ interface Location : Coordinate {
 
 data class LatLng(override val lat: Double, override val lng: Double) : Coordinate
 
-/**
- * DTO class with the representation of a VRP instance. This class is used as the application input data representation.
- */
 data class VrpProblemSummary(
     val id: Long,
     val name: String,
@@ -71,9 +65,6 @@ data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot:
 
 data class Path(val distance: Double, val time: Long, val coordinates: List<Coordinate>)
 
-/**
- * Route representation containing the route distance, time and list of points.
- */
 data class Route(
     val distance: BigDecimal,
     val time: BigDecimal,
@@ -86,10 +77,6 @@ data class Route(
     }
 }
 
-/**
- * DTO class with the representation of the VRP solution.
- * This class is used as the application output data representation.
- */
 data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
 
     companion object {

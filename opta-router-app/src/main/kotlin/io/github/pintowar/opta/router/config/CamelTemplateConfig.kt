@@ -1,5 +1,9 @@
 package io.github.pintowar.opta.router.config
 
+import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
+import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
+import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
+import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
 import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import org.apache.camel.ProducerTemplate
@@ -15,19 +19,19 @@ class CamelTemplateConfig(
     private val template: ProducerTemplate
 ) : SolverEventsPort, BroadcastPort {
 
-    override fun enqueueRequestSolver(command: SolverEventsPort.RequestSolverCommand) {
+    override fun enqueueRequestSolver(command: RequestSolverCommand) {
         template.sendBody(enqueueRequestSolver, command)
     }
 
-    override fun enqueueSolutionRequest(command: SolverEventsPort.SolutionRequestCommand) {
+    override fun enqueueSolutionRequest(command: SolutionRequestCommand) {
         template.sendBody(enqueueSolutionRequest, command)
     }
 
-    override fun broadcastSolution(command: BroadcastPort.SolutionCommand) {
+    override fun broadcastSolution(command: SolutionCommand) {
         template.sendBody(broadcastSolution, command)
     }
 
-    override fun broadcastCancelSolver(command: SolverEventsPort.CancelSolverCommand) {
+    override fun broadcastCancelSolver(command: CancelSolverCommand) {
         template.sendBody(broadcastCancelSolver, command)
     }
 }
