@@ -61,7 +61,7 @@ The project has 3 build/run profiles:
 * dist: app being able to connect with an external postgres database. This profile is also meant to run for different modules (look into `docker-compose.yml` file to check how to proper setup this environment):
   * rest-app: client ui + main rest endpoints;
   * solver-app: backend with solver. It reads solver requests from a distributed queue;
-  * geo-app: another backend serving data concerning to geo data.   
+  * geo-app: another backend serving data concerning to geo data.
 
 This project contains a sample of pre-defined problems on belgium area. An OSM (Open Street Map) map is needed to make the road path calculation process possible. The `opta-router-geo` is responsible to extract this information from the map that can be found on this [link](http://download.geofabrik.de/europe/belgium-latest.osm.pbf).
 
