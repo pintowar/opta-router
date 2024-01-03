@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.controller
 import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
 import kotlinx.coroutines.flow.toList
 import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.Page

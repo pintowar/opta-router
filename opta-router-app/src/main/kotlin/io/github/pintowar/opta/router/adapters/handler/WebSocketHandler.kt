@@ -3,7 +3,7 @@ package io.github.pintowar.opta.router.adapters.handler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.serde.Serde
+import io.github.pintowar.opta.router.core.serialization.Serde
 import io.github.pintowar.opta.router.core.solver.SolverPanelStorage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

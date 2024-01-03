@@ -1,9 +1,13 @@
 package io.github.pintowar.opta.router.core.solver
 
+import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
+import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
+import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
+import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
-import io.github.pintowar.opta.router.core.domain.ports.BroadcastPort
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
+import io.github.pintowar.opta.router.core.domain.ports.events.BroadcastPort
+import io.github.pintowar.opta.router.core.domain.ports.events.SolverEventsPort
 import io.github.pintowar.opta.router.core.domain.repository.SolverRepository
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import java.util.UUID
@@ -25,7 +29,7 @@ class VrpSolverService(
 
     suspend fun showDetailedPath(problemId: Long) {
         solverRepository.currentSolutionRequest(problemId)?.let {
-            broadcastPort.broadcastSolution(BroadcastPort.SolutionCommand(it))
+            broadcastPort.broadcastSolution(SolutionCommand(it))
         }
     }
 
@@ -37,11 +41,7 @@ class VrpSolverService(
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
             solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
                 solverEventsPort.enqueueRequestSolver(
-                    SolverEventsPort.RequestSolverCommand(
-                        detailedSolution,
-                        request.requestKey,
-                        solverName
-                    )
+                    RequestSolverCommand(detailedSolution, request.requestKey, solverName)
                 )
                 request.requestKey
             }
@@ -56,12 +56,12 @@ class VrpSolverService(
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
             if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
                 solverEventsPort.broadcastCancelSolver(
-                    SolverEventsPort.CancelSolverCommand(solverKey, solverRequest.status, clear)
+                    CancelSolverCommand(solverKey, solverRequest.status, clear)
                 )
             } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
                 solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
                     solverEventsPort.enqueueSolutionRequest(
-                        SolverEventsPort.SolutionRequestCommand(solutionRequest, true)
+                        SolutionRequestCommand(solutionRequest, true)
                     )
                 }
             }

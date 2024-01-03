@@ -4,10 +4,10 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
-import io.github.pintowar.opta.router.core.serde.Serde
-import io.github.pintowar.opta.router.core.serde.fromJson
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
+import io.github.pintowar.opta.router.core.serialization.Serde
+import io.github.pintowar.opta.router.core.serialization.fromJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow

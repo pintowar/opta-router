@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.core.solver
 
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 
 class SolverPanelStorage(
     private val sessionPanel: MutableMap<String, SolverPanel>,

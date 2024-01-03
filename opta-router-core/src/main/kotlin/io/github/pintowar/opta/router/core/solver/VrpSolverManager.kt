@@ -1,11 +1,11 @@
 package io.github.pintowar.opta.router.core.solver
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpCachedMatrix
-import io.github.pintowar.opta.router.core.domain.ports.SolverEventsPort
 import io.github.pintowar.opta.router.core.solver.spi.Solver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,14 +40,14 @@ class VrpSolverManager(timeLimit: Duration) {
         solverKey: UUID,
         detailedSolution: VrpDetailedSolution,
         solverName: String
-    ): Flow<SolverEventsPort.SolutionRequestCommand> {
+    ): Flow<SolutionRequestCommand> {
         if (blackListedKeys.remove(solverKey)) {
             val cmd = wrapCommand(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
             return flowOf(cmd)
         }
         if (solverKeys.containsKey(solverKey)) return emptyFlow()
 
-        val channel = Channel<SolverEventsPort.SolutionRequestCommand>()
+        val channel = Channel<SolutionRequestCommand>()
         var bestSolution = detailedSolution.solution
 
         solverKeys[solverKey] = Solver
@@ -83,5 +83,5 @@ class VrpSolverManager(timeLimit: Duration) {
     }
 
     private fun wrapCommand(solutionRequest: VrpSolutionRequest, clear: Boolean = false) =
-        SolverEventsPort.SolutionRequestCommand(solutionRequest, clear)
+        SolutionRequestCommand(solutionRequest, clear)
 }

@@ -6,9 +6,9 @@ import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
-import io.github.pintowar.opta.router.core.serde.Serde
-import io.github.pintowar.opta.router.core.serde.fromJson
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverSolutionPort
+import io.github.pintowar.opta.router.core.serialization.Serde
+import io.github.pintowar.opta.router.core.serialization.fromJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow

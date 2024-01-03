@@ -3,8 +3,8 @@ package io.github.pintowar.opta.router.controller
 import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverObjective
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverSolutionPort
 import kotlinx.coroutines.flow.Flow
 import org.springframework.context.annotation.Profile
 import org.springframework.http.MediaType
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.util.*
 
 /**
  * The Controller that contains all REST functions to be used on the application.

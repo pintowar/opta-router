@@ -1,4 +1,4 @@
-package io.github.pintowar.opta.router.core.domain.ports
+package io.github.pintowar.opta.router.core.domain.ports.repo
 
 import io.github.pintowar.opta.router.core.domain.models.Location
 import kotlinx.coroutines.flow.Flow

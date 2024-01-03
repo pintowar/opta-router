@@ -5,9 +5,9 @@ import io.github.pintowar.opta.router.core.domain.models.VrpDetailedSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.github.pintowar.opta.router.core.domain.ports.VrpProblemPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverRequestPort
-import io.github.pintowar.opta.router.core.domain.ports.VrpSolverSolutionPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverSolutionPort
 import java.util.UUID
 
 class SolverRepository(

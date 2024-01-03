@@ -9,7 +9,7 @@ import io.github.pintowar.opta.router.core.domain.models.Location
 import io.github.pintowar.opta.router.core.domain.models.Path
 import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
-import io.github.pintowar.opta.router.core.domain.ports.GeoPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

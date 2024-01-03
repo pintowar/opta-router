@@ -2,7 +2,7 @@ package io.github.pintowar.opta.router.adapters.database
 
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Vehicle
-import io.github.pintowar.opta.router.core.domain.ports.VrpVehiclePort
+import io.github.pintowar.opta.router.core.domain.ports.repo.VrpVehiclePort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
