@@ -212,6 +212,8 @@ export interface components {
       /** Format: int32 */
       numTerminatedRequests: number;
       /** Format: int32 */
+      numNotSolvedRequests: number;
+      /** Format: int32 */
       numSolverRequests: number;
       /** Format: int32 */
       nlocations: number;
@@ -260,9 +262,9 @@ export interface components {
     VrpSolution: {
       problem: components["schemas"]["VrpProblem"];
       routes: components["schemas"]["Route"][];
-      empty: boolean;
+      isEmpty: boolean;
       totalDistance: number;
-      feasible: boolean;
+      isFeasible: boolean;
       totalTime: Record<string, never>;
     };
     VrpSolutionRequest: {
