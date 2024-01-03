@@ -41,11 +41,7 @@ class VrpSolverService(
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
             solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
                 solverEventsPort.enqueueRequestSolver(
-                    RequestSolverCommand(
-                        detailedSolution,
-                        request.requestKey,
-                        solverName
-                    )
+                    RequestSolverCommand(detailedSolution, request.requestKey, solverName)
                 )
                 request.requestKey
             }
