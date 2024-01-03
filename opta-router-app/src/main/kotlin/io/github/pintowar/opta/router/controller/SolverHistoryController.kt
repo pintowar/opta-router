@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController
 @Profile(ConfigData.REST_PROFILE)
 @RequestMapping("/api/solver-history")
 class SolverHistoryController(
-        private val vrpSolverRequestPort: VrpSolverRequestPort,
-        private val vrpSolverSolutionPort: VrpSolverSolutionPort
+    private val vrpSolverRequestPort: VrpSolverRequestPort,
+    private val vrpSolverSolutionPort: VrpSolverSolutionPort
 ) {
 
     @GetMapping("/{problemId}/requests/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])

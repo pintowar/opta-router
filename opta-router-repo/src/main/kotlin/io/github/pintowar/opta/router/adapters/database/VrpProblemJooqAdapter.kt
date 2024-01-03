@@ -4,8 +4,8 @@ import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.VrpProblemSummary
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
-import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.serialization.Serde
 import io.github.pintowar.opta.router.core.serialization.fromJson
 import kotlinx.coroutines.flow.Flow

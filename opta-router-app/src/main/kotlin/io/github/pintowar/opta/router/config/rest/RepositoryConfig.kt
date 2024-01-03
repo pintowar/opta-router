@@ -6,12 +6,12 @@ import io.github.pintowar.opta.router.adapters.database.VrpSolverRequestJooqAdap
 import io.github.pintowar.opta.router.adapters.database.VrpSolverSolutionJooqAdapter
 import io.github.pintowar.opta.router.adapters.database.VrpVehicleJooqAdapter
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpLocationPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpProblemPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverRequestPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpSolverSolutionPort
 import io.github.pintowar.opta.router.core.domain.ports.repo.VrpVehiclePort
+import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.serialization.Serde
 import org.jooq.DSLContext
 import org.springframework.context.annotation.Bean
