@@ -42,11 +42,15 @@ The `opta-router-solver` module contains several submodules that uses different 
 
 Portfolio List
 
-![image](https://github.com/pintowar/opta-router/assets/354264/b88230bf-5f2e-40cf-8921-370bacd1a602)
+![image](https://github.com/pintowar/opta-router/assets/354264/6449a598-49d0-4faa-8cf4-4d9dbf37b75a)
 
 Solver View
 
-![image](https://github.com/pintowar/opta-router/assets/354264/3922c6d1-8e48-4af6-8805-44096312bb24)
+![image](https://github.com/pintowar/opta-router/assets/354264/12e9f924-cd4c-42fd-b9ad-404318bbc1f7)
+
+Solver History
+
+![image](https://github.com/pintowar/opta-router/assets/354264/ef81013b-122b-48d3-8493-a8d744f3249e)
 
 ### Building and running
 
