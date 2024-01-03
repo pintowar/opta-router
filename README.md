@@ -5,7 +5,7 @@
 ![GitHub tag (latest)](https://img.shields.io/github/v/tag/pintowar/opta-router)
 ![GitHub license](https://img.shields.io/github/license/pintowar/opta-router)
 
-Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + + Jooq + Websockets
+Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Websockets
 
 ## What is CVRP?
 
@@ -13,7 +13,7 @@ CVRP is a variation of VRP (Vehicle Routing Problem). VRP is a combinatorial opt
 
 On CVRP (Capacitated Vehicle Routing Problem), the vehicles have a limited carrying capacity of the goods that must be delivered and customers have a given demand.
 
-Determining the optimal solution to VRP is NP-hard], so the size of problems that can be optimally solved using mathematical programming or combinatorial optimization may be limited. Therefore, commercial and open source solvers tend to use heuristics due to the size and frequency of real world VRPs they need to solve.
+Determining the optimal solution to VRP is NP-hard, so the size of problems that can be optimally solved using mathematical programming or combinatorial optimization may be limited. Therefore, commercial and open source solvers tend to use heuristics due to the size and frequency of real world VRPs they need to solve.
 
 ## About the project
 
@@ -34,7 +34,7 @@ The `opta-router-solver` module contains several submodules that uses different 
 
 * jenetics: a Genetic Algorithm library, written in modern-day Java;
 * jsprit: lightweight, flexible toolkit for solving VRP, based on a single all-purpose meta-heuristic currently solving;
-* optaplanner: solves constraint satisfaction problems with construction heuristics and metaheuristic algorithms;
+* optaplanner: solves constraint satisfaction problems with construction heuristics and meta-heuristic algorithms;
 * or-tools: a for solving linear programming, mixed integer programming, constraint programming, vehicle routing, and related optimization problems;
 * timefold: is a fork of OptaPlanner.
 
@@ -58,7 +58,10 @@ The project has 3 build/run profiles:
 
 * local (**default**): for development setup;
 * single: single process with an embedded h2 database;
-* dist: app being able to connect with an external postgres database.
+* dist: app being able to connect with an external postgres database. This profile is also meant to run for different modules (look into `docker-compose.yml` file to check how to proper setup this environment):
+  * rest-app: client ui + main rest endpoints;
+  * solver-app: backend with solver. It reads solver requests from a distributed queue;
+  * geo-app: another backend serving data concerning to geo data.   
 
 This project contains a sample of pre-defined problems on belgium area. An OSM (Open Street Map) map is needed to make the road path calculation process possible. The `opta-router-geo` is responsible to extract this information from the map that can be found on this [link](http://download.geofabrik.de/europe/belgium-latest.osm.pbf).
 
