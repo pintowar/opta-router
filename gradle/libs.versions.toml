@@ -52,6 +52,7 @@ kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-co
 kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlin-coroutines" }
 
 spring-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "spring-boot" }
+spring-rsocket = { module = "org.springframework.boot:spring-boot-starter-rsocket", version.ref = "spring-boot" }
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
 spring-r2dbc = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc", version.ref = "spring-boot" }
@@ -61,6 +62,7 @@ springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webflux-
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
@@ -93,10 +95,10 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
-spring = ["spring-webflux", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway"]
+spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway"]
 jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
-jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
 camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]

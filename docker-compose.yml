@@ -1,5 +1,3 @@
-version: '3.3'
-
 services:
   database:
     image: 'postgres:latest'
@@ -47,7 +45,8 @@ services:
       SPRING_PROFILES_ACTIVE: dist,rest,geo-remote
       SPRING_R2DBC_URL: r2dbc:postgresql://database:5432/opta-router
       SPRING_FLYWAY_URL: jdbc:postgresql://database:5432/opta-router
-      GEO_REMOTE_URL: http://app-gateway:8082
+#      GEO_REMOTE_URL: http://app-gateway:8082
+      GEO_REMOTE_URI: tcp://app-gateway:7000
     depends_on:
       database:
         condition: service_healthy
