@@ -16,13 +16,6 @@ type VehicleRoute = {
   route: Route;
 };
 
-type EditableVrpProblem = {
-  id: number;
-  name: string;
-  vehicles: Vehicle[];
-  customers: Customer[];
-};
-
 type Page<T> = {
   content: T[];
   totalPages: number;
@@ -42,7 +35,6 @@ function isDepot(obj: unknown): obj is Depot {
 export type {
   Customer,
   Depot,
-  EditableVrpProblem,
   Page,
   PanelSolutionState,
   Route,

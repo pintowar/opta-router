@@ -2,19 +2,19 @@
 import { StyleValue, computed, toRefs } from "vue";
 import { useFetch, useVModels } from "@vueuse/core";
 import { uniqBy, sortBy } from "lodash";
-import { Customer, EditableVrpProblem, Vehicle } from "../../../api";
+import { Customer, VrpProblem, Vehicle } from "../../../api";
 import { AlertMessage, LocationMap } from "../../../components";
 import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
 
 const props = defineProps<{
   persistUrl: string;
-  problem: EditableVrpProblem;
+  problem: VrpProblem;
   style?: StyleValue;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:problem", val: EditableVrpProblem): void;
+  (e: "update:problem", val: VrpProblem): void;
 }>();
 
 const { persistUrl, style } = toRefs(props);

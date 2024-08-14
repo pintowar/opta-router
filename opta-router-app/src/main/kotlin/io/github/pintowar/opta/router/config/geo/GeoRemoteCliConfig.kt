@@ -1,7 +1,13 @@
 package io.github.pintowar.opta.router.config.geo
 
 import io.github.pintowar.opta.router.config.ConfigData
-import io.github.pintowar.opta.router.core.domain.models.*
+import io.github.pintowar.opta.router.core.domain.models.Coordinate
+import io.github.pintowar.opta.router.core.domain.models.Customer
+import io.github.pintowar.opta.router.core.domain.models.Depot
+import io.github.pintowar.opta.router.core.domain.models.LatLng
+import io.github.pintowar.opta.router.core.domain.models.Location
+import io.github.pintowar.opta.router.core.domain.models.Path
+import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import org.springframework.beans.factory.annotation.Value

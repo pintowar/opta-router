@@ -44,7 +44,7 @@ private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Cu
 }
 
 private fun problemCodec(problem: VrpProblem) = problem.let { prob ->
-    val nVehicles = prob.nVehicles
+    val nVehicles = prob.numVehicles()
     val locations = prob.customers + (1 until nVehicles).map { DummyLocation(it.toLong()) }
     val chromosomeLocations = PermutationChromosome.of(ISeq.of(locations))
     Codec.of(Genotype.of(chromosomeLocations), ::genToSubRoutes)
@@ -61,7 +61,7 @@ private fun fitnessFactory(problem: VrpProblem, matrix: Matrix): (List<List<Cust
 }
 
 private fun toChromosome(problem: VrpProblem, subRoutes: List<List<Customer>>): PermutationChromosome<Location> {
-    val dummies = (1 until problem.nVehicles).map { DummyLocation(it.toLong()) }
+    val dummies = (1 until problem.numVehicles()).map { DummyLocation(it.toLong()) }
     val orderedLocations = subRoutes.withIndex().fold(emptyList<Location>()) { acc, (idx, customers) ->
         val dummy = if (idx < dummies.size) listOf(dummies[idx]) else emptyList()
         acc + customers + dummy
@@ -75,7 +75,7 @@ private fun toChromosome(problem: VrpProblem, subRoutes: List<List<Customer>>): 
 
 fun VrpSolution.toInitialSolution(): EvolutionStart<EnumGene<Location>, Double> {
     val idxCustomers = this.problem.customers.associateBy { it.id }
-    val subRoutes = (0 until this.problem.nVehicles).map {
+    val subRoutes = (0 until this.problem.numVehicles()).map {
         if (it < this.routes.size) this.routes[it].customerIds.map(idxCustomers::getValue) else emptyList()
     }
     val chromosome = toChromosome(this.problem, subRoutes)

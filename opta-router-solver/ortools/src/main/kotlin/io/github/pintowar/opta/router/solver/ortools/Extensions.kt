@@ -47,8 +47,8 @@ private class DemandEval(
 class ProblemSummary(problem: VrpProblem) {
     val nVehicles = problem.vehicles.size
     val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
-    val idLocations = problem.locations.associateBy { it.id }
-    val idxLocations = problem.locations.withIndex().associate { it.index to it.value }
+    val idLocations = problem.locations().associateBy { it.id }
+    val idxLocations = problem.locations().withIndex().associate { it.index to it.value }
     val locationsIdx = idxLocations.map { it.value to it.key }.toMap()
     val nLocations = idxLocations.size
     val depots = problem.vehicles.mapNotNull { locationsIdx[it.depot] }.toIntArray()

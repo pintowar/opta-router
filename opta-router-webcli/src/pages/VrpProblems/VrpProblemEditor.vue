@@ -3,7 +3,7 @@ import { computed, toRefs } from "vue";
 import { AfterFetchContext, useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 import { VrpPageLayout } from "../../layout";
-import { EditableVrpProblem } from "../../api";
+import { VrpProblem } from "../../api";
 import VrpProblemForm from "./VrpProblemForm/VrpProblemForm.vue";
 
 const props = defineProps<{
@@ -14,7 +14,7 @@ const { mode } = toRefs(props);
 
 const route = useRoute();
 
-const defaultProblem: EditableVrpProblem = {
+const defaultProblem: VrpProblem = {
   id: -1,
   name: "",
   vehicles: [],
@@ -32,9 +32,9 @@ const { isFetching, error, data } = useFetch(problemUrl, {
   afterFetch: afterProblemFetch,
 })
   .get()
-  .json<EditableVrpProblem>();
+  .json<VrpProblem>();
 
-function afterProblemFetch(ctx: AfterFetchContext<EditableVrpProblem>) {
+function afterProblemFetch(ctx: AfterFetchContext<VrpProblem>) {
   ctx.data = {
     id: ctx.data?.id || defaultProblem.id,
     name: ctx.data?.name || defaultProblem.name,

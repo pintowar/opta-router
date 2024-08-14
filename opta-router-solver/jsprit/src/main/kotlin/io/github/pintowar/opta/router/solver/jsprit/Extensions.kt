@@ -69,7 +69,7 @@ private fun toJsServices(customers: List<Customer>, locationsIds: Map<String, Js
  * @return solution representation used by the solver.
  */
 fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
-    val jspritLocationsId = toJsLocations(locations).associateBy { it.id }
+    val jspritLocationsId = toJsLocations(locations()).associateBy { it.id }
     val jspritVehicles = toJsVehicles(vehicles, jspritLocationsId)
     val jspritServices = toJsServices(customers, jspritLocationsId)
 
@@ -108,7 +108,7 @@ fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProb
  * @return the DTO solution representation.
  */
 fun VehicleRoutingProblemSolution.toDTO(problem: VrpProblem, matrix: Matrix): VrpSolution {
-    val locationIds = problem.locations.associateBy { it.id }
+    val locationIds = problem.locations().associateBy { it.id }
 
     val subRoutes = routes.map { route ->
         val tour = listOf(route.start) + route.activities + listOf(route.end)
@@ -130,6 +130,6 @@ fun VehicleRoutingProblemSolution.toDTO(problem: VrpProblem, matrix: Matrix): Vr
         )
     }
 
-    val emptyRoutes = List((problem.nVehicles - subRoutes.size).coerceAtLeast(0)) { Route.EMPTY }
+    val emptyRoutes = List((problem.numVehicles() - subRoutes.size).coerceAtLeast(0)) { Route.EMPTY }
     return VrpSolution(problem, subRoutes + emptyRoutes)
 }
