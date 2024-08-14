@@ -20,8 +20,8 @@ import java.math.RoundingMode
  * @return solution representation used by the solver.
  */
 fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
-    val roadLocations = this.locations.map { a ->
-        val distances = locations.asSequence()
+    val roadLocations = this.locations().map { a ->
+        val distances = locations().asSequence()
             .map { b -> b.id to dist.distance(a.id, b.id) }
             .filter { (bId, _) -> a.id != bId }
             .toMap()
@@ -29,7 +29,7 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     }
 
     val roadLocationIds = roadLocations.associateBy { it.id }
-    val depotIds = this.depots.map { Depot(it.id, roadLocationIds.getValue(it.id)) }.associateBy { it.id }
+    val depotIds = this.depots().map { Depot(it.id, roadLocationIds.getValue(it.id)) }.associateBy { it.id }
     return VehicleRoutingSolution(
         id,
         name,

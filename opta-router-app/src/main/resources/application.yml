@@ -75,7 +75,8 @@ app:
       location: ${GRAPH_OSM_LOCATION:/tmp/gh-tmp}
   geo:
     remote:
-      url: ${GEO_REMOTE_URL:http://localhost:8082}
+#      uri: ${GEO_REMOTE_URI:http://localhost:8082}
+      uri: ${GEO_REMOTE_URI:tcp://localhost:7000}
 
 logging:
   level:

@@ -108,27 +108,12 @@ export interface components {
       /** Format: int32 */
       demand: number;
     };
-    Location: {
-      name: string;
-      /** Format: int64 */
-      id: number;
-      /** Format: double */
-      lat: number;
-      /** Format: double */
-      lng: number;
-    };
     VrpProblem: {
       /** Format: int64 */
       id: number;
       name: string;
       vehicles: components["schemas"]["Vehicle"][];
       customers: components["schemas"]["Customer"][];
-      depots: components["schemas"]["Depot"][];
-      locations: components["schemas"]["Location"][];
-      /** Format: int32 */
-      nlocations: number;
-      /** Format: int32 */
-      nvehicles: number;
     };
     LocationRequest: {
       /** Format: int64 */
@@ -142,10 +127,10 @@ export interface components {
       demand?: number;
     };
     PageVehicle: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -176,10 +161,10 @@ export interface components {
       unsorted?: boolean;
     };
     PageVrpProblemSummary: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */
@@ -220,11 +205,20 @@ export interface components {
       /** Format: int32 */
       nvehicles: number;
     };
+    Location: {
+      name: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lng: number;
+    };
     PageLocation: {
-      /** Format: int32 */
-      totalPages?: number;
       /** Format: int64 */
       totalElements?: number;
+      /** Format: int32 */
+      totalPages?: number;
       first?: boolean;
       last?: boolean;
       /** Format: int32 */

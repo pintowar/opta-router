@@ -39,11 +39,10 @@ data class VrpProblem(
     val vehicles: List<Vehicle>,
     val customers: List<Customer>
 ) {
-    val depots: List<Depot> = vehicles.map { it.depot }.distinct()
-    val locations: List<Location>
-        get() = depots + customers
-    val nLocations: Int = locations.size
-    val nVehicles: Int = vehicles.size
+    fun depots(): List<Depot> = vehicles.map { it.depot }.distinct()
+    fun locations(): List<Location> = depots() + customers
+    fun numLocations(): Int = locations().size
+    fun numVehicles(): Int = vehicles.size
 }
 
 data class Customer(

@@ -53,7 +53,7 @@ class VrpProblemJooqAdapter(
                 toProblem(p).let {
                     val totalCapacity = it.vehicles.sumOf { v -> v.capacity }
                     val totalDemand = it.customers.sumOf { c -> c.demand }
-                    val (nl, nv) = it.nLocations to it.nVehicles
+                    val (nl, nv) = it.numLocations() to it.numVehicles()
                     VrpProblemSummary(it.id, it.name, nl, nv, totalCapacity, totalDemand, e, r, f, c, t)
                 }
             }
@@ -75,7 +75,7 @@ class VrpProblemJooqAdapter(
     override suspend fun create(problem: VrpProblem) {
         val now = Instant.now()
 
-        val matrix = geo.generateMatrix(problem.locations.toSet())
+        val matrix = geo.generateMatrix(problem.locations().toSet())
 
         dsl.transactionCoroutine { trx ->
             val result = trx.dsl()
@@ -109,7 +109,7 @@ class VrpProblemJooqAdapter(
     override suspend fun update(id: Long, problem: VrpProblem) {
         val now = Instant.now()
 
-        val matrix = geo.generateMatrix(problem.locations.toSet())
+        val matrix = geo.generateMatrix(problem.locations().toSet())
 
         dsl.transactionCoroutine { trx ->
             dsl.update(VRP_PROBLEM)

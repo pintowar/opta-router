@@ -28,3 +28,12 @@ management:
   health:
     r2dbc:
       enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: geo-server
+  rsocket:
+    server:
+      port: 7000
