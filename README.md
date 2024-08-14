@@ -5,7 +5,7 @@
 ![GitHub tag (latest)](https://img.shields.io/github/v/tag/pintowar/opta-router)
 ![GitHub license](https://img.shields.io/github/license/pintowar/opta-router)
 
-Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Websockets
+Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Hazelcast + RSocket + Websockets
 
 ## What is CVRP?
 
