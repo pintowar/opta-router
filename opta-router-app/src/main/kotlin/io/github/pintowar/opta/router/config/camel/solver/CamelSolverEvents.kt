@@ -4,7 +4,6 @@ import io.github.pintowar.opta.router.config.ConfigData
 import io.github.pintowar.opta.router.config.camel.SplitStreamProcessorTo
 import io.github.pintowar.opta.router.core.domain.messages.CancelSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
-import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 import io.github.pintowar.opta.router.core.serialization.Serde
 import io.github.pintowar.opta.router.core.serialization.fromCbor
 import org.apache.camel.builder.RouteBuilder
@@ -19,14 +18,14 @@ class CamelSolverEvents(private val serde: Serde) : RouteBuilder() {
     override fun configure() {
         from("{{camel.route.consumer.request-solver}}")
             .routeId("request.solver.queue")
-            .transform().body { it -> serde.fromCbor<RequestSolverCommand>(it as ByteArray)}
+            .transform().body { it -> serde.fromCbor<RequestSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "solve")
             .process(SplitStreamProcessorTo(context, "{{camel.route.producer.solution-request}}", serde::toCbor))
 
         from("{{camel.route.consumer.cancel-solver-topic}}")
             .routeId("cancel.solver.topic")
             .transform().spel("#{body.messageObject}")
-            .transform().body { it -> serde.fromCbor<CancelSolverCommand>(it as ByteArray)}
+            .transform().body { it -> serde.fromCbor<CancelSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "cancelSolver")
             .process(UnwrapStreamProcessor())
             .end()
