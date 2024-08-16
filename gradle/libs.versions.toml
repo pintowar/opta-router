@@ -58,6 +58,8 @@ spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", ve
 spring-r2dbc = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc", version.ref = "spring-boot" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
+micrometer-prometheus = { module = "io.micrometer:micrometer-registry-prometheus" }
+
 springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
@@ -102,3 +104,4 @@ timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
 camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]
+micrometer = ["micrometer-prometheus"]

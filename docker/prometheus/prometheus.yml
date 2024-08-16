@@ -19,7 +19,7 @@ scrape_configs:
     static_configs:
       - targets: ['prometheus:9090']
   - job_name: opta-router-metrics
-    metrics_path: '/actuator/prometheus'
+    metrics_path: /actuator/prometheus
     scrape_interval: 3s
     static_configs:
       - targets: [ 'app-gateway:8080' ]

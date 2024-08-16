@@ -58,7 +58,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,env,loggers,mappings,scheduledtasks,threaddump,heapdump,beans,sessions
+        include: health,info,env,metrics,prometheus,loggers,mappings,scheduledtasks,threaddump,heapdump,beans,sessions
 
 springdoc:
   api-docs:

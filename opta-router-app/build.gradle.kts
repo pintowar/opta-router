@@ -29,6 +29,7 @@ dependencies {
     implementation(libs.bundles.shedlock)
     implementation(libs.bundles.jooq)
     implementation(libs.bundles.jackson)
+    implementation(libs.bundles.micrometer)
     runtimeOnly(libs.slf4j)
     runtimeOnly(if (project.isDistProfile) libs.pg.r2dbc else libs.h2.r2dbc)
     runtimeOnly(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
