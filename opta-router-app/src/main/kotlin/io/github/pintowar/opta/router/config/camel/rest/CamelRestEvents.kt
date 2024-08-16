@@ -6,8 +6,6 @@ import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestComman
 import io.github.pintowar.opta.router.core.serialization.Serde
 import io.github.pintowar.opta.router.core.serialization.fromCbor
 import org.apache.camel.builder.RouteBuilder
-import org.apache.camel.component.hazelcast.HazelcastConstants
-import org.apache.camel.component.hazelcast.HazelcastOperation
 import org.apache.camel.component.reactive.streams.util.UnwrapStreamProcessor
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
@@ -19,19 +17,17 @@ class CamelRestEvents(private val serde: Serde) : RouteBuilder() {
     override fun configure() {
         from("{{camel.route.consumer.enqueue-request-solver}}")
             .routeId("enqueue.request.solver")
-            .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
             .transform().body(serde::toCbor)
             .to("{{camel.route.producer.request-solver}}")
 
         from("{{camel.route.consumer.enqueue-solution-request}}")
             .routeId("enqueue.solution.request")
-            .setHeader(HazelcastConstants.OPERATION, constant(HazelcastOperation.PUT))
             .transform().body(serde::toCbor)
             .to("{{camel.route.producer.solution-request}}")
 
         from("{{camel.route.consumer.solution-request}}")
             .routeId("solution.request.queue")
-            .transform().body { it -> serde.fromCbor<SolutionRequestCommand>(it as ByteArray)}
+            .transform().body { it -> serde.fromCbor<SolutionRequestCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "update")
             .process(UnwrapStreamProcessor())
             .transform().body(serde::toCbor)
@@ -45,7 +41,7 @@ class CamelRestEvents(private val serde: Serde) : RouteBuilder() {
         from("{{camel.route.consumer.solution-topic}}")
             .routeId("solution.topic")
             .transform().spel("#{body.messageObject}")
-            .transform().body { it -> serde.fromCbor<SolutionCommand>(it as ByteArray)}
+            .transform().body { it -> serde.fromCbor<SolutionCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "broadcast")
             .process(UnwrapStreamProcessor())
             .end()

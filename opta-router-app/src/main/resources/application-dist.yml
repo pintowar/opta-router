@@ -2,6 +2,8 @@ spring:
   config:
     activate:
       on-profile: rest
+  application:
+    name: rest-app
   jooq:
     sql-dialect: POSTGRES
     bind-offset-date-time-type: false
@@ -34,6 +36,16 @@ spring:
   config:
     activate:
       on-profile: geo-server
+  application:
+    name: geo-app
   rsocket:
     server:
       port: 7000
+
+---
+spring:
+  config:
+    activate:
+      on-profile: solver
+  application:
+    name: geo-solver
