@@ -4,13 +4,11 @@ import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
+import com.graphhopper.config.TurnCostsConfig
+import com.graphhopper.json.Statement
 import com.graphhopper.util.CustomModel
 import com.graphhopper.util.Parameters
-import io.github.pintowar.opta.router.core.domain.models.Coordinate
-import io.github.pintowar.opta.router.core.domain.models.LatLng
-import io.github.pintowar.opta.router.core.domain.models.Location
-import io.github.pintowar.opta.router.core.domain.models.Path
-import io.github.pintowar.opta.router.core.domain.models.Route
+import io.github.pintowar.opta.router.core.domain.models.*
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import java.math.BigDecimal
@@ -20,17 +18,22 @@ import java.util.*
 class GraphHopperGeoAdapter(private val path: String, private val location: String) : GeoPort {
 
     companion object {
-        const val VEHICLE = "car"
-        const val WEIGHTING = "custom"
-        const val PROFILE = "${VEHICLE}_$WEIGHTING"
+        const val NAME = "car"
     }
 
     private val graph: GraphHopper = GraphHopper().apply {
+        val statements = listOf(
+            Statement.If("!car_access", Statement.Op.MULTIPLY, "0"),
+            Statement.Else(Statement.Op.LIMIT, "car_average_speed")
+        )
         val profs = listOf(
-            Profile(PROFILE).apply {
-                vehicle = VEHICLE
-                weighting = WEIGHTING
-                customModel = CustomModel()
+            Profile(NAME).apply {
+                turnCostsConfig = TurnCostsConfig.car()
+                customModel = CustomModel().apply {
+                    distanceInfluence = 90.0
+                    priority.addAll(statements)
+                    speed.addAll(statements)
+                }
             }
         )
 
@@ -40,6 +43,7 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
         chPreparationHandler.preparationThreads = Runtime.getRuntime().availableProcessors()
         chPreparationHandler.setCHProfiles(profs.map { CHProfile(it.name) })
 
+        setEncodedValuesString("car_access,car_average_speed")
         setMinNetworkSize(200)
     }.importOrLoad()
 
@@ -51,7 +55,7 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
      */
     override suspend fun simplePath(origin: Coordinate, target: Coordinate): Path {
         val req = GHRequest(origin.lat, origin.lng, target.lat, target.lng)
-            .setProfile(PROFILE)
+            .setProfile(NAME)
             .putHint(Parameters.Routing.INSTRUCTIONS, false)
             .putHint(Parameters.Routing.CALC_POINTS, false)
             .setLocale(Locale.US)
@@ -84,7 +88,7 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
 
     private fun detailedSimplePath(origin: Coordinate, target: Coordinate): Path {
         val req = GHRequest(origin.lat, origin.lng, target.lat, target.lng)
-            .setProfile(PROFILE)
+            .setProfile(NAME)
             .putHint(Parameters.Routing.INSTRUCTIONS, false)
             .setLocale(Locale.US)
         return graph.route(req).best.let {
