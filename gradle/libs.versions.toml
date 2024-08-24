@@ -56,6 +56,7 @@ spring-rsocket = { module = "org.springframework.boot:spring-boot-starter-rsocke
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
 spring-r2dbc = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc", version.ref = "spring-boot" }
+r2dbc-proxy = { module = "io.r2dbc:r2dbc-proxy", version = "1.1.5.RELEASE" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
@@ -95,7 +96,7 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
-spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway"]
+spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
 jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]

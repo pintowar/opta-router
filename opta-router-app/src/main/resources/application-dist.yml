@@ -7,6 +7,10 @@ spring:
   jooq:
     sql-dialect: POSTGRES
     bind-offset-date-time-type: false
+  r2dbc:
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'
   sql:
     init:
       mode: always
