@@ -40,8 +40,11 @@ data class VrpProblem(
     val customers: List<Customer>
 ) {
     fun depots(): List<Depot> = vehicles.map { it.depot }.distinct()
+
     fun locations(): List<Location> = depots() + customers
+
     fun numLocations(): Int = locations().size
+
     fun numVehicles(): Int = vehicles.size
 }
 
@@ -69,7 +72,8 @@ data class Route(
     val time: BigDecimal,
     val totalDemand: Int,
     val order: List<LatLng>,
-    val customerIds: List<Long> // TODO rename to locationIds
+    // TODO rename to locationIds
+    val customerIds: List<Long>
 ) {
     companion object {
         val EMPTY = Route(BigDecimal.ZERO, BigDecimal.ZERO, 0, emptyList(), emptyList())
@@ -77,7 +81,6 @@ data class Route(
 }
 
 data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
-
     companion object {
         fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
     }
@@ -98,7 +101,10 @@ data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
 data class VrpDetailedSolution(val solution: VrpSolution, val matrix: VrpProblemMatrix)
 
 enum class SolverStatus {
-    ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
+    ENQUEUED,
+    NOT_SOLVED,
+    RUNNING,
+    TERMINATED
 }
 
 data class VrpSolverRequest(

@@ -17,7 +17,6 @@ import java.util.UUID
 class VrpSolverRequestJooqAdapter(
     private val dsl: DSLContext
 ) : VrpSolverRequestPort {
-
     override suspend fun refreshSolverRequests(timeout: Duration): Int {
         return dsl
             .update(VRP_SOLVER_REQUEST)
@@ -28,23 +27,25 @@ class VrpSolverRequestJooqAdapter(
     }
 
     override suspend fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
-        val (numEnqueued) = dsl.selectCount().from(VRP_SOLVER_REQUEST)
-            .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(request.problemId))
-            .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverStatus.ENQUEUED.name, SolverStatus.RUNNING.name))
-            .awaitSingle()
+        val (numEnqueued) =
+            dsl.selectCount().from(VRP_SOLVER_REQUEST)
+                .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(request.problemId))
+                .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverStatus.ENQUEUED.name, SolverStatus.RUNNING.name))
+                .awaitSingle()
 
         if (numEnqueued > 0) return null
 
         val now = Instant.now()
-        val result = dsl.insertInto(VRP_SOLVER_REQUEST)
-            .set(VRP_SOLVER_REQUEST.REQUEST_KEY, request.requestKey)
-            .set(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID, request.problemId)
-            .set(VRP_SOLVER_REQUEST.SOLVER, request.solver)
-            .set(VRP_SOLVER_REQUEST.STATUS, request.status.name)
-            .set(VRP_SOLVER_REQUEST.CREATED_AT, now)
-            .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
-            .returning()
-            .awaitFirstOrNull()
+        val result =
+            dsl.insertInto(VRP_SOLVER_REQUEST)
+                .set(VRP_SOLVER_REQUEST.REQUEST_KEY, request.requestKey)
+                .set(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID, request.problemId)
+                .set(VRP_SOLVER_REQUEST.SOLVER, request.solver)
+                .set(VRP_SOLVER_REQUEST.STATUS, request.status.name)
+                .set(VRP_SOLVER_REQUEST.CREATED_AT, now)
+                .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
+                .returning()
+                .awaitFirstOrNull()
 
         return request.takeIf { result != null }
     }
@@ -71,7 +72,10 @@ class VrpSolverRequestJooqAdapter(
             }
     }
 
-    override fun requestsByProblemIdAndSolverName(problemId: Long, solverName: String): Flow<VrpSolverRequest> {
+    override fun requestsByProblemIdAndSolverName(
+        problemId: Long,
+        solverName: String
+    ): Flow<VrpSolverRequest> {
         return dsl.selectFrom(VRP_SOLVER_REQUEST)
             .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(problemId))
             .and(VRP_SOLVER_REQUEST.SOLVER.eq(solverName))

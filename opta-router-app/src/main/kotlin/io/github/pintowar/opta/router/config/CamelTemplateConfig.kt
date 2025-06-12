@@ -18,7 +18,6 @@ class CamelTemplateConfig(
     @Value("\${camel.route.producer.broadcast-cancel-solver}") private val broadcastCancelSolver: String,
     private val template: ProducerTemplate
 ) : SolverEventsPort, BroadcastPort {
-
     override fun enqueueRequestSolver(command: RequestSolverCommand) {
         template.sendBody(enqueueRequestSolver, command)
     }

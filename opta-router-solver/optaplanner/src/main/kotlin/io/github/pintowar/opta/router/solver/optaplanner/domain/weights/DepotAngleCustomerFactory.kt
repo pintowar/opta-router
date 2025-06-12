@@ -5,7 +5,6 @@ import io.github.pintowar.opta.router.solver.optaplanner.domain.VehicleRoutingSo
 import org.optaplanner.core.impl.heuristic.selector.common.decorator.SelectionSorterWeightFactory
 
 class DepotAngleCustomerFactory : SelectionSorterWeightFactory<VehicleRoutingSolution, Customer> {
-
     override fun createSorterWeight(
         vehicleRoutingSolution: VehicleRoutingSolution,
         customer: Customer
@@ -24,19 +23,22 @@ class DepotAngleCustomerFactory : SelectionSorterWeightFactory<VehicleRoutingSol
         private val depotAngle: Double,
         private val depotRoundTripDistance: Long
     ) : Comparable<DepotAngleCustomer> {
-
         override operator fun compareTo(other: DepotAngleCustomer): Int {
             return COMPARATOR.compare(this, other)
         }
 
         companion object {
-            private val COMPARATOR = Comparator
-                .comparingDouble { weight: DepotAngleCustomer -> weight.depotAngle }
-                .thenComparingLong { weight -> weight.depotRoundTripDistance } // Ascending (further from the depot are more difficult)
-                .thenComparing(
-                    { weight -> weight.customer },
-                    Comparator.comparingLong(Customer::id)
-                )
+            private val COMPARATOR =
+                Comparator
+                    .comparingDouble { weight: DepotAngleCustomer -> weight.depotAngle }
+                    .thenComparingLong {
+                            weight ->
+                        weight.depotRoundTripDistance
+                    } // Ascending (further from the depot are more difficult)
+                    .thenComparing(
+                        { weight -> weight.customer },
+                        Comparator.comparingLong(Customer::id)
+                    )
         }
     }
 }

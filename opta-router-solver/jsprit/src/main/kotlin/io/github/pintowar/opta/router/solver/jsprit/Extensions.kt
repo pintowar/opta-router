@@ -32,7 +32,10 @@ private fun toJsLocations(locations: List<Location>): List<JsLocation> {
     }
 }
 
-private fun toJsVehicles(vehicles: List<Vehicle>, locationsIds: Map<String, JsLocation>): List<VehicleImpl> {
+private fun toJsVehicles(
+    vehicles: List<Vehicle>,
+    locationsIds: Map<String, JsLocation>
+): List<VehicleImpl> {
     return vehicles.map {
         VehicleImpl.Builder
             .newInstance("${it.id}")
@@ -51,7 +54,10 @@ private fun toJsVehicles(vehicles: List<Vehicle>, locationsIds: Map<String, JsLo
     }
 }
 
-private fun toJsServices(customers: List<Customer>, locationsIds: Map<String, JsLocation>): List<Service> {
+private fun toJsServices(
+    customers: List<Customer>,
+    locationsIds: Map<String, JsLocation>
+): List<Service> {
     return customers.map {
         Service.Builder
             .newInstance("${it.id}")
@@ -73,12 +79,13 @@ fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
     val jspritVehicles = toJsVehicles(vehicles, jspritLocationsId)
     val jspritServices = toJsServices(customers, jspritLocationsId)
 
-    val jspritMatrix = jspritLocationsId
-        .flatMap { (_, i) -> jspritLocationsId.map { (_, j) -> i to j } }
-        .fold(VehicleRoutingTransportCostsMatrix.Builder.newInstance(false)) { acc, (i, j) ->
-            acc.addTransportDistance(i.id, j.id, dist.distance(i.id.toLong(), j.id.toLong()))
-        }
-        .build()
+    val jspritMatrix =
+        jspritLocationsId
+            .flatMap { (_, i) -> jspritLocationsId.map { (_, j) -> i to j } }
+            .fold(VehicleRoutingTransportCostsMatrix.Builder.newInstance(false)) { acc, (i, j) ->
+                acc.addTransportDistance(i.id, j.id, dist.distance(i.id.toLong(), j.id.toLong()))
+            }
+            .build()
 
     return VehicleRoutingProblem.Builder.newInstance()
         .setFleetSize(VehicleRoutingProblem.FleetSize.FINITE)
@@ -91,14 +98,15 @@ fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
 fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProblemSolution {
     val vehicles = vrp.vehicles.toList()
 
-    val jspritRoutes = routes.mapIndexed { idx, route ->
-        val builder = VehicleRoute.Builder.newInstance(vehicles[idx]).setJobActivityFactory(vrp.jobActivityFactory)
-        route.customerIds
-            .asSequence()
-            .map { vrp.jobs["$it"] as Service }
-            .fold(builder) { acc, it -> acc.addService(it) }
-            .build()
-    }
+    val jspritRoutes =
+        routes.mapIndexed { idx, route ->
+            val builder = VehicleRoute.Builder.newInstance(vehicles[idx]).setJobActivityFactory(vrp.jobActivityFactory)
+            route.customerIds
+                .asSequence()
+                .map { vrp.jobs["$it"] as Service }
+                .fold(builder) { acc, it -> acc.addService(it) }
+                .build()
+        }
     return VehicleRoutingProblemSolution(jspritRoutes, routes.sumOf { it.distance }.toDouble() / 1000)
 }
 
@@ -107,28 +115,34 @@ fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProb
  *
  * @return the DTO solution representation.
  */
-fun VehicleRoutingProblemSolution.toDTO(problem: VrpProblem, matrix: Matrix): VrpSolution {
+fun VehicleRoutingProblemSolution.toDTO(
+    problem: VrpProblem,
+    matrix: Matrix
+): VrpSolution {
     val locationIds = problem.locations().associateBy { it.id }
 
-    val subRoutes = routes.map { route ->
-        val tour = listOf(route.start) + route.activities + listOf(route.end)
-        val dist = tour.windowed(2, 1).sumOf { (i, j) ->
-            matrix.distance(i.location.id.toLong(), j.location.id.toLong())
-        }
-        val time = tour.windowed(2, 1).sumOf { (i, j) ->
-            matrix.time(i.location.id.toLong(), j.location.id.toLong()).toDouble()
-        }
-        val coordinates = tour.mapNotNull { locationIds[it.location.id.toLong()] }
-        val customers = coordinates.mapNotNull { if (it is Customer) it else null }
+    val subRoutes =
+        routes.map { route ->
+            val tour = listOf(route.start) + route.activities + listOf(route.end)
+            val dist =
+                tour.windowed(2, 1).sumOf { (i, j) ->
+                    matrix.distance(i.location.id.toLong(), j.location.id.toLong())
+                }
+            val time =
+                tour.windowed(2, 1).sumOf { (i, j) ->
+                    matrix.time(i.location.id.toLong(), j.location.id.toLong()).toDouble()
+                }
+            val coordinates = tour.mapNotNull { locationIds[it.location.id.toLong()] }
+            val customers = coordinates.mapNotNull { if (it is Customer) it else null }
 
-        Route(
-            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
-            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
-            customers.sumOf { it.demand },
-            coordinates.map { LatLng(it.lat, it.lng) },
-            customers.map { it.id }
-        )
-    }
+            Route(
+                BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+                BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
+                customers.sumOf { it.demand },
+                coordinates.map { LatLng(it.lat, it.lng) },
+                customers.map { it.id }
+            )
+        }
 
     val emptyRoutes = List((problem.numVehicles() - subRoutes.size).coerceAtLeast(0)) { Route.EMPTY }
     return VrpSolution(problem, subRoutes + emptyRoutes)

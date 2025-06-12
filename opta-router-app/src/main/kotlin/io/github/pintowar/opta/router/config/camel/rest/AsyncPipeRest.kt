@@ -16,7 +16,6 @@ class AsyncPipeRest(
     private val solverService: VrpSolverService,
     private val webSocketHandler: WebSocketHandler
 ) {
-
     fun update(cmd: SolutionRequestCommand): Publisher<SolutionCommand> {
         return publish {
             send(SolutionCommand(solverService.update(cmd.solutionRequest, cmd.clear)))

@@ -20,13 +20,15 @@ import java.math.RoundingMode
  * @return solution representation used by the solver.
  */
 fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
-    val roadLocations = this.locations().map { a ->
-        val distances = locations().asSequence()
-            .map { b -> b.id to dist.distance(a.id, b.id) }
-            .filter { (bId, _) -> a.id != bId }
-            .toMap()
-        RoadLocation(a.id, a.name, a.lat, a.lng, distances)
-    }
+    val roadLocations =
+        this.locations().map { a ->
+            val distances =
+                locations().asSequence()
+                    .map { b -> b.id to dist.distance(a.id, b.id) }
+                    .filter { (bId, _) -> a.id != bId }
+                    .toMap()
+            RoadLocation(a.id, a.name, a.lat, a.lng, distances)
+        }
 
     val roadLocationIds = roadLocations.associateBy { it.id }
     val depotIds = this.depots().map { Depot(it.id, roadLocationIds.getValue(it.id)) }.associateBy { it.id }
@@ -62,43 +64,47 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
  * @param graph graphwrapper to calculate the distance/time took to complete paths.
  * @return the DTO solution representation.
  */
-fun VehicleRoutingSolution.toDTO(instance: VrpProblem, matrix: Matrix): VrpSolution {
+fun VehicleRoutingSolution.toDTO(
+    instance: VrpProblem,
+    matrix: Matrix
+): VrpSolution {
     val vehicles = this.vehicleList
-    val routes = vehicles.map { v ->
-        val origin = v.depot.location.let { LatLng(it.latitude, it.longitude) }
+    val routes =
+        vehicles.map { v ->
+            val origin = v.depot.location.let { LatLng(it.latitude, it.longitude) }
 
-        var dist = 0.0
-        var time = 0.0
-        var locations = emptyList<LatLng>()
-        var customerIds = emptyList<Long>()
-        var totalDemand = 0
-        var toOriginDist = 0.0
-        var toOriginTime = 0L
-        var customer = v.customers.firstOrNull()
-        while (customer != null) {
-            locations += LatLng(customer.location.latitude, customer.location.longitude)
-            customerIds += customer.id
-            totalDemand += customer.demand
+            var dist = 0.0
+            var time = 0.0
+            var locations = emptyList<LatLng>()
+            var customerIds = emptyList<Long>()
+            var totalDemand = 0
+            var toOriginDist = 0.0
+            var toOriginTime = 0L
+            var customer = v.customers.firstOrNull()
+            while (customer != null) {
+                locations += LatLng(customer.location.latitude, customer.location.longitude)
+                customerIds += customer.id
+                totalDemand += customer.demand
 
-            val previousLocationId = customer.previousCustomer?.location?.id ?: v.depot.location.id
-            dist += matrix.distance(previousLocationId, customer.location.id)
-            time += matrix.time(previousLocationId, customer.location.id)
-            toOriginDist = matrix.distance(customer.location.id, v.depot.location.id)
-            toOriginTime = matrix.time(customer.location.id, v.depot.location.id)
-            customer = customer.nextCustomer
+                val previousLocationId = customer.previousCustomer?.location?.id ?: v.depot.location.id
+                dist += matrix.distance(previousLocationId, customer.location.id)
+                time += matrix.time(previousLocationId, customer.location.id)
+                toOriginDist = matrix.distance(customer.location.id, v.depot.location.id)
+                toOriginTime = matrix.time(customer.location.id, v.depot.location.id)
+                customer = customer.nextCustomer
+            }
+            dist += toOriginDist
+            time += toOriginTime
+            val rep = (listOf(origin) + locations + listOf(origin))
+
+            Route(
+                BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+                BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
+                totalDemand,
+                rep,
+                customerIds
+            )
         }
-        dist += toOriginDist
-        time += toOriginTime
-        val rep = (listOf(origin) + locations + listOf(origin))
-
-        Route(
-            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
-            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
-            totalDemand,
-            rep,
-            customerIds
-        )
-    }
 
     return VrpSolution(instance, routes)
 }

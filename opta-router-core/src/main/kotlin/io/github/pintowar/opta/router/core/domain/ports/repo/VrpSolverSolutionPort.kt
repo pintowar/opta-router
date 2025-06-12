@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 interface VrpSolverSolutionPort {
-
     suspend fun currentSolution(problemId: Long): List<Route>
 
     suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest?

@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm")
+    jacoco
     id("com.diffplug.spotless")
     id("net.saliman.properties")
 }
@@ -21,11 +22,17 @@ java {
 
 dependencies {
     implementation(libs.bundles.kotlin)
+    testImplementation(libs.bundles.kotest)
 }
 
 tasks {
     kotlin {
         jvmToolchain(21)
+    }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+        finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 
     withType<KotlinCompile> {
@@ -44,6 +51,14 @@ tasks {
     register<Jar>("javadocJar") {
         archiveClassifier.set("javadoc")
         archiveExtension.set("jar")
+    }
+}
+
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter()
+        }
     }
 }
 

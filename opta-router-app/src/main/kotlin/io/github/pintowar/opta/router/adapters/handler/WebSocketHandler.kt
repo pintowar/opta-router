@@ -25,7 +25,6 @@ class WebSocketHandler(
     private val solverPanelStorage: SolverPanelStorage,
     private val serde: Serde
 ) : WebSocketHandler {
-
     private val sharedFlow = MutableSharedFlow<VrpSolutionRequest>()
     private val uriTemplate = UriTemplate("/ws/solution-state/{instanceId}")
 
@@ -42,7 +41,10 @@ class WebSocketHandler(
             }
     }
 
-    fun fromChannel(webSessionId: String, uriInstanceId: String?): Flow<String> {
+    fun fromChannel(
+        webSessionId: String,
+        uriInstanceId: String?
+    ): Flow<String> {
         return sharedFlow
             .filter {
                 "${it.solution.problem.id}" == uriInstanceId

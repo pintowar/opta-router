@@ -16,8 +16,11 @@ import java.time.Instant
 class VrpVehicleJooqAdapter(
     private val dsl: DSLContext
 ) : VrpVehiclePort {
-
-    override fun findAll(query: String, offset: Int, limit: Int): Flow<Vehicle> {
+    override fun findAll(
+        query: String,
+        offset: Int,
+        limit: Int
+    ): Flow<Vehicle> {
         return dsl
             .select(VEHICLE, LOCATION)
             .from(
@@ -38,8 +41,9 @@ class VrpVehicleJooqAdapter(
     }
 
     override suspend fun count(query: String): Long {
-        val (total) = dsl.selectCount().from(VEHICLE).where(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
-            .awaitSingle()
+        val (total) =
+            dsl.selectCount().from(VEHICLE).where(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
+                .awaitSingle()
         return total.toLong()
     }
 
@@ -62,7 +66,10 @@ class VrpVehicleJooqAdapter(
             .awaitFirstOrNull()
     }
 
-    override suspend fun update(id: Long, vehicle: Vehicle) {
+    override suspend fun update(
+        id: Long,
+        vehicle: Vehicle
+    ) {
         val now = Instant.now()
 
         dsl.update(VEHICLE)

@@ -32,15 +32,15 @@ class VrpSolverSolutionJooqAdapter(
     private val serde: Serde,
     private val dsl: DSLContext
 ) : VrpSolverSolutionPort {
-
-    override suspend fun currentSolution(problemId: Long): List<Route> = dsl
-        .selectFrom(VRP_SOLUTION)
-        .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-        .limit(1)
-        .awaitFirstOrNull()
-        ?.let { sol ->
-            serde.fromJson(sol.paths.data())
-        } ?: emptyList()
+    override suspend fun currentSolution(problemId: Long): List<Route> =
+        dsl
+            .selectFrom(VRP_SOLUTION)
+            .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+            .limit(1)
+            .awaitFirstOrNull()
+            ?.let { sol ->
+                serde.fromJson(sol.paths.data())
+            } ?: emptyList()
 
     override suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
         return currentSolutionRequestQuery(dsl, problemId)
@@ -67,9 +67,10 @@ class VrpSolverSolutionJooqAdapter(
                 .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(uuid))
                 .awaitSingle()
 
-            val (numSolutions) = dsl.selectCount().from(VRP_SOLUTION)
-                .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-                .awaitSingle()
+            val (numSolutions) =
+                dsl.selectCount().from(VRP_SOLUTION)
+                    .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+                    .awaitSingle()
 
             if (numSolutions == 0) {
                 trx.dsl()
@@ -127,7 +128,10 @@ class VrpSolverSolutionJooqAdapter(
             }
     }
 
-    private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = dsl
+    private fun currentSolutionRequestQuery(
+        dsl: DSLContext,
+        problemId: Long
+    ) = dsl
         .select(VRP_PROBLEM, VRP_SOLUTION, VRP_SOLVER_REQUEST)
         .from(VRP_PROBLEM)
         .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))

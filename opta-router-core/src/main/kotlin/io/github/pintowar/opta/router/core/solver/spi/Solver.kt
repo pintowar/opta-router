@@ -10,9 +10,7 @@ import kotlinx.coroutines.flow.scan
 import java.util.*
 
 abstract class Solver {
-
     companion object {
-
         fun getNamedSolvers(): Map<String, Solver> {
             val solverFactories = mutableMapOf<String, Solver>()
             ServiceLoader.load(Solver::class.java)
@@ -21,13 +19,18 @@ abstract class Solver {
             return solverFactories
         }
 
-        fun getSolverByName(solverName: String): Solver = getNamedSolvers()[solverName]
-            ?: throw IllegalArgumentException("No solver $solverName was found")
+        fun getSolverByName(solverName: String): Solver =
+            getNamedSolvers()[solverName]
+                ?: throw IllegalArgumentException("No solver $solverName was found")
     }
 
     abstract val name: String
 
-    fun solve(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> =
+    fun solve(
+        initialSolution: VrpSolution,
+        matrix: Matrix,
+        config: SolverConfig
+    ): Flow<VrpSolution> =
         solveFlow(initialSolution, matrix, config)
             .scan(initialSolution) { acc, sol ->
                 if (!acc.isEmpty() && sol.getTotalDistance() > acc.getTotalDistance()) acc else sol

@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController
 @Profile(ConfigData.REST_PROFILE)
 @RequestMapping("/api/vrp-problems")
 class VrpProblemController(val repo: VrpProblemPort) {
-
     @GetMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun index(
         @RequestParam("page", defaultValue = "0") page: Int,
@@ -38,31 +37,43 @@ class VrpProblemController(val repo: VrpProblemPort) {
     }
 
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun show(@PathVariable id: Long): ResponseEntity<VrpProblem> {
+    suspend fun show(
+        @PathVariable id: Long
+    ): ResponseEntity<VrpProblem> {
         return repo.getById(id)
             ?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
     }
 
     @PostMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun create(@RequestBody problem: VrpProblem): ResponseEntity<Void> {
+    suspend fun create(
+        @RequestBody problem: VrpProblem
+    ): ResponseEntity<Void> {
         return repo.create(problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @PostMapping("/{id}/copy", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun copy(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Void> {
+    suspend fun copy(
+        @PathVariable id: Long,
+        @RequestBody problem: VrpProblem
+    ): ResponseEntity<Void> {
         return repo.create(problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun update(@PathVariable id: Long, @RequestBody problem: VrpProblem): ResponseEntity<Void> {
+    suspend fun update(
+        @PathVariable id: Long,
+        @RequestBody problem: VrpProblem
+    ): ResponseEntity<Void> {
         return repo.update(id, problem)
             .let { ResponseEntity.ok().build() }
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun remove(@PathVariable id: Long): ResponseEntity<Void> {
+    suspend fun remove(
+        @PathVariable id: Long
+    ): ResponseEntity<Void> {
         return repo.deleteById(id)
             .let { ResponseEntity.ok().build() }
     }

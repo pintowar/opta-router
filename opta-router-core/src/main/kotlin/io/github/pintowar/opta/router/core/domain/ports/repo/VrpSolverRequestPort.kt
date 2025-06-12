@@ -6,7 +6,6 @@ import java.time.Duration
 import java.util.*
 
 interface VrpSolverRequestPort {
-
     suspend fun refreshSolverRequests(timeout: Duration): Int
 
     suspend fun createRequest(request: VrpSolverRequest): VrpSolverRequest?
@@ -15,5 +14,8 @@ interface VrpSolverRequestPort {
 
     suspend fun currentSolverRequest(solverKey: UUID): VrpSolverRequest?
 
-    fun requestsByProblemIdAndSolverName(problemId: Long, solverName: String): Flow<VrpSolverRequest>
+    fun requestsByProblemIdAndSolverName(
+        problemId: Long,
+        solverName: String
+    ): Flow<VrpSolverRequest>
 }

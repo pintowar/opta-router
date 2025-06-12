@@ -17,7 +17,6 @@ import org.springframework.messaging.rsocket.RSocketStrategies
 @Configuration
 @Profile(ConfigData.GEO_LOCAL_PROFILE, ConfigData.GEO_SERVER_PROFILE)
 class GeoConfig {
-
     /**
      * The creation of the Graphhopper Wrapper.
      */

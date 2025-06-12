@@ -11,10 +11,10 @@ import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHa
 @Configuration
 @Profile(ConfigData.GEO_SERVER_PROFILE)
 class RSocketHandlerConfig {
-
     @Bean
-    fun rsocketMessageHandler(strategies: RSocketStrategies) = RSocketMessageHandler().apply {
-        defaultDataMimeType = MediaType.APPLICATION_CBOR
-        rSocketStrategies = strategies
-    }
+    fun rsocketMessageHandler(strategies: RSocketStrategies) =
+        RSocketMessageHandler().apply {
+            defaultDataMimeType = MediaType.APPLICATION_CBOR
+            rSocketStrategies = strategies
+        }
 }

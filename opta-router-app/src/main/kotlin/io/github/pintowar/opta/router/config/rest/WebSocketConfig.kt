@@ -17,7 +17,6 @@ import java.util.function.Predicate
 @Configuration
 @Profile(ConfigData.REST_PROFILE)
 internal class WebSocketConfig {
-
     @Bean
     fun webSocketHandlerMapping(webSocketHandler: WebSocketHandler): HandlerMapping {
         val map = mapOf("/ws/solution-state/*" to webSocketHandler)
@@ -25,15 +24,15 @@ internal class WebSocketConfig {
     }
 
     @Bean
-    fun handlerAdapter(webSocketService: WebSocketService) =
-        WebSocketHandlerAdapter(webSocketService)
+    fun handlerAdapter(webSocketService: WebSocketService) = WebSocketHandlerAdapter(webSocketService)
 
     @Bean
     fun webSocketService(): WebSocketService {
         return HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy()).apply {
-            sessionAttributePredicate = Predicate {
-                it == WEBSESSION_ID
-            }
+            sessionAttributePredicate =
+                Predicate {
+                    it == WEBSESSION_ID
+                }
         }
     }
 }

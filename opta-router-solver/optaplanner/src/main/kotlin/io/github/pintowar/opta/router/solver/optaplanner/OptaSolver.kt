@@ -20,14 +20,20 @@ class OptaSolver : Solver() {
 
     override val name: String = "optaplanner"
 
-    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
-        val solver = SolverFactory.create<VehicleRoutingSolution>(
-            solverConfig.apply {
-                terminationConfig = TerminationConfig().apply {
-                    overwriteSpentLimit(config.timeLimit)
+    override fun solveFlow(
+        initialSolution: VrpSolution,
+        matrix: Matrix,
+        config: SolverConfig
+    ): Flow<VrpSolution> {
+        val solver =
+            SolverFactory.create<VehicleRoutingSolution>(
+                solverConfig.apply {
+                    terminationConfig =
+                        TerminationConfig().apply {
+                            overwriteSpentLimit(config.timeLimit)
+                        }
                 }
-            }
-        ).buildSolver()
+            ).buildSolver()
 
         return callbackFlow {
             solver.addEventListener { evt ->
@@ -35,10 +41,11 @@ class OptaSolver : Solver() {
                 trySendBlocking(sol.toDTO(initialSolution.problem, matrix))
             }
 
-            val sol = suspendCancellableCoroutine<VehicleRoutingSolution> { continuation ->
-                continuation.invokeOnCancellation { solver.terminateEarly() }
-                continuation.resume(solver.solve(initialSolution.toSolverSolution(matrix)))
-            }
+            val sol =
+                suspendCancellableCoroutine<VehicleRoutingSolution> { continuation ->
+                    continuation.invokeOnCancellation { solver.terminateEarly() }
+                    continuation.resume(solver.solve(initialSolution.toSolverSolution(matrix)))
+                }
             send(sol.toDTO(initialSolution.problem, matrix))
             close()
         }

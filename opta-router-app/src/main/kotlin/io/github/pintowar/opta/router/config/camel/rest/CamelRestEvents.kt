@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component
 @Component
 @Profile(ConfigData.REST_PROFILE)
 class CamelRestEvents(private val serde: Serde) : RouteBuilder() {
-
     override fun configure() {
         from("{{camel.route.consumer.enqueue-request-solver}}")
             .routeId("enqueue.request.solver")

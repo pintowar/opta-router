@@ -28,26 +28,32 @@ class SolverController(
     private val solverService: VrpSolverService,
     private val solverPanelStorage: SolverPanelStorage
 ) {
-
     data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)
 
     @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solverNames() = solverService.solverNames().sorted()
 
     @PostMapping("/{id}/solve/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun solve(@PathVariable id: Long, @PathVariable solverName: String): ResponseEntity<SolverStatus> {
+    suspend fun solve(
+        @PathVariable id: Long,
+        @PathVariable solverName: String
+    ): ResponseEntity<SolverStatus> {
         solverService.enqueueSolverRequest(id, solverName)
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun terminate(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+    suspend fun terminate(
+        @PathVariable id: Long
+    ): ResponseEntity<SolverStatus> {
         solverService.currentSolutionRequest(id)?.also { it.solverKey?.also { key -> solverService.terminate(key) } }
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
     @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun clear(@PathVariable id: Long): ResponseEntity<SolverStatus> {
+    suspend fun clear(
+        @PathVariable id: Long
+    ): ResponseEntity<SolverStatus> {
         solverService.currentSolutionRequest(id)?.also { it.solverKey?.also { key -> solverService.clear(key) } }
         return ResponseEntity.ok(solverService.showStatus(id))
     }

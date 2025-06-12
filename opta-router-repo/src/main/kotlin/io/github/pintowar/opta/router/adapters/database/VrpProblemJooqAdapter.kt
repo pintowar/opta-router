@@ -30,8 +30,11 @@ class VrpProblemJooqAdapter(
     private val geo: GeoPort,
     private val mapper: Serde
 ) : VrpProblemPort {
-
-    override fun findAll(query: String, offset: Int, limit: Int): Flow<VrpProblemSummary> {
+    override fun findAll(
+        query: String,
+        offset: Int,
+        limit: Int
+    ): Flow<VrpProblemSummary> {
         val sumStatuses = { status: SolverStatus ->
             sum(`when`(VRP_SOLVER_REQUEST.STATUS.eq(status.name), 1).otherwise(0)).cast(Int::class.java)
         }
@@ -60,8 +63,9 @@ class VrpProblemJooqAdapter(
     }
 
     override suspend fun count(query: String): Long {
-        val (total) = dsl.selectCount().from(VRP_PROBLEM).where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
-            .awaitSingle()
+        val (total) =
+            dsl.selectCount().from(VRP_PROBLEM).where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
+                .awaitSingle()
         return total.toLong()
     }
 
@@ -78,15 +82,16 @@ class VrpProblemJooqAdapter(
         val matrix = geo.generateMatrix(problem.locations().toSet())
 
         dsl.transactionCoroutine { trx ->
-            val result = trx.dsl()
-                .insertInto(VRP_PROBLEM)
-                .set(VRP_PROBLEM.NAME, problem.name)
-                .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
-                .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.toJson(problem.vehicles)))
-                .set(VRP_PROBLEM.CREATED_AT, now)
-                .set(VRP_PROBLEM.UPDATED_AT, now)
-                .returning()
-                .awaitSingle()
+            val result =
+                trx.dsl()
+                    .insertInto(VRP_PROBLEM)
+                    .set(VRP_PROBLEM.NAME, problem.name)
+                    .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
+                    .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.toJson(problem.vehicles)))
+                    .set(VRP_PROBLEM.CREATED_AT, now)
+                    .set(VRP_PROBLEM.UPDATED_AT, now)
+                    .returning()
+                    .awaitSingle()
 
             trx.dsl()
                 .insertInto(VRP_PROBLEM_MATRIX)
@@ -106,7 +111,10 @@ class VrpProblemJooqAdapter(
             .awaitFirstOrNull()
     }
 
-    override suspend fun update(id: Long, problem: VrpProblem) {
+    override suspend fun update(
+        id: Long,
+        problem: VrpProblem
+    ) {
         val now = Instant.now()
 
         val matrix = geo.generateMatrix(problem.locations().toSet())
@@ -132,10 +140,11 @@ class VrpProblemJooqAdapter(
     }
 
     override suspend fun getMatrixById(problemId: Long): VrpProblemMatrix? {
-        val matrix = dsl
-            .selectFrom(VRP_PROBLEM_MATRIX)
-            .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))
-            .awaitFirstOrNull()
+        val matrix =
+            dsl
+                .selectFrom(VRP_PROBLEM_MATRIX)
+                .where(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID.eq(problemId))
+                .awaitFirstOrNull()
 
         return matrix?.let {
             VrpProblemMatrix(

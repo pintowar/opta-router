@@ -12,7 +12,6 @@ import java.util.random.RandomGenerator
 class ReverseMutator<G : Gene<*, G>?, C : Comparable<C>?>(
     probability: Double = DEFAULT_ALTER_PROBABILITY
 ) : Mutator<G, C>(probability) {
-
     override fun mutate(
         chromosome: Chromosome<G>,
         p: Double,
@@ -23,9 +22,10 @@ class ReverseMutator<G : Gene<*, G>?, C : Comparable<C>?>(
             val points = Subset.next(RandomRegistry.random(), genes.size, 2)
 
             val newSeq = genes.subList(points[0], points[1]).reversed()
-            val mutations = (points[0]..<points[1]).onEachIndexed { idx, i ->
-                genes[i] = newSeq[idx]
-            }.count()
+            val mutations =
+                (points[0]..<points[1]).onEachIndexed { idx, i ->
+                    genes[i] = newSeq[idx]
+                }.count()
 
             MutatorResult(
                 chromosome.newInstance(ISeq.of(genes)),

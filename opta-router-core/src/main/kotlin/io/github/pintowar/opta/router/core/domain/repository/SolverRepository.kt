@@ -15,8 +15,10 @@ class SolverRepository(
     private val vrpSolverSolutionPort: VrpSolverSolutionPort,
     private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
-
-    suspend fun enqueue(problemId: Long, solverName: String): VrpSolverRequest? {
+    suspend fun enqueue(
+        problemId: Long,
+        solverName: String
+    ): VrpSolverRequest? {
         return vrpSolverRequestPort.createRequest(
             VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
         )
@@ -37,8 +39,7 @@ class SolverRepository(
     suspend fun addNewSolution(
         sol: VrpSolution,
         uuid: UUID,
-        solverStatus:
-        SolverStatus,
+        solverStatus: SolverStatus,
         clear: Boolean
     ): VrpSolutionRequest {
         return vrpSolverSolutionPort.upsertSolution(

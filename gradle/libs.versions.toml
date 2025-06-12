@@ -21,6 +21,8 @@ h2 = "2.3.232"
 postgres = "42.7.3"
 shedlock = "5.14.0"
 sfl4j = "2.0.16"
+kotest = "5.9.1"
+mockk = "1.14.2"
 gradle-jooq = "9.0"
 gradle-node = "7.0.2"
 gradle-jib = "3.4.3"
@@ -94,6 +96,10 @@ camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starte
 
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
+kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertion = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
@@ -103,3 +109,4 @@ timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
 camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]
+kotest = ["kotest-runner", "kotest-assertion", "mockk"]

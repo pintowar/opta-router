@@ -6,8 +6,11 @@ import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import kotlinx.coroutines.flow.Flow
 
 interface VrpProblemPort {
-
-    fun findAll(query: String = "", offset: Int = 0, limit: Int = 25): Flow<VrpProblemSummary>
+    fun findAll(
+        query: String = "",
+        offset: Int = 0,
+        limit: Int = 25
+    ): Flow<VrpProblemSummary>
 
     suspend fun count(query: String = ""): Long
 
@@ -17,7 +20,10 @@ interface VrpProblemPort {
 
     suspend fun deleteById(problemId: Long)
 
-    suspend fun update(id: Long, problem: VrpProblem)
+    suspend fun update(
+        id: Long,
+        problem: VrpProblem
+    )
 
     suspend fun getMatrixById(problemId: Long): VrpProblemMatrix?
 }

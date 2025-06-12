@@ -16,8 +16,11 @@ import java.time.Instant
 class VrpLocationJooqAdapter(
     private val dsl: DSLContext
 ) : VrpLocationPort {
-
-    override fun findAll(query: String, offset: Int, limit: Int): Flow<Location> {
+    override fun findAll(
+        query: String,
+        offset: Int,
+        limit: Int
+    ): Flow<Location> {
         return dsl
             .selectFrom(LOCATION)
             .where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
@@ -32,8 +35,9 @@ class VrpLocationJooqAdapter(
     }
 
     override suspend fun count(query: String): Long {
-        val (total) = dsl.selectCount().from(LOCATION).where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
-            .awaitSingle()
+        val (total) =
+            dsl.selectCount().from(LOCATION).where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
+                .awaitSingle()
         return total.toLong()
     }
 
@@ -59,7 +63,10 @@ class VrpLocationJooqAdapter(
             .awaitFirstOrNull()
     }
 
-    override suspend fun update(id: Long, location: Location) {
+    override suspend fun update(
+        id: Long,
+        location: Location
+    ) {
         val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
         val now = Instant.now()
 

@@ -19,7 +19,6 @@ import kotlinx.coroutines.isActive
 import java.time.Duration
 
 class JspritSolver : Solver() {
-
     override val name: String = "jsprit"
 
     internal class TimeTermination(private val totalTimeMs: Duration) : PrematureAlgorithmTermination {
@@ -29,28 +28,35 @@ class JspritSolver : Solver() {
             System.currentTimeMillis() - beginning >= totalTimeMs.toMillis()
     }
 
-    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(
+        initialSolution: VrpSolution,
+        matrix: Matrix,
+        config: SolverConfig
+    ): Flow<VrpSolution> {
         return callbackFlow {
             val ctx = currentCoroutineContext()
 
             val initialProblem = initialSolution.problem
             val vrp = initialProblem.toProblem(matrix)
-            val algorithm = Jsprit.Builder
-                .newInstance(vrp)
-                .setProperty(Jsprit.Parameter.ITERATIONS.toString(), "${config.timeLimit.toSeconds() * 70}")
-                .buildAlgorithm()
+            val algorithm =
+                Jsprit.Builder
+                    .newInstance(vrp)
+                    .setProperty(Jsprit.Parameter.ITERATIONS.toString(), "${config.timeLimit.toSeconds() * 70}")
+                    .buildAlgorithm()
 
             algorithm.addInitialSolution(initialSolution.toSolverSolution(vrp))
-            algorithm.addListener(object : IterationEndsListener {
-                override fun informIterationEnds(
-                    i: Int,
-                    problem: VehicleRoutingProblem,
-                    solutions: MutableCollection<VehicleRoutingProblemSolution>
-                ) {
-                    val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
-                    trySendBlocking(actual)
+            algorithm.addListener(
+                object : IterationEndsListener {
+                    override fun informIterationEnds(
+                        i: Int,
+                        problem: VehicleRoutingProblem,
+                        solutions: MutableCollection<VehicleRoutingProblemSolution>
+                    ) {
+                        val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
+                        trySendBlocking(actual)
+                    }
                 }
-            })
+            )
             algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))
             algorithm.addTerminationCriterion { !ctx.isActive }
 

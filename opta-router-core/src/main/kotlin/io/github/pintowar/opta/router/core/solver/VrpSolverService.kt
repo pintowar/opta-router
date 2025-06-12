@@ -17,7 +17,6 @@ class VrpSolverService(
     private val solverEventsPort: SolverEventsPort,
     private val solverRepository: SolverRepository
 ) {
-
     fun solverNames() = Solver.getNamedSolvers().keys
 
     suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
@@ -33,11 +32,17 @@ class VrpSolverService(
         }
     }
 
-    suspend fun update(solRequest: VrpSolutionRequest, clear: Boolean): VrpSolutionRequest {
+    suspend fun update(
+        solRequest: VrpSolutionRequest,
+        clear: Boolean
+    ): VrpSolutionRequest {
         return solverRepository.addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
     }
 
-    suspend fun enqueueSolverRequest(problemId: Long, solverName: String): UUID? {
+    suspend fun enqueueSolverRequest(
+        problemId: Long,
+        solverName: String
+    ): UUID? {
         return solverRepository.enqueue(problemId, solverName)?.let { request ->
             solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
                 solverEventsPort.enqueueRequestSolver(
@@ -52,7 +57,10 @@ class VrpSolverService(
 
     suspend fun clear(solverKey: UUID) = terminateEarly(solverKey, true)
 
-    private suspend fun terminateEarly(solverKey: UUID, clear: Boolean) {
+    private suspend fun terminateEarly(
+        solverKey: UUID,
+        clear: Boolean
+    ) {
         solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
             if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
                 solverEventsPort.broadcastCancelSolver(

@@ -11,7 +11,6 @@ import java.lang.reflect.Type
 
 @Configuration
 class SerdeConfig {
-
     companion object {
         fun cborMapperFromObjectMapper(objectMapper: ObjectMapper): ObjectMapper =
             CBORMapper().findAndRegisterModules().apply {
@@ -25,23 +24,30 @@ class SerdeConfig {
     }
 
     @Bean
-    fun serde(objectMapper: ObjectMapper) = object : Serde {
-        private val cborMapper = cborMapperFromObjectMapper(objectMapper)
+    fun serde(objectMapper: ObjectMapper) =
+        object : Serde {
+            private val cborMapper = cborMapperFromObjectMapper(objectMapper)
 
-        override fun <T : Any> fromJson(content: String, type: Type): T {
-            return objectMapper.readValue(content, objectMapper.constructType(type))
-        }
+            override fun <T : Any> fromJson(
+                content: String,
+                type: Type
+            ): T {
+                return objectMapper.readValue(content, objectMapper.constructType(type))
+            }
 
-        override fun toJson(value: Any): String {
-            return objectMapper.writeValueAsString(value)
-        }
+            override fun toJson(value: Any): String {
+                return objectMapper.writeValueAsString(value)
+            }
 
-        override fun <T : Any> fromCbor(content: ByteArray, type: Type): T {
-            return cborMapper.readValue(content, cborMapper.constructType(type))
-        }
+            override fun <T : Any> fromCbor(
+                content: ByteArray,
+                type: Type
+            ): T {
+                return cborMapper.readValue(content, cborMapper.constructType(type))
+            }
 
-        override fun toCbor(value: Any): ByteArray {
-            return cborMapper.writeValueAsBytes(value)
+            override fun toCbor(value: Any): ByteArray {
+                return cborMapper.writeValueAsBytes(value)
+            }
         }
-    }
 }

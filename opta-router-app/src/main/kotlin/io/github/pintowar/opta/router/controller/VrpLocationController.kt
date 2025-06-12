@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController
 class VrpLocationController(
     private val repo: VrpLocationPort
 ) {
-
     data class LocationRequest(
         val id: Long,
         val name: String,
@@ -52,24 +51,33 @@ class VrpLocationController(
     }
 
     @GetMapping("/{kind}")
-    suspend fun list(@PathVariable kind: String): Flow<Location> {
+    suspend fun list(
+        @PathVariable kind: String
+    ): Flow<Location> {
         return repo.listAllByKind(kind)
     }
 
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun insert(@RequestBody req: LocationRequest): ResponseEntity<Void> {
+    suspend fun insert(
+        @RequestBody req: LocationRequest
+    ): ResponseEntity<Void> {
         return repo.create(req.toLocation())
             .let { ResponseEntity.ok().build() }
     }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun remove(@PathVariable id: Long): ResponseEntity<Void> {
+    suspend fun remove(
+        @PathVariable id: Long
+    ): ResponseEntity<Void> {
         return repo.deleteById(id)
             .let { ResponseEntity.ok().build() }
     }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
-    suspend fun update(@PathVariable id: Long, @RequestBody req: LocationRequest): ResponseEntity<Void> {
+    suspend fun update(
+        @PathVariable id: Long,
+        @RequestBody req: LocationRequest
+    ): ResponseEntity<Void> {
         return repo.update(id, req.toLocation())
             .let { ResponseEntity.ok().build() }
     }

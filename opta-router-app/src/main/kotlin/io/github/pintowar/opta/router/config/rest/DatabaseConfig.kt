@@ -34,7 +34,6 @@ class DatabaseConfig(
     @Value("\${spring.jooq.bind-offset-date-time-type}") private val bindOffsetDateTimeType: Boolean,
     private val cfi: ConnectionFactory
 ) {
-
     @Bean
     @ConditionalOnBean(PlatformTransactionManager::class)
     @ConditionalOnMissingBean(

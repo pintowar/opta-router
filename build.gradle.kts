@@ -3,6 +3,7 @@ import net.researchgate.release.ReleaseExtension
 plugins {
     base
     id("idea")
+    id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
     alias(libs.plugins.release)
@@ -16,6 +17,22 @@ allprojects {
 repositories {
     mavenLocal()
     mavenCentral()
+}
+
+dependencies {
+    rootProject.subprojects.forEach(::jacocoAggregation)
+}
+
+reporting {
+    reports {
+        val testCodeCoverageReport by creating(JacocoCoverageReport::class) {
+            testSuiteName.set("test")
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.named<JacocoReport>("testCodeCoverageReport"))
 }
 
 spotless {

@@ -24,7 +24,6 @@ class SolverHistoryController(
     private val vrpSolverRequestPort: VrpSolverRequestPort,
     private val vrpSolverSolutionPort: VrpSolverSolutionPort
 ) {
-
     @GetMapping("/{problemId}/requests/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun requests(
         @PathVariable problemId: Long,
