@@ -17,3 +17,8 @@ val Project.isDistProfile: Boolean
 
 val Project.isLocalProfile: Boolean
     get() = project.buildEnv == "local"
+
+val Project.allJacocoSubModules: List<Project>
+    get() = this.rootProject
+        .subprojects
+        .filterNot { sub -> listOf("webcli", "solver").any { sub.name.contains(it) } }

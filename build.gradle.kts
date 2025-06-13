@@ -20,7 +20,7 @@ repositories {
 }
 
 dependencies {
-    rootProject.subprojects.forEach(::jacocoAggregation)
+    allJacocoSubModules.forEach(::jacocoAggregation)
 }
 
 reporting {
