@@ -2,6 +2,7 @@ package io.github.pintowar.opta.router.core.domain.models.matrix
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -9,6 +10,10 @@ import io.mockk.verify
 class VrpCachedMatrixTest : FunSpec({
     val mockMatrix: Matrix = mockk()
     val cachedMatrix = VrpCachedMatrix(mockMatrix)
+
+    afterTest {
+        clearMocks(mockMatrix)
+    }
 
     test("distance should cache result and call underlying matrix only once") {
         val originId = 1L
