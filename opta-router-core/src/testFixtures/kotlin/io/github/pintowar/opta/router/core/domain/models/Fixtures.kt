@@ -44,62 +44,14 @@ object Fixtures {
             "sample-5" to
                 listOf(
                     Customer(11, "DONSTIENNES", 50.284996, 4.310697, 5),
-                    Customer(
-                        12,
-                        "ELVERDINGE",
-                        50.884867,
-                        2.816207,
-                        3
-                    ),
-                    Customer(
-                        13,
-                        "EVELETTE",
-                        50.411922,
-                        5.173705,
-                        2
-                    ),
-                    Customer(
-                        id = 14,
-                        name = "FONTAINE-L'EVEQUE",
-                        lat = 50.410056,
-                        lng = 4.324953,
-                        demand = 6
-                    ),
-                    Customer(
-                        id = 15,
-                        name = "GELINDEN",
-                        lat = 50.767056,
-                        lng = 5.262893,
-                        demand = 5
-                    ),
-                    Customer(
-                        id = 16,
-                        name = "GONDREGNIES",
-                        lat = 50.627105,
-                        lng = 3.91157,
-                        demand = 2
-                    ),
-                    Customer(
-                        id = 17,
-                        name = "GUIGNIES",
-                        lat = 50.549981,
-                        lng = 3.372729,
-                        demand = 6
-                    ),
-                    Customer(
-                        id = 18,
-                        name = "HAREN_BRUSSEL",
-                        lat = 50.891958,
-                        lng = 4.418294,
-                        demand = 6
-                    ),
-                    Customer(
-                        id = 19,
-                        name = "HEPPIGNIES",
-                        lat = 50.481412,
-                        lng = 4.49326,
-                        demand = 6
-                    )
+                    Customer(12, "ELVERDINGE", 50.884867, 2.816207, 3),
+                    Customer(13, "EVELETTE", 50.411922, 5.173705, 2),
+                    Customer(14, "FONTAINE-L'EVEQUE", 50.410056, 4.324953, 6),
+                    Customer(15, "GELINDEN", 50.767056, 5.262893, 5),
+                    Customer(16, "GONDREGNIES", 50.627105, 3.91157, 2),
+                    Customer(17, "GUIGNIES", 50.549981, 3.372729, 6),
+                    Customer(18, "HAREN_BRUSSEL", 50.891958, 4.418294, 6),
+                    Customer(19, "HEPPIGNIES", 50.481412, 4.49326, 6)
                 ),
             "sample-6" to
                 listOf(
@@ -115,163 +67,31 @@ object Fixtures {
                 ),
             "sample-7" to
                 listOf(
-                    Customer(
-                        id = 29,
-                        name = "MERKSPLAS",
-                        lat = 51.361787,
-                        lng = 4.861625,
-                        demand = 4
-                    ),
-                    Customer(
-                        id = 30,
-                        name = "MONT_NAM.",
-                        lat = 50.353471,
-                        lng = 4.901419,
-                        demand = 1
-                    ),
-                    Customer(
-                        id = 31,
-                        name = "NAAST",
-                        lat = 50.550432,
-                        lng = 4.09648,
-                        demand = 4
-                    ),
-                    Customer(
-                        id = 32,
-                        name = "NIEUWKERKEN-WAAS",
-                        lat = 51.193616,
-                        lng = 4.178782,
-                        demand = 1
-                    ),
-                    Customer(
-                        id = 33,
-                        name = "OLLIGNIES",
-                        lat = 50.687617,
-                        lng = 3.857423,
-                        demand = 1
-                    ),
-                    Customer(
-                        id = 34,
-                        name = "ORET",
-                        lat = 50.299871,
-                        lng = 4.615565,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 35,
-                        name = "PEPINGEN",
-                        lat = 50.736029,
-                        lng = 4.136086,
-                        demand = 1
-                    ),
-                    Customer(
-                        id = 36,
-                        name = "POUPEHAN",
-                        lat = 49.812224,
-                        lng = 5.0029,
-                        demand = 1
-                    ),
-                    Customer(
-                        id = 37,
-                        name = "RENINGE",
-                        lat = 50.947788,
-                        lng = 2.789172,
-                        demand = 1
-                    )
+                    Customer(29, "MERKSPLAS", 51.361787, 4.861625, 4),
+                    Customer(30, "MONT_NAM.", 50.353471, 4.901419, 1),
+                    Customer(31, "NAAST", 50.550432, 4.09648, 4),
+                    Customer(32, "NIEUWKERKEN-WAAS", 51.193616, 4.178782, 1),
+                    Customer(33, "OLLIGNIES", 50.687617, 3.857423, 1),
+                    Customer(34, "ORET", 50.299871, 4.615565, 3),
+                    Customer(35, "PEPINGEN", 50.736029, 4.136086, 1),
+                    Customer(36, "POUPEHAN", 49.812224, 5.0029, 1),
+                    Customer(37, "RENINGE", 50.947788, 2.789172, 1)
                 ),
             "sample-8" to
                 listOf(
-                    Customer(
-                        id = 38,
-                        name = "ROSMEER",
-                        lat = 50.846085,
-                        lng = 5.575024,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 39,
-                        name = "SAINT-MARTIN",
-                        lat = 50.500951,
-                        lng = 4.647366,
-                        demand = 5
-                    ),
-                    Customer(
-                        id = 40,
-                        name = "SELANGE",
-                        lat = 49.609647,
-                        lng = 5.856027,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 41,
-                        name = "SINT-KWINTENS-LENNIK",
-                        lat = 50.806866,
-                        lng = 4.153828,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 42,
-                        name = "SOMZEE",
-                        lat = 50.295067,
-                        lng = 4.483164,
-                        demand = 5
-                    ),
-                    Customer(
-                        id = 43,
-                        name = "TAILLES",
-                        lat = 50.227388,
-                        lng = 5.743751,
-                        demand = 5
-                    ),
-                    Customer(
-                        id = 44,
-                        name = "TILFF",
-                        lat = 50.56952,
-                        lng = 5.584406,
-                        demand = 6
-                    ),
-                    Customer(
-                        id = 45,
-                        name = "VAUX-LEZ-ROSIERES",
-                        lat = 49.910279,
-                        lng = 5.565905,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 46,
-                        name = "VILLERS-L'EVEQUE",
-                        lat = 50.704425,
-                        lng = 5.439973,
-                        demand = 6
-                    ),
-                    Customer(
-                        id = 47,
-                        name = "VOSSEM",
-                        lat = 50.834607,
-                        lng = 4.557627,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 48,
-                        name = "WARNANT-DREYE",
-                        lat = 50.595165,
-                        lng = 5.227629,
-                        demand = 4
-                    ),
-                    Customer(
-                        id = 49,
-                        name = "WETTEREN",
-                        lat = 51.000574,
-                        lng = 3.869354,
-                        demand = 3
-                    ),
-                    Customer(
-                        id = 50,
-                        name = "XHENDELESSE",
-                        lat = 50.606152,
-                        lng = 5.783008,
-                        demand = 6
-                    )
+                    Customer(38, "ROSMEER", 50.846085, 5.575024, 3),
+                    Customer(39, "SAINT-MARTIN", 50.500951, 4.647366, 5),
+                    Customer(40, "SELANGE", 49.609647, 5.856027, 3),
+                    Customer(41, "SINT-KWINTENS-LENNIK", 50.806866, 4.153828, 3),
+                    Customer(42, "SOMZEE", 50.295067, 4.483164, 5),
+                    Customer(43, "TAILLES", 50.227388, 5.743751, 5),
+                    Customer(44, "TILFF", 50.56952, 5.584406, 6),
+                    Customer(45, "VAUX-LEZ-ROSIERES", 49.910279, 5.565905, 3),
+                    Customer(46, "VILLERS-L'EVEQUE", 50.704425, 5.439973, 6),
+                    Customer(47, "VOSSEM", 50.834607, 4.557627, 3),
+                    Customer(48, "WARNANT-DREYE", 50.595165, 5.227629, 4),
+                    Customer(49, "WETTEREN", 51.000574, 3.869354, 3),
+                    Customer(50, "XHENDELESSE", 50.606152, 5.783008, 6)
                 )
         )
 

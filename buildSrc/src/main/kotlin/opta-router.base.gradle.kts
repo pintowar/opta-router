@@ -22,7 +22,10 @@ java {
 
 dependencies {
     implementation(libs.bundles.kotlin)
-    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.kotest) {
+        exclude(group = "org.jetbrains.kotlinx")
+    }
+    testImplementation(libs.kotlin.coroutines.test)
 }
 
 tasks {

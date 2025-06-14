@@ -7,7 +7,7 @@ import java.util.NoSuchElementException
 
 class VrpProblemMatrixTest : FunSpec({
 
-    val locationIdxById = longArrayOf(10L, 20L, 30L)
+    val locationIds = longArrayOf(10L, 20L, 30L)
 
     val travelDistances =
         doubleArrayOf(
@@ -27,7 +27,7 @@ class VrpProblemMatrixTest : FunSpec({
             // 2->0, 2->1, 2->2
             220L, 120L, 0L
         )
-    val matrix = VrpProblemMatrix(locationIdxById, travelDistances, travelTimes)
+    val matrix = VrpProblemMatrix(locationIds, travelDistances, travelTimes)
 
     test("distance should return correct distance between different locations") {
         matrix.distance(10L, 20L) shouldBe 10.5 // 0->1
@@ -70,6 +70,18 @@ class VrpProblemMatrixTest : FunSpec({
         }
         shouldThrow<NoSuchElementException> {
             matrix.time(99L, 20L) // 99L is not in locationIdxById
+        }
+    }
+
+    test("test getters") {
+        matrix.getLocationIds() shouldBe locationIds
+        matrix.getTravelTimes() shouldBe travelTimes
+        matrix.getTravelDistances() shouldBe travelDistances
+    }
+
+    test("invalid arguments on constructor") {
+        shouldThrow<IllegalArgumentException> {
+            VrpProblemMatrix(locationIds, travelDistances, travelTimes.dropLast(3).toLongArray())
         }
     }
 })

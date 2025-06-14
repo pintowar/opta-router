@@ -36,12 +36,13 @@ class VrpSolverServiceTest : FunSpec({
     val solverName = "testSolver"
 
     val sampleProblem = Fixtures.problem("sample-4")
-    val runningSolverRequest = VrpSolverRequest(
-        requestKey,
-        sampleProblem.id,
-        "solver-name",
-        SolverStatus.RUNNING
-    )
+    val runningSolverRequest =
+        VrpSolverRequest(
+            requestKey,
+            sampleProblem.id,
+            "solver-name",
+            SolverStatus.RUNNING
+        )
 
     afterTest {
         clearMocks(solverRepository, broadcastPort, solverEventsPort)

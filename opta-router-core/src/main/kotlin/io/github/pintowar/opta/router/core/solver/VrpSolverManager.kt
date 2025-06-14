@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.runBlocking
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.CancellationException
@@ -40,6 +41,7 @@ class VrpSolverManager(timeLimit: Duration) {
         detailedSolution: VrpDetailedSolution,
         solverName: String
     ): Flow<SolutionRequestCommand> {
+        if (supervisorJob.isCancelled) return emptyFlow()
         if (blackListedKeys.remove(solverKey)) {
             val cmd = wrapCommand(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
             return flowOf(cmd)
@@ -84,6 +86,7 @@ class VrpSolverManager(timeLimit: Duration) {
 
     fun destroy() {
         supervisorJob.cancel()
+        runBlocking { supervisorJob.join() }
     }
 
     private fun wrapCommand(
