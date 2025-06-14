@@ -1,5 +1,7 @@
 package io.github.pintowar.opta.router.core.domain.models
 
+import java.math.BigDecimal
+
 object Fixtures {
     private val depot =
         Depot(
@@ -134,6 +136,77 @@ object Fixtures {
                 )
         )
 
+    private val solutions =
+        mapOf(
+            "sample-4" to
+                listOf(
+                    VrpSolution(
+                        problem("sample-4"),
+                        listOf(
+                            Route(
+                                distance = BigDecimal.valueOf(690.05),
+                                time = BigDecimal.valueOf(920.91),
+                                totalDemand = 31,
+                                order =
+                                    listOf(
+                                        LatLng(lat = 50.84275, lng = 4.35155),
+                                        LatLng(lat = 50.262495, lng = 4.152304),
+                                        LatLng(lat = 50.688785, lng = 5.285913),
+                                        LatLng(lat = 50.481299, lng = 5.519805),
+                                        LatLng(lat = 50.108568, lng = 5.142958),
+                                        LatLng(lat = 50.025208, lng = 4.340981),
+                                        LatLng(lat = 50.566135, lng = 3.785317),
+                                        LatLng(lat = 50.875358, lng = 3.311374),
+                                        LatLng(lat = 51.043247, lng = 2.650135),
+                                        LatLng(lat = 51.236583, lng = 3.340076),
+                                        LatLng(lat = 50.84275, lng = 4.35155)
+                                    ),
+                                customerIds = listOf(5L, 6L, 2L, 3L, 7L, 9L, 4L, 8L, 10L)
+                            ),
+                            Route(
+                                distance = BigDecimal("0"),
+                                time = BigDecimal("0"),
+                                totalDemand = 0,
+                                order = emptyList(),
+                                customerIds = emptyList()
+                            )
+                        )
+                    ),
+                    VrpSolution(
+                        problem("sample-4"),
+                        listOf(
+                            Route(
+                                distance = BigDecimal("592.17"),
+                                time = BigDecimal("751.72"),
+                                totalDemand = 31,
+                                order =
+                                    listOf(
+                                        LatLng(lat = 50.84275, lng = 4.35155),
+                                        LatLng(lat = 50.688785, lng = 5.285913),
+                                        LatLng(lat = 50.481299, lng = 5.519805),
+                                        LatLng(lat = 50.108568, lng = 5.142958),
+                                        LatLng(lat = 50.025208, lng = 4.340981),
+                                        LatLng(lat = 50.262495, lng = 4.152304),
+                                        LatLng(lat = 50.566135, lng = 3.785317),
+                                        LatLng(lat = 50.875358, lng = 3.311374),
+                                        LatLng(lat = 51.043247, lng = 2.650135),
+                                        LatLng(lat = 51.236583, lng = 3.340076),
+                                        LatLng(lat = 50.84275, lng = 4.35155)
+                                    ),
+                                customerIds = listOf(6L, 2L, 3L, 7L, 5L, 9L, 4L, 8L, 10L)
+                            ),
+                            Route(
+                                distance = BigDecimal("0"),
+                                time = BigDecimal("0"),
+                                totalDemand = 0,
+                                order = emptyList(),
+                                customerIds = emptyList()
+                            )
+                        )
+                    )
+                )
+        )
+
     fun depot() = depot
 
     fun vehicle(vehicle: String) = vehicles.getValue(vehicle)
@@ -141,4 +214,6 @@ object Fixtures {
     fun customer(sample: String) = customers.getValue(sample)
 
     fun problem(sample: String) = problems.getValue(sample)
+
+    fun solution(sample: String) = solutions.getValue(sample)
 }
