@@ -18,31 +18,27 @@ class SolverRepository(
     suspend fun enqueue(
         problemId: Long,
         solverName: String
-    ): VrpSolverRequest? {
-        return vrpSolverRequestPort.createRequest(
+    ): VrpSolverRequest? =
+        vrpSolverRequestPort.createRequest(
             VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
         )
-    }
 
-    suspend fun currentSolverRequest(problemId: Long): VrpSolverRequest? {
-        return vrpSolverRequestPort.currentSolverRequest(problemId)
-    }
+    suspend fun currentSolverRequest(problemId: Long): VrpSolverRequest? =
+        vrpSolverRequestPort.currentSolverRequest(problemId)
 
-    suspend fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? {
-        return vrpSolverRequestPort.currentSolverRequest(requestKey)
-    }
+    suspend fun currentSolverRequest(requestKey: UUID): VrpSolverRequest? =
+        vrpSolverRequestPort.currentSolverRequest(requestKey)
 
-    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return vrpSolverSolutionPort.currentSolutionRequest(problemId)
-    }
+    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? =
+        vrpSolverSolutionPort.currentSolutionRequest(problemId)
 
     suspend fun addNewSolution(
         sol: VrpSolution,
         uuid: UUID,
         solverStatus: SolverStatus,
         clear: Boolean
-    ): VrpSolutionRequest {
-        return vrpSolverSolutionPort.upsertSolution(
+    ): VrpSolutionRequest =
+        vrpSolverSolutionPort.upsertSolution(
             sol.problem.id,
             solverStatus,
             sol.routes,
@@ -50,13 +46,11 @@ class SolverRepository(
             clear,
             uuid
         )
-    }
 
-    suspend fun currentDetailedSolution(problemId: Long): VrpDetailedSolution? {
-        return vrpProblemPort.getMatrixById(problemId)?.let { currentMatrix ->
+    suspend fun currentDetailedSolution(problemId: Long): VrpDetailedSolution? =
+        vrpProblemPort.getMatrixById(problemId)?.let { currentMatrix ->
             vrpSolverSolutionPort.currentSolutionRequest(problemId)?.let { solutionRequest ->
                 VrpDetailedSolution(solutionRequest.solution, currentMatrix)
             }
         }
-    }
 }

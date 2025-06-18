@@ -23,7 +23,8 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     val roadLocations =
         this.locations().map { a ->
             val distances =
-                locations().asSequence()
+                locations()
+                    .asSequence()
                     .map { b -> b.id to dist.distance(a.id, b.id) }
                     .filter { (bId, _) -> a.id != bId }
                     .toMap()

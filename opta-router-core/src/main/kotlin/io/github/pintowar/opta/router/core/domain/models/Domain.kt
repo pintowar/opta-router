@@ -17,7 +17,10 @@ interface Location : Coordinate {
     override val lng: Double
 }
 
-data class LatLng(override val lat: Double, override val lng: Double) : Coordinate
+data class LatLng(
+    override val lat: Double,
+    override val lng: Double
+) : Coordinate
 
 data class VrpProblemSummary(
     val id: Long,
@@ -63,9 +66,18 @@ data class Depot(
     override val lng: Double
 ) : Location
 
-data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot: Depot)
+data class Vehicle(
+    val id: Long,
+    val name: String,
+    val capacity: Int,
+    val depot: Depot
+)
 
-data class Path(val distance: Double, val time: Long, val coordinates: List<Coordinate>)
+data class Path(
+    val distance: Double,
+    val time: Long,
+    val coordinates: List<Coordinate>
+)
 
 data class Route(
     val distance: BigDecimal,
@@ -80,16 +92,18 @@ data class Route(
     }
 }
 
-data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
+data class VrpSolution(
+    val problem: VrpProblem,
+    val routes: List<Route>
+) {
     companion object {
         fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
     }
 
-    fun isFeasible(): Boolean {
-        return problem.vehicles.zip(routes).all { (vehicle, route) ->
+    fun isFeasible(): Boolean =
+        problem.vehicles.zip(routes).all { (vehicle, route) ->
             vehicle.capacity >= route.totalDemand
         }
-    }
 
     fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
 
@@ -98,7 +112,10 @@ data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
     fun getTotalTime(): BigDecimal = routes.maxOfOrNull { it.time } ?: BigDecimal.ZERO
 }
 
-data class VrpDetailedSolution(val solution: VrpSolution, val matrix: VrpProblemMatrix)
+data class VrpDetailedSolution(
+    val solution: VrpSolution,
+    val matrix: VrpProblemMatrix
+)
 
 enum class SolverStatus {
     ENQUEUED,
@@ -114,7 +131,11 @@ data class VrpSolverRequest(
     val status: SolverStatus
 )
 
-data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null)
+data class VrpSolutionRequest(
+    val solution: VrpSolution,
+    val status: SolverStatus,
+    val solverKey: UUID? = null
+)
 
 data class VrpSolverObjective(
     val objective: Double,
@@ -124,4 +145,6 @@ data class VrpSolverObjective(
     val createdAt: Instant
 )
 
-data class SolverPanel(val isDetailedPath: Boolean = false)
+data class SolverPanel(
+    val isDetailedPath: Boolean = false
+)

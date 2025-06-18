@@ -41,32 +41,30 @@ class VrpVehicleController(
     @GetMapping("/by-depots")
     fun listByDepot(
         @RequestParam("ids", defaultValue = "") ids: List<Long>
-    ): Flow<Vehicle> {
-        return repo.listByDepots(ids)
-    }
+    ): Flow<Vehicle> = repo.listByDepots(ids)
 
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun insert(
         @RequestBody vehicle: Vehicle
-    ): ResponseEntity<Void> {
-        return repo.create(vehicle)
+    ): ResponseEntity<Void> =
+        repo
+            .create(vehicle)
             .let { ResponseEntity.ok().build() }
-    }
 
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(
         @PathVariable id: Long
-    ): ResponseEntity<Void> {
-        return repo.deleteById(id)
+    ): ResponseEntity<Void> =
+        repo
+            .deleteById(id)
             .let { ResponseEntity.ok().build() }
-    }
 
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun update(
         @PathVariable id: Long,
         @RequestBody vehicle: Vehicle
-    ): ResponseEntity<Void> {
-        return repo.update(id, vehicle)
+    ): ResponseEntity<Void> =
+        repo
+            .update(id, vehicle)
             .let { ResponseEntity.ok().build() }
-    }
 }

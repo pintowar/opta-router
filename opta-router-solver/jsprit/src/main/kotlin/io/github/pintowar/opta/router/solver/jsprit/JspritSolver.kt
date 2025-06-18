@@ -21,7 +21,9 @@ import java.time.Duration
 class JspritSolver : Solver() {
     override val name: String = "jsprit"
 
-    internal class TimeTermination(private val totalTimeMs: Duration) : PrematureAlgorithmTermination {
+    internal class TimeTermination(
+        private val totalTimeMs: Duration
+    ) : PrematureAlgorithmTermination {
         private val beginning = System.currentTimeMillis()
 
         override fun isPrematureBreak(discoveredSolution: SearchStrategy.DiscoveredSolution) =
@@ -32,8 +34,8 @@ class JspritSolver : Solver() {
         initialSolution: VrpSolution,
         matrix: Matrix,
         config: SolverConfig
-    ): Flow<VrpSolution> {
-        return callbackFlow {
+    ): Flow<VrpSolution> =
+        callbackFlow {
             val ctx = currentCoroutineContext()
 
             val initialProblem = initialSolution.problem
@@ -65,5 +67,4 @@ class JspritSolver : Solver() {
             send(result)
             close()
         }
-    }
 }

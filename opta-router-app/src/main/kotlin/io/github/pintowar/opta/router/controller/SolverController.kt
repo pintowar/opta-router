@@ -28,7 +28,10 @@ class SolverController(
     private val solverService: VrpSolverService,
     private val solverPanelStorage: SolverPanelStorage
 ) {
-    data class PanelSolutionState(val solverPanel: SolverPanel, val solutionState: VrpSolutionRequest)
+    data class PanelSolutionState(
+        val solverPanel: SolverPanel,
+        val solutionState: VrpSolutionRequest
+    )
 
     @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solverNames() = solverService.solverNames().sorted()
@@ -73,11 +76,12 @@ class SolverController(
     suspend fun solutionState(
         @PathVariable id: Long,
         @Parameter(hidden = true) session: WebSession
-    ): ResponseEntity<PanelSolutionState> {
-        return solverService.currentSolutionRequest(id)?.let {
-            val panel = solverPanelStorage.getOrDefault(session.id)
-            val sol = solverPanelStorage.convertSolutionForPanelId(session.id, it.solution)
-            PanelSolutionState(panel, it.copy(solution = sol))
-        }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
-    }
+    ): ResponseEntity<PanelSolutionState> =
+        solverService
+            .currentSolutionRequest(id)
+            ?.let {
+                val panel = solverPanelStorage.getOrDefault(session.id)
+                val sol = solverPanelStorage.convertSolutionForPanelId(session.id, it.solution)
+                PanelSolutionState(panel, it.copy(solution = sol))
+            }?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
 }

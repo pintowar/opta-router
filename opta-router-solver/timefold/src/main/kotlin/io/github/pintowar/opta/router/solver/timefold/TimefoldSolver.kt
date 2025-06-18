@@ -26,14 +26,15 @@ class TimefoldSolver : Solver() {
         config: SolverConfig
     ): Flow<VrpSolution> {
         val solver =
-            SolverFactory.create<VehicleRoutingSolution>(
-                solverConfig.apply {
-                    terminationConfig =
-                        TerminationConfig().apply {
-                            overwriteSpentLimit(config.timeLimit)
-                        }
-                }
-            ).buildSolver()
+            SolverFactory
+                .create<VehicleRoutingSolution>(
+                    solverConfig.apply {
+                        terminationConfig =
+                            TerminationConfig().apply {
+                                overwriteSpentLimit(config.timeLimit)
+                            }
+                    }
+                ).buildSolver()
 
         return callbackFlow {
             solver.addEventListener { evt ->

@@ -28,7 +28,9 @@ class OrToolsSolver : Solver() {
         config: SolverConfig
     ): Flow<VrpSolution> {
         val searchParameters =
-            main.defaultRoutingSearchParameters().toBuilder()
+            main
+                .defaultRoutingSearchParameters()
+                .toBuilder()
                 .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
                 .setTimeLimit(Duration.newBuilder().setSeconds(config.timeLimit.toSeconds()).build())
                 .setLocalSearchMetaheuristic(LocalSearchMetaheuristic.Value.GUIDED_LOCAL_SEARCH)
@@ -51,9 +53,10 @@ class OrToolsSolver : Solver() {
                     if (!initialSolution.isEmpty()) {
                         model.closeModelWithParameters(searchParameters)
                         val vehicleVisitOrder =
-                            initialSolution.routes.map { route ->
-                                route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
-                            }.toTypedArray()
+                            initialSolution.routes
+                                .map { route ->
+                                    route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
+                                }.toTypedArray()
                         val initialState = model.readAssignmentFromRoutes(vehicleVisitOrder, true)
                         model.solveFromAssignmentWithParameters(initialState, searchParameters)
                     } else {

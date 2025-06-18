@@ -31,23 +31,15 @@ class SerdeConfig {
             override fun <T : Any> fromJson(
                 content: String,
                 type: Type
-            ): T {
-                return objectMapper.readValue(content, objectMapper.constructType(type))
-            }
+            ): T = objectMapper.readValue(content, objectMapper.constructType(type))
 
-            override fun toJson(value: Any): String {
-                return objectMapper.writeValueAsString(value)
-            }
+            override fun toJson(value: Any): String = objectMapper.writeValueAsString(value)
 
             override fun <T : Any> fromCbor(
                 content: ByteArray,
                 type: Type
-            ): T {
-                return cborMapper.readValue(content, cborMapper.constructType(type))
-            }
+            ): T = cborMapper.readValue(content, cborMapper.constructType(type))
 
-            override fun toCbor(value: Any): ByteArray {
-                return cborMapper.writeValueAsBytes(value)
-            }
+            override fun toCbor(value: Any): ByteArray = cborMapper.writeValueAsBytes(value)
         }
 }

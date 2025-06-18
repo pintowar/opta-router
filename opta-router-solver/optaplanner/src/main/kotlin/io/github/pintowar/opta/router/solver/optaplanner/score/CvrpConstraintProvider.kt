@@ -8,13 +8,12 @@ import org.optaplanner.core.api.score.stream.ConstraintFactory
 import org.optaplanner.core.api.score.stream.ConstraintProvider
 
 class CvrpConstraintProvider : ConstraintProvider {
-    override fun defineConstraints(factory: ConstraintFactory): Array<Constraint> {
-        return arrayOf(
+    override fun defineConstraints(factory: ConstraintFactory): Array<Constraint> =
+        arrayOf(
             vehicleCapacity(factory),
             distanceToPreviousStandstill(factory),
             distanceFromLastCustomerToDepot(factory)
         )
-    }
 
     // ************************************************************************
     // Hard constraints

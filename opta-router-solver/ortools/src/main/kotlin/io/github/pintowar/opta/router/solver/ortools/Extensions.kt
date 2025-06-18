@@ -48,7 +48,9 @@ private class DemandEval(
     }
 }
 
-class ProblemSummary(problem: VrpProblem) {
+class ProblemSummary(
+    problem: VrpProblem
+) {
     val nVehicles = problem.vehicles.size
     val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
     val idLocations = problem.locations().associateBy { it.id }
@@ -60,7 +62,11 @@ class ProblemSummary(problem: VrpProblem) {
     fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
 }
 
-data class ProblemWrapper(val model: RoutingModel, val manager: RoutingIndexManager, val summary: ProblemSummary)
+data class ProblemWrapper(
+    val model: RoutingModel,
+    val manager: RoutingIndexManager,
+    val summary: ProblemSummary
+)
 
 /**
  * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).

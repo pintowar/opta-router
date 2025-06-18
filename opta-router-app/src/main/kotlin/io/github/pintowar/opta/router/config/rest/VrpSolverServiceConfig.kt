@@ -27,7 +27,5 @@ class VrpSolverServiceConfig {
         solverRepository: SolverRepository,
         solverEventsPort: SolverEventsPort,
         broadcastPort: BroadcastPort
-    ): VrpSolverService {
-        return VrpSolverService(broadcastPort, solverEventsPort, solverRepository)
-    }
+    ): VrpSolverService = VrpSolverService(broadcastPort, solverEventsPort, solverRepository)
 }

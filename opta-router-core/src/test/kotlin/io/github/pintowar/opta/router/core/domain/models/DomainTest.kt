@@ -6,28 +6,29 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.math.BigDecimal
 
-class DomainTest : FunSpec({
+class DomainTest :
+    FunSpec({
 
-    test("VrpProblem getters") {
-        val problem = Fixtures.problem("sample-4")
+        test("VrpProblem getters") {
+            val problem = Fixtures.problem("sample-4")
 
-        problem.depots() shouldContain Fixtures.depot()
-        problem.depots() shouldHaveSize 1
-        problem.numLocations() shouldBe 10
-        problem.numVehicles() shouldBe 2
-    }
+            problem.depots() shouldContain Fixtures.depot()
+            problem.depots() shouldHaveSize 1
+            problem.numLocations() shouldBe 10
+            problem.numVehicles() shouldBe 2
+        }
 
-    test("VrpSolution getters") {
-        val (firstSolution, secondSolution) = Fixtures.solution("sample-4")
+        test("VrpSolution getters") {
+            val (firstSolution, secondSolution) = Fixtures.solution("sample-4")
 
-        firstSolution.isFeasible() shouldBe true
-        firstSolution.isEmpty() shouldBe false
-        firstSolution.getTotalDistance() shouldBe BigDecimal.valueOf(690.05)
-        firstSolution.getTotalTime() shouldBe BigDecimal.valueOf(920.91)
+            firstSolution.isFeasible() shouldBe true
+            firstSolution.isEmpty() shouldBe false
+            firstSolution.getTotalDistance() shouldBe BigDecimal.valueOf(690.05)
+            firstSolution.getTotalTime() shouldBe BigDecimal.valueOf(920.91)
 
-        secondSolution.isFeasible() shouldBe true
-        secondSolution.isEmpty() shouldBe false
-        secondSolution.getTotalDistance() shouldBe BigDecimal.valueOf(592.17)
-        secondSolution.getTotalTime() shouldBe BigDecimal.valueOf(751.72)
-    }
-})
+            secondSolution.isFeasible() shouldBe true
+            secondSolution.isEmpty() shouldBe false
+            secondSolution.getTotalDistance() shouldBe BigDecimal.valueOf(592.17)
+            secondSolution.getTotalTime() shouldBe BigDecimal.valueOf(751.72)
+        }
+    })

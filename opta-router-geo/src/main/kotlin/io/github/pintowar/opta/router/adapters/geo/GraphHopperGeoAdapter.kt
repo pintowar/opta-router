@@ -19,40 +19,44 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
 
-class GraphHopperGeoAdapter(private val path: String, private val location: String) : GeoPort {
+class GraphHopperGeoAdapter(
+    private val path: String,
+    private val location: String
+) : GeoPort {
     companion object {
         const val NAME = "car"
     }
 
     private val graph: GraphHopper =
-        GraphHopper().apply {
-            val statements =
-                listOf(
-                    Statement.If("!car_access", Statement.Op.MULTIPLY, "0"),
-                    Statement.Else(Statement.Op.LIMIT, "car_average_speed")
-                )
-            val profs =
-                listOf(
-                    Profile(NAME).apply {
-                        turnCostsConfig = TurnCostsConfig.car()
-                        customModel =
-                            CustomModel().apply {
-                                distanceInfluence = 90.0
-                                priority.addAll(statements)
-                                speed.addAll(statements)
-                            }
-                    }
-                )
+        GraphHopper()
+            .apply {
+                val statements =
+                    listOf(
+                        Statement.If("!car_access", Statement.Op.MULTIPLY, "0"),
+                        Statement.Else(Statement.Op.LIMIT, "car_average_speed")
+                    )
+                val profs =
+                    listOf(
+                        Profile(NAME).apply {
+                            turnCostsConfig = TurnCostsConfig.car()
+                            customModel =
+                                CustomModel().apply {
+                                    distanceInfluence = 90.0
+                                    priority.addAll(statements)
+                                    speed.addAll(statements)
+                                }
+                        }
+                    )
 
-            osmFile = path
-            graphHopperLocation = location
-            profiles = profs
-            chPreparationHandler.preparationThreads = Runtime.getRuntime().availableProcessors()
-            chPreparationHandler.setCHProfiles(profs.map { CHProfile(it.name) })
+                osmFile = path
+                graphHopperLocation = location
+                profiles = profs
+                chPreparationHandler.preparationThreads = Runtime.getRuntime().availableProcessors()
+                chPreparationHandler.setCHProfiles(profs.map { CHProfile(it.name) })
 
-            setEncodedValuesString("car_access,car_average_speed")
-            setMinNetworkSize(200)
-        }.importOrLoad()
+                setEncodedValuesString("car_access,car_average_speed")
+                setMinNetworkSize(200)
+            }.importOrLoad()
 
     /**
      * Generates a PathWrapper containing the best route between origin and target points.
@@ -75,8 +79,8 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
         }
     }
 
-    override suspend fun detailedPaths(routes: List<Route>): List<Route> {
-        return routes.map { route ->
+    override suspend fun detailedPaths(routes: List<Route>): List<Route> =
+        routes.map { route ->
             val aux =
                 route.order
                     .windowed(2, 1, false)
@@ -88,14 +92,14 @@ class GraphHopperGeoAdapter(private val path: String, private val location: Stri
 
             Route(dist, time, route.totalDemand, rep, route.customerIds)
         }
-    }
 
     override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
         val ids = locations.map { it.id }
         val (travelDistances, travelTimes) =
-            locations.flatMap { a ->
-                locations.map { b -> simplePath(a, b).let { it.distance to it.time } }
-            }.unzip()
+            locations
+                .flatMap { a ->
+                    locations.map { b -> simplePath(a, b).let { it.distance to it.time } }
+                }.unzip()
         return VrpProblemMatrix(ids, travelDistances, travelTimes)
     }
 

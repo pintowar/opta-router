@@ -47,12 +47,14 @@ class VrpProblemJooqAdapter(
                 sumStatuses(SolverStatus.RUNNING),
                 sumStatuses(SolverStatus.TERMINATED),
                 sumStatuses(SolverStatus.NOT_SOLVED)
-            )
-            .from(VRP_PROBLEM)
-            .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+            ).from(VRP_PROBLEM)
+            .leftJoin(VRP_SOLVER_REQUEST)
+            .on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
             .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
             .groupBy(VRP_PROBLEM)
-            .limit(offset, limit).asFlow().map { (p, t, e, r, f, c) ->
+            .limit(offset, limit)
+            .asFlow()
+            .map { (p, t, e, r, f, c) ->
                 toProblem(p).let {
                     val totalCapacity = it.vehicles.sumOf { v -> v.capacity }
                     val totalDemand = it.customers.sumOf { c -> c.demand }
@@ -64,17 +66,20 @@ class VrpProblemJooqAdapter(
 
     override suspend fun count(query: String): Long {
         val (total) =
-            dsl.selectCount().from(VRP_PROBLEM).where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
+            dsl
+                .selectCount()
+                .from(VRP_PROBLEM)
+                .where(VRP_PROBLEM.NAME.likeIgnoreCase("${query.trim()}%"))
                 .awaitSingle()
         return total.toLong()
     }
 
-    override suspend fun getById(problemId: Long): VrpProblem? {
-        return dsl.selectFrom(VRP_PROBLEM)
+    override suspend fun getById(problemId: Long): VrpProblem? =
+        dsl
+            .selectFrom(VRP_PROBLEM)
             .where(VRP_PROBLEM.ID.eq(problemId))
             .awaitFirstOrNull()
             ?.let(::toProblem)
-    }
 
     override suspend fun create(problem: VrpProblem) {
         val now = Instant.now()
@@ -83,7 +88,8 @@ class VrpProblemJooqAdapter(
 
         dsl.transactionCoroutine { trx ->
             val result =
-                trx.dsl()
+                trx
+                    .dsl()
                     .insertInto(VRP_PROBLEM)
                     .set(VRP_PROBLEM.NAME, problem.name)
                     .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
@@ -93,7 +99,8 @@ class VrpProblemJooqAdapter(
                     .returning()
                     .awaitSingle()
 
-            trx.dsl()
+            trx
+                .dsl()
                 .insertInto(VRP_PROBLEM_MATRIX)
                 .set(VRP_PROBLEM_MATRIX.VRP_PROBLEM_ID, result.id)
                 .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
@@ -106,7 +113,8 @@ class VrpProblemJooqAdapter(
     }
 
     override suspend fun deleteById(problemId: Long) {
-        dsl.deleteFrom(VRP_PROBLEM)
+        dsl
+            .deleteFrom(VRP_PROBLEM)
             .where(VRP_PROBLEM.ID.eq(problemId))
             .awaitFirstOrNull()
     }
@@ -120,7 +128,8 @@ class VrpProblemJooqAdapter(
         val matrix = geo.generateMatrix(problem.locations().toSet())
 
         dsl.transactionCoroutine { trx ->
-            dsl.update(VRP_PROBLEM)
+            dsl
+                .update(VRP_PROBLEM)
                 .set(VRP_PROBLEM.NAME, problem.name)
                 .set(VRP_PROBLEM.CUSTOMERS, JSON.json(mapper.toJson(problem.customers)))
                 .set(VRP_PROBLEM.VEHICLES, JSON.json(mapper.toJson(problem.vehicles)))
@@ -128,7 +137,8 @@ class VrpProblemJooqAdapter(
                 .where(VRP_PROBLEM.ID.eq(id))
                 .awaitSingle()
 
-            trx.dsl()
+            trx
+                .dsl()
                 .update(VRP_PROBLEM_MATRIX)
                 .set(VRP_PROBLEM_MATRIX.LOCATION_IDS, matrix.getLocationIds())
                 .set(VRP_PROBLEM_MATRIX.TRAVEL_DISTANCES, matrix.getTravelDistances())
@@ -155,12 +165,11 @@ class VrpProblemJooqAdapter(
         }
     }
 
-    private fun toProblem(problem: VrpProblemRecord): VrpProblem {
-        return VrpProblem(
+    private fun toProblem(problem: VrpProblemRecord): VrpProblem =
+        VrpProblem(
             problem.id!!,
             problem.name,
             mapper.fromJson(problem.vehicles.data()),
             mapper.fromJson(problem.customers.data())
         )
-    }
 }

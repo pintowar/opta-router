@@ -8,13 +8,12 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider
 import io.github.pintowar.opta.router.solver.timefold.domain.Customer
 
 class CvrpConstraintProvider : ConstraintProvider {
-    override fun defineConstraints(factory: ConstraintFactory): Array<Constraint> {
-        return arrayOf(
+    override fun defineConstraints(factory: ConstraintFactory): Array<Constraint> =
+        arrayOf(
             vehicleCapacity(factory),
             distanceToPreviousStandstill(factory),
             distanceFromLastCustomerToDepot(factory)
         )
-    }
 
     // ************************************************************************
     // Hard constraints

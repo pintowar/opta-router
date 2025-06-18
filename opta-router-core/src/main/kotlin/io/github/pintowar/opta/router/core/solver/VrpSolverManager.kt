@@ -27,8 +27,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
-class VrpSolverManager(timeLimit: Duration) {
-    private class UserCancellationException(val clear: Boolean) : CancellationException("User cancellation command.")
+class VrpSolverManager(
+    timeLimit: Duration
+) {
+    private class UserCancellationException(
+        val clear: Boolean
+    ) : CancellationException("User cancellation command.")
 
     private val supervisorJob = SupervisorJob()
     private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
@@ -59,15 +63,13 @@ class VrpSolverManager(timeLimit: Duration) {
                     bestSolution = it
                     logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
                     channel.send(wrapCommand(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey)))
-                }
-                .onCompletion { ex ->
+                }.onCompletion { ex ->
                     logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
                     val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
                     val shouldClear = ex is UserCancellationException && ex.clear
                     channel.send(wrapCommand(solRequest, shouldClear))
                     channel.close()
-                }
-                .launchIn(managerScope)
+                }.launchIn(managerScope)
 
         return channel.receiveAsFlow()
     }

@@ -39,27 +39,23 @@ class DatabaseConfig(
     @ConditionalOnMissingBean(
         TransactionProvider::class
     )
-    fun transactionProvider(txManager: PlatformTransactionManager): SpringTransactionProvider {
-        return SpringTransactionProvider(txManager)
-    }
+    fun transactionProvider(txManager: PlatformTransactionManager): SpringTransactionProvider =
+        SpringTransactionProvider(txManager)
 
     @Bean
     @Order(0)
     fun jooqExceptionTranslatorExecuteListenerProvider(
         exceptionTranslatorExecuteListener: ExceptionTranslatorExecuteListener
-    ): DefaultExecuteListenerProvider {
-        return DefaultExecuteListenerProvider(exceptionTranslatorExecuteListener)
-    }
+    ): DefaultExecuteListenerProvider = DefaultExecuteListenerProvider(exceptionTranslatorExecuteListener)
 
     @Bean
     @ConditionalOnMissingBean(ExceptionTranslatorExecuteListener::class)
-    fun jooqExceptionTranslator(): ExceptionTranslatorExecuteListener {
-        return ExceptionTranslatorExecuteListener.DEFAULT
-    }
+    fun jooqExceptionTranslator(): ExceptionTranslatorExecuteListener = ExceptionTranslatorExecuteListener.DEFAULT
 
     @Bean
     fun jooqDslContext(executeListenerProviders: ObjectProvider<ExecuteListenerProvider>): DSLContext =
-        DSL.using(TransactionAwareConnectionFactoryProxy(cfi))
+        DSL
+            .using(TransactionAwareConnectionFactoryProxy(cfi))
             .configuration()
             .set(sqlDialect)
             .set(*executeListenerProviders.orderedStream().toList().toTypedArray())
@@ -69,13 +65,13 @@ class DatabaseConfig(
     @Bean(initMethod = "migrate")
     @ConditionalOnProperty(prefix = "spring.flyway", name = ["enabled"], havingValue = "true", matchIfMissing = false)
     fun flyway(flywayProperties: FlywayProperties): Flyway =
-        Flyway.configure()
+        Flyway
+            .configure()
             .dataSource(
                 flywayProperties.url,
                 flywayProperties.user,
                 flywayProperties.password
-            )
-            .locations(*flywayProperties.locations.toTypedArray())
+            ).locations(*flywayProperties.locations.toTypedArray())
             .baselineOnMigrate(true)
             .load()
 }

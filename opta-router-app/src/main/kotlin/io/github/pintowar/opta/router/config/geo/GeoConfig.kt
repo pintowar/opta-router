@@ -24,14 +24,13 @@ class GeoConfig {
     fun graphHopper(
         @Value("\${app.graph.osm.path}") path: String,
         @Value("\${app.graph.osm.location}") location: String
-    ): GeoPort {
-        return GraphHopperGeoAdapter(path, location)
-    }
+    ): GeoPort = GraphHopperGeoAdapter(path, location)
 
     @Bean
     fun rsocketStrategies(objectMapper: ObjectMapper): RSocketStrategies {
         val cborMapper = SerdeConfig.cborMapperFromObjectMapper(objectMapper)
-        return RSocketStrategies.builder()
+        return RSocketStrategies
+            .builder()
             .encoder(Jackson2CborEncoder(cborMapper, MediaType.APPLICATION_CBOR))
             .decoder(Jackson2CborDecoder(cborMapper, MediaType.APPLICATION_CBOR))
             .build()

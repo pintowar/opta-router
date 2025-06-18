@@ -24,7 +24,8 @@ class JeneticsSolver : Solver() {
     private fun buildEngine(
         problem: VrpProblem,
         matrix: Matrix
-    ) = Engine.builder(problem.toProblem(matrix))
+    ) = Engine
+        .builder(problem.toProblem(matrix))
         .minimizing()
         .survivorsSelector(EliteSelector(5))
         .offspringSelector(RouletteWheelSelector())
@@ -35,8 +36,7 @@ class JeneticsSolver : Solver() {
             PartiallyMatchedCrossover(0.8),
             SwapMutator(0.05),
             ReverseMutator(0.05)
-        )
-        .build()
+        ).build()
 
     override fun solveFlow(
         initialSolution: VrpSolution,
@@ -56,8 +56,7 @@ class JeneticsSolver : Solver() {
                     .peek { result ->
                         val actual = result.bestPhenotype().genotype().toDto(initialSolution.problem, matrix)
                         trySendBlocking(actual)
-                    }
-                    .collect(EvolutionResult.toBestGenotype())
+                    }.collect(EvolutionResult.toBestGenotype())
             send(result.toDto(initialSolution.problem, matrix))
             close()
         }

@@ -20,29 +20,31 @@ class VrpVehicleJooqAdapter(
         query: String,
         offset: Int,
         limit: Int
-    ): Flow<Vehicle> {
-        return dsl
+    ): Flow<Vehicle> =
+        dsl
             .select(VEHICLE, LOCATION)
             .from(
                 VEHICLE
-                    .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
-            )
-            .where(
-                LOCATION.KIND.eq("depot")
+                    .leftJoin(LOCATION)
+                    .on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
+            ).where(
+                LOCATION.KIND
+                    .eq("depot")
                     .and(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
-            )
-            .limit(offset, limit)
+            ).limit(offset, limit)
             .asFlow()
             .map { (vehicle, loc) ->
                 Depot(loc.id!!, loc.name, loc.latitude, loc.longitude).let { depot ->
                     Vehicle(vehicle.id!!, vehicle.name, vehicle.capacity, depot)
                 }
             }
-    }
 
     override suspend fun count(query: String): Long {
         val (total) =
-            dsl.selectCount().from(VEHICLE).where(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
+            dsl
+                .selectCount()
+                .from(VEHICLE)
+                .where(VEHICLE.NAME.likeIgnoreCase("${query.trim()}%"))
                 .awaitSingle()
         return total.toLong()
     }
@@ -50,7 +52,8 @@ class VrpVehicleJooqAdapter(
     override suspend fun create(vehicle: Vehicle) {
         val now = Instant.now()
 
-        dsl.insertInto(VEHICLE)
+        dsl
+            .insertInto(VEHICLE)
             .set(VEHICLE.NAME, vehicle.name)
             .set(VEHICLE.CAPACITY, vehicle.capacity)
             .set(VEHICLE.DEPOT_ID, vehicle.depot.id)
@@ -72,7 +75,8 @@ class VrpVehicleJooqAdapter(
     ) {
         val now = Instant.now()
 
-        dsl.update(VEHICLE)
+        dsl
+            .update(VEHICLE)
             .set(VEHICLE.NAME, vehicle.name)
             .set(VEHICLE.CAPACITY, vehicle.capacity)
             .set(VEHICLE.DEPOT_ID, vehicle.depot.id)
@@ -81,22 +85,21 @@ class VrpVehicleJooqAdapter(
             .awaitSingle()
     }
 
-    override fun listByDepots(depotIds: List<Long>): Flow<Vehicle> {
-        return dsl
+    override fun listByDepots(depotIds: List<Long>): Flow<Vehicle> =
+        dsl
             .select(VEHICLE, LOCATION)
             .from(
                 VEHICLE
-                    .leftJoin(LOCATION).on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
-            )
-            .where(
-                LOCATION.KIND.eq("depot")
+                    .leftJoin(LOCATION)
+                    .on(LOCATION.ID.eq(VEHICLE.DEPOT_ID))
+            ).where(
+                LOCATION.KIND
+                    .eq("depot")
                     .and(LOCATION.ID.`in`(depotIds))
-            )
-            .asFlow()
+            ).asFlow()
             .map { (vehicle, loc) ->
                 Depot(loc.id!!, loc.name, loc.latitude, loc.longitude).let { depot ->
                     Vehicle(vehicle.id!!, vehicle.name, vehicle.capacity, depot)
                 }
             }
-    }
 }

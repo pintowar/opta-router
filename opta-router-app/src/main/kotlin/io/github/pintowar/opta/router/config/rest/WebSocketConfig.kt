@@ -27,12 +27,11 @@ internal class WebSocketConfig {
     fun handlerAdapter(webSocketService: WebSocketService) = WebSocketHandlerAdapter(webSocketService)
 
     @Bean
-    fun webSocketService(): WebSocketService {
-        return HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy()).apply {
+    fun webSocketService(): WebSocketService =
+        HandshakeWebSocketService(ReactorNettyRequestUpgradeStrategy()).apply {
             sessionAttributePredicate =
                 Predicate {
                     it == WEBSESSION_ID
                 }
         }
-    }
 }

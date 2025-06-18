@@ -19,7 +19,9 @@ import io.jenetics.util.ISeq
 import java.math.BigDecimal
 import java.math.RoundingMode
 
-data class DummyLocation(override val id: Long) : Location {
+data class DummyLocation(
+    override val id: Long
+) : Location {
     override val name: String = "Dummy $id"
     override val lat: Double = 0.0
     override val lng: Double = 0.0
@@ -28,7 +30,8 @@ data class DummyLocation(override val id: Long) : Location {
 private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Customer>> {
     val chromosome = genotype.chromosome().toList()
     val indices =
-        chromosome.withIndex()
+        chromosome
+            .withIndex()
             .filter { (_, it) -> it.allele() is DummyLocation }
             .sortedBy { (_, it) -> it.alleleIndex() }
             .map { (idx, _) -> idx }
@@ -36,7 +39,8 @@ private fun genToSubRoutes(genotype: Genotype<EnumGene<Location>>): List<List<Cu
         (listOf(0) + indices.sorted() + listOf(chromosome.size))
             .windowed(2)
             .map { (b, e) ->
-                chromosome.subList(b, e)
+                chromosome
+                    .subList(b, e)
                     .asSequence()
                     .map { it.allele() }
                     .filterIsInstance<Customer>()
@@ -56,15 +60,16 @@ private fun problemCodec(problem: VrpProblem) =
 private fun fitnessFactory(
     problem: VrpProblem,
     matrix: Matrix
-): (List<List<Customer>>) -> Double {
-    return { subRoutes: List<List<Customer>> ->
-        subRoutes.mapIndexed { idx, customers ->
-            val depot = problem.vehicles[idx].depot
-            (listOf(depot) + customers + listOf(depot)).windowed(2)
-                .sumOf { (a, b) -> matrix.distance(a.id, b.id) }
-        }.sum()
+): (List<List<Customer>>) -> Double =
+    { subRoutes: List<List<Customer>> ->
+        subRoutes
+            .mapIndexed { idx, customers ->
+                val depot = problem.vehicles[idx].depot
+                (listOf(depot) + customers + listOf(depot))
+                    .windowed(2)
+                    .sumOf { (a, b) -> matrix.distance(a.id, b.id) }
+            }.sum()
     }
-}
 
 private fun toChromosome(
     problem: VrpProblem,
@@ -131,14 +136,16 @@ private fun problemConstraint(
                     } else {
                         val currentDemand = subRoute.sumOf { c -> c.demand }
                         val validSubRoute =
-                            used.scan(Pair<Int, Customer?>(currentDemand, null)) { (acc, _), c ->
-                                val accDemand = acc + c.demand
-                                if (accDemand > problem.vehicles[idx].capacity) {
-                                    acc to null
-                                } else {
-                                    accDemand to c
-                                }
-                            }.drop(1).mapNotNull { (_, c) -> c }
+                            used
+                                .scan(Pair<Int, Customer?>(currentDemand, null)) { (acc, _), c ->
+                                    val accDemand = acc + c.demand
+                                    if (accDemand > problem.vehicles[idx].capacity) {
+                                        acc to null
+                                    } else {
+                                        accDemand to c
+                                    }
+                                }.drop(1)
+                                .mapNotNull { (_, c) -> c }
                         newSubRoutes[idx] = subRoute + validSubRoute
                         newSubRoutes to (used - validSubRoute.toSet())
                     }

@@ -13,7 +13,8 @@ abstract class Solver {
     companion object {
         fun getNamedSolvers(): Map<String, Solver> {
             val solverFactories = mutableMapOf<String, Solver>()
-            ServiceLoader.load(Solver::class.java)
+            ServiceLoader
+                .load(Solver::class.java)
                 .iterator()
                 .forEachRemaining { solverFactories[it.name] = it }
             return solverFactories
@@ -34,8 +35,7 @@ abstract class Solver {
         solveFlow(initialSolution, matrix, config)
             .scan(initialSolution) { acc, sol ->
                 if (!acc.isEmpty() && sol.getTotalDistance() > acc.getTotalDistance()) acc else sol
-            }
-            .filterNot { it.isEmpty() }
+            }.filterNot { it.isEmpty() }
             .distinctUntilChangedBy { it.getTotalDistance() }
 
     protected abstract fun solveFlow(

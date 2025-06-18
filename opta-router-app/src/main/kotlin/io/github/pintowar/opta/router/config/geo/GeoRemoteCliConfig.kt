@@ -32,18 +32,18 @@ class GeoRemoteCliConfig {
     fun graphHopper(
         @Value("\${app.geo.remote.uri}") uri: URI,
         strategies: RSocketStrategies
-    ): GeoPort {
-        return when (uri.scheme.lowercase()) {
+    ): GeoPort =
+        when (uri.scheme.lowercase()) {
             in listOf("http", "https") -> generateGeoWebCli(uri)
             in listOf("tcp") -> generateRSocketWebCli(uri, strategies)
             else -> throw IllegalArgumentException("Invalid remote geo uri ($uri). Must start with http, https or tcp")
         }
-    }
 
     private fun generateGeoWebCli(uri: URI): GeoPort =
         object : GeoPort {
             private val webClient =
-                WebClient.builder()
+                WebClient
+                    .builder()
                     .codecs { cfg -> cfg.defaultCodecs().maxInMemorySize(100 * 1024 * 1024) }
                     .baseUrl(uri.toString())
                     .build()
@@ -52,35 +52,44 @@ class GeoRemoteCliConfig {
                 origin: Coordinate,
                 target: Coordinate
             ): Path {
-                data class SimplePathRequest(val origin: LatLng, val target: LatLng)
+                data class SimplePathRequest(
+                    val origin: LatLng,
+                    val target: LatLng
+                )
 
-                return webClient.post()
+                return webClient
+                    .post()
                     .uri("/api/geo/simple-path")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(
                         SimplePathRequest(LatLng(origin.lat, origin.lng), LatLng(target.lat, target.lng))
-                    )
-                    .retrieve()
+                    ).retrieve()
                     .awaitBody()
             }
 
             override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
-                data class LocationsRequest(val depots: List<Depot>, val customers: List<Customer>)
+                data class LocationsRequest(
+                    val depots: List<Depot>,
+                    val customers: List<Customer>
+                )
 
-                return webClient.post()
+                return webClient
+                    .post()
                     .uri("/api/geo/generate-matrix")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(
                         LocationsRequest(locations.filterIsInstance<Depot>(), locations.filterIsInstance<Customer>())
-                    )
-                    .retrieve()
+                    ).retrieve()
                     .awaitBody()
             }
 
             override suspend fun detailedPaths(routes: List<Route>): List<Route> {
-                data class DetailedPathRequest(val routes: List<Route>)
+                data class DetailedPathRequest(
+                    val routes: List<Route>
+                )
 
-                return webClient.post()
+                return webClient
+                    .post()
                     .uri("/api/geo/detailed-paths")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(DetailedPathRequest(routes))
@@ -95,7 +104,8 @@ class GeoRemoteCliConfig {
     ): GeoPort =
         object : GeoPort {
             private val requester =
-                RSocketRequester.builder()
+                RSocketRequester
+                    .builder()
                     .dataMimeType(MediaType.APPLICATION_CBOR)
                     .rsocketStrategies(strategies)
                     .tcp(uri.host, uri.port)
@@ -104,27 +114,37 @@ class GeoRemoteCliConfig {
                 origin: Coordinate,
                 target: Coordinate
             ): Path {
-                data class SimplePathRequest(val origin: LatLng, val target: LatLng)
+                data class SimplePathRequest(
+                    val origin: LatLng,
+                    val target: LatLng
+                )
 
-                return requester.route("simple.path")
+                return requester
+                    .route("simple.path")
                     .data(SimplePathRequest(LatLng(origin.lat, origin.lng), LatLng(target.lat, target.lng)))
                     .retrieveAndAwait()
             }
 
             override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
-                data class LocationsRequest(val depots: List<Depot>, val customers: List<Customer>)
+                data class LocationsRequest(
+                    val depots: List<Depot>,
+                    val customers: List<Customer>
+                )
 
-                return requester.route("generate.matrix")
+                return requester
+                    .route("generate.matrix")
                     .data(
                         LocationsRequest(locations.filterIsInstance<Depot>(), locations.filterIsInstance<Customer>())
-                    )
-                    .retrieveAndAwait()
+                    ).retrieveAndAwait()
             }
 
             override suspend fun detailedPaths(routes: List<Route>): List<Route> {
-                data class DetailedPathRequest(val routes: List<Route>)
+                data class DetailedPathRequest(
+                    val routes: List<Route>
+                )
 
-                return requester.route("detailed.paths")
+                return requester
+                    .route("detailed.paths")
                     .data(DetailedPathRequest(routes))
                     .retrieveAndAwait()
             }

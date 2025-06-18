@@ -19,9 +19,8 @@ class VrpSolverService(
 ) {
     fun solverNames() = Solver.getNamedSolvers().keys
 
-    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return solverRepository.currentSolutionRequest(problemId)
-    }
+    suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? =
+        solverRepository.currentSolutionRequest(problemId)
 
     suspend fun showStatus(problemId: Long): SolverStatus =
         solverRepository.currentSolverRequest(problemId)?.status ?: SolverStatus.NOT_SOLVED
@@ -35,15 +34,14 @@ class VrpSolverService(
     suspend fun update(
         solRequest: VrpSolutionRequest,
         clear: Boolean
-    ): VrpSolutionRequest {
-        return solverRepository.addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
-    }
+    ): VrpSolutionRequest =
+        solverRepository.addNewSolution(solRequest.solution, solRequest.solverKey!!, solRequest.status, clear)
 
     suspend fun enqueueSolverRequest(
         problemId: Long,
         solverName: String
-    ): UUID? {
-        return solverRepository.enqueue(problemId, solverName)?.let { request ->
+    ): UUID? =
+        solverRepository.enqueue(problemId, solverName)?.let { request ->
             solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
                 solverEventsPort.enqueueRequestSolver(
                     RequestSolverCommand(detailedSolution, request.requestKey, solverName)
@@ -51,7 +49,6 @@ class VrpSolverService(
                 request.requestKey
             }
         }
-    }
 
     suspend fun terminate(solverKey: UUID) = terminateEarly(solverKey, false)
 

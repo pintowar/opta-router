@@ -20,8 +20,8 @@ class VrpLocationJooqAdapter(
         query: String,
         offset: Int,
         limit: Int
-    ): Flow<Location> {
-        return dsl
+    ): Flow<Location> =
+        dsl
             .selectFrom(LOCATION)
             .where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
             .limit(offset, limit)
@@ -32,11 +32,13 @@ class VrpLocationJooqAdapter(
                     else -> Customer(loc.id!!, loc.name, loc.latitude, loc.longitude, loc.demand)
                 }
             }
-    }
 
     override suspend fun count(query: String): Long {
         val (total) =
-            dsl.selectCount().from(LOCATION).where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
+            dsl
+                .selectCount()
+                .from(LOCATION)
+                .where(LOCATION.NAME.likeIgnoreCase("${query.trim()}%"))
                 .awaitSingle()
         return total.toLong()
     }
@@ -45,7 +47,8 @@ class VrpLocationJooqAdapter(
         val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
         val now = Instant.now()
 
-        dsl.insertInto(LOCATION)
+        dsl
+            .insertInto(LOCATION)
             .set(LOCATION.NAME, location.name)
             .set(LOCATION.LATITUDE, location.lat)
             .set(LOCATION.LONGITUDE, location.lng)
@@ -70,7 +73,8 @@ class VrpLocationJooqAdapter(
         val (kind, demand) = if (location is Customer) "customer" to location.demand else "depot" to 0
         val now = Instant.now()
 
-        dsl.update(LOCATION)
+        dsl
+            .update(LOCATION)
             .set(LOCATION.NAME, location.name)
             .set(LOCATION.LATITUDE, location.lat)
             .set(LOCATION.LONGITUDE, location.lng)
@@ -81,8 +85,8 @@ class VrpLocationJooqAdapter(
             .awaitSingle()
     }
 
-    override fun listAllByKind(kind: String): Flow<Location> {
-        return dsl
+    override fun listAllByKind(kind: String): Flow<Location> =
+        dsl
             .selectFrom(LOCATION)
             .where(LOCATION.KIND.eq(kind))
             .asFlow()
@@ -92,5 +96,4 @@ class VrpLocationJooqAdapter(
                     else -> Customer(loc.id!!, loc.name, loc.latitude, loc.longitude, loc.demand)
                 }
             }
-    }
 }

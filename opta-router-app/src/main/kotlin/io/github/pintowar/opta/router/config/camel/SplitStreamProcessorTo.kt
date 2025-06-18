@@ -20,14 +20,17 @@ internal class SplitStreamProcessorTo(
         val body = exchange.`in`.body
         if (body is Publisher<*>) {
             val subscriber = camelReactive.subscriber(uri)
-            body.asFlow().map {
-                exchange.copy().apply {
-                    message.body =
-                        transform(
-                            it
-                        )
-                }
-            }.asPublisher().subscribe(subscriber)
+            body
+                .asFlow()
+                .map {
+                    exchange.copy().apply {
+                        message.body =
+                            transform(
+                                it
+                            )
+                    }
+                }.asPublisher()
+                .subscribe(subscriber)
         }
     }
 }

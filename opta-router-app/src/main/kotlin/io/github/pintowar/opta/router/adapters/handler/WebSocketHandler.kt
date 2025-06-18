@@ -44,16 +44,14 @@ class WebSocketHandler(
     fun fromChannel(
         webSessionId: String,
         uriInstanceId: String?
-    ): Flow<String> {
-        return sharedFlow
+    ): Flow<String> =
+        sharedFlow
             .filter {
                 "${it.solution.problem.id}" == uriInstanceId
-            }
-            .map { data ->
+            }.map { data ->
                 val sol = solverPanelStorage.convertSolutionForPanelId(webSessionId, data.solution)
                 serde.toJson(data.copy(solution = sol))
             }
-    }
 
     suspend fun broadcast(data: VrpSolutionRequest) {
         sharedFlow.emit(data)

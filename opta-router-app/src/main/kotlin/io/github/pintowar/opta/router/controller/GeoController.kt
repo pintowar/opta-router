@@ -22,12 +22,22 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @Profile(ConfigData.GEO_SERVER_PROFILE)
 @RequestMapping("/api/geo")
-class GeoController(private val geoPort: GeoPort) {
-    data class SimplePathRequest(val origin: LatLng, val target: LatLng)
+class GeoController(
+    private val geoPort: GeoPort
+) {
+    data class SimplePathRequest(
+        val origin: LatLng,
+        val target: LatLng
+    )
 
-    data class LocationsRequest(val depots: List<Depot>, val customers: List<Customer>)
+    data class LocationsRequest(
+        val depots: List<Depot>,
+        val customers: List<Customer>
+    )
 
-    data class DetailedPathRequest(val routes: List<Route>)
+    data class DetailedPathRequest(
+        val routes: List<Route>
+    )
 
     @PostMapping("/simple-path", produces = [MediaType.APPLICATION_JSON_VALUE])
     @MessageMapping("simple.path")

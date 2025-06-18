@@ -16,13 +16,11 @@ import org.springframework.stereotype.Component
 class AsyncPipeSolver(
     private val solverManager: VrpSolverManager
 ) {
-    fun solve(cmd: RequestSolverCommand): Publisher<SolutionRequestCommand> {
-        return solverManager.solve(cmd.solverKey, cmd.detailedSolution, cmd.solverName).asPublisher()
-    }
+    fun solve(cmd: RequestSolverCommand): Publisher<SolutionRequestCommand> =
+        solverManager.solve(cmd.solverKey, cmd.detailedSolution, cmd.solverName).asPublisher()
 
-    fun cancelSolver(cmd: CancelSolverCommand): Publisher<Unit> {
-        return publish {
+    fun cancelSolver(cmd: CancelSolverCommand): Publisher<Unit> =
+        publish {
             solverManager.cancelSolver(cmd.solverKey, cmd.currentStatus, cmd.clear)
         }
-    }
 }
