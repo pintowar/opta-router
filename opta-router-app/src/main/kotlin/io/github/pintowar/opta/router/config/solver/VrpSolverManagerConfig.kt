@@ -11,11 +11,8 @@ import java.time.Duration
 @Configuration
 @Profile(ConfigData.SOLVER_PROFILE)
 class VrpSolverManagerConfig {
-
     @Bean(destroyMethod = "destroy")
     fun vrpSolverManager(
         @Value("\${solver.termination.time-limit}") timeLimit: Duration
-    ): VrpSolverManager {
-        return VrpSolverManager(timeLimit)
-    }
+    ): VrpSolverManager = VrpSolverManager(timeLimit)
 }

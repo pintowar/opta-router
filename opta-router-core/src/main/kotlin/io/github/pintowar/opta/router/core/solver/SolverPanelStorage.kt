@@ -8,12 +8,17 @@ class SolverPanelStorage(
     private val sessionPanel: MutableMap<String, SolverPanel>,
     private val geoPort: GeoPort
 ) {
-
-    fun store(key: String, panel: SolverPanel) = sessionPanel.put(key, panel)
+    fun store(
+        key: String,
+        panel: SolverPanel
+    ) = sessionPanel.put(key, panel)
 
     fun getOrDefault(key: String) = sessionPanel.getOrPut(key) { SolverPanel() }
 
-    suspend fun convertSolutionForPanelId(key: String, solution: VrpSolution): VrpSolution {
+    suspend fun convertSolutionForPanelId(
+        key: String,
+        solution: VrpSolution
+    ): VrpSolution {
         val panel = getOrDefault(key)
         val routes = if (panel.isDetailedPath) geoPort.detailedPaths(solution.routes) else solution.routes
         return solution.copy(routes = routes)

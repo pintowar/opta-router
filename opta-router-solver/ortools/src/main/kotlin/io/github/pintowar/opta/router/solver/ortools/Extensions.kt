@@ -21,14 +21,18 @@ private class DistanceEval(
     val idxLocations: Map<Int, Location>,
     val k: Long = 100
 ) : LongBinaryOperator {
-    override fun applyAsLong(p1: Long, p2: Long): Long = try {
-        val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
-        val toNode = idxLocations.getValue(manager.indexToNode(p2)).id
+    override fun applyAsLong(
+        p1: Long,
+        p2: Long
+    ): Long =
+        try {
+            val fromNode = idxLocations.getValue(manager.indexToNode(p1)).id
+            val toNode = idxLocations.getValue(manager.indexToNode(p2)).id
 
-        (matrix.distance(fromNode, toNode) * k).toLong()
-    } catch (e: Throwable) {
-        0L
-    }
+            (matrix.distance(fromNode, toNode) * k).toLong()
+        } catch (e: Throwable) {
+            0L
+        }
 }
 
 private class DemandEval(
@@ -44,7 +48,9 @@ private class DemandEval(
     }
 }
 
-class ProblemSummary(problem: VrpProblem) {
+class ProblemSummary(
+    problem: VrpProblem
+) {
     val nVehicles = problem.vehicles.size
     val vehiclesCapacities = problem.vehicles.map { it.capacity.toLong() }.toLongArray()
     val idLocations = problem.locations().associateBy { it.id }
@@ -56,7 +62,11 @@ class ProblemSummary(problem: VrpProblem) {
     fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
 }
 
-data class ProblemWrapper(val model: RoutingModel, val manager: RoutingIndexManager, val summary: ProblemSummary)
+data class ProblemWrapper(
+    val model: RoutingModel,
+    val manager: RoutingIndexManager,
+    val summary: ProblemSummary
+)
 
 /**
  * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
@@ -70,21 +80,23 @@ fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
     val manager = RoutingIndexManager(summary.nLocations, summary.nVehicles, summary.depots, summary.depots)
     val model = RoutingModel(manager)
 
-    val transitRegistry = model.registerTransitCallback(
-        DistanceEval(
-            matrix,
-            manager,
-            summary.idxLocations
+    val transitRegistry =
+        model.registerTransitCallback(
+            DistanceEval(
+                matrix,
+                manager,
+                summary.idxLocations
+            )
         )
-    )
     model.setArcCostEvaluatorOfAllVehicles(transitRegistry)
 
-    val demandCallbackIndex: Int = model.registerUnaryTransitCallback(
-        DemandEval(
-            manager,
-            summary.idxLocations
+    val demandCallbackIndex: Int =
+        model.registerUnaryTransitCallback(
+            DemandEval(
+                manager,
+                summary.idxLocations
+            )
         )
-    )
     model.addDimensionWithVehicleCapacity(demandCallbackIndex, 0, summary.vehiclesCapacities, true, "Capacity")
     return ProblemWrapper(model, manager, summary)
 }
@@ -101,28 +113,30 @@ fun RoutingModel.toDTO(
     matrix: Matrix,
     assignment: Assignment? = null
 ): VrpSolution {
-    val subRoutes = problem.vehicles.indices.map { vehicleIdx ->
-        val nodes = sequence {
-            var index = start(vehicleIdx)
-            yield(index)
-            while (!isEnd(index)) {
-                index = assignment?.value(nextVar(index)) ?: nextVar(index).value()
-                yield(index)
-            }
-        }.map(manager::indexToNode)
+    val subRoutes =
+        problem.vehicles.indices.map { vehicleIdx ->
+            val nodes =
+                sequence {
+                    var index = start(vehicleIdx)
+                    yield(index)
+                    while (!isEnd(index)) {
+                        index = assignment?.value(nextVar(index)) ?: nextVar(index).value()
+                        yield(index)
+                    }
+                }.map(manager::indexToNode)
 
-        val locations = nodes.map(idxLocations::getValue).toList()
-        val dist = locations.windowed(2, 1).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
-        val time = locations.windowed(2, 1).sumOf { (i, j) -> matrix.time(i.id, j.id).toDouble() }
-        val customers = locations.mapNotNull { if (it is Customer) it else null }
+            val locations = nodes.map(idxLocations::getValue).toList()
+            val dist = locations.windowed(2, 1).sumOf { (i, j) -> matrix.distance(i.id, j.id) }
+            val time = locations.windowed(2, 1).sumOf { (i, j) -> matrix.time(i.id, j.id).toDouble() }
+            val customers = locations.mapNotNull { if (it is Customer) it else null }
 
-        Route(
-            BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
-            BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
-            customers.sumOf { it.demand },
-            locations.map { LatLng(it.lat, it.lng) },
-            customers.map { it.id }
-        )
-    }
+            Route(
+                BigDecimal(dist / 1000).setScale(2, RoundingMode.HALF_UP),
+                BigDecimal(time / (60 * 1000)).setScale(2, RoundingMode.HALF_UP),
+                customers.sumOf { it.demand },
+                locations.map { LatLng(it.lat, it.lng) },
+                customers.map { it.id }
+            )
+        }
     return VrpSolution(problem, subRoutes)
 }

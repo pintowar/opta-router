@@ -32,21 +32,20 @@ class VrpSolverSolutionJooqAdapter(
     private val serde: Serde,
     private val dsl: DSLContext
 ) : VrpSolverSolutionPort {
+    override suspend fun currentSolution(problemId: Long): List<Route> =
+        dsl
+            .selectFrom(VRP_SOLUTION)
+            .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+            .limit(1)
+            .awaitFirstOrNull()
+            ?.let { sol ->
+                serde.fromJson(sol.paths.data())
+            } ?: emptyList()
 
-    override suspend fun currentSolution(problemId: Long): List<Route> = dsl
-        .selectFrom(VRP_SOLUTION)
-        .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-        .limit(1)
-        .awaitFirstOrNull()
-        ?.let { sol ->
-            serde.fromJson(sol.paths.data())
-        } ?: emptyList()
-
-    override suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? {
-        return currentSolutionRequestQuery(dsl, problemId)
+    override suspend fun currentSolutionRequest(problemId: Long): VrpSolutionRequest? =
+        currentSolutionRequestQuery(dsl, problemId)
             .awaitFirstOrNull()
             ?.let(::convertRecordToSolutionRequest)
-    }
 
     override suspend fun upsertSolution(
         problemId: Long,
@@ -60,19 +59,24 @@ class VrpSolverSolutionJooqAdapter(
         val jsonPaths = if (clear) JSON.json("[]") else JSON.json(serde.toJson(paths))
 
         return dsl.transactionCoroutine { trx ->
-            trx.dsl()
+            trx
+                .dsl()
                 .update(VRP_SOLVER_REQUEST)
                 .set(VRP_SOLVER_REQUEST.STATUS, if (clear) SolverStatus.NOT_SOLVED.name else solverStatus.name)
                 .set(VRP_SOLVER_REQUEST.UPDATED_AT, now)
                 .where(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(uuid))
                 .awaitSingle()
 
-            val (numSolutions) = dsl.selectCount().from(VRP_SOLUTION)
-                .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
-                .awaitSingle()
+            val (numSolutions) =
+                dsl
+                    .selectCount()
+                    .from(VRP_SOLUTION)
+                    .where(VRP_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+                    .awaitSingle()
 
             if (numSolutions == 0) {
-                trx.dsl()
+                trx
+                    .dsl()
                     .insertInto(VRP_SOLUTION)
                     .set(VRP_SOLUTION.VRP_PROBLEM_ID, problemId)
                     .set(VRP_SOLUTION.PATHS, jsonPaths)
@@ -80,7 +84,8 @@ class VrpSolverSolutionJooqAdapter(
                     .set(VRP_SOLUTION.UPDATED_AT, now)
                     .awaitSingle()
             } else {
-                trx.dsl()
+                trx
+                    .dsl()
                     .update(VRP_SOLUTION)
                     .set(VRP_SOLUTION.PATHS, jsonPaths)
                     .set(VRP_SOLUTION.UPDATED_AT, now)
@@ -89,7 +94,8 @@ class VrpSolverSolutionJooqAdapter(
             }
 
             if (!clear) {
-                trx.dsl()
+                trx
+                    .dsl()
                     .insertInto(VRP_SOLVER_SOLUTION)
                     .set(VRP_SOLVER_SOLUTION.REQUEST_KEY, uuid)
                     .set(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID, problemId)
@@ -107,13 +113,14 @@ class VrpSolverSolutionJooqAdapter(
         }
     }
 
-    override fun solutionHistory(problemId: Long): Flow<VrpSolverObjective> {
-        return dsl.select(VRP_SOLVER_SOLUTION, VRP_SOLVER_REQUEST)
+    override fun solutionHistory(problemId: Long): Flow<VrpSolverObjective> =
+        dsl
+            .select(VRP_SOLVER_SOLUTION, VRP_SOLVER_REQUEST)
             .from(
-                VRP_SOLVER_SOLUTION.leftJoin(VRP_SOLVER_REQUEST)
+                VRP_SOLVER_SOLUTION
+                    .leftJoin(VRP_SOLVER_REQUEST)
                     .on(VRP_SOLVER_SOLUTION.REQUEST_KEY.eq(VRP_SOLVER_REQUEST.REQUEST_KEY))
-            )
-            .where(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
+            ).where(VRP_SOLVER_SOLUTION.VRP_PROBLEM_ID.eq(problemId))
             .orderBy(VRP_SOLVER_SOLUTION.CREATED_AT)
             .asFlow()
             .map { (sol, req) ->
@@ -125,13 +132,17 @@ class VrpSolverSolutionJooqAdapter(
                     sol.createdAt
                 )
             }
-    }
 
-    private fun currentSolutionRequestQuery(dsl: DSLContext, problemId: Long) = dsl
+    private fun currentSolutionRequestQuery(
+        dsl: DSLContext,
+        problemId: Long
+    ) = dsl
         .select(VRP_PROBLEM, VRP_SOLUTION, VRP_SOLVER_REQUEST)
         .from(VRP_PROBLEM)
-        .leftJoin(VRP_SOLUTION).on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
-        .leftJoin(VRP_SOLVER_REQUEST).on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+        .leftJoin(VRP_SOLUTION)
+        .on(VRP_SOLUTION.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
+        .leftJoin(VRP_SOLVER_REQUEST)
+        .on(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(VRP_PROBLEM.ID))
         .where(VRP_PROBLEM.ID.eq(problemId))
         .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
         .limit(1)

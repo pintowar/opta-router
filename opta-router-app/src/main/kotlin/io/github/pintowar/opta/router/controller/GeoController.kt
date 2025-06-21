@@ -22,26 +22,38 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @Profile(ConfigData.GEO_SERVER_PROFILE)
 @RequestMapping("/api/geo")
-class GeoController(private val geoPort: GeoPort) {
+class GeoController(
+    private val geoPort: GeoPort
+) {
+    data class SimplePathRequest(
+        val origin: LatLng,
+        val target: LatLng
+    )
 
-    data class SimplePathRequest(val origin: LatLng, val target: LatLng)
+    data class LocationsRequest(
+        val depots: List<Depot>,
+        val customers: List<Customer>
+    )
 
-    data class LocationsRequest(val depots: List<Depot>, val customers: List<Customer>)
-
-    data class DetailedPathRequest(val routes: List<Route>)
+    data class DetailedPathRequest(
+        val routes: List<Route>
+    )
 
     @PostMapping("/simple-path", produces = [MediaType.APPLICATION_JSON_VALUE])
     @MessageMapping("simple.path")
-    suspend fun simplePath(@RequestBody bounds: SimplePathRequest): Path =
-        geoPort.simplePath(bounds.origin, bounds.target)
+    suspend fun simplePath(
+        @RequestBody bounds: SimplePathRequest
+    ): Path = geoPort.simplePath(bounds.origin, bounds.target)
 
     @PostMapping("/generate-matrix", produces = [MediaType.APPLICATION_JSON_VALUE])
     @MessageMapping("generate.matrix")
-    suspend fun generateMatrix(@RequestBody locations: LocationsRequest): VrpProblemMatrix =
-        geoPort.generateMatrix((locations.depots + locations.customers).toSet())
+    suspend fun generateMatrix(
+        @RequestBody locations: LocationsRequest
+    ): VrpProblemMatrix = geoPort.generateMatrix((locations.depots + locations.customers).toSet())
 
     @PostMapping("/detailed-paths", produces = [MediaType.APPLICATION_JSON_VALUE])
     @MessageMapping("detailed.paths")
-    suspend fun detailedPaths(@RequestBody plan: DetailedPathRequest): List<Route> =
-        geoPort.detailedPaths(plan.routes)
+    suspend fun detailedPaths(
+        @RequestBody plan: DetailedPathRequest
+    ): List<Route> = geoPort.detailedPaths(plan.routes)
 }

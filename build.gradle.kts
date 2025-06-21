@@ -3,6 +3,7 @@ import net.researchgate.release.ReleaseExtension
 plugins {
     base
     id("idea")
+    id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
     alias(libs.plugins.release)
@@ -18,10 +19,31 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    allJacocoSubModules.forEach(::jacocoAggregation)
+}
+
+reporting {
+    reports {
+        val testCodeCoverageReport by creating(JacocoCoverageReport::class) {
+            testSuiteName.set("test")
+            reportTask.get().classDirectories.setFrom(reportTask.get().classDirectories.map {
+                fileTree(it).matching {
+                    exclude(excludedJacocoPackages)
+                }
+            })
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.named<JacocoReport>("testCodeCoverageReport"))
+}
+
 spotless {
     format("misc") {
         target("**/.gitignore", "README.md")
-        indentWithSpaces()
+        leadingTabsToSpaces()
         trimTrailingWhitespace()
         endWithNewline()
     }

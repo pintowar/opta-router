@@ -11,8 +11,10 @@ import reactor.core.publisher.Mono
 @Component
 @Profile(ConfigData.REST_PROFILE)
 class WebSessionIdFilterConfig : WebFilter {
-
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
+    override fun filter(
+        exchange: ServerWebExchange,
+        chain: WebFilterChain
+    ): Mono<Void> {
         exchange.session.subscribe { it.attributes[ConfigData.WEBSESSION_ID] = it.id }
         return chain.filter(exchange)
     }

@@ -11,8 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 @Configuration
 @Profile(ConfigData.REST_PROFILE)
 class SessionPanelStorageConfig {
-
     @Bean
-    fun sessionPanelStorage(geoPort: GeoPort): SolverPanelStorage =
-        SolverPanelStorage(ConcurrentHashMap(), geoPort)
+    fun sessionPanelStorage(geoPort: GeoPort): SolverPanelStorage = SolverPanelStorage(ConcurrentHashMap(), geoPort)
 }

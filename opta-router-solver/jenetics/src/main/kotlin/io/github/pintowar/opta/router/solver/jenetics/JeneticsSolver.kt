@@ -19,10 +19,13 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 
 class JeneticsSolver : Solver() {
-
     override val name: String = "jenetics"
 
-    private fun buildEngine(problem: VrpProblem, matrix: Matrix) = Engine.builder(problem.toProblem(matrix))
+    private fun buildEngine(
+        problem: VrpProblem,
+        matrix: Matrix
+    ) = Engine
+        .builder(problem.toProblem(matrix))
         .minimizing()
         .survivorsSelector(EliteSelector(5))
         .offspringSelector(RouletteWheelSelector())
@@ -33,24 +36,27 @@ class JeneticsSolver : Solver() {
             PartiallyMatchedCrossover(0.8),
             SwapMutator(0.05),
             ReverseMutator(0.05)
-        )
-        .build()
+        ).build()
 
-    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
+    override fun solveFlow(
+        initialSolution: VrpSolution,
+        matrix: Matrix,
+        config: SolverConfig
+    ): Flow<VrpSolution> {
         val engine = buildEngine(initialSolution.problem, matrix)
 
         return callbackFlow {
             val ctx = currentCoroutineContext()
             val emptySol = initialSolution.isEmpty()
             val evoStream = if (emptySol) engine.stream() else engine.stream(initialSolution.toInitialSolution())
-            val result = evoStream
-                .limit(Limits.byExecutionTime(config.timeLimit))
-                .limit { ctx.isActive }
-                .peek { result ->
-                    val actual = result.bestPhenotype().genotype().toDto(initialSolution.problem, matrix)
-                    trySendBlocking(actual)
-                }
-                .collect(EvolutionResult.toBestGenotype())
+            val result =
+                evoStream
+                    .limit(Limits.byExecutionTime(config.timeLimit))
+                    .limit { ctx.isActive }
+                    .peek { result ->
+                        val actual = result.bestPhenotype().genotype().toDto(initialSolution.problem, matrix)
+                        trySendBlocking(actual)
+                    }.collect(EvolutionResult.toBestGenotype())
             send(result.toDto(initialSolution.problem, matrix))
             close()
         }

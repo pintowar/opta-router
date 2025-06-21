@@ -1,10 +1,10 @@
 [versions]
-kotlin = "2.0.10"
-kotlin-coroutines = "1.8.1"
+kotlin = "2.1.21"
+kotlin-coroutines = "1.10.2"
 kotlin-logging = "7.0.0"
 spring-boot = "3.3.2"
 spring-dependency = "1.1.6"
-spotless = "6.25.0"
+spotless = "7.0.4"
 springdoc = "2.6.0"
 jackson = "2.17.2"
 optaplanner = "9.44.0.Final"
@@ -13,14 +13,17 @@ jsprit = "1.9.0-beta.11"
 ortools = "9.9.3963" # 9.10.* uses protobuf 4.*, it conflicts with graphhopper deps
 jenetics = "8.0.0"
 graphhopper = "9.1"
-flyway = "9.17.0"
-jooq = "3.19.11"
+flyway = "11.8.2"
+jooq = "3.19.22"
 hazelcast = "5.4.0"
 camel = "4.7.0"
 h2 = "2.3.232"
 postgres = "42.7.3"
 shedlock = "5.14.0"
 sfl4j = "2.0.16"
+kotest = "6.0.0.M4"
+test-containers = "1.21.1"
+mockk = "1.14.2"
 gradle-jooq = "9.0"
 gradle-node = "7.0.2"
 gradle-jib = "3.4.3"
@@ -94,6 +97,11 @@ camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starte
 
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
+kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertion = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
@@ -103,3 +111,4 @@ timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
 camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]
+kotest = ["kotest-runner", "kotest-assertion", "mockk"]

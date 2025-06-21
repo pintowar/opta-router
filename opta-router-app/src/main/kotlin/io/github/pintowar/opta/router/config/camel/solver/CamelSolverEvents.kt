@@ -13,19 +13,23 @@ import org.springframework.stereotype.Component
 
 @Component
 @Profile(ConfigData.SOLVER_PROFILE)
-class CamelSolverEvents(private val serde: Serde) : RouteBuilder() {
-
+class CamelSolverEvents(
+    private val serde: Serde
+) : RouteBuilder() {
     override fun configure() {
         from("{{camel.route.consumer.request-solver}}")
             .routeId("request.solver.queue")
-            .transform().body { it -> serde.fromCbor<RequestSolverCommand>(it as ByteArray) }
+            .transform()
+            .body { it -> serde.fromCbor<RequestSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "solve")
             .process(SplitStreamProcessorTo(context, "{{camel.route.producer.solution-request}}", serde::toCbor))
 
         from("{{camel.route.consumer.cancel-solver-topic}}")
             .routeId("cancel.solver.topic")
-            .transform().spel("#{body.messageObject}")
-            .transform().body { it -> serde.fromCbor<CancelSolverCommand>(it as ByteArray) }
+            .transform()
+            .spel("#{body.messageObject}")
+            .transform()
+            .body { it -> serde.fromCbor<CancelSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "cancelSolver")
             .process(UnwrapStreamProcessor())
             .end()

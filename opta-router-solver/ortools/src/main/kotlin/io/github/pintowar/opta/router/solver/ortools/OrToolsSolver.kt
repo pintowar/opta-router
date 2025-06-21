@@ -16,19 +16,25 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 
 class OrToolsSolver : Solver() {
-
     init {
         Loader.loadNativeLibraries()
     }
 
     override val name: String = "or-tools"
 
-    override fun solveFlow(initialSolution: VrpSolution, matrix: Matrix, config: SolverConfig): Flow<VrpSolution> {
-        val searchParameters = main.defaultRoutingSearchParameters().toBuilder()
-            .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
-            .setTimeLimit(Duration.newBuilder().setSeconds(config.timeLimit.toSeconds()).build())
-            .setLocalSearchMetaheuristic(LocalSearchMetaheuristic.Value.GUIDED_LOCAL_SEARCH)
-            .build()
+    override fun solveFlow(
+        initialSolution: VrpSolution,
+        matrix: Matrix,
+        config: SolverConfig
+    ): Flow<VrpSolution> {
+        val searchParameters =
+            main
+                .defaultRoutingSearchParameters()
+                .toBuilder()
+                .setFirstSolutionStrategy(FirstSolutionStrategy.Value.AUTOMATIC)
+                .setTimeLimit(Duration.newBuilder().setSeconds(config.timeLimit.toSeconds()).build())
+                .setLocalSearchMetaheuristic(LocalSearchMetaheuristic.Value.GUIDED_LOCAL_SEARCH)
+                .build()
 
         return callbackFlow {
             val ctx = currentCoroutineContext()
@@ -43,16 +49,19 @@ class OrToolsSolver : Solver() {
             }
 
             try {
-                val solution = if (!initialSolution.isEmpty()) {
-                    model.closeModelWithParameters(searchParameters)
-                    val vehicleVisitOrder = initialSolution.routes.map { route ->
-                        route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
-                    }.toTypedArray()
-                    val initialState = model.readAssignmentFromRoutes(vehicleVisitOrder, true)
-                    model.solveFromAssignmentWithParameters(initialState, searchParameters)
-                } else {
-                    model.solveWithParameters(searchParameters)
-                }
+                val solution =
+                    if (!initialSolution.isEmpty()) {
+                        model.closeModelWithParameters(searchParameters)
+                        val vehicleVisitOrder =
+                            initialSolution.routes
+                                .map { route ->
+                                    route.customerIds.map(summary::locationIdxFromCustomer).toLongArray()
+                                }.toTypedArray()
+                        val initialState = model.readAssignmentFromRoutes(vehicleVisitOrder, true)
+                        model.solveFromAssignmentWithParameters(initialState, searchParameters)
+                    } else {
+                        model.solveWithParameters(searchParameters)
+                    }
 
                 if (solution != null) {
                     val sol = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix, solution)

@@ -5,7 +5,6 @@ import io.github.pintowar.opta.router.core.domain.messages.RequestSolverCommand
 import io.github.pintowar.opta.router.core.domain.messages.SolutionRequestCommand
 
 interface SolverEventsPort {
-
     fun enqueueRequestSolver(command: RequestSolverCommand)
 
     fun enqueueSolutionRequest(command: SolutionRequestCommand)

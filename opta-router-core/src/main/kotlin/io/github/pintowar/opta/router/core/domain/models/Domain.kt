@@ -17,7 +17,10 @@ interface Location : Coordinate {
     override val lng: Double
 }
 
-data class LatLng(override val lat: Double, override val lng: Double) : Coordinate
+data class LatLng(
+    override val lat: Double,
+    override val lng: Double
+) : Coordinate
 
 data class VrpProblemSummary(
     val id: Long,
@@ -40,8 +43,11 @@ data class VrpProblem(
     val customers: List<Customer>
 ) {
     fun depots(): List<Depot> = vehicles.map { it.depot }.distinct()
+
     fun locations(): List<Location> = depots() + customers
+
     fun numLocations(): Int = locations().size
+
     fun numVehicles(): Int = vehicles.size
 }
 
@@ -60,45 +66,62 @@ data class Depot(
     override val lng: Double
 ) : Location
 
-data class Vehicle(val id: Long, val name: String, val capacity: Int, val depot: Depot)
+data class Vehicle(
+    val id: Long,
+    val name: String,
+    val capacity: Int,
+    val depot: Depot
+)
 
-data class Path(val distance: Double, val time: Long, val coordinates: List<Coordinate>)
+data class Path(
+    val distance: Double,
+    val time: Long,
+    val coordinates: List<Coordinate>
+)
 
 data class Route(
     val distance: BigDecimal,
     val time: BigDecimal,
     val totalDemand: Int,
     val order: List<LatLng>,
-    val customerIds: List<Long> // TODO rename to locationIds
+    // TODO rename to locationIds
+    val customerIds: List<Long>
 ) {
     companion object {
         val EMPTY = Route(BigDecimal.ZERO, BigDecimal.ZERO, 0, emptyList(), emptyList())
     }
 }
 
-data class VrpSolution(val problem: VrpProblem, val routes: List<Route>) {
-
+data class VrpSolution(
+    val problem: VrpProblem,
+    val routes: List<Route>
+) {
     companion object {
         fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
     }
 
-    fun isFeasible(): Boolean {
-        return problem.vehicles.zip(routes).all { (vehicle, route) ->
+    fun isFeasible(): Boolean =
+        problem.vehicles.zip(routes).all { (vehicle, route) ->
             vehicle.capacity >= route.totalDemand
         }
-    }
 
     fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
 
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
-    fun getTotalTime() = routes.maxOfOrNull { it.time } ?: 0
+    fun getTotalTime(): BigDecimal = routes.maxOfOrNull { it.time } ?: BigDecimal.ZERO
 }
 
-data class VrpDetailedSolution(val solution: VrpSolution, val matrix: VrpProblemMatrix)
+data class VrpDetailedSolution(
+    val solution: VrpSolution,
+    val matrix: VrpProblemMatrix
+)
 
 enum class SolverStatus {
-    ENQUEUED, NOT_SOLVED, RUNNING, TERMINATED
+    ENQUEUED,
+    NOT_SOLVED,
+    RUNNING,
+    TERMINATED
 }
 
 data class VrpSolverRequest(
@@ -108,7 +131,11 @@ data class VrpSolverRequest(
     val status: SolverStatus
 )
 
-data class VrpSolutionRequest(val solution: VrpSolution, val status: SolverStatus, val solverKey: UUID? = null)
+data class VrpSolutionRequest(
+    val solution: VrpSolution,
+    val status: SolverStatus,
+    val solverKey: UUID? = null
+)
 
 data class VrpSolverObjective(
     val objective: Double,
@@ -118,4 +145,6 @@ data class VrpSolverObjective(
     val createdAt: Instant
 )
 
-data class SolverPanel(val isDetailedPath: Boolean = false)
+data class SolverPanel(
+    val isDetailedPath: Boolean = false
+)
