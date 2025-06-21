@@ -38,6 +38,23 @@ tasks {
         finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
     }
 
+    named<JacocoReport>("jacocoTestReport") {
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
+
+        classDirectories.setFrom(
+            files(
+                classDirectories.files.map {
+                    fileTree(it) {
+                        exclude(excludedJacocoPackages)
+                    }
+                }
+            )
+        )
+    }
+
     withType<KotlinCompile> {
         compilerOptions {
             freeCompilerArgs.set(listOf("-Xjsr305=strict"))

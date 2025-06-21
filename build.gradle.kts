@@ -27,6 +27,11 @@ reporting {
     reports {
         val testCodeCoverageReport by creating(JacocoCoverageReport::class) {
             testSuiteName.set("test")
+            reportTask.get().classDirectories.setFrom(reportTask.get().classDirectories.map {
+                fileTree(it).matching {
+                    exclude(excludedJacocoPackages)
+                }
+            })
         }
     }
 }
@@ -38,7 +43,7 @@ tasks.check {
 spotless {
     format("misc") {
         target("**/.gitignore", "README.md")
-        indentWithSpaces()
+        leadingTabsToSpaces()
         trimTrailingWhitespace()
         endWithNewline()
     }

@@ -22,3 +22,6 @@ val Project.allJacocoSubModules: List<Project>
     get() = this.rootProject
         .subprojects
         .filterNot { sub -> listOf("webcli", "solver").any { sub.name.contains(it) } }
+
+val Project.excludedJacocoPackages: List<String>
+    get() = listOf("org/jooq/generated/**", "io/github/pintowar/opta/router/config/**")
