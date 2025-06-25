@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Page, VrpProblemSummary } from "../../api";
+import type { Page, VrpProblemSummary } from "../../api";
 
 import { VrpPageLayout } from "../../layout";
 import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { StyleValue, computed, toRefs } from "vue";
+import type { StyleValue } from "vue";
+import { computed, toRefs } from "vue";
 import { useFetch, useVModels } from "@vueuse/core";
 import { uniqBy, sortBy } from "lodash";
-import { Customer, VrpProblem, Vehicle } from "../../../api";
+import type { Customer, VrpProblem, Vehicle } from "../../../api";
 import { AlertMessage, LocationMap } from "../../../components";
 import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";

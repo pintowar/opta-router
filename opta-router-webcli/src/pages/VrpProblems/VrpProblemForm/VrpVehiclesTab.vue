@@ -2,7 +2,7 @@
 import { computed, ref, toRefs } from "vue";
 import { useFetch } from "@vueuse/core";
 import { uniqBy } from "lodash";
-import { Depot, Vehicle } from "../../../api";
+import type { Depot, Vehicle } from "../../../api";
 
 const props = defineProps<{
   vehicles: Vehicle[];

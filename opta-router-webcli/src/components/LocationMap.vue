@@ -7,7 +7,8 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { ref, toRefs, computed, watchEffect } from "vue";
 
-import { Customer, Depot, VehicleRoute, isDepot } from "../api";
+import type { Customer, Depot, VehicleRoute } from "../api";
+import { isDepot } from "../api";
 
 const props = defineProps<{
   locations: (Depot | Customer)[];

@@ -70,7 +70,8 @@ tasks.register("assembleApp") {
             from(files(project(webServ).layout.buildDirectory.dir("libs").get())) {
                 include("opta-router-app-${version}.jar")
             }
-            into("$rootDir/build/app.jar")
+            into("$rootDir/build/")
+            rename { "app.jar" }
         }
     }
 }

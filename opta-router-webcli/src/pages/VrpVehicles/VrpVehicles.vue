@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { AfterFetchContext, useFetch } from "@vueuse/core";
+import type { AfterFetchContext } from "@vueuse/core";
+import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Vehicle, Page, Depot } from "../../api";
+import type { Vehicle, Page, Depot } from "../../api";
 
 import { VrpPageLayout } from "../../layout";
 import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";

@@ -5,7 +5,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 
 import { categories } from "../../themes.ts";
-import { VrpSolverRequest, VrpSolverObjective } from "../../api";
+import type { VrpSolverRequest, VrpSolverObjective } from "../../api";
 
 const props = defineProps<{
   solutions: VrpSolverObjective[];

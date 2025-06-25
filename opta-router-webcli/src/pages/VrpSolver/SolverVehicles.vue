@@ -3,7 +3,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { toRefs, computed } from "vue";
 
-import { VrpSolution } from "../../api";
+import type { VrpSolution } from "../../api";
 
 const props = defineProps<{
   solution: VrpSolution | null;
