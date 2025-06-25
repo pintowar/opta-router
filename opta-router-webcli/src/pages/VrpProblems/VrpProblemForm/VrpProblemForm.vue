@@ -116,16 +116,20 @@ function successClose() {
       <div class="pb-2">
         <table class="table table-sm table-zebra">
           <thead>
-            <th>Name</th>
-            <th>Total Capacity</th>
-            <th>Total Demand</th>
+            <tr>
+              <th>Name</th>
+              <th>Total Capacity</th>
+              <th>Total Demand</th>
+            </tr>
           </thead>
           <tbody>
-            <td>
-              <input v-if="problem" v-model="problem.name" name="name" class="input input-bordered w-full input-xs" />
-            </td>
-            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
-            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
+            <tr>
+              <td>
+                <input v-if="problem" v-model="problem.name" name="name" class="input input-bordered w-full input-xs" />
+              </td>
+              <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
+              <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
