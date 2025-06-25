@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { toRefs, computed } from "vue";
 import { uniqBy } from "lodash";
+import { computed, toRefs } from "vue";
 import type { Customer, Depot, VehicleRoute, VrpSolution } from "../../api";
 
 import { LocationMap } from "../../components";

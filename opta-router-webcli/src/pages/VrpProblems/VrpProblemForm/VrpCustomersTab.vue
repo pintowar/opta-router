@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useFetch } from "@vueuse/core";
 import { ref, toRefs } from "vue";
 import type { Customer } from "../../../api";
-import { useFetch } from "@vueuse/core";
 
 const props = defineProps<{
   customers: Customer[];

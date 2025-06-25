@@ -1,8 +1,5 @@
-import { createApp, defineAsyncComponent } from "vue";
-import "./app.css";
-import App from "./App.vue";
-import { createRouter, createWebHashHistory } from "vue-router";
 import { OhVueIcon, addIcons } from "oh-vue-icons";
+import { FaGithub, FaSlackHash } from "oh-vue-icons/icons/fa";
 import {
   MdAdd,
   MdCancelOutlined,
@@ -12,15 +9,18 @@ import {
   MdClose,
   MdContentcopy,
   MdDeleteoutline,
-  MdInfoOutlined,
   MdEditTwotone,
+  MdInfoOutlined,
   MdSearch,
   MdWarningamberRound,
 } from "oh-vue-icons/icons/md";
-import { FaGithub, FaSlackHash } from "oh-vue-icons/icons/fa";
 import { OiGear } from "oh-vue-icons/icons/oi";
+import { createApp, defineAsyncComponent } from "vue";
+import { createRouter, createWebHashHistory } from "vue-router";
+import "./app.css";
+import App from "./App.vue";
 
-import { VrpLocations, VrpProblems, VrpProblemEditor, VrpVehicles, VrpSolver, VrpSolverHistory } from "./pages";
+import { VrpLocations, VrpProblemEditor, VrpProblems, VrpSolver, VrpSolverHistory, VrpVehicles } from "./pages";
 
 const VueApexCharts = defineAsyncComponent(() => import("vue3-apexcharts"));
 

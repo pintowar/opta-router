@@ -1,9 +1,9 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginVue from "eslint-plugin-vue";
-import vueParser from "vue-eslint-parser";
 import eslintConfigPrettier from "eslint-config-prettier";
+import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import vueParser from "vue-eslint-parser";
 
 export default tseslint.config(
   {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import type { StyleValue } from "vue";
-import { toRefs, computed, ref } from "vue";
 import { until } from "@vueuse/core";
+import type { StyleValue } from "vue";
+import { computed, ref, toRefs } from "vue";
 import type { VrpSolution } from "../../api";
 
 import SolverVehicles from "./SolverVehicles.vue";

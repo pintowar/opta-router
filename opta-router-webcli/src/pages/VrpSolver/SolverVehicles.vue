@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
-import { toRefs, computed } from "vue";
+import { createRainbow } from "rainbow-color";
+import { computed, toRefs } from "vue";
 
 import type { VrpSolution } from "../../api";
 

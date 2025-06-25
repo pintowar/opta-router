@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, toRefs } from "vue";
 import type { AfterFetchContext } from "@vueuse/core";
 import { useFetch } from "@vueuse/core";
+import { computed, toRefs } from "vue";
 import { useRoute } from "vue-router";
-import { VrpPageLayout } from "../../layout";
 import type { VrpProblem } from "../../api";
+import { VrpPageLayout } from "../../layout";
 import VrpProblemForm from "./VrpProblemForm/VrpProblemForm.vue";
 
 const props = defineProps<{

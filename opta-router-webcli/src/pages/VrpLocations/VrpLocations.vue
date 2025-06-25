@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
 import type { AfterFetchContext } from "@vueuse/core";
 import { useFetch } from "@vueuse/core";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import type { Customer, Depot, Page } from "../../api";
 import { isDepot } from "../../api";
 
+import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../../components";
 import { VrpPageLayout } from "../../layout";
 import VrpLocationForm from "./VrpLocationForm.vue";
-import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../../components";
 
 const baseRestUrl = "/api/vrp-locations";
 const route = useRoute();

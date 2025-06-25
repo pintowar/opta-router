@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref, watch, computed } from "vue";
 import { useFetch } from "@vueuse/core";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import type { VrpSolverRequest, VrpSolverObjective } from "../../api";
+import type { VrpSolverObjective, VrpSolverRequest } from "../../api";
 
 import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
 import SolutionsHistoryChart from "./SolutionsHistoryChart.vue";

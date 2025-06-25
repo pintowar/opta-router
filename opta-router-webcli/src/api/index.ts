@@ -44,8 +44,8 @@ export type {
   VrpProblem,
   VrpProblemSummary,
   VrpSolution,
-  VrpSolverRequest,
   VrpSolverObjective,
+  VrpSolverRequest,
 };
 
 export { isDepot };

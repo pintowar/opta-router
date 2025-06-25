@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
 import type { AfterFetchContext } from "@vueuse/core";
 import { useFetch } from "@vueuse/core";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
-import type { Vehicle, Page, Depot } from "../../api";
+import type { Depot, Page, Vehicle } from "../../api";
 
-import { VrpPageLayout } from "../../layout";
 import { AlertMessage, DeleteDialog, InputSearch, PaginatedTable } from "../../components";
+import { VrpPageLayout } from "../../layout";
 import VrpVehicleForm from "./VrpVehicleForm.vue";
 
 const baseRestUrl = "/api/vrp-vehicles";

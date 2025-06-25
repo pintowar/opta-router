@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, toRefs } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps<{
   query: string;

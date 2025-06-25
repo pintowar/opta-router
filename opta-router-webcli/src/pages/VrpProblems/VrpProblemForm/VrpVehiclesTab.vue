@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from "vue";
 import { useFetch } from "@vueuse/core";
 import { uniqBy } from "lodash";
+import { computed, ref, toRefs } from "vue";
 import type { Depot, Vehicle } from "../../../api";
 
 const props = defineProps<{

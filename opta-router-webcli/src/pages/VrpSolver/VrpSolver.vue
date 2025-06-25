@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
-import { useRoute } from "vue-router";
 import type { AfterFetchContext } from "@vueuse/core";
 import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
+import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 import type { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 

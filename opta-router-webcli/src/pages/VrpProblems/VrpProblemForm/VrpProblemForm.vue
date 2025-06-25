@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { useFetch, useVModels } from "@vueuse/core";
+import { sortBy, uniqBy } from "lodash";
 import type { StyleValue } from "vue";
 import { computed, toRefs } from "vue";
-import { useFetch, useVModels } from "@vueuse/core";
-import { uniqBy, sortBy } from "lodash";
-import type { Customer, VrpProblem, Vehicle } from "../../../api";
+import type { Customer, Vehicle, VrpProblem } from "../../../api";
 import { AlertMessage, LocationMap } from "../../../components";
-import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
+import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 
 const props = defineProps<{
   persistUrl: string;
