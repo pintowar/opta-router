@@ -4,10 +4,10 @@ import com.graphhopper.GHRequest
 import com.graphhopper.GraphHopper
 import com.graphhopper.config.CHProfile
 import com.graphhopper.config.Profile
-import com.graphhopper.config.TurnCostsConfig
 import com.graphhopper.json.Statement
 import com.graphhopper.util.CustomModel
 import com.graphhopper.util.Parameters
+import com.graphhopper.util.TurnCostsConfig
 import io.github.pintowar.opta.router.core.domain.models.Coordinate
 import io.github.pintowar.opta.router.core.domain.models.LatLng
 import io.github.pintowar.opta.router.core.domain.models.Location
