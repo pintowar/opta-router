@@ -1,35 +1,35 @@
 [versions]
-kotlin = "2.1.21"
+kotlin = "2.2.0"
 kotlin-coroutines = "1.10.2"
-kotlin-logging = "7.0.0"
-spring-boot = "3.3.2"
-spring-dependency = "1.1.6"
+kotlin-logging = "7.0.7"
+spring-boot = "3.5.3"
+spring-dependency = "1.1.7"
 spotless = "7.0.4"
-springdoc = "2.6.0"
-jackson = "2.17.2"
-optaplanner = "9.44.0.Final"
-timefold = "1.8.1"
-jsprit = "1.9.0-beta.11"
+springdoc = "2.8.9"
+jackson = "2.19.1"
+optaplanner = "10.0.0"
+timefold = "1.23.0"
+jsprit = "1.9.0-beta.12"
 ortools = "9.9.3963" # 9.10.* uses protobuf 4.*, it conflicts with graphhopper deps
 jenetics = "8.0.0"
 graphhopper = "9.1"
-flyway = "11.8.2"
-jooq = "3.19.22"
+flyway = "11.9.1"
+jooq = "3.20.5"
 hazelcast = "5.4.0"
-camel = "4.7.0"
+camel = "4.12.0"
 h2 = "2.3.232"
 postgres = "42.7.3"
-shedlock = "5.14.0"
-sfl4j = "2.0.16"
+shedlock = "6.9.0"
+sfl4j = "2.1.0-alpha1"
 kotest = "6.0.0.M4"
-test-containers = "1.21.1"
-mockk = "1.14.2"
-gradle-jooq = "9.0"
+mockk = "1.14.4"
+gradle-jooq = "10.1"
 gradle-node = "7.0.2"
-gradle-jib = "3.4.3"
-gradle-git = "2.4.2"
+gradle-jib = "3.4.5"
+gradle-git = "2.5.0"
 gradle-release = "3.0.2"
 gradle-properties = "1.5.2"
+gradle-versions = "0.52.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -47,6 +47,7 @@ release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 gradleplugin-properties = { module = "net.saliman:gradle-properties-plugin", version.ref = "gradle-properties" }
+gradleplugin-versions = { module = "com.github.ben-manes.versions:com.github.ben-manes.versions.gradle.plugin", version.ref = "gradle-versions" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -59,7 +60,7 @@ spring-rsocket = { module = "org.springframework.boot:spring-boot-starter-rsocke
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
 spring-r2dbc = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc", version.ref = "spring-boot" }
-r2dbc-proxy = { module = "io.r2dbc:r2dbc-proxy", version = "1.1.5.RELEASE" }
+r2dbc-proxy = { module = "io.r2dbc:r2dbc-proxy", version = "1.1.6.RELEASE" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
