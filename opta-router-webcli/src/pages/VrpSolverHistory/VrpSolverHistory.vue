@@ -3,7 +3,7 @@ import { ref, watch, computed } from "vue";
 import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { VrpSolverRequest, VrpSolverObjective } from "../../api";
+import type { VrpSolverRequest, VrpSolverObjective } from "../../api";
 
 import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
 import SolutionsHistoryChart from "./SolutionsHistoryChart.vue";

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed, toRefs } from "vue";
-import { Customer, Depot, isDepot } from "../../api";
+import type { Customer, Depot } from "../../api";
+import { isDepot } from "../../api";
 
 const props = defineProps<{
   location: Depot | Customer;

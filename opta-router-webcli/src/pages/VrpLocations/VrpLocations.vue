@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { AfterFetchContext, useFetch } from "@vueuse/core";
+import type { AfterFetchContext } from "@vueuse/core";
+import { useFetch } from "@vueuse/core";
 import { useRoute } from "vue-router";
 
-import { Customer, Depot, Page, isDepot } from "../../api";
+import type { Customer, Depot, Page } from "../../api";
+import { isDepot } from "../../api";
 
 import { VrpPageLayout } from "../../layout";
 import VrpLocationForm from "./VrpLocationForm.vue";

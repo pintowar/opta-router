@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { AfterFetchContext, useFetch, useWebSocket, watchOnce } from "@vueuse/core";
+import type { AfterFetchContext } from "@vueuse/core";
+import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
-import { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
+import type { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 
 import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
 import SolverMap from "./SolverMap.vue";

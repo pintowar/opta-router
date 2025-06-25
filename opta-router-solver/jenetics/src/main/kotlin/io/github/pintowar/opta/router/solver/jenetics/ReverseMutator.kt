@@ -4,7 +4,7 @@ import io.jenetics.Chromosome
 import io.jenetics.Gene
 import io.jenetics.Mutator
 import io.jenetics.MutatorResult
-import io.jenetics.internal.math.Subset
+import io.jenetics.internal.math.Subsets
 import io.jenetics.util.ISeq
 import io.jenetics.util.RandomRegistry
 import java.util.random.RandomGenerator
@@ -19,7 +19,7 @@ class ReverseMutator<G : Gene<*, G>?, C : Comparable<C>?>(
     ): MutatorResult<Chromosome<G>> =
         if (chromosome.length() > 1) {
             val genes = chromosome.toMutableList()
-            val points = Subset.next(RandomRegistry.random(), genes.size, 2)
+            val points = Subsets.next(RandomRegistry.random(), genes.size, 2)
 
             val newSeq = genes.subList(points[0], points[1]).reversed()
             val mutations =

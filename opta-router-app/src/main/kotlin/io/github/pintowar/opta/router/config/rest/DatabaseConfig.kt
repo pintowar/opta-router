@@ -30,8 +30,8 @@ import org.springframework.transaction.PlatformTransactionManager
 @Profile(ConfigData.REST_PROFILE)
 @EnableConfigurationProperties(FlywayProperties::class)
 class DatabaseConfig(
-    @Value("\${spring.jooq.sql-dialect}") private val sqlDialect: SQLDialect,
-    @Value("\${spring.jooq.bind-offset-date-time-type}") private val bindOffsetDateTimeType: Boolean,
+    @param:Value("\${spring.jooq.sql-dialect}") private val sqlDialect: SQLDialect,
+    @param:Value("\${spring.jooq.bind-offset-date-time-type}") private val bindOffsetDateTimeType: Boolean,
     private val cfi: ConnectionFactory
 ) {
     @Bean

@@ -3,7 +3,7 @@ import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
 import { toRefs, computed } from "vue";
 
-import { VrpSolution } from "../../api";
+import type { VrpSolution } from "../../api";
 
 const props = defineProps<{
   solution: VrpSolution | null;
@@ -28,20 +28,24 @@ const colors = computed(() => {
   <div class="overflow-y-auto">
     <table class="table table-compact table-zebra w-full">
       <thead>
-        <th>Name</th>
-        <th>Distance</th>
-        <th>Time</th>
-        <th>Full Capacity</th>
+        <tr>
+          <th>Name</th>
+          <th>Distance</th>
+          <th>Time</th>
+          <th>Full Capacity</th>
+        </tr>
       </thead>
       <tbody v-for="(capacity, idx) in capacities" :key="idx">
-        <td :style="{ color: colors[idx] }">{{ vehicles[idx].name }}</td>
-        <td>{{ routes[idx].distance }}</td>
-        <td>{{ routes[idx].time }}</td>
-        <td>
-          <div class="tooltip w-full" :data-tip="`${formatter.format(capacity)}%`">
-            <progress class="progress progress-primary" :value="capacity" max="100"></progress>
-          </div>
-        </td>
+        <tr>
+          <td :style="{ color: colors[idx] }">{{ vehicles[idx].name }}</td>
+          <td>{{ routes[idx].distance }}</td>
+          <td>{{ routes[idx].time }}</td>
+          <td>
+            <div class="tooltip w-full" :data-tip="`${formatter.format(capacity)}%`">
+              <progress class="progress progress-primary" :value="capacity" max="100"></progress>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

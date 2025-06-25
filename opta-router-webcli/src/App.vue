@@ -16,7 +16,7 @@ const mode = useColorMode({
       <router-link to="/locations" class="btn btn-ghost normal-case text-l">Locations</router-link>
       <router-link to="/vehicles" class="btn btn-ghost normal-case text-l">Vehicles</router-link>
     </div>
-    <div class="justify-end space-x-4">
+    <div class="flex items-center justify-end space-x-4">
       <a href="https://github.com/pintowar/opta-router">
         <v-icon name="fa-github" scale="2" />
       </a>

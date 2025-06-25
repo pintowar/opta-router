@@ -1,4 +1,4 @@
-import { components } from "./generated/api";
+import type { components } from "./generated/api";
 type Customer = components["schemas"]["Customer"];
 type Depot = components["schemas"]["Depot"];
 type Route = components["schemas"]["Route"];

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, toRefs } from "vue";
-import { Customer } from "../../../api";
+import type { Customer } from "../../../api";
 import { useFetch } from "@vueuse/core";
 
 const props = defineProps<{

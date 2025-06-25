@@ -7,7 +7,7 @@ plugins {
 project.layout.buildDirectory.set(file("dist"))
 
 node {
-    version.set("18.18.2")
+    version.set("22.16.0")
     download.set(true)
 }
 

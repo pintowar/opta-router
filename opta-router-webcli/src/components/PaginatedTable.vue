@@ -1,6 +1,7 @@
 <script lang="ts" generic="T extends { id: number }" setup>
-import { StyleValue, ref, toRefs, watch } from "vue";
-import { Page } from "../api";
+import type { StyleValue } from "vue";
+import { ref, toRefs, watch } from "vue";
+import type { Page } from "../api";
 import { useRouter, useRoute } from "vue-router";
 
 const props = withDefaults(

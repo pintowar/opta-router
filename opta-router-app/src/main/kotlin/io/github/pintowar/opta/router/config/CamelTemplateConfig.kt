@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component
 
 @Component
 class CamelTemplateConfig(
-    @Value("\${camel.route.producer.enqueue-request-solver}") private val enqueueRequestSolver: String,
-    @Value("\${camel.route.producer.enqueue-solution-request}") private val enqueueSolutionRequest: String,
-    @Value("\${camel.route.producer.broadcast-solution}") private val broadcastSolution: String,
-    @Value("\${camel.route.producer.broadcast-cancel-solver}") private val broadcastCancelSolver: String,
+    @param:Value("\${camel.route.producer.enqueue-request-solver}") private val enqueueRequestSolver: String,
+    @param:Value("\${camel.route.producer.enqueue-solution-request}") private val enqueueSolutionRequest: String,
+    @param:Value("\${camel.route.producer.broadcast-solution}") private val broadcastSolution: String,
+    @param:Value("\${camel.route.producer.broadcast-cancel-solver}") private val broadcastCancelSolver: String,
     private val template: ProducerTemplate
 ) : SolverEventsPort,
     BroadcastPort {
