@@ -130,162 +130,149 @@ function successClose() {
 </script>
 
 <template>
-  <vrp-page-layout v-slot="{ tableFooterHeight }" :is-fetching="isFetching" :error="error">
-    <main>
-      <div class="flex my-2 mx-2 space-x-2">
-        <div class="flex flex-col w-7/12">
-          <alert-message
-            v-if="removeError || updateError || insertError"
-            :message="`${removeError ? 'Could not remove Location' : 'Could not save/update Location'}`"
-            variant="error"
-            @close="errorClose"
-          />
+  <vrp-page-layout :is-fetching="isFetching" :error="error">
+    <div class="w-full flex my-2 mx-2 space-x-2">
+      <div class="flex flex-col w-7/12">
+        <alert-message
+          v-if="removeError || updateError || insertError"
+          :message="`${removeError ? 'Could not remove Location' : 'Could not save/update Location'}`"
+          variant="error"
+          @close="errorClose"
+        />
 
-          <alert-message
-            v-if="successUpdate || successInsert"
-            :message="`${successUpdate ? 'Succcessfully update Location' : 'Succcessfully save Location'}`"
-            variant="success"
-            @close="successClose"
-          />
+        <alert-message
+          v-if="successUpdate || successInsert"
+          :message="`${successUpdate ? 'Succcessfully update Location' : 'Succcessfully save Location'}`"
+          variant="success"
+          @close="successClose"
+        />
 
-          <delete-dialog
-            v-model:url="removeUrl"
-            v-model:open="openRemove"
-            :message="`Are you sure you want to delete ${selectedLocation?.name} (id: ${selectedLocation?.id})?`"
-            @success-remove="fetchLocations"
-            @fail-remove="removeError = true"
-          />
+        <delete-dialog
+          v-model:url="removeUrl"
+          v-model:open="openRemove"
+          :message="`Are you sure you want to delete ${selectedLocation?.name} (id: ${selectedLocation?.id})?`"
+          @success-remove="fetchLocations"
+          @fail-remove="removeError = true"
+        />
 
-          <h1 class="text-2xl">Locations</h1>
-          <div class="flex w-full justify-between">
-            <input-search v-if="!openInsert" :query="`${route.query.q || ''}`" />
-            <div v-else></div>
-            <button class="btn btn-circle" @click="toogleInsert">
-              <v-icon :name="`${!openInsert ? 'md-add' : 'md-close'}`" />
-            </button>
-          </div>
-
-          <div v-if="openInsert" :style="`height: calc(100vh - ${tableFooterHeight})`">
-            <vrp-location-form
-              v-if="selectedLocation"
-              v-model:location="selectedLocation"
-              :is-loading="isInserting"
-              @execute="() => insertLocation(selectedLocation)"
-              @close="toogleInsert"
-            />
-          </div>
-
-          <paginated-table
-            v-else
-            :page="page"
-            :selected="selectedLocation"
-            :is-editing="isEditing"
-            :style="`height: calc(100vh - ${tableFooterHeight})`"
-          >
-            <template #head>
-              <th>Id</th>
-              <th>Name</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Demand</th>
-              <th>Type</th>
-              <th class="w-24"></th>
-            </template>
-            <template #show="{ row }">
-              <td>{{ row.id }}</td>
-              <td>{{ row.name }}</td>
-              <td>{{ row.lat }}</td>
-              <td>{{ row.lng }}</td>
-              <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
-              <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Edit">
-                  <button class="btn btn-sm btn-circle" @click="editLocation(row)">
-                    <v-icon name="md-edit-twotone" />
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Delete">
-                  <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                    <v-icon name="md-deleteoutline" />
-                  </button>
-                </div>
-              </td>
-            </template>
-            <template #edit="{ item }">
-              <td>{{ item?.id }}</td>
-              <td>
-                <input
-                  v-if="item"
-                  v-model="item.name"
-                  :disabled="isUpdating"
-                  name="name"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-if="item"
-                  v-model.number="item.lat"
-                  :disabled="isUpdating"
-                  name="lat"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-if="item"
-                  v-model.number="item.lng"
-                  :disabled="isUpdating"
-                  name="lng"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>
-                <input
-                  v-if="!isDepot(selectedLocation)"
-                  v-model.number="(item as Customer).demand"
-                  :disabled="isUpdating"
-                  name="demand"
-                  class="input input-bordered w-full input-xs"
-                />
-              </td>
-              <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
-              <td class="space-x-2">
-                <div class="tooltip" data-tip="Update">
-                  <button
-                    :disabled="isUpdating"
-                    class="btn btn-sm btn-circle"
-                    @click="() => updateLocation(selectedLocation)"
-                  >
-                    <v-icon v-if="!isUpdating" name="md-check" />
-                    <span v-else class="loading loading-bars loading-xs"></span>
-                  </button>
-                </div>
-                <div class="tooltip" data-tip="Cancel">
-                  <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
-                    <v-icon name="md-close" />
-                  </button>
-                </div>
-              </td>
-            </template>
-          </paginated-table>
+        <h1 class="text-2xl">Locations</h1>
+        <div class="flex w-full justify-between">
+          <input-search v-if="!openInsert" :query="`${route.query.q || ''}`" />
+          <div v-else></div>
+          <button class="btn btn-circle" @click="toogleInsert">
+            <v-icon :name="`${!openInsert ? 'md-add' : 'md-close'}`" />
+          </button>
         </div>
-        <div class="flex-auto">
-          <location-map
-            v-if="!openInsert"
-            v-model:selected-location="selectedLocation"
-            :edit-mode="isEditing"
-            :locations="locations || []"
-            @marker-click="isEditing = true"
-          />
-          <location-map
-            v-else
-            v-model:selected-location="selectedLocation"
-            :edit-mode="true"
-            :locations="allLocations"
+
+        <div v-if="openInsert">
+          <vrp-location-form
+            v-if="selectedLocation"
+            v-model:location="selectedLocation"
+            :is-loading="isInserting"
+            @execute="() => insertLocation(selectedLocation)"
+            @close="toogleInsert"
           />
         </div>
+
+        <paginated-table v-else :page="page" :selected="selectedLocation" :is-editing="isEditing">
+          <template #head>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Demand</th>
+            <th>Type</th>
+            <th class="w-24"></th>
+          </template>
+          <template #show="{ row }">
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.lat }}</td>
+            <td>{{ row.lng }}</td>
+            <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
+            <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Edit">
+                <button class="btn btn-sm btn-circle" @click="editLocation(row)">
+                  <v-icon name="md-edit-twotone" />
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Delete">
+                <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
+                  <v-icon name="md-deleteoutline" />
+                </button>
+              </div>
+            </td>
+          </template>
+          <template #edit="{ item }">
+            <td>{{ item?.id }}</td>
+            <td>
+              <input
+                v-if="item"
+                v-model="item.name"
+                :disabled="isUpdating"
+                name="name"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-if="item"
+                v-model.number="item.lat"
+                :disabled="isUpdating"
+                name="lat"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-if="item"
+                v-model.number="item.lng"
+                :disabled="isUpdating"
+                name="lng"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>
+              <input
+                v-if="!isDepot(selectedLocation)"
+                v-model.number="(item as Customer).demand"
+                :disabled="isUpdating"
+                name="demand"
+                class="input input-bordered w-full input-xs"
+              />
+            </td>
+            <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
+            <td class="space-x-2">
+              <div class="tooltip" data-tip="Update">
+                <button
+                  :disabled="isUpdating"
+                  class="btn btn-sm btn-circle"
+                  @click="() => updateLocation(selectedLocation)"
+                >
+                  <v-icon v-if="!isUpdating" name="md-check" />
+                  <span v-else class="loading loading-bars loading-xs"></span>
+                </button>
+              </div>
+              <div class="tooltip" data-tip="Cancel">
+                <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
+                  <v-icon name="md-close" />
+                </button>
+              </div>
+            </td>
+          </template>
+        </paginated-table>
       </div>
-    </main>
+      <div class="flex-auto">
+        <location-map
+          v-if="!openInsert"
+          v-model:selected-location="selectedLocation"
+          :edit-mode="isEditing"
+          :locations="locations || []"
+          @marker-click="isEditing = true"
+        />
+        <location-map v-else v-model:selected-location="selectedLocation" :edit-mode="true" :locations="allLocations" />
+      </div>
+    </div>
   </vrp-page-layout>
 </template>

@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { until } from "@vueuse/core";
-import type { StyleValue } from "vue";
 import { computed, ref, toRefs } from "vue";
 import type { VrpSolution } from "../../api";
 
@@ -13,7 +12,6 @@ const props = defineProps<{
   selectedSolver: string;
   solvers: string[];
   isDetailedPath: boolean;
-  style?: StyleValue;
 }>();
 
 const emit = defineEmits<{
@@ -24,7 +22,7 @@ const emit = defineEmits<{
   (e: "update:selectedSolver", val: string): void;
 }>();
 
-const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath, style } = toRefs(props);
+const { solution, solverStatus, wsStatus, selectedSolver, solvers, isDetailedPath } = toRefs(props);
 
 const editorDetailedPath = computed({
   get: () => isDetailedPath.value,
@@ -58,7 +56,7 @@ async function wrapperClear() {
 </script>
 
 <template>
-  <div class="flex flex-col overflow-y-auto space-y-2" :style="style">
+  <div data-testid="solver-panel" class="flex flex-col w-full grow overflow-y-hidden space-y-2">
     <div class="flex space-x-2">
       <div class="basis-1/2">
         <h1>Solver</h1>
@@ -79,7 +77,7 @@ async function wrapperClear() {
         </div>
       </div>
     </div>
-    <div class="flex space-x-2">
+    <div class="flex space-x-2 justify-between">
       <label class="relative inline-flex items-center mb-4 cursor-pointer">
         <span class="mr-3 text-sm font-medium">Solver</span>
         <select v-model="editorSelectedSolver" :disabled="!isWsConnected" class="select select-bordered select-xs">
@@ -118,7 +116,7 @@ async function wrapperClear() {
     <div class="flex space-x-2">
       <span>Distance: {{ solution?.totalDistance || 0 }} | Time: {{ solution?.totalTime || 0 }}</span>
     </div>
-    <div class="flex space-x-2">
+    <div class="flex space-x-2 w-full overflow-hidden">
       <solver-vehicles :solution="solution" />
     </div>
   </div>

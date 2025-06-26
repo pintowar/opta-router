@@ -47,20 +47,8 @@ function afterProblemFetch(ctx: AfterFetchContext<VrpProblem>) {
 </script>
 
 <template>
-  <vrp-page-layout v-slot="{ tabFooterHeight }" :is-fetching="isFetching" :error="error">
-    <main>
-      <vrp-problem-form
-        v-if="data"
-        v-model:problem="data"
-        :persist-url="persistUrl"
-        :style="`height: calc(100vh - ${tabFooterHeight})`"
-      />
-      <vrp-problem-form
-        v-else
-        :problem="defaultProblem"
-        :persist-url="persistUrl"
-        :style="`height: calc(100vh - ${tabFooterHeight})`"
-      />
-    </main>
+  <vrp-page-layout :is-fetching="isFetching" :error="error">
+    <vrp-problem-form v-if="data" v-model:problem="data" :persist-url="persistUrl" />
+    <vrp-problem-form v-else :problem="defaultProblem" :persist-url="persistUrl" />
   </vrp-page-layout>
 </template>

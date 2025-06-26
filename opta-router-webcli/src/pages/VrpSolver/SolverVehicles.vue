@@ -25,8 +25,8 @@ const colors = computed(() => {
 </script>
 
 <template>
-  <div class="overflow-y-auto">
-    <table class="table table-compact table-zebra w-full">
+  <div class="flex w-full overflow-x-auto">
+    <table class="table table-compact table-zebra table-pin-rows table-pin-cols">
       <thead>
         <tr>
           <th>Name</th>
@@ -35,8 +35,8 @@ const colors = computed(() => {
           <th>Full Capacity</th>
         </tr>
       </thead>
-      <tbody v-for="(capacity, idx) in capacities" :key="idx">
-        <tr>
+      <tbody>
+        <tr v-for="(capacity, idx) in capacities" :key="idx" class="hover:bg-base-300">
           <td :style="{ color: colors[idx] }">{{ vehicles[idx].name }}</td>
           <td>{{ routes[idx].distance }}</td>
           <td>{{ routes[idx].time }}</td>

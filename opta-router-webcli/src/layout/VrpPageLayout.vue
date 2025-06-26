@@ -1,19 +1,17 @@
 <script lang="ts" setup>
 import { AlertMessage } from "../components";
 
-const props = defineProps<{
+const { isFetching, error } = defineProps<{
   isFetching: boolean | null;
   error: unknown | null;
 }>();
 </script>
 <template>
-  <main v-if="props.isFetching" class="flex items-center justify-center h-full">
-    <div class="mt-32">
-      <button class="btn btn-ghost loading">Loading</button>
-    </div>
-  </main>
-  <main v-else-if="props.error" class="flex items-center justify-center h-full">
+  <div v-if="isFetching" class="flex items-center justify-center w-full">
+    <button class="btn btn-ghost loading">Loading</button>
+  </div>
+  <div v-else-if="error" class="flex pt-4 justify-center w-full">
     <alert-message message="Error! Failed to load data" variant="error" />
-  </main>
-  <slot v-else :table-footer-height="'270px'" :map-footer-height="'155px'" :tab-footer-height="'330px'"></slot>
+  </div>
+  <slot v-else></slot>
 </template>
