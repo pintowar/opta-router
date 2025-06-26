@@ -7,6 +7,7 @@ plugins {
     id("com.diffplug.spotless")
     id("net.saliman.properties")
     alias(libs.plugins.release)
+    alias(libs.plugins.versions)
 }
 
 allprojects {
