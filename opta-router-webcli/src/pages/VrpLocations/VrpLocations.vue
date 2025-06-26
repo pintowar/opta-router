@@ -263,7 +263,7 @@ function successClose() {
           </template>
         </paginated-table>
       </div>
-      <div class="flex-auto">
+      <div class="flex-auto flex-shrink-0">
         <location-map
           v-if="!openInsert"
           v-model:selected-location="selectedLocation"
