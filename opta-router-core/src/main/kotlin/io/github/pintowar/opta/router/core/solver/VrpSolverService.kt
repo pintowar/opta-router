@@ -40,15 +40,16 @@ class VrpSolverService(
     suspend fun enqueueSolverRequest(
         problemId: Long,
         solverName: String
-    ): UUID? =
-        solverRepository.enqueue(problemId, solverName)?.let { request ->
-            solverRepository.currentDetailedSolution(problemId)?.let { detailedSolution ->
-                solverEventsPort.enqueueRequestSolver(
-                    RequestSolverCommand(detailedSolution, request.requestKey, solverName)
-                )
-                request.requestKey
-            }
+    ): UUID? {
+        val request = solverRepository.enqueue(problemId, solverName)
+        val detailedSolution = request?.let { solverRepository.currentDetailedSolution(problemId) }
+        return detailedSolution?.let {
+            solverEventsPort.enqueueRequestSolver(
+                RequestSolverCommand(it, request.requestKey, solverName)
+            )
+            request.requestKey
         }
+    }
 
     suspend fun terminate(solverKey: UUID) = terminateEarly(solverKey, false)
 
@@ -58,17 +59,17 @@ class VrpSolverService(
         solverKey: UUID,
         clear: Boolean
     ) {
-        solverRepository.currentSolverRequest(solverKey)?.also { solverRequest ->
-            if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
-                solverEventsPort.broadcastCancelSolver(
-                    CancelSolverCommand(solverKey, solverRequest.status, clear)
+        val solverRequest = solverRepository.currentSolverRequest(solverKey) ?: return
+
+        if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
+            solverEventsPort.broadcastCancelSolver(
+                CancelSolverCommand(solverKey, solverRequest.status, clear)
+            )
+        } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
+            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
+                solverEventsPort.enqueueSolutionRequest(
+                    SolutionRequestCommand(solutionRequest, true)
                 )
-            } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
-                solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
-                    solverEventsPort.enqueueSolutionRequest(
-                        SolutionRequestCommand(solutionRequest, true)
-                    )
-                }
             }
         }
     }
