@@ -58,12 +58,6 @@ class GraphHopperGeoAdapter(
                 setMinNetworkSize(200)
             }.importOrLoad()
 
-    /**
-     * Generates a PathWrapper containing the best route between origin and target points.
-     * @param origin
-     * @param target
-     * @return
-     */
     override suspend fun simplePath(
         origin: Coordinate,
         target: Coordinate
@@ -103,6 +97,17 @@ class GraphHopperGeoAdapter(
         return VrpProblemMatrix(ids, travelDistances, travelTimes)
     }
 
+    /**
+     * Calculates a detailed simple path between two coordinates.
+     *
+     * This private helper function is used to get a path with all intermediate points
+     * between an origin and a target coordinate. It's similar to `simplePath` but
+     * includes the full set of coordinates that make up the path.
+     *
+     * @param origin The starting coordinate.
+     * @param target The ending coordinate.
+     * @return A [Path] object representing the detailed path, including distance, time, and all intermediate coordinates.
+     */
     private fun detailedSimplePath(
         origin: Coordinate,
         target: Coordinate

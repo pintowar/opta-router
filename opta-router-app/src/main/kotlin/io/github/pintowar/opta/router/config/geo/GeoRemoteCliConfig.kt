@@ -27,10 +27,14 @@ import java.net.URI
 class GeoRemoteCliConfig {
     /**
      * The creation of the Graphhopper Web Client.
+     *
+     * @param uri The URI of the remote geo service.
+     * @param strategies The RSocket strategies.
+     * @return The `GeoPort` implementation.
      */
     @Bean
     fun graphHopper(
-        @Value("\${app.geo.remote.uri}") uri: URI,
+        @Value($$"${app.geo.remote.uri}") uri: URI,
         strategies: RSocketStrategies
     ): GeoPort =
         when (uri.scheme.lowercase()) {
@@ -39,6 +43,12 @@ class GeoRemoteCliConfig {
             else -> throw IllegalArgumentException("Invalid remote geo uri ($uri). Must start with http, https or tcp")
         }
 
+    /**
+     * Generates a `GeoPort` implementation that uses a WebClient.
+     *
+     * @param uri The URI of the remote geo service.
+     * @return The `GeoPort` implementation.
+     */
     private fun generateGeoWebCli(uri: URI): GeoPort =
         object : GeoPort {
             private val webClient =
@@ -48,6 +58,13 @@ class GeoRemoteCliConfig {
                     .baseUrl(uri.toString())
                     .build()
 
+            /**
+             * Calculates the simple path between two coordinates.
+             *
+             * @param origin The origin coordinate.
+             * @param target The target coordinate.
+             * @return The path between the two coordinates.
+             */
             override suspend fun simplePath(
                 origin: Coordinate,
                 target: Coordinate
@@ -67,6 +84,12 @@ class GeoRemoteCliConfig {
                     .awaitBody()
             }
 
+            /**
+             * Generates a VRP problem matrix for a set of locations.
+             *
+             * @param locations The set of locations.
+             * @return The VRP problem matrix.
+             */
             override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
                 data class LocationsRequest(
                     val depots: List<Depot>,
@@ -83,6 +106,12 @@ class GeoRemoteCliConfig {
                     .awaitBody()
             }
 
+            /**
+             * Calculates the detailed paths for a list of routes.
+             *
+             * @param routes The list of routes.
+             * @return The list of routes with detailed paths.
+             */
             override suspend fun detailedPaths(routes: List<Route>): List<Route> {
                 data class DetailedPathRequest(
                     val routes: List<Route>
@@ -98,6 +127,13 @@ class GeoRemoteCliConfig {
             }
         }
 
+    /**
+     * Generates a `GeoPort` implementation that uses an RSocket client.
+     *
+     * @param uri The URI of the remote geo service.
+     * @param strategies The RSocket strategies.
+     * @return The `GeoPort` implementation.
+     */
     private fun generateRSocketWebCli(
         uri: URI,
         strategies: RSocketStrategies
@@ -110,6 +146,13 @@ class GeoRemoteCliConfig {
                     .rsocketStrategies(strategies)
                     .tcp(uri.host, uri.port)
 
+            /**
+             * Calculates the simple path between two coordinates.
+             *
+             * @param origin The origin coordinate.
+             * @param target The target coordinate.
+             * @return The path between the two coordinates.
+             */
             override suspend fun simplePath(
                 origin: Coordinate,
                 target: Coordinate
@@ -125,6 +168,12 @@ class GeoRemoteCliConfig {
                     .retrieveAndAwait()
             }
 
+            /**
+             * Generates a VRP problem matrix for a set of locations.
+             *
+             * @param locations The set of locations.
+             * @return The VRP problem matrix.
+             */
             override suspend fun generateMatrix(locations: Set<Location>): VrpProblemMatrix {
                 data class LocationsRequest(
                     val depots: List<Depot>,
@@ -138,6 +187,12 @@ class GeoRemoteCliConfig {
                     ).retrieveAndAwait()
             }
 
+            /**
+             * Calculates the detailed paths for a list of routes.
+             *
+             * @param routes The list of routes.
+             * @return The list of routes with detailed paths.
+             */
             override suspend fun detailedPaths(routes: List<Route>): List<Route> {
                 data class DetailedPathRequest(
                     val routes: List<Route>

@@ -24,6 +24,13 @@ class SolverHistoryController(
     private val vrpSolverRequestPort: VrpSolverRequestPort,
     private val vrpSolverSolutionPort: VrpSolverSolutionPort
 ) {
+    /**
+     * Returns a flow of VRP solver requests for a given problem and solver name.
+     *
+     * @param problemId The ID of the VRP problem.
+     * @param solverName The name of the solver.
+     * @return A `ResponseEntity` with a flow of VRP solver requests.
+     */
     @GetMapping("/{problemId}/requests/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun requests(
         @PathVariable problemId: Long,
@@ -33,6 +40,12 @@ class SolverHistoryController(
             ResponseEntity.ok(it)
         }
 
+    /**
+     * Returns a flow of VRP solver objectives for a given problem.
+     *
+     * @param problemId The ID of the VRP problem.
+     * @return A `ResponseEntity` with a flow of VRP solver objectives.
+     */
     @GetMapping("/{problemId}/solutions", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutions(
         @PathVariable problemId: Long

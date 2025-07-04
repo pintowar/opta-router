@@ -14,10 +14,13 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 
 /**
- * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
+ * Converts a [VrpProblem] domain object into an OptaPlanner [VehicleRoutingSolution] representation.
+ * This involves transforming locations, vehicles, and customers into OptaPlanner-specific domain objects,
+ * including pre-calculating travel distances between all locations.
  *
- * @param dist distance calculator instance.
- * @return solution representation used by the solver.
+ * @receiver The [VrpProblem] to convert.
+ * @param dist The [Matrix] containing travel distances between locations.
+ * @return An OptaPlanner [VehicleRoutingSolution] instance.
  */
 fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     val roadLocations =
@@ -43,6 +46,15 @@ fun VrpProblem.toSolution(dist: Matrix): VehicleRoutingSolution {
     )
 }
 
+/**
+ * Converts a [VrpSolution] domain object into an OptaPlanner [VehicleRoutingSolution] for warm-starting the solver.
+ * This function takes an existing solution and populates the OptaPlanner domain objects with the routes
+ * and their associated shadow variables (previous/next customer, vehicle).
+ *
+ * @receiver The [VrpSolution] to convert.
+ * @param distances The [Matrix] containing travel distances between locations.
+ * @return An OptaPlanner [VehicleRoutingSolution] instance initialized with the provided solution.
+ */
 fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
     val solution = problem.toSolution(distances)
     val keys = solution.customerList.associateBy { it.id }
@@ -60,10 +72,14 @@ fun VrpSolution.toSolverSolution(distances: Matrix): VehicleRoutingSolution {
 }
 
 /**
- * Convert the solver VRP Solution representation into the DTO representation.
+ * Converts an OptaPlanner [VehicleRoutingSolution] into a [VrpSolution] domain object.
+ * This extracts the routes from the solved OptaPlanner solution, calculates their distances, times, and demands,
+ * and constructs the domain solution.
  *
- * @param graph graphwrapper to calculate the distance/time took to complete paths.
- * @return the DTO solution representation.
+ * @receiver The OptaPlanner [VehicleRoutingSolution] to convert.
+ * @param instance The original [VrpProblem] instance associated with this solution.
+ * @param matrix The [Matrix] containing travel distances and times for calculating route metrics.
+ * @return A [VrpSolution] object representing the solution derived from the OptaPlanner solution.
  */
 fun VehicleRoutingSolution.toDTO(
     instance: VrpProblem,

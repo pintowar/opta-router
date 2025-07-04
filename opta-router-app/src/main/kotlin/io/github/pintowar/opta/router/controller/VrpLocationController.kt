@@ -39,6 +39,14 @@ class VrpLocationController(
         fun toLocation() = demand?.let { Customer(id, name, lat, lng, it) } ?: Depot(id, name, lat, lng)
     }
 
+    /**
+     * Retrieves a paginated list of VRP locations.
+     *
+     * @param page The page number to retrieve (0-indexed).
+     * @param size The number of items per page.
+     * @param q A query string to filter locations by name.
+     * @return A [Page] of [Location] objects.
+     */
     @GetMapping
     suspend fun index(
         @RequestParam("page", defaultValue = "0") page: Int,
@@ -50,11 +58,23 @@ class VrpLocationController(
         return PageImpl(locations, PageRequest.of(page, size), count)
     }
 
+    /**
+     * Retrieves a flow of VRP locations filtered by their kind (e.g., "depot" or "customer").
+     *
+     * @param kind The type of location to retrieve ("depot" or "customer").
+     * @return A [Flow] of [Location] objects matching the specified kind.
+     */
     @GetMapping("/{kind}")
     suspend fun list(
         @PathVariable kind: String
     ): Flow<Location> = repo.listAllByKind(kind)
 
+    /**
+     * Inserts a new VRP location.
+     *
+     * @param req The [LocationRequest] containing the details of the location to insert.
+     * @return A [ResponseEntity] with a 200 OK status if the insertion is successful.
+     */
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun insert(
         @RequestBody req: LocationRequest
@@ -63,6 +83,12 @@ class VrpLocationController(
             .create(req.toLocation())
             .let { ResponseEntity.ok().build() }
 
+    /**
+     * Removes a VRP location by its ID.
+     *
+     * @param id The ID of the location to remove.
+     * @return A [ResponseEntity] with a 200 OK status if the removal is successful.
+     */
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(
         @PathVariable id: Long
@@ -71,6 +97,13 @@ class VrpLocationController(
             .deleteById(id)
             .let { ResponseEntity.ok().build() }
 
+    /**
+     * Updates an existing VRP location.
+     *
+     * @param id The ID of the location to update.
+     * @param req The [LocationRequest] containing the updated details of the location.
+     * @return A [ResponseEntity] with a 200 OK status if the update is successful.
+     */
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun update(
         @PathVariable id: Long,

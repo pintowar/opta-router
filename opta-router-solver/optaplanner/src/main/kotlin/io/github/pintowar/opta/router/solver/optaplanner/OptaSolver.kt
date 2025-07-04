@@ -20,6 +20,18 @@ class OptaSolver : Solver() {
 
     override val name: String = "optaplanner"
 
+    /**
+     * Solves the VRP problem using OptaPlanner and emits solutions as they are found.
+     *
+     * This function configures an OptaPlanner solver with a time limit and an event listener
+     * to emit the best solutions found during the solving process. It starts the solver with
+     * an initial solution and continues until the time limit is reached or the coroutine is cancelled.
+     *
+     * @param initialSolution The initial [VrpSolution] to start the solver from.
+     * @param matrix The [Matrix] containing travel distances between locations.
+     * @param config The [SolverConfig] containing parameters like the time limit for the solver.
+     * @return A [Flow] of [VrpSolution] objects, representing the best solution found at different stages of the solving process.
+     */
     override fun solveFlow(
         initialSolution: VrpSolution,
         matrix: Matrix,

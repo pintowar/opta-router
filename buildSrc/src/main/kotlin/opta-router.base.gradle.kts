@@ -7,7 +7,7 @@ plugins {
     jacoco
     id("com.diffplug.spotless")
     id("net.saliman.properties")
-    id("com.github.ben-manes.versions")
+    id("org.jetbrains.dokka")
 }
 
 repositories {

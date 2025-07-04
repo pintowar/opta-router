@@ -6,7 +6,9 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
+    id("org.jetbrains.dokka")
     alias(libs.plugins.release)
+    alias(libs.plugins.versions)
 }
 
 allprojects {
@@ -21,6 +23,7 @@ repositories {
 
 dependencies {
     allJacocoSubModules.forEach(::jacocoAggregation)
+    allJacocoSubModules.forEach(::dokka)
 }
 
 reporting {
