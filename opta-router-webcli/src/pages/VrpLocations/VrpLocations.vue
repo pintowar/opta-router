@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import type { AfterFetchContext } from "@vueuse/core";
-import { useFetch } from "@vueuse/core";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
+import { useCrud } from "../../composables/useCrud";
 
-import type { Customer, Depot, Page } from "../../api";
+import type { Customer, Depot } from "../../api";
 import { isDepot } from "../../api";
 
 import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../../components";
@@ -14,119 +13,48 @@ import VrpLocationForm from "./VrpLocationForm.vue";
 const baseRestUrl = "/api/vrp-locations";
 const route = useRoute();
 
-const url = computed(
-  () => `${baseRestUrl}?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
-);
 const {
   isFetching,
-  data: page,
+  page,
   error,
-  execute: fetchLocations,
-} = useFetch(url, { refetch: true, afterFetch: afterLocationsFetch }).get().json<Page<Customer | Depot>>();
+  fetch,
+  selected,
+  openInsert,
+  isInserting,
+  insertError,
+  successInsert,
+  openRemove,
+  removeUrl,
+  removeError,
+  isEditing,
+  isUpdating,
+  updateError,
+  successUpdate,
+  showDeleteModal,
+  updateItem,
+  editItem,
+  errorClose,
+  successClose,
+  toogleInsert,
+  insertItem,
+} = useCrud<Customer | Depot>(baseRestUrl, {
+  id: -1,
+  name: "",
+  lat: 0,
+  lng: 0,
+  demand: 0,
+});
+
 const locations = computed(() => page.value?.content || []);
 
-const selectedLocation = ref<Customer | Depot | null>(null);
-
 const allLocations = computed(() => {
-  if (selectedLocation.value) {
-    const found = locations.value.find(({ id }) => id === selectedLocation.value?.id);
-    return found ? locations.value : locations.value.concat([selectedLocation.value]);
+  if (selected.value) {
+    const found = locations.value.find(({ id }) => id === selected.value?.id);
+    return found ? locations.value : locations.value.concat([selected.value]);
   } else {
     return locations.value;
   }
 });
-
-const openInsert = ref<boolean>(false);
-const baseIdRestUrl = computed(() => `${baseRestUrl}/${selectedLocation.value?.id}`);
-const insertUrl = `${baseRestUrl}/insert`;
-const {
-  isFetching: isInserting,
-  error: insertError,
-  execute: insert,
-  statusCode: insertCode,
-} = useFetch(insertUrl, { immediate: false }).post(selectedLocation);
-const successInsert = computed(() => (insertCode.value || 0) >= 200 && (insertCode.value || 0) < 300);
-
-const openRemove = ref<boolean>(false);
-const removeUrl = computed(() => `${baseIdRestUrl.value}/remove`);
-const removeError = ref(false);
-
-const isEditing = ref(false);
-const updateUrl = computed(() => `${baseIdRestUrl.value}/update`);
-const {
-  isFetching: isUpdating,
-  error: updateError,
-  execute: update,
-  statusCode: updateCode,
-} = useFetch(updateUrl, { immediate: false }).put(selectedLocation);
-const successUpdate = computed(() => (updateCode.value || 0) >= 200 && (updateCode.value || 0) < 300);
-
-function toogleInsert() {
-  if (!openInsert.value) {
-    const accCoord = locations.value.reduce(
-      (acc, { lat, lng }) => ({
-        lat: acc.lat + lat,
-        lng: acc.lng + lng,
-      }),
-      { lat: 0, lng: 0 }
-    );
-    const newCoord = {
-      lat: Number((accCoord.lat / locations.value.length).toFixed(6)),
-      lng: Number((accCoord.lng / locations.value.length).toFixed(6)),
-    };
-    const newLocation = { id: -1, name: "", demand: 0, ...newCoord };
-
-    selectedLocation.value = newLocation;
-  } else {
-    selectedLocation.value = null;
-  }
-  openInsert.value = !openInsert.value;
-}
-
-async function insertLocation(location: Customer | Depot | null) {
-  if (location) {
-    await insert();
-    toogleInsert();
-    await fetchLocations();
-  }
-}
-
-function showDeleteModal(location: Customer | Depot) {
-  isEditing.value = false;
-  selectedLocation.value = location;
-  openRemove.value = true;
-}
-
-async function updateLocation(location: Customer | Depot | null) {
-  if (location) {
-    await update();
-    await fetchLocations();
-  }
-}
-
-function editLocation(location: Customer | Depot | null) {
-  selectedLocation.value = location;
-  isEditing.value = location !== null;
-  if (location === null) {
-    fetchLocations();
-  }
-}
-
-function afterLocationsFetch(ctx: AfterFetchContext) {
-  selectedLocation.value = null;
-  return ctx;
-}
-
-function errorClose() {
-  removeError.value = false;
-  insertError.value = null;
-  updateError.value = null;
-}
-
-function successClose() {
-  updateCode.value = null;
-  insertCode.value = null;
-}
 </script>
 
 <template>
@@ -150,8 +78,8 @@ function successClose() {
         <delete-dialog
           v-model:url="removeUrl"
           v-model:open="openRemove"
-          :message="`Are you sure you want to delete ${selectedLocation?.name} (id: ${selectedLocation?.id})?`"
-          @success-remove="fetchLocations"
+          :message="`Are you sure you want to delete ${selected?.name} (id: ${selected?.id})?`"
+          @success-remove="fetch"
           @fail-remove="removeError = true"
         />
 
@@ -166,15 +94,15 @@ function successClose() {
 
         <div v-if="openInsert">
           <vrp-location-form
-            v-if="selectedLocation"
-            v-model:location="selectedLocation"
+            v-if="selected"
+            v-model:location="selected"
             :is-loading="isInserting"
-            @execute="() => insertLocation(selectedLocation)"
+            @execute="() => insertItem(selected)"
             @close="toogleInsert"
           />
         </div>
 
-        <paginated-table v-else :page="page" :selected="selectedLocation" :is-editing="isEditing">
+        <paginated-table v-else :page="page" :selected="selected" :is-editing="isEditing">
           <template #head>
             <th>Id</th>
             <th>Name</th>
@@ -193,7 +121,7 @@ function successClose() {
             <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
             <td class="space-x-2">
               <div class="tooltip" data-tip="Edit">
-                <button class="btn btn-sm btn-circle" @click="editLocation(row)">
+                <button class="btn btn-sm btn-circle" @click="editItem(row)">
                   <v-icon name="md-edit-twotone" />
                 </button>
               </div>
@@ -235,27 +163,27 @@ function successClose() {
             </td>
             <td>
               <input
-                v-if="!isDepot(selectedLocation)"
+                v-if="!isDepot(selected)"
                 v-model.number="(item as Customer).demand"
                 :disabled="isUpdating"
                 name="demand"
                 class="input input-bordered w-full input-xs"
               />
             </td>
-            <td>{{ isDepot(selectedLocation) ? "Depot" : "Customer" }}</td>
+            <td>{{ isDepot(selected) ? "Depot" : "Customer" }}</td>
             <td class="space-x-2">
               <div class="tooltip" data-tip="Update">
                 <button
                   :disabled="isUpdating"
                   class="btn btn-sm btn-circle"
-                  @click="() => updateLocation(selectedLocation)"
+                  @click="() => updateItem(selected)"
                 >
                   <v-icon v-if="!isUpdating" name="md-check" />
                   <span v-else class="loading loading-bars loading-xs"></span>
                 </button>
               </div>
               <div class="tooltip" data-tip="Cancel">
-                <button class="btn btn-sm btn-circle" @click="() => editLocation(null)">
+                <button class="btn btn-sm btn-circle" @click="() => editItem(null)">
                   <v-icon name="md-close" />
                 </button>
               </div>
@@ -266,12 +194,12 @@ function successClose() {
       <div class="flex-auto flex-shrink-0">
         <location-map
           v-if="!openInsert"
-          v-model:selected-location="selectedLocation"
+          v-model:selected-location="selected"
           :edit-mode="isEditing"
           :locations="locations || []"
           @marker-click="isEditing = true"
         />
-        <location-map v-else v-model:selected-location="selectedLocation" :edit-mode="true" :locations="allLocations" />
+        <location-map v-else v-model:selected-location="selected" :edit-mode="true" :locations="allLocations" />
       </div>
     </div>
   </vrp-page-layout>
