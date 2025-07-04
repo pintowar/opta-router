@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component
 class CamelRestEvents(
     private val serde: Serde
 ) : RouteBuilder() {
+    /**
+     * Configures the Camel routes for the REST events.
+     */
     override fun configure() {
         from("{{camel.route.consumer.enqueue-request-solver}}")
             .routeId("enqueue.request.solver")
