@@ -26,7 +26,7 @@ tasks {
         args.set(listOf("run", "build"))
     }
 
-    register<Task>("test") {
+    register<NpmTask>("test") {
         dependsOn(npmInstall)
         group = "test"
         description = "Test client app"
