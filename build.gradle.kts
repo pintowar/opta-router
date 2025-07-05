@@ -79,6 +79,9 @@ jreleaser {
             name.set("opta-router")
             host.set("github.com")
 
+            changelog {
+                enabled.set(false)
+            }
             releaseName.set("v$version")
             tagName.set("v$version")
             draft.set(isSnapshotVersion)
