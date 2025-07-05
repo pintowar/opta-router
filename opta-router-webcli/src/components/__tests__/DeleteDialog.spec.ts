@@ -38,7 +38,7 @@ describe("DeleteDialog", () => {
     expect(emitted().successRemove).toBeTruthy();
   });
 
-  it.skip("emits update:open when closed", async () => {
+  it("emits update:open when closed", async () => {
     const { emitted } = render(DeleteDialog, {
       props: {
         open: true,
