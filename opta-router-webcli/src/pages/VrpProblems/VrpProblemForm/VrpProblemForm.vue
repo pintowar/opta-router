@@ -175,7 +175,12 @@ function successClose() {
             <div class="flex flex-row-reverse pt-2">
               <form class="space-x-2">
                 <router-link to="/" class="btn">Cancel</router-link>
-                <button class="btn btn-success" :disabled="isUpdating || !isValidCapDem" @click="() => persist()">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  :disabled="isUpdating || !isValidCapDem"
+                  @click="() => persist()"
+                >
                   Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
                 </button>
               </form>
