@@ -10,7 +10,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
-      exclude: ["*.config.ts", "*.config.js", "**/generated/**", "**/index.ts", "**/main.ts", "**/App.vue"],
+      exclude: ["*.config.ts", "**/generated/**", "**/index.ts", "**/main.ts", "**/App.vue"],
     },
   },
 });
