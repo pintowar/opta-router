@@ -1,15 +1,14 @@
-
-import type { AfterFetchContext } from '@vueuse/core';
-import { useFetch } from '@vueuse/core';
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
-import type { Page } from '../api';
+import type { AfterFetchContext } from "@vueuse/core";
+import { useFetch } from "@vueuse/core";
+import { computed, ref } from "vue";
+import { useRoute } from "vue-router";
+import type { Page } from "../api";
 
 export function useCrud<T extends { id: number }>(baseRestUrl: string, initialValue: T) {
   const route = useRoute();
 
   const url = computed(
-    () => `${baseRestUrl}?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ''}`
+    () => `${baseRestUrl}?page=${route.query.page || 0}&size=${route.query.size || 10}&q=${route.query.q || ""}`
   );
 
   const {

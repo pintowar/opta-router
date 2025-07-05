@@ -75,7 +75,7 @@ const allLocations = computed(() => {
     @toogle-insert="toogleInsert"
     @update:open-remove="openRemove = $event"
   >
-    <div class="flex w-full grow space-x-2">
+    <div class="flex w-full grow space-x-2 overflow-y-hidden">
       <div class="flex flex-col w-7/12">
         <div v-if="openInsert">
           <vrp-location-form
@@ -167,4 +167,3 @@ const allLocations = computed(() => {
     </div>
   </crud-page-layout>
 </template>
-

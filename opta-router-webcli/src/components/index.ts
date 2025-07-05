@@ -6,12 +6,4 @@ import InputSearch from "./InputSearch.vue";
 import LocationMap from "./LocationMap.vue";
 import PaginatedTable from "./PaginatedTable.vue";
 
-export {
-  AlertMessage,
-  CrudActionButtons,
-  CrudPageLayout,
-  DeleteDialog,
-  InputSearch,
-  LocationMap,
-  PaginatedTable,
-};
+export { AlertMessage, CrudActionButtons, CrudPageLayout, DeleteDialog, InputSearch, LocationMap, PaginatedTable };
