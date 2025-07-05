@@ -1,17 +1,14 @@
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useRoute } from "vue-router";
 import { useCrud } from "../../composables/useCrud";
 
 import type { Customer, Depot } from "../../api";
 import { isDepot } from "../../api";
 
-import { AlertMessage, DeleteDialog, InputSearch, LocationMap, PaginatedTable } from "../../components";
-import { VrpPageLayout } from "../../layout";
+import { CrudActionButtons, CrudPageLayout, LocationMap, PaginatedTable } from "../../components";
 import VrpLocationForm from "./VrpLocationForm.vue";
 
 const baseRestUrl = "/api/vrp-locations";
-const route = useRoute();
 
 const {
   isFetching,
@@ -58,40 +55,28 @@ const allLocations = computed(() => {
 </script>
 
 <template>
-  <vrp-page-layout :is-fetching="isFetching" :error="error">
-    <div class="w-full flex my-2 mx-2 space-x-2">
+  <crud-page-layout
+    :is-fetching="isFetching"
+    :error="error"
+    :remove-error="removeError"
+    :update-error="updateError"
+    :insert-error="insertError"
+    :success-update="successUpdate"
+    :success-insert="successInsert"
+    :remove-url="removeUrl"
+    :open-remove="openRemove"
+    :selected="selected"
+    :open-insert="openInsert"
+    title="Locations"
+    @close-error="errorClose"
+    @close-success="successClose"
+    @fetch="fetch"
+    @fail-remove="removeError = true"
+    @toogle-insert="toogleInsert"
+    @update:open-remove="openRemove = $event"
+  >
+    <div class="flex w-full grow space-x-2">
       <div class="flex flex-col w-7/12">
-        <alert-message
-          v-if="removeError || updateError || insertError"
-          :message="`${removeError ? 'Could not remove Location' : 'Could not save/update Location'}`"
-          variant="error"
-          @close="errorClose"
-        />
-
-        <alert-message
-          v-if="successUpdate || successInsert"
-          :message="`${successUpdate ? 'Succcessfully update Location' : 'Succcessfully save Location'}`"
-          variant="success"
-          @close="successClose"
-        />
-
-        <delete-dialog
-          v-model:url="removeUrl"
-          v-model:open="openRemove"
-          :message="`Are you sure you want to delete ${selected?.name} (id: ${selected?.id})?`"
-          @success-remove="fetch"
-          @fail-remove="removeError = true"
-        />
-
-        <h1 class="text-2xl">Locations</h1>
-        <div class="flex w-full justify-between">
-          <input-search v-if="!openInsert" :query="`${route.query.q || ''}`" />
-          <div v-else></div>
-          <button class="btn btn-circle" @click="toogleInsert">
-            <v-icon :name="`${!openInsert ? 'md-add' : 'md-close'}`" />
-          </button>
-        </div>
-
         <div v-if="openInsert">
           <vrp-location-form
             v-if="selected"
@@ -119,18 +104,7 @@ const allLocations = computed(() => {
             <td>{{ row.lng }}</td>
             <td>{{ isDepot(row) ? "" : (row as Customer).demand }}</td>
             <td>{{ isDepot(row) ? "Depot" : "Customer" }}</td>
-            <td class="space-x-2">
-              <div class="tooltip" data-tip="Edit">
-                <button class="btn btn-sm btn-circle" @click="editItem(row)">
-                  <v-icon name="md-edit-twotone" />
-                </button>
-              </div>
-              <div class="tooltip" data-tip="Delete">
-                <button class="btn btn-sm btn-circle" @click="showDeleteModal(row)">
-                  <v-icon name="md-deleteoutline" />
-                </button>
-              </div>
-            </td>
+            <crud-action-buttons :is-editing="false" @edit="editItem(row)" @delete="showDeleteModal(row)" />
           </template>
           <template #edit="{ item }">
             <td>{{ item?.id }}</td>
@@ -171,23 +145,12 @@ const allLocations = computed(() => {
               />
             </td>
             <td>{{ isDepot(selected) ? "Depot" : "Customer" }}</td>
-            <td class="space-x-2">
-              <div class="tooltip" data-tip="Update">
-                <button
-                  :disabled="isUpdating"
-                  class="btn btn-sm btn-circle"
-                  @click="() => updateItem(selected)"
-                >
-                  <v-icon v-if="!isUpdating" name="md-check" />
-                  <span v-else class="loading loading-bars loading-xs"></span>
-                </button>
-              </div>
-              <div class="tooltip" data-tip="Cancel">
-                <button class="btn btn-sm btn-circle" @click="() => editItem(null)">
-                  <v-icon name="md-close" />
-                </button>
-              </div>
-            </td>
+            <crud-action-buttons
+              :is-editing="true"
+              :is-updating="isUpdating"
+              @update="() => updateItem(selected)"
+              @cancel="() => editItem(null)"
+            />
           </template>
         </paginated-table>
       </div>
@@ -202,5 +165,6 @@ const allLocations = computed(() => {
         <location-map v-else v-model:selected-location="selected" :edit-mode="true" :locations="allLocations" />
       </div>
     </div>
-  </vrp-page-layout>
+  </crud-page-layout>
 </template>
+
