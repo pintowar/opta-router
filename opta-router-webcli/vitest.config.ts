@@ -9,5 +9,15 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    coverage: {
+      exclude: [
+        "*.config.ts",
+        "*.config.js",
+        "**/generated/**",
+        "**/index.ts",
+        "**/main.ts",
+        "**/App.vue",
+      ]
+    }
   },
 });
