@@ -1,4 +1,4 @@
-import net.researchgate.release.ReleaseExtension
+//import net.researchgate.release.ReleaseExtension
 
 plugins {
     base
@@ -6,7 +6,8 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
-    alias(libs.plugins.release)
+    id("org.jreleaser") version "1.19.0"
+//    alias(libs.plugins.release)
     alias(libs.plugins.versions)
 }
 
@@ -50,7 +51,7 @@ spotless {
     }
 }
 
-configure<ReleaseExtension> {
+/*configure<ReleaseExtension> {
     tagTemplate.set("v\$version")
     with(git) {
         requireBranch.set("master")
@@ -59,6 +60,48 @@ configure<ReleaseExtension> {
 
 tasks.afterReleaseBuild {
     dependsOn(":opta-router-app:jib")
+}*/
+
+jreleaser {
+    project {
+        authors.set(listOf("Thiago Oliveira Pinheiro"))
+        license.set("Apache-2.0")
+        copyright.set("Copyright (C) 2024-2025 Thiago Oliveira Pinheiro")
+        links {
+            homepage.set("https://github.com/pintowar/opta-router")
+        }
+    }
+//    catalog {
+//        github {
+//            active.set(org.jreleaser.model.Active.ALWAYS)
+//        }
+//    }
+    upload {
+        active.set(org.jreleaser.model.Active.ALWAYS)
+    }
+    release {
+        github {
+            enabled.set(true)
+            repoOwner.set("pintowar")
+            name.set("opta-router")
+            host.set("github.com")
+
+            releaseName.set(if (isSnapshotVersion) "SNAPSHOT" else "v$version")
+            tagName.set("v{{projectVersion}}")
+            draft.set(false)
+            skipTag.set(isSnapshotVersion)
+            overwrite.set(false)
+            update { enabled.set(isSnapshotVersion) }
+        }
+    }
+    distributions {
+        create("opta-router") {
+            distributionType.set(org.jreleaser.model.Distribution.DistributionType.SINGLE_JAR)
+            artifact {
+                path.set(file("$rootDir/build/app-${version}.jar"))
+            }
+        }
+    }
 }
 
 tasks.register("assembleApp") {
@@ -72,7 +115,7 @@ tasks.register("assembleApp") {
                 include("opta-router-app-${version}.jar")
             }
             into("$rootDir/build/")
-            rename { "app.jar" }
+            rename { "app-${version}.jar" }
         }
     }
 }
