@@ -1,4 +1,5 @@
-//import net.researchgate.release.ReleaseExtension
+import net.researchgate.release.ReleaseExtension
+import java.time.LocalDate
 
 plugins {
     base
@@ -7,7 +8,7 @@ plugins {
     id("com.diffplug.spotless")
     id("net.saliman.properties")
     id("org.jreleaser") version "1.19.0"
-//    alias(libs.plugins.release)
+    alias(libs.plugins.release)
     alias(libs.plugins.versions)
 }
 
@@ -51,7 +52,7 @@ spotless {
     }
 }
 
-/*configure<ReleaseExtension> {
+configure<ReleaseExtension> {
     tagTemplate.set("v\$version")
     with(git) {
         requireBranch.set("master")
@@ -60,24 +61,16 @@ spotless {
 
 tasks.afterReleaseBuild {
     dependsOn(":opta-router-app:jib")
-}*/
+}
 
 jreleaser {
     project {
         authors.set(listOf("Thiago Oliveira Pinheiro"))
         license.set("Apache-2.0")
-        copyright.set("Copyright (C) 2024-2025 Thiago Oliveira Pinheiro")
+        copyright.set("Copyright (C) ${LocalDate.now().year} Thiago Oliveira Pinheiro")
         links {
             homepage.set("https://github.com/pintowar/opta-router")
         }
-    }
-//    catalog {
-//        github {
-//            active.set(org.jreleaser.model.Active.ALWAYS)
-//        }
-//    }
-    upload {
-        active.set(org.jreleaser.model.Active.ALWAYS)
     }
     release {
         github {
@@ -86,11 +79,12 @@ jreleaser {
             name.set("opta-router")
             host.set("github.com")
 
-            releaseName.set(if (isSnapshotVersion) "SNAPSHOT" else "v$version")
-            tagName.set("v{{projectVersion}}")
-            draft.set(false)
+            releaseName.set("v$version")
+            tagName.set("v$version")
+            draft.set(isSnapshotVersion)
+            prerelease.enabled.set(isSnapshotVersion)
             skipTag.set(isSnapshotVersion)
-            overwrite.set(false)
+            overwrite.set(isSnapshotVersion)
             update { enabled.set(isSnapshotVersion) }
         }
     }
@@ -118,4 +112,8 @@ tasks.register("assembleApp") {
             rename { "app-${version}.jar" }
         }
     }
+}
+
+tasks.jreleaserRelease {
+    dependsOn(":assembleApp")
 }
