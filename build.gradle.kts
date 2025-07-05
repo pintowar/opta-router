@@ -1,4 +1,5 @@
 import net.researchgate.release.ReleaseExtension
+import java.time.LocalDate
 
 plugins {
     base
@@ -6,6 +7,7 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
+    id("org.jreleaser") version "1.19.0"
     alias(libs.plugins.release)
     alias(libs.plugins.versions)
 }
@@ -61,6 +63,41 @@ tasks.afterReleaseBuild {
     dependsOn(":opta-router-app:jib")
 }
 
+jreleaser {
+    project {
+        authors.set(listOf("Thiago Oliveira Pinheiro"))
+        license.set("Apache-2.0")
+        copyright.set("Copyright (C) ${LocalDate.now().year} Thiago Oliveira Pinheiro")
+        links {
+            homepage.set("https://github.com/pintowar/opta-router")
+        }
+    }
+    release {
+        github {
+            enabled.set(true)
+            repoOwner.set("pintowar")
+            name.set("opta-router")
+            host.set("github.com")
+
+            releaseName.set("v$version")
+            tagName.set("v$version")
+            draft.set(isSnapshotVersion)
+            prerelease.enabled.set(isSnapshotVersion)
+            skipTag.set(isSnapshotVersion)
+            overwrite.set(isSnapshotVersion)
+            update { enabled.set(isSnapshotVersion) }
+        }
+    }
+    distributions {
+        create("opta-router") {
+            distributionType.set(org.jreleaser.model.Distribution.DistributionType.SINGLE_JAR)
+            artifact {
+                path.set(file("$rootDir/build/app-${version}.jar"))
+            }
+        }
+    }
+}
+
 tasks.register("assembleApp") {
     val webServ = ":opta-router-app"
     dependsOn("${webServ}:build")
@@ -72,7 +109,12 @@ tasks.register("assembleApp") {
                 include("opta-router-app-${version}.jar")
             }
             into("$rootDir/build/")
-            rename { "app.jar" }
+            rename { "app-${version}.jar" }
         }
     }
+}
+
+tasks.jreleaserRelease {
+    dependsOn(":assembleApp")
+    dependsOn(":opta-router-app:jib")
 }
