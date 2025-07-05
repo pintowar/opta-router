@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { VrpPageLayout } from "../layout";
-import AlertMessage from "./AlertMessage.vue";
-import DeleteDialog from "./DeleteDialog.vue";
-import InputSearch from "./InputSearch.vue";
+import { VrpPageLayout } from ".";
+import { AlertMessage, DeleteDialog, InputSearch } from "../components";
 
 defineProps<{
   isFetching: boolean;

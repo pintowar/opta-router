@@ -4,7 +4,8 @@ import { useCrud } from "../../composables/useCrud";
 
 import type { Depot, Vehicle } from "../../api";
 
-import { CrudActionButtons, CrudPageLayout, PaginatedTable } from "../../components";
+import { CrudActionButtons, PaginatedTable } from "../../components";
+import { VrpCrudPageLayout } from "../../layout";
 import VrpVehicleForm from "./VrpVehicleForm.vue";
 
 const baseRestUrl = "/api/vrp-vehicles";
@@ -45,7 +46,7 @@ const {
 </script>
 
 <template>
-  <crud-page-layout
+  <vrp-crud-page-layout
     :is-fetching="isFetching"
     :error="error"
     :remove-error="removeError"
@@ -126,5 +127,5 @@ const {
         />
       </template>
     </paginated-table>
-  </crud-page-layout>
+  </vrp-crud-page-layout>
 </template>
