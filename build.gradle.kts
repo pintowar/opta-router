@@ -116,4 +116,5 @@ tasks.register("assembleApp") {
 
 tasks.jreleaserRelease {
     dependsOn(":assembleApp")
+    dependsOn(":opta-router-app:jib")
 }
