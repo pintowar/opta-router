@@ -27,7 +27,10 @@ tasks {
     }
 
     register<Task>("test") {
-        logger.quiet("sorry, no tests at all :(")
+        dependsOn(npmInstall)
+        group = "test"
+        description = "Test client app"
+        args.set(listOf("run", "test"))
     }
 
     register<Delete>("clean") {
