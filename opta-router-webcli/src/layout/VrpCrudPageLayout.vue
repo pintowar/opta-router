@@ -19,12 +19,12 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "closeError"): void;
-  (e: "closeSuccess"): void;
+  (e: "close-error"): void;
+  (e: "close-success"): void;
   (e: "fetch"): void;
-  (e: "failRemove"): void;
+  (e: "fail-remove"): void;
   (e: "toogleInsert"): void;
-  (e: "update:openRemove", value: boolean): void;
+  (e: "update:open-remove", value: boolean): void;
 }>();
 
 const route = useRoute();
