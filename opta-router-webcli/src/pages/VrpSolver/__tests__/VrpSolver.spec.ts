@@ -7,9 +7,8 @@ import VrpSolver from "../VrpSolver.vue";
 
 // Mock data
 const mockProblem: VrpProblem = {
-  id: "problem-1",
+  id: 1,
   name: "Test Problem",
-  depot: { id: 1, lat: 0, lng: 0, name: "Depot" },
   customers: [],
   vehicles: [],
 };
@@ -17,7 +16,10 @@ const mockProblem: VrpProblem = {
 const mockSolution: VrpSolution = {
   problem: mockProblem,
   routes: [],
-  score: "0",
+  totalDistance: 0,
+  totalTime: 0,
+  isFeasible: true,
+  isEmpty: false,
 };
 
 const mockPanelSolutionState: PanelSolutionState = {
@@ -76,13 +78,13 @@ vi.mock("@vueuse/core", async (importOriginal) => {
         chainable.execute = mockFetchSolversExecute;
       } else if (urlString.includes("detailed-path")) {
         chainable.execute = mockDetailedPathExecute;
-      } else if (urlString.includes("solve")) {
-        chainable.data = mockSolveStatus;
-        chainable.execute = mockSolveExecute;
       } else if (urlString.includes("terminate")) {
         chainable.execute = mockTerminateExecute;
       } else if (urlString.includes("clean")) {
         chainable.execute = mockCleanExecute;
+      } else if (urlString.includes("solve")) {
+        chainable.data = mockSolveStatus;
+        chainable.execute = mockSolveExecute;
       }
 
       return chainable;
@@ -92,8 +94,6 @@ vi.mock("@vueuse/core", async (importOriginal) => {
       data: mockWsData,
       open: mockWsOpen,
     })),
-    watchOnce: actual.watchOnce,
-    watch: actual.watch,
   };
 });
 
@@ -208,7 +208,7 @@ describe("pages/VrpSolver/VrpSolver.vue", () => {
     expect(solverPanel.props("solverStatus")).toBe("SOLVING_STARTED");
   });
 
-  it.skip("calls terminate action when SolverPanel emits onTerminate", async () => {
+  it("calls terminate action when SolverPanel emits onTerminate", async () => {
     await mountAndInitialize();
     // Set status to SOLVING, otherwise terminate is disabled
     mockWsData.value = JSON.stringify({ status: "SOLVING" });
@@ -219,7 +219,7 @@ describe("pages/VrpSolver/VrpSolver.vue", () => {
     expect(mockTerminateExecute).toHaveBeenCalled();
   });
 
-  it.skip("calls clean action when SolverPanel emits onClear", async () => {
+  it("calls clean action when SolverPanel emits onClear", async () => {
     await mountAndInitialize();
     // Set status to a state where clean should be possible
     mockWsData.value = JSON.stringify({ status: "TERMINATED" });

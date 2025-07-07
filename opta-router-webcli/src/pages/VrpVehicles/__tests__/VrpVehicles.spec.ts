@@ -205,7 +205,6 @@ describe("VrpVehicles.vue", () => {
       },
     });
 
-    // console.log(wrapper.html());
     expect(wrapper.findComponent({ name: "VrpCrudPageLayout" }).props("title")).toBe("Vehicles");
     expect(wrapper.findComponent({ name: "PaginatedTable" }).exists()).toBe(true);
     expect(wrapper.findComponent({ name: "VrpVehicleForm" }).exists()).toBe(false);
