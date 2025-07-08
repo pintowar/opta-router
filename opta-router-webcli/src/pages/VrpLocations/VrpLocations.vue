@@ -5,7 +5,8 @@ import { useCrud } from "../../composables/useCrud";
 import type { Customer, Depot } from "../../api";
 import { isDepot } from "../../api";
 
-import { CrudActionButtons, CrudPageLayout, LocationMap, PaginatedTable } from "../../components";
+import { CrudActionButtons, LocationMap, PaginatedTable } from "../../components";
+import { VrpCrudPageLayout } from "../../layout";
 import VrpLocationForm from "./VrpLocationForm.vue";
 
 const baseRestUrl = "/api/vrp-locations";
@@ -55,7 +56,7 @@ const allLocations = computed(() => {
 </script>
 
 <template>
-  <crud-page-layout
+  <vrp-crud-page-layout
     :is-fetching="isFetching"
     :error="error"
     :remove-error="removeError"
@@ -165,5 +166,5 @@ const allLocations = computed(() => {
         <location-map v-else v-model:selected-location="selected" :edit-mode="true" :locations="allLocations" />
       </div>
     </div>
-  </crud-page-layout>
+  </vrp-crud-page-layout>
 </template>

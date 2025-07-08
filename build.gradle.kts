@@ -7,9 +7,10 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
-    id("org.jreleaser") version "1.19.0"
     alias(libs.plugins.release)
     alias(libs.plugins.versions)
+    alias(libs.plugins.sonarqube)
+    alias(libs.plugins.jreleaser)
 }
 
 allprojects {
@@ -37,10 +38,6 @@ reporting {
             })
         }
     }
-}
-
-tasks.check {
-    dependsOn(tasks.named<JacocoReport>("testCodeCoverageReport"))
 }
 
 spotless {
@@ -84,11 +81,11 @@ jreleaser {
             }
             releaseName.set("v$version")
             tagName.set("v$version")
-            draft.set(isSnapshotVersion)
+//            draft.set(isSnapshotVersion)
             prerelease.enabled.set(isSnapshotVersion)
             skipTag.set(isSnapshotVersion)
             overwrite.set(isSnapshotVersion)
-            update { enabled.set(isSnapshotVersion) }
+//            update { enabled.set(isSnapshotVersion) }
         }
     }
     distributions {
@@ -98,6 +95,26 @@ jreleaser {
                 path.set(file("$rootDir/build/app-${version}.jar"))
             }
         }
+    }
+}
+
+sonarqube {
+    properties {
+        val sonarToken = project.findProperty("sonar.token")?.toString() ?: System.getenv("SONAR_TOKEN")
+        val jacocoReportPath = project.layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile.absolutePath
+        val lcovReportPath = project.layout.buildDirectory.dir("reports/coverage").get().asFile.absolutePath
+
+        property("sonar.sourceEncoding", "UTF-8")
+        property("sonar.organization", "pintowar")
+        property("sonar.projectName", "opta-router")
+        property("sonar.projectKey", "pintowar_opta-router")
+        property("sonar.projectVersion", project.version.toString())
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.token", sonarToken)
+        property("sonar.verbose", true)
+        property("sonar.github.repository", "pintowar/opta-router")
+        property("sonar.coverage.jacoco.xmlReportPaths", "$jacocoReportPath/testCodeCoverageReport.xml")
+        property("sonar.javascript.lcov.reportPaths", "$lcovReportPath/lcov.info")
     }
 }
 
@@ -115,6 +132,23 @@ tasks.register("assembleApp") {
             rename { "app-${version}.jar" }
         }
     }
+}
+
+tasks.register("fullTestCoverageReport") {
+    val webCli = ":opta-router-webcli"
+    dependsOn("testCodeCoverageReport", "${webCli}:coverage")
+    group = "verification"
+    description = "Full Test Coverage Report"
+    doLast {
+        copy {
+            from(files(project(webCli).layout.projectDirectory.dir("coverage")))
+            into("$rootDir/build/reports/coverage")
+        }
+    }
+}
+
+tasks.sonar {
+    dependsOn(":fullTestCoverageReport")
 }
 
 tasks.jreleaserRelease {

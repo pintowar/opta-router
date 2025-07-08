@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { VrpPageLayout } from "../layout";
-import AlertMessage from "./AlertMessage.vue";
-import DeleteDialog from "./DeleteDialog.vue";
-import InputSearch from "./InputSearch.vue";
+import { VrpPageLayout } from ".";
+import { AlertMessage, DeleteDialog, InputSearch } from "../components";
 
 defineProps<{
   isFetching: boolean;
@@ -21,12 +19,12 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "closeError"): void;
-  (e: "closeSuccess"): void;
+  (e: "close-error"): void;
+  (e: "close-success"): void;
   (e: "fetch"): void;
-  (e: "failRemove"): void;
+  (e: "fail-remove"): void;
   (e: "toogleInsert"): void;
-  (e: "update:openRemove", value: boolean): void;
+  (e: "update:open-remove", value: boolean): void;
 }>();
 
 const route = useRoute();

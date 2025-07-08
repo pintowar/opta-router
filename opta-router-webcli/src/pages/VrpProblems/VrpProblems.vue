@@ -5,7 +5,8 @@ import { useRoute, useRouter } from "vue-router";
 
 import type { Page, VrpProblemSummary } from "../../api";
 
-import { CrudPageLayout, PaginatedTable } from "../../components";
+import { PaginatedTable } from "../../components";
+import { VrpCrudPageLayout } from "../../layout";
 
 const route = useRoute();
 const router = useRouter();
@@ -37,7 +38,7 @@ const toogleInsert = () => {
 </script>
 
 <template>
-  <crud-page-layout
+  <vrp-crud-page-layout
     :is-fetching="isFetching"
     :error="error"
     :remove-error="removeError"
@@ -104,5 +105,5 @@ const toogleInsert = () => {
         </td>
       </template>
     </paginated-table>
-  </crud-page-layout>
+  </vrp-crud-page-layout>
 </template>

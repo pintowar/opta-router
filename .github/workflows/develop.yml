@@ -34,9 +34,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Running gradle task
-        run: ./gradlew clean spotlessCheck jreleaserRelease -PenvironmentName=single
+        run: ./gradlew clean spotlessCheck sonar jreleaserRelease -PenvironmentName=single
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
