@@ -11,6 +11,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
       exclude: ["*.config.ts", "**/generated/**", "**/index.ts", "**/main.ts", "**/App.vue"],
+      reporter: ["lcov", "html", "clover"],
     },
   },
 });
