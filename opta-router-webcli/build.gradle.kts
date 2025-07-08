@@ -33,6 +33,13 @@ tasks {
         args.set(listOf("run", "test"))
     }
 
+    register<NpmTask>("coverage") {
+        dependsOn(npmInstall)
+        group = "test"
+        description = "Test client app"
+        args.set(listOf("run", "coverage"))
+    }
+
     register<Delete>("clean") {
         delete(project.layout.buildDirectory.get())
     }

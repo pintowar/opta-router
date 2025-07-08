@@ -37,10 +37,6 @@ reporting {
     }
 }
 
-tasks.check {
-    dependsOn(tasks.named<JacocoReport>("testCodeCoverageReport"))
-}
-
 spotless {
     format("misc") {
         target("**/.gitignore", "README.md")
@@ -73,6 +69,19 @@ tasks.register("assembleApp") {
             }
             into("$rootDir/build/")
             rename { "app.jar" }
+        }
+    }
+}
+
+tasks.register("fullTestCoverageReport") {
+    val webCli = ":opta-router-webcli"
+    dependsOn("testCodeCoverageReport", "${webCli}:coverage")
+    group = "verification"
+    description = "Full Test Coverage Report"
+    doLast {
+        copy {
+            from(files(project(webCli).layout.projectDirectory.dir("coverage")))
+            into("$rootDir/build/reports/coverage")
         }
     }
 }
