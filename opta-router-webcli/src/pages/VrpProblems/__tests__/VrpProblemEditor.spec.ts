@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/vue";
-import { useFetch } from "@vueuse/core";
+import { type AfterFetchContext, type UseFetchOptions, useFetch } from "@vueuse/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, ref } from "vue";
+import { type Ref, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import type { VrpProblem } from "../../../api";
 import VrpProblemEditor from "../VrpProblemEditor.vue";
+import { VrpPageLayoutMock, VrpProblemFormMock } from "./mocks";
 
 // Mocks
 vi.mock("@vueuse/core", () => ({
@@ -18,32 +19,13 @@ vi.mock("vue-router", () => ({
 
 const mockUseFetch = vi.mocked(useFetch);
 const mockUseRoute = vi.mocked(useRoute);
-
-const VrpPageLayoutMock = defineComponent({
-  name: "VrpPageLayout",
-  props: ["isFetching", "error"],
-  template: `
-    <div>
-      <div v-if="isFetching">Loading...</div>
-      <div v-if="error" role="alert">{{ error.message }}</div>
-      <slot />
-    </div>
-  `,
-});
-
-const VrpProblemFormMock = defineComponent({
-  name: "VrpProblemForm",
-  props: ["problem", "persistUrl"],
-  template: `
-    <div>
-      <h2>{{ problem.name }}</h2>
-      <span>Persist URL: {{ persistUrl }}</span>
-    </div>
-  `,
-});
+const mockBeforeFetchCtx = { url: "", options: {}, cancel: vi.fn() };
 
 describe("VrpProblemEditor.vue", () => {
-  let isFetching: any, error: any, data: any, getMock: any;
+  let isFetching: Ref<boolean>,
+    error: Ref<Error | null>,
+    data: Ref<VrpProblem | null>,
+    getMock: { get: () => unknown; json: () => unknown };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,7 +39,7 @@ describe("VrpProblemEditor.vue", () => {
       json: vi.fn().mockReturnValue({ isFetching, error, data }),
     };
 
-    mockUseFetch.mockReturnValue(getMock);
+    mockUseFetch.mockReturnValue(getMock as never);
     mockUseRoute.mockReturnValue({
       query: { page: "0", size: "10", q: "" },
       matched: [],
@@ -90,7 +72,7 @@ describe("VrpProblemEditor.vue", () => {
   });
 
   it("should display error message in copy mode", () => {
-    error.value = { message: "Failed to fetch problem" };
+    error.value = { message: "Failed to fetch problem" } as Error;
     renderComponent("copy");
     expect(screen.getByRole("alert")).toHaveTextContent("Failed to fetch problem");
   });
@@ -98,7 +80,7 @@ describe("VrpProblemEditor.vue", () => {
   describe("create mode", () => {
     it("should not fetch data immediately", () => {
       renderComponent("create");
-      expect(useFetch).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ immediate: false }));
+      expect(useFetch).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ immediate: false }));
     });
 
     it("should render the form with a default problem", async () => {
@@ -111,7 +93,7 @@ describe("VrpProblemEditor.vue", () => {
   describe("update mode", () => {
     it("should fetch data immediately", () => {
       renderComponent("update");
-      expect(useFetch).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ immediate: true }));
+      expect(useFetch).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ immediate: true }));
     });
 
     it("should render the form with fetched data", async () => {
@@ -127,7 +109,7 @@ describe("VrpProblemEditor.vue", () => {
   describe("copy mode", () => {
     it("should fetch data immediately", () => {
       renderComponent("copy");
-      expect(useFetch).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ immediate: true }));
+      expect(useFetch).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ immediate: true }));
     });
 
     it("should render the form with fetched data", async () => {
@@ -141,20 +123,25 @@ describe("VrpProblemEditor.vue", () => {
   });
 
   it("should handle afterFetch correctly when data is partial", async () => {
-    const partialProblem = { name: "Partial Problem" };
-    const useFetchOptions: any = {};
+    const partialProblem = { id: 1, name: "Partial Problem", vehicles: [], customers: [] };
+    const useFetchOptions: UseFetchOptions = {};
     mockUseFetch.mockImplementation((_url, options) => {
       Object.assign(useFetchOptions, options);
-      return getMock;
+      return getMock as never;
     });
 
     renderComponent("update");
-    const ctx = { data: partialProblem, response: new Response() };
-    const result = useFetchOptions.afterFetch(ctx);
+    const ctx = {
+      data: partialProblem,
+      response: new Response(),
+      context: mockBeforeFetchCtx,
+      execute: vi.fn(),
+    };
+    const result = useFetchOptions.afterFetch?.(ctx) as AfterFetchContext<VrpProblem>;
 
     await waitFor(() => {
-      expect(result.data).toEqual({
-        id: -1,
+      expect(result?.data).toEqual({
+        id: 1,
         name: "Partial Problem",
         vehicles: [],
         customers: [],
@@ -163,18 +150,23 @@ describe("VrpProblemEditor.vue", () => {
   });
 
   it("should handle afterFetch correctly when data is null", async () => {
-    const useFetchOptions: any = {};
+    const useFetchOptions: UseFetchOptions = {};
     mockUseFetch.mockImplementation((_url, options) => {
       Object.assign(useFetchOptions, options);
-      return getMock;
+      return getMock as never;
     });
 
     renderComponent("update");
-    const ctx = { data: null, response: new Response() };
-    const result = useFetchOptions.afterFetch(ctx);
+    const ctx = {
+      data: null,
+      response: new Response(),
+      context: mockBeforeFetchCtx,
+      execute: vi.fn(),
+    };
+    const result = useFetchOptions.afterFetch?.(ctx) as AfterFetchContext<VrpProblem>;
 
     await waitFor(() => {
-      expect(result.data).toEqual({
+      expect(result?.data).toEqual({
         id: -1,
         name: "",
         vehicles: [],

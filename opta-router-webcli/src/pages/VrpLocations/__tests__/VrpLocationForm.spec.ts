@@ -1,10 +1,11 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { nextTick, type ButtonHTMLAttributes } from "vue";
+import type { Customer, Depot } from "../../../api";
 import VrpLocationForm from "../VrpLocationForm.vue";
 
 describe("VrpLocationForm.vue", () => {
-  const mockCustomer = {
+  const mockCustomer: Customer = {
     id: 1,
     name: "Customer 1",
     lat: 10,
@@ -12,7 +13,7 @@ describe("VrpLocationForm.vue", () => {
     demand: 100,
   };
 
-  const mockDepot = {
+  const mockDepot: Depot = {
     id: 2,
     name: "Depot 1",
     lat: 30,
@@ -63,7 +64,7 @@ describe("VrpLocationForm.vue", () => {
     await wrapper.vm.$emit("update:location", { ...mockCustomer, name: "New Name" });
 
     expect(wrapper.emitted("update:location")).toHaveLength(1);
-    const emittedLocation: any = wrapper.emitted("update:location")![0][0];
+    const emittedLocation = wrapper.emitted("update:location")![0][0] as Customer;
     expect(emittedLocation?.name || "").toBe("New Name");
   });
 

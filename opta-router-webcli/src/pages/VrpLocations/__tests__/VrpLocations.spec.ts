@@ -4,8 +4,10 @@ import { BiPlus } from "oh-vue-icons/icons";
 import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick, ref } from "vue";
+import type { Customer, Depot } from "../../../api";
 import CrudActionButtons from "../../../components/CrudActionButtons.vue";
 import PaginatedTable from "../../../components/PaginatedTable.vue";
+import { getMockUseCrud } from "../../../composables/__tests__/useCrud.mock";
 import { useCrud } from "../../../composables/useCrud";
 import VrpCrudPageLayout from "../../../layout/VrpCrudPageLayout.vue";
 import VrpLocationForm from "../VrpLocationForm.vue";
@@ -13,46 +15,7 @@ import VrpLocations from "../VrpLocations.vue";
 
 addIcons(BiPlus);
 
-vi.mock("../../../composables/useCrud", () => {
-  const mockPage = {
-    content: [
-      { id: 1, name: "Depot A", lat: 0, lng: 0 },
-      { id: 2, name: "Customer B", lat: 1, lng: 1, demand: 10 },
-    ],
-    number: 0,
-    size: 10,
-    totalElements: 2,
-    totalPages: 1,
-  };
-
-  return {
-    useCrud: vi.fn(() => ({
-      isFetching: false,
-      page: mockPage,
-      error: null,
-      fetch: vi.fn(),
-      selected: null,
-      openInsert: false,
-      isInserting: false,
-      insertError: null,
-      successInsert: false,
-      openRemove: false,
-      removeUrl: "",
-      removeError: false,
-      isEditing: false,
-      isUpdating: false,
-      updateError: null,
-      successUpdate: false,
-      showDeleteModal: vi.fn(),
-      updateItem: vi.fn(),
-      editItem: vi.fn(),
-      errorClose: vi.fn(),
-      successClose: vi.fn(),
-      toogleInsert: vi.fn(),
-      insertItem: vi.fn(),
-    })),
-  };
-});
+vi.mock("../../../composables/useCrud");
 
 vi.mock("@vueuse/core", async () => {
   return {
@@ -73,11 +36,12 @@ vi.mock("vue-router", () => ({
 }));
 
 describe("VrpLocations.vue", () => {
+  let mockCrud: ReturnType<typeof getMockUseCrud<Customer | Depot>>;
+
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCrud as Mock).mockReturnValue({
-      isFetching: false,
-      page: {
+    mockCrud = getMockUseCrud({
+      page: ref({
         content: [
           { id: 1, name: "Depot A", lat: 0, lng: 0 },
           { id: 2, name: "Customer B", lat: 1, lng: 1, demand: 10 },
@@ -86,33 +50,13 @@ describe("VrpLocations.vue", () => {
         size: 10,
         totalElements: 2,
         totalPages: 1,
-      },
-      error: null,
-      fetch: vi.fn(),
-      selected: null,
-      openInsert: false,
-      isInserting: false,
-      insertError: null,
-      successInsert: false,
-      openRemove: false,
-      removeUrl: "",
-      removeError: false,
-      isEditing: false,
-      isUpdating: false,
-      updateError: null,
-      successUpdate: false,
-      showDeleteModal: vi.fn(),
-      updateItem: vi.fn(),
-      editItem: vi.fn(),
-      errorClose: vi.fn(),
-      successClose: vi.fn(),
-      toogleInsert: vi.fn(),
-      insertItem: vi.fn(),
+      }),
     });
+    (useCrud as Mock).mockReturnValue(mockCrud);
   });
 
-  it("renders the title and table when not inserting", async () => {
-    const wrapper = mount(VrpLocations, {
+  const mountComponent = () => {
+    return mount(VrpLocations, {
       global: {
         stubs: {
           "v-icon": true,
@@ -127,28 +71,17 @@ describe("VrpLocations.vue", () => {
         },
       },
     });
+  };
 
+  it("renders the title and table when not inserting", async () => {
+    const wrapper = mountComponent();
     expect(wrapper.findComponent({ name: "VrpCrudPageLayout" }).props("title")).toBe("Locations");
     expect(wrapper.findComponent({ name: "PaginatedTable" }).exists()).toBe(true);
     expect(wrapper.findComponent({ name: "VrpLocationForm" }).exists()).toBe(false);
   });
 
   it("displays location data in the table", async () => {
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    const wrapper = mountComponent();
     await nextTick();
 
     expect(wrapper.text()).toContain("Depot A");
@@ -159,47 +92,11 @@ describe("VrpLocations.vue", () => {
   });
 
   it("shows the VrpLocationForm when openInsert is true", async () => {
-    (useCrud as Mock).mockReturnValue({
-      isFetching: false,
-      page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
-      error: null,
-      fetch: vi.fn(),
-      selected: { id: -1, name: "", lat: 0, lng: 0, demand: 0 },
-      openInsert: true,
-      isInserting: false,
-      insertError: null,
-      successInsert: false,
-      openRemove: false,
-      removeUrl: "",
-      removeError: false,
-      isEditing: false,
-      isUpdating: false,
-      updateError: null,
-      successUpdate: false,
-      showDeleteModal: vi.fn(),
-      updateItem: vi.fn(),
-      editItem: vi.fn(),
-      errorClose: vi.fn(),
-      successClose: vi.fn(),
-      toogleInsert: vi.fn(),
-      insertItem: vi.fn(),
-    });
+    mockCrud.openInsert.value = true;
+    mockCrud.selected.value = { id: -1, name: "", lat: 0, lng: 0, demand: 0 };
+    mockCrud.page.value.content = [];
 
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    const wrapper = mountComponent();
     await nextTick();
 
     expect(wrapper.findComponent({ name: "VrpLocationForm" }).exists()).toBe(true);
@@ -207,171 +104,52 @@ describe("VrpLocations.vue", () => {
   });
 
   it("calls toogleInsert when VrpLocationForm emits close", async () => {
-    const mockToogleInsert = vi.fn();
-    (useCrud as Mock).mockReturnValue({
-      isFetching: false,
-      page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
-      error: null,
-      fetch: vi.fn(),
-      selected: { id: -1, name: "", lat: 0, lng: 0, demand: 0 },
-      openInsert: true,
-      isInserting: false,
-      insertError: null,
-      successInsert: false,
-      openRemove: false,
-      removeUrl: "",
-      removeError: false,
-      isEditing: false,
-      isUpdating: false,
-      updateError: null,
-      successUpdate: false,
-      showDeleteModal: vi.fn(),
-      updateItem: vi.fn(),
-      editItem: vi.fn(),
-      errorClose: vi.fn(),
-      successClose: vi.fn(),
-      toogleInsert: mockToogleInsert,
-      insertItem: vi.fn(),
-    });
-
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    mockCrud.openInsert.value = true;
+    mockCrud.selected.value = { id: -1, name: "", lat: 0, lng: 0, demand: 0 };
+    const wrapper = mountComponent();
     await nextTick();
 
     const form = wrapper.findComponent({ name: "VrpLocationForm" });
     expect(form.exists()).toBe(true);
 
     await form.vm.$emit("close");
-    expect(mockToogleInsert).toHaveBeenCalledTimes(1);
+    expect(mockCrud.toogleInsert).toHaveBeenCalledTimes(1);
   });
 
   it("calls insertItem when VrpLocationForm emits execute", async () => {
-    const mockInsertItem = vi.fn();
     const mockSelected = { id: -1, name: "New Location", lat: 0, lng: 0, demand: 50 };
-    (useCrud as Mock).mockReturnValue({
-      isFetching: false,
-      page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
-      error: null,
-      fetch: vi.fn(),
-      selected: mockSelected,
-      openInsert: true,
-      isInserting: false,
-      insertError: null,
-      successInsert: false,
-      openRemove: false,
-      removeUrl: "",
-      removeError: false,
-      isEditing: false,
-      isUpdating: false,
-      updateError: null,
-      successUpdate: false,
-      showDeleteModal: vi.fn(),
-      updateItem: vi.fn(),
-      editItem: vi.fn(),
-      errorClose: vi.fn(),
-      successClose: vi.fn(),
-      toogleInsert: vi.fn(),
-      insertItem: mockInsertItem,
-    });
+    mockCrud.openInsert.value = true;
+    mockCrud.selected.value = mockSelected;
 
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    const wrapper = mountComponent();
     await nextTick();
 
     const form = wrapper.findComponent({ name: "VrpLocationForm" });
     expect(form.exists()).toBe(true);
 
     await form.vm.$emit("execute");
-    expect(mockInsertItem).toHaveBeenCalledWith(mockSelected);
+    expect(mockCrud.insertItem).toHaveBeenCalledWith(mockSelected);
   });
 
   it("calls editItem when CrudActionButtons emits edit", async () => {
-    const mockEditItem = vi.fn();
-    const mockSelected = { id: 1, name: "New Location", lat: 0, lng: 0, demand: 50 };
-    (useCrud as Mock).mockReturnValue({
-      ...useCrud("", mockSelected),
-      editItem: mockEditItem,
-    });
-
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    const wrapper = mountComponent();
     await nextTick();
 
     const crudActionButtons = wrapper.findComponent({ name: "CrudActionButtons" });
     expect(crudActionButtons.exists()).toBe(true);
 
     await crudActionButtons.vm.$emit("edit");
-    expect(mockEditItem).toHaveBeenCalledWith(expect.any(Object));
+    expect(mockCrud.editItem).toHaveBeenCalledWith(expect.any(Object));
   });
 
   it("calls showDeleteModal when CrudActionButtons emits delete", async () => {
-    const mockShowDeleteModal = vi.fn();
-    const mockSelected = { id: 1, name: "New Location", lat: 0, lng: 0, demand: 50 };
-    (useCrud as Mock).mockReturnValue({
-      ...useCrud("", mockSelected),
-      showDeleteModal: mockShowDeleteModal,
-    });
-
-    const wrapper = mount(VrpLocations, {
-      global: {
-        stubs: {
-          "v-icon": true,
-          VrpCrudPageLayout,
-          PaginatedTable,
-          VrpLocationForm,
-          CrudActionButtons,
-          DeleteDialog: {
-            template: '<div ref="modalRef"></div>',
-          },
-          LocationMap: true,
-        },
-      },
-    });
+    const wrapper = mountComponent();
     await nextTick();
 
     const crudActionButtons = wrapper.findComponent({ name: "CrudActionButtons" });
     expect(crudActionButtons.exists()).toBe(true);
 
     await crudActionButtons.vm.$emit("delete");
-    expect(mockShowDeleteModal).toHaveBeenCalledWith(expect.any(Object));
+    expect(mockCrud.showDeleteModal).toHaveBeenCalledWith(expect.any(Object));
   });
 });

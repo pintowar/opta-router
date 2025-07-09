@@ -1,20 +1,19 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 import { nextTick } from "vue";
+import type { Depot, Vehicle } from "../../../api";
 import VrpVehicleForm from "../VrpVehicleForm.vue";
 
 describe("VrpVehicleForm.vue", () => {
-  const mockVehicle = {
+  const mockDepot: Depot = { id: 1, name: "Depot 1", lat: 0, lng: 0 };
+  const mockVehicle: Vehicle = {
     id: 1,
     name: "Vehicle 1",
     capacity: 100,
-    depot: { id: 1, name: "Depot 1", lat: 0, lng: 0 },
+    depot: mockDepot,
   };
 
-  const mockDepots = [
-    { id: 1, name: "Depot 1", lat: 0, lng: 0 },
-    { id: 2, name: "Depot 2", lat: 0, lng: 0 },
-  ];
+  const mockDepots: Depot[] = [mockDepot, { id: 2, name: "Depot 2", lat: 0, lng: 0 }];
 
   it("renders the form with initial vehicle data", async () => {
     const wrapper = mount(VrpVehicleForm, {
@@ -46,13 +45,13 @@ describe("VrpVehicleForm.vue", () => {
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, name: "New Name" });
 
     expect(wrapper.emitted("update:vehicle")).toHaveLength(1);
-    const emittedVehicle: any = wrapper.emitted("update:vehicle")![0][0];
+    const emittedVehicle = wrapper.emitted("update:vehicle")![0][0] as Vehicle;
     expect(emittedVehicle.name).toBe("New Name");
 
     await wrapper.find('input[name="capacity"]').setValue(200);
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, capacity: 200 });
     expect(wrapper.emitted("update:vehicle")).toHaveLength(2);
-    const emittedVehicle2: any = wrapper.emitted("update:vehicle")![1][0];
+    const emittedVehicle2 = wrapper.emitted("update:vehicle")![1][0] as Vehicle;
     expect(emittedVehicle2.capacity).toBe(200);
   });
 

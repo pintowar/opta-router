@@ -1,36 +1,11 @@
 import { config, flushPromises, mount, VueWrapper } from "@vue/test-utils";
+import type { AfterFetchContext } from "@vueuse/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
+import { ref, type MaybeRef } from "vue";
 
-import type { PanelSolutionState, VrpProblem, VrpSolution } from "../../../api";
+import type { PanelSolutionState } from "../../../api";
 import VrpSolver from "../VrpSolver.vue";
-
-// Mock data
-const mockProblem: VrpProblem = {
-  id: 1,
-  name: "Test Problem",
-  customers: [],
-  vehicles: [],
-};
-
-const mockSolution: VrpSolution = {
-  problem: mockProblem,
-  routes: [],
-  totalDistance: 0,
-  totalTime: 0,
-  isFeasible: true,
-  isEmpty: false,
-};
-
-const mockPanelSolutionState: PanelSolutionState = {
-  solutionState: {
-    status: "NOT_SOLVED",
-    solution: mockSolution,
-  },
-  solverPanel: {
-    isDetailedPath: false,
-  },
-};
+import { mockPanelSolutionState, mockSolution } from "./mocks";
 
 // Mocks for useFetch
 const mockSolutionPanelData = ref<PanelSolutionState | null>(null);
@@ -47,23 +22,24 @@ const mockFetchSolversExecute = vi.fn(); // Will be implemented in beforeEach
 const mockWsData = ref<string | null>(null);
 const mockWsStatus = ref("CLOSED");
 const mockWsOpen = vi.fn();
+const mockBeforeFetchCtx = { url: "", options: {}, cancel: vi.fn() };
 
-let afterFetchCallback: ((ctx: any) => any) | null = null;
+let afterFetchCallback: ((ctx: AfterFetchContext) => Partial<AfterFetchContext>) | null = null;
 
 vi.mock("@vueuse/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@vueuse/core")>();
   return {
     ...actual,
-    useFetch: vi.fn((url, options) => {
+    useFetch: vi.fn((url: MaybeRef<string>, options) => {
       if (options?.afterFetch) {
         afterFetchCallback = options.afterFetch;
       }
-      const urlString = (url as any).value || url;
+      const urlString = typeof url === "string" ? url : url.value;
 
       const chainable = {
         isFetching: ref(false),
         error: ref(null),
-        data: ref(null) as any,
+        data: ref(null),
         execute: vi.fn(),
         get: vi.fn().mockReturnThis(),
         put: vi.fn().mockReturnThis(),
@@ -72,9 +48,9 @@ vi.mock("@vueuse/core", async (importOriginal) => {
       };
 
       if (urlString.includes("solution-panel")) {
-        chainable.data = mockSolutionPanelData;
+        chainable.data = mockSolutionPanelData as never;
       } else if (urlString.includes("solver-names")) {
-        chainable.data = mockSolversData;
+        chainable.data = mockSolversData as never;
         chainable.execute = mockFetchSolversExecute;
       } else if (urlString.includes("detailed-path")) {
         chainable.execute = mockDetailedPathExecute;
@@ -83,7 +59,7 @@ vi.mock("@vueuse/core", async (importOriginal) => {
       } else if (urlString.includes("clean")) {
         chainable.execute = mockCleanExecute;
       } else if (urlString.includes("solve")) {
-        chainable.data = mockSolveStatus;
+        chainable.data = mockSolveStatus as never;
         chainable.execute = mockSolveExecute;
       }
 
@@ -152,7 +128,12 @@ describe("pages/VrpSolver/VrpSolver.vue", () => {
     await flushPromises();
 
     if (afterFetchCallback) {
-      afterFetchCallback({ data: mockSolutionPanelData.value, response: {} });
+      afterFetchCallback({
+        data: mockSolutionPanelData.value,
+        response: new Response(),
+        context: mockBeforeFetchCtx,
+        execute: vi.fn(),
+      });
     }
     await flushPromises();
   };

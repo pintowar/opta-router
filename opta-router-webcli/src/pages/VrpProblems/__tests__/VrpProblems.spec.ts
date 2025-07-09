@@ -1,11 +1,12 @@
 import { fireEvent, render, screen, within } from "@testing-library/vue";
 import { useFetch } from "@vueuse/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, ref } from "vue";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { ref, type Ref } from "vue";
 import { useRoute } from "vue-router";
 
-import type { VrpProblemSummary } from "../../../api";
+import type { Page, VrpProblemSummary } from "../../../api";
 import VrpProblems from "../VrpProblems.vue";
+import { PaginatedTableMock, VrpCrudPageLayoutMock } from "./mocks";
 
 // Mocks
 vi.mock("@vueuse/core", () => ({
@@ -23,45 +24,8 @@ vi.mock("vue-router", () => ({
 const mockUseFetch = vi.mocked(useFetch);
 const mockUseRoute = vi.mocked(useRoute);
 
-const VrpCrudPageLayoutMock = defineComponent({
-  name: "VrpCrudPageLayout",
-  props: ["isFetching", "error", "removeUrl", "openRemove", "selected"],
-  emits: ["toogle-insert", "update:open-remove", "fetch"],
-  template: `
-    <div>
-      <div v-if="isFetching">Loading...</div>
-      <div v-if="error" role="alert">{{ error.message }}</div>
-      <button @click="$emit('toogle-insert')">New Problem</button>
-      <slot />
-      <div v-if="openRemove">
-        <slot name="delete-dialog">
-            <div>Delete dialog for {{ selected?.name }}</div>
-            <button @click="$emit('update:open-remove', false)">Cancel</button>
-        </slot>
-      </div>
-    </div>
-  `,
-});
-
-const PaginatedTableMock = defineComponent({
-  name: "PaginatedTable",
-  props: ["page"],
-  template: `
-        <table>
-            <thead>
-                <tr><slot name="head" /></tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in page?.content" :key="item.id">
-                    <slot name="show" :row="item" />
-                </tr>
-            </tbody>
-        </table>
-    `,
-});
-
 describe("VrpProblems.vue", () => {
-  let isFetching: any, error: any, data: any, execute: any;
+  let isFetching: Ref<boolean>, error: Ref<Error | null>, data: Ref<Page<VrpProblemSummary> | null>, execute: Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -87,7 +51,7 @@ describe("VrpProblems.vue", () => {
       get: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnValue({ isFetching, error, data, execute }),
     };
-    mockUseFetch.mockReturnValue(getMock as any);
+    mockUseFetch.mockReturnValue(getMock as never);
   });
 
   const renderComponent = () => {
@@ -116,7 +80,7 @@ describe("VrpProblems.vue", () => {
   });
 
   it("should display error message", () => {
-    error.value = { message: "Failed to fetch problems" };
+    error.value = { message: "Failed to fetch problems" } as Error;
     renderComponent();
     expect(screen.getByRole("alert")).toHaveTextContent("Failed to fetch problems");
   });
@@ -133,9 +97,19 @@ describe("VrpProblems.vue", () => {
         numSolverRequests: 0,
         numEnqueuedRequests: 0,
         numRunningRequests: 0,
-      },
+      } as VrpProblemSummary,
     ];
-    data.value = { content: problems, totalElements: 1 };
+    data.value = {
+      content: problems,
+      totalElements: 1,
+      totalPages: 1,
+      numberOfElements: 10,
+      size: 10,
+      number: 0,
+      first: true,
+      last: false,
+      empty: false,
+    };
     renderComponent();
     expect(await screen.findByText("Problem 1")).toBeInTheDocument();
     expect(screen.getByText("5")).toBeInTheDocument(); // nlocations
@@ -164,7 +138,17 @@ describe("VrpProblems.vue", () => {
       nlocations: 0,
       nvehicles: 0,
     };
-    data.value = { content: [problem] };
+    data.value = {
+      content: [problem],
+      totalElements: 1,
+      totalPages: 1,
+      numberOfElements: 10,
+      size: 10,
+      number: 0,
+      first: true,
+      last: false,
+      empty: false,
+    };
     const { container } = renderComponent();
 
     await screen.findByText("Problem 1");
@@ -200,7 +184,17 @@ describe("VrpProblems.vue", () => {
       nlocations: 0,
       nvehicles: 0,
     };
-    data.value = { content: [problem] };
+    data.value = {
+      content: [problem],
+      totalElements: 1,
+      totalPages: 1,
+      numberOfElements: 10,
+      size: 10,
+      number: 0,
+      first: true,
+      last: false,
+      empty: false,
+    };
     const { container } = renderComponent();
 
     await screen.findByText("Problem 2");
@@ -262,7 +256,17 @@ describe("VrpProblems.vue", () => {
         numNotSolvedRequests: 0,
       }, // Not Solving
     ];
-    data.value = { content: problems };
+    data.value = {
+      content: problems,
+      totalElements: 3,
+      totalPages: 3,
+      numberOfElements: 10,
+      size: 10,
+      number: 0,
+      first: true,
+      last: false,
+      empty: false,
+    };
     renderComponent();
 
     await screen.findByText("P1");
@@ -295,7 +299,17 @@ describe("VrpProblems.vue", () => {
       numTerminatedRequests: 0,
       numNotSolvedRequests: 0,
     };
-    data.value = { content: [problem] };
+    data.value = {
+      content: [problem],
+      totalElements: 1,
+      totalPages: 1,
+      numberOfElements: 10,
+      size: 10,
+      number: 0,
+      first: true,
+      last: false,
+      empty: false,
+    };
     const { container } = renderComponent();
 
     await screen.findByText("Problem to delete");

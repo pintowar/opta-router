@@ -1,4 +1,13 @@
+import type { Ref } from "vue";
 import { ref } from "vue";
+
+import { flushPromises, mount, RouterLinkStub } from "@vue/test-utils";
+import { useFetch } from "@vueuse/core";
+import type { Mock } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useRoute } from "vue-router";
+import VrpSolverHistory from "../VrpSolverHistory.vue";
+
 vi.mock("@vueuse/core", () => ({
   useFetch: vi.fn(),
   useColorMode: vi.fn().mockReturnValue(ref("light")),
@@ -22,37 +31,26 @@ vi.mock("./SolutionsHistoryChart.vue", () => ({
   },
 }));
 
-import { flushPromises, mount, RouterLinkStub } from "@vue/test-utils";
-import { useFetch } from "@vueuse/core";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useRoute } from "vue-router";
-import VrpSolverHistory from "../VrpSolverHistory.vue";
-
 describe("VrpSolverHistory", () => {
   beforeEach(() => {
-    vi.mocked(useFetch).mockImplementation((url: any) => {
-      if (url.value.includes("requests")) {
-        return {
-          get: vi.fn().mockReturnThis(),
-          json: vi.fn().mockReturnValue({
-            data: ref([]),
-            isFetching: ref(false),
-            error: ref(null),
-          }),
-        } as any;
-      }
-      return {
+    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
+      const mockReturnValue = {
         get: vi.fn().mockReturnThis(),
         json: vi.fn().mockReturnValue({
           data: ref([]),
           isFetching: ref(false),
           error: ref(null),
         }),
-      } as any;
+      };
+
+      if (url.value.includes("requests")) {
+        return mockReturnValue;
+      }
+      return mockReturnValue;
     });
     vi.mocked(useRoute).mockReturnValue({
       params: { id: "123" },
-    } as any);
+    } as never);
   });
 
   it("renders correctly", () => {
@@ -72,7 +70,7 @@ describe("VrpSolverHistory", () => {
       { solver: "solver1", solverKey: "key1" },
       { solver: "solver2", solverKey: "key2" },
     ]);
-    vi.mocked(useFetch).mockImplementation((url: any) => {
+    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
       if (url.value.includes("solutions")) {
         return {
           get: vi.fn().mockReturnThis(),
@@ -81,7 +79,7 @@ describe("VrpSolverHistory", () => {
             isFetching: ref(false),
             error: ref(null),
           }),
-        } as any;
+        } as never;
       }
       return {
         get: vi.fn().mockReturnThis(),
@@ -90,7 +88,7 @@ describe("VrpSolverHistory", () => {
           isFetching: ref(false),
           error: ref(null),
         }),
-      } as any;
+      } as never;
     });
     const wrapper = mount(VrpSolverHistory, {
       global: {
@@ -112,7 +110,7 @@ describe("VrpSolverHistory", () => {
       { requestKey: "req1", status: "ENQUEUED" },
       { requestKey: "req2", status: "RUNNING" },
     ]);
-    vi.mocked(useFetch).mockImplementation((url: any) => {
+    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
       if (url.value.includes("requests")) {
         return {
           get: vi.fn().mockReturnThis(),
@@ -121,7 +119,7 @@ describe("VrpSolverHistory", () => {
             isFetching: ref(false),
             error: ref(null),
           }),
-        } as any;
+        } as never;
       }
       return {
         get: vi.fn().mockReturnThis(),
@@ -130,7 +128,7 @@ describe("VrpSolverHistory", () => {
           isFetching: ref(false),
           error: ref(null),
         }),
-      } as any;
+      } as never;
     });
     const wrapper = mount(VrpSolverHistory, {
       global: {
@@ -152,7 +150,7 @@ describe("VrpSolverHistory", () => {
       { solver: "solver1", solverKey: "key1" },
       { solver: "solver2", solverKey: "key2" },
     ]);
-    vi.mocked(useFetch).mockImplementation((url: any) => {
+    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
       if (url.value.includes("solutions")) {
         return {
           get: vi.fn().mockReturnThis(),
@@ -161,7 +159,7 @@ describe("VrpSolverHistory", () => {
             isFetching: ref(false),
             error: ref(null),
           }),
-        } as any;
+        } as never;
       }
       return {
         get: vi.fn().mockReturnThis(),
@@ -170,7 +168,7 @@ describe("VrpSolverHistory", () => {
           isFetching: ref(false),
           error: ref(null),
         }),
-      } as any;
+      } as never;
     });
     const wrapper = mount(VrpSolverHistory, {
       global: {
@@ -196,7 +194,7 @@ describe("VrpSolverHistory", () => {
       { requestKey: "req3", status: "TERMINATED" },
       { requestKey: "req4", status: "NOT_SOLVED" },
     ]);
-    vi.mocked(useFetch).mockImplementation((url: any) => {
+    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
       if (url.value.includes("requests")) {
         return {
           get: vi.fn().mockReturnThis(),
@@ -205,7 +203,7 @@ describe("VrpSolverHistory", () => {
             isFetching: ref(false),
             error: ref(null),
           }),
-        } as any;
+        } as never;
       }
       return {
         get: vi.fn().mockReturnThis(),
@@ -214,7 +212,7 @@ describe("VrpSolverHistory", () => {
           isFetching: ref(false),
           error: ref(null),
         }),
-      } as any;
+      } as never;
     });
     const wrapper = mount(VrpSolverHistory, {
       global: {
