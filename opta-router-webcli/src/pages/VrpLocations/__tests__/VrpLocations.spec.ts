@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { addIcons } from "oh-vue-icons";
 import { BiPlus } from "oh-vue-icons/icons";
+import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick, ref } from "vue";
-import * as api from "../../../api";
 import CrudActionButtons from "../../../components/CrudActionButtons.vue";
 import PaginatedTable from "../../../components/PaginatedTable.vue";
 import { useCrud } from "../../../composables/useCrud";
@@ -54,10 +54,8 @@ vi.mock("../../../composables/useCrud", () => {
   };
 });
 
-vi.mock("@vueuse/core", async (importOriginal) => {
-  const actual = await importOriginal();
+vi.mock("@vueuse/core", async () => {
   return {
-    ...actual,
     useFetch: vi.fn(),
     useTransition: vi.fn(() => ({ value: 0 })),
     TransitionPresets: { easeInOutCubic: vi.fn() },
@@ -74,12 +72,10 @@ vi.mock("vue-router", () => ({
   })),
 }));
 
-vi.spyOn(api, "isDepot").mockImplementation((location) => !("demand" in location));
-
 describe("VrpLocations.vue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [
@@ -163,7 +159,7 @@ describe("VrpLocations.vue", () => {
   });
 
   it("shows the VrpLocationForm when openInsert is true", async () => {
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -212,7 +208,7 @@ describe("VrpLocations.vue", () => {
 
   it("calls toogleInsert when VrpLocationForm emits close", async () => {
     const mockToogleInsert = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -265,7 +261,7 @@ describe("VrpLocations.vue", () => {
   it("calls insertItem when VrpLocationForm emits execute", async () => {
     const mockInsertItem = vi.fn();
     const mockSelected = { id: -1, name: "New Location", lat: 0, lng: 0, demand: 50 };
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -317,8 +313,9 @@ describe("VrpLocations.vue", () => {
 
   it("calls editItem when CrudActionButtons emits edit", async () => {
     const mockEditItem = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
-      ...useCrud(),
+    const mockSelected = { id: 1, name: "New Location", lat: 0, lng: 0, demand: 50 };
+    (useCrud as Mock).mockReturnValue({
+      ...useCrud("", mockSelected),
       editItem: mockEditItem,
     });
 
@@ -348,8 +345,9 @@ describe("VrpLocations.vue", () => {
 
   it("calls showDeleteModal when CrudActionButtons emits delete", async () => {
     const mockShowDeleteModal = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
-      ...useCrud(),
+    const mockSelected = { id: 1, name: "New Location", lat: 0, lng: 0, demand: 50 };
+    (useCrud as Mock).mockReturnValue({
+      ...useCrud("", mockSelected),
       showDeleteModal: mockShowDeleteModal,
     });
 

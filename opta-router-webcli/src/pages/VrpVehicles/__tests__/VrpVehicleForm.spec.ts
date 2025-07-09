@@ -27,8 +27,8 @@ describe("VrpVehicleForm.vue", () => {
 
     await nextTick();
 
-    expect(wrapper.find('input[name="name"]').element.value).toBe("Vehicle 1");
-    expect(wrapper.find('input[name="capacity"]').element.value).toBe("100");
+    expect((wrapper.find('input[name="name"]').element as HTMLInputElement).value).toBe("Vehicle 1");
+    expect((wrapper.find('input[name="capacity"]').element as HTMLInputElement).value).toBe("100");
     const select = wrapper.find("select").element;
     expect(select.value).toBe("[object Object]"); // Depot object is the value
   });
@@ -46,13 +46,13 @@ describe("VrpVehicleForm.vue", () => {
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, name: "New Name" });
 
     expect(wrapper.emitted("update:vehicle")).toHaveLength(1);
-    const emittedVehicle = wrapper.emitted("update:vehicle")[0][0];
+    const emittedVehicle: any = wrapper.emitted("update:vehicle")![0][0];
     expect(emittedVehicle.name).toBe("New Name");
 
     await wrapper.find('input[name="capacity"]').setValue(200);
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, capacity: 200 });
     expect(wrapper.emitted("update:vehicle")).toHaveLength(2);
-    const emittedVehicle2 = wrapper.emitted("update:vehicle")[1][0];
+    const emittedVehicle2: any = wrapper.emitted("update:vehicle")![1][0];
     expect(emittedVehicle2.capacity).toBe(200);
   });
 
@@ -91,9 +91,9 @@ describe("VrpVehicleForm.vue", () => {
       },
     });
 
-    expect(wrapper.find('input[name="name"]').element.disabled).toBe(true);
-    expect(wrapper.find('input[name="capacity"]').element.disabled).toBe(true);
-    expect(wrapper.find("button.btn-success").element.disabled).toBe(true);
+    expect((wrapper.find('input[name="name"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find('input[name="capacity"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find("button.btn-success").element as HTMLButtonElement).disabled).toBe(true);
   });
 
   it("does not disable the close button when isLoading is true", async () => {
@@ -105,6 +105,6 @@ describe("VrpVehicleForm.vue", () => {
       },
     });
 
-    expect(wrapper.find("button.btn-sm:not(.btn-success)").element.disabled).toBe(false);
+    expect((wrapper.find("button.btn-sm:not(.btn-success)").element as HTMLButtonElement).disabled).toBe(false);
   });
 });

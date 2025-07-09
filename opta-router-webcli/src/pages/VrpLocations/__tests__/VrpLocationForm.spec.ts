@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { nextTick } from "vue";
+import { nextTick, type ButtonHTMLAttributes } from "vue";
 import VrpLocationForm from "../VrpLocationForm.vue";
 
 describe("VrpLocationForm.vue", () => {
@@ -29,10 +29,10 @@ describe("VrpLocationForm.vue", () => {
 
     await nextTick();
 
-    expect(wrapper.find('input[name="name"]').element.value).toBe("Customer 1");
-    expect(wrapper.find('input[name="lat"]').element.value).toBe("10");
-    expect(wrapper.find('input[name="lng"]').element.value).toBe("20");
-    expect(wrapper.find('input[name="demand"]').element.value).toBe("100");
+    expect((wrapper.find('input[name="name"]').element as HTMLInputElement).value).toBe("Customer 1");
+    expect((wrapper.find('input[name="lat"]').element as HTMLInputElement).value).toBe("10");
+    expect((wrapper.find('input[name="lng"]').element as HTMLInputElement).value).toBe("20");
+    expect((wrapper.find('input[name="demand"]').element as HTMLInputElement).value).toBe("100");
   });
 
   it("renders the form with initial depot data", async () => {
@@ -45,9 +45,9 @@ describe("VrpLocationForm.vue", () => {
 
     await nextTick();
 
-    expect(wrapper.find('input[name="name"]').element.value).toBe("Depot 1");
-    expect(wrapper.find('input[name="lat"]').element.value).toBe("30");
-    expect(wrapper.find('input[name="lng"]').element.value).toBe("40");
+    expect((wrapper.find('input[name="name"]').element as HTMLInputElement).value).toBe("Depot 1");
+    expect((wrapper.find('input[name="lat"]').element as HTMLInputElement).value).toBe("30");
+    expect((wrapper.find('input[name="lng"]').element as HTMLInputElement).value).toBe("40");
     expect(wrapper.find('input[name="demand"]').exists()).toBe(false);
   });
 
@@ -63,8 +63,8 @@ describe("VrpLocationForm.vue", () => {
     await wrapper.vm.$emit("update:location", { ...mockCustomer, name: "New Name" });
 
     expect(wrapper.emitted("update:location")).toHaveLength(1);
-    const emittedLocation = wrapper.emitted("update:location")[0][0];
-    expect(emittedLocation.name).toBe("New Name");
+    const emittedLocation: any = wrapper.emitted("update:location")![0][0];
+    expect(emittedLocation?.name || "").toBe("New Name");
   });
 
   it('emits "close" when the close button is clicked', async () => {
@@ -99,10 +99,10 @@ describe("VrpLocationForm.vue", () => {
       },
     });
 
-    expect(wrapper.find('input[name="name"]').element.disabled).toBe(true);
-    expect(wrapper.find('input[name="lat"]').element.disabled).toBe(true);
-    expect(wrapper.find('input[name="lng"]').element.disabled).toBe(true);
-    expect(wrapper.find('input[name="demand"]').element.disabled).toBe(true);
-    expect(wrapper.find("button.btn-success").element.disabled).toBe(true);
+    expect((wrapper.find('input[name="name"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find('input[name="lat"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find('input[name="lng"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find('input[name="demand"]').element as HTMLInputElement).disabled).toBe(true);
+    expect((wrapper.find("button.btn-success").element as ButtonHTMLAttributes).disabled).toBe(true);
   });
 });

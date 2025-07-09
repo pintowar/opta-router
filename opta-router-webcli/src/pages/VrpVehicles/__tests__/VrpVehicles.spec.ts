@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { useFetch } from "@vueuse/core";
 import { addIcons } from "oh-vue-icons";
 import { BiPlus } from "oh-vue-icons/icons"; // Import a dummy icon
+import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick, ref } from "vue";
 import CrudActionButtons from "../../../components/CrudActionButtons.vue";
@@ -56,33 +57,16 @@ vi.mock("../../../composables/useCrud", () => {
 });
 
 // Mock useFetch from @vueuse/core
-vi.mock("@vueuse/core", async (importOriginal) => {
-  const actual = await importOriginal();
-
+vi.mock("@vueuse/core", async () => {
   const mockFetchReturn = (initialData: any = {}) => ({
     data: ref(initialData),
-    json: vi.fn(function () {
-      return this;
-    }),
-    get: vi.fn(function () {
-      return this;
-    }),
-    delete: vi.fn(function () {
-      return this;
-    }),
-    post: vi.fn(function () {
-      return this;
-    }),
-    put: vi.fn(function () {
-      return this;
-    }),
-    then: vi.fn(function (cb) {
-      cb(this);
-      return this;
-    }),
-    catch: vi.fn(function () {
-      return this;
-    }),
+    json: vi.fn().mockReturnThis(),
+    get: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    post: vi.fn().mockReturnThis(),
+    put: vi.fn().mockReturnThis(),
+    then: vi.fn().mockReturnThis(),
+    catch: vi.fn().mockReturnThis(),
   });
 
   const useFetch = vi.fn((url: string, options?: any) => {
@@ -97,7 +81,6 @@ vi.mock("@vueuse/core", async (importOriginal) => {
   });
 
   return {
-    ...actual,
     useFetch,
     useTransition: vi.fn(() => ({ value: 0 })),
     TransitionPresets: { easeInOutCubic: vi.fn() },
@@ -120,7 +103,7 @@ describe("VrpVehicles.vue", () => {
     // Reset mocks before each test
     vi.clearAllMocks();
     // Re-mock useCrud to ensure a fresh state for each test
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [
@@ -167,7 +150,7 @@ describe("VrpVehicles.vue", () => {
       }),
       catch: vi.fn(() => createMockResponse(dataValue)),
     });
-    (useFetch as vi.Mock).mockImplementation((url: string, options?: any) => {
+    (useFetch as Mock).mockImplementation((url: string, options?: any) => {
       let initialData: any = {};
       if (url.includes("depot")) {
         initialData = options?.initialData || mockDepots;
@@ -245,7 +228,7 @@ describe("VrpVehicles.vue", () => {
 
   it("shows the VrpVehicleForm when openInsert is true", async () => {
     // Mock useCrud to simulate openInsert state
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -301,7 +284,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls toogleInsert when VrpVehicleForm emits close", async () => {
     const mockToogleInsert = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -366,7 +349,7 @@ describe("VrpVehicles.vue", () => {
       capacity: 50,
       depot: { id: 1, name: "Depot A", lat: 0, lng: 0 },
     };
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -425,7 +408,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls editItem when CrudActionButtons emits edit", async () => {
     const mockEditItem = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [{ id: 1, name: "Vehicle A", capacity: 100, depot: { id: 1, name: "Depot A", lat: 0, lng: 0 } }],
@@ -490,7 +473,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls showDeleteModal when CrudActionButtons emits delete", async () => {
     const mockShowDeleteModal = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [{ id: 1, name: "Vehicle A", capacity: 100, depot: { id: 1, name: "Depot A", lat: 0, lng: 0 } }],
@@ -561,7 +544,7 @@ describe("VrpVehicles.vue", () => {
       capacity: 150,
       depot: { id: 1, name: "Depot A", lat: 0, lng: 0 },
     };
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [{ id: 1, name: "Vehicle A", capacity: 100, depot: { id: 1, name: "Depot A", lat: 0, lng: 0 } }],
@@ -627,7 +610,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls editItem with null when CrudActionButtons emits cancel in edit mode", async () => {
     const mockEditItem = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: {
         content: [{ id: 1, name: "Vehicle A", capacity: 100, depot: { id: 1, name: "Depot A", lat: 0, lng: 0 } }],
@@ -693,7 +676,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls errorClose when VrpCrudPageLayout emits close-error", async () => {
     const mockErrorClose = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: new Error("Some error"), // Simulate an error object
@@ -752,7 +735,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls successClose when VrpCrudPageLayout emits close-success", async () => {
     const mockSuccessClose = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -811,7 +794,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls fetch when VrpCrudPageLayout emits fetch", async () => {
     const mockFetch = vi.fn();
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -870,7 +853,7 @@ describe("VrpVehicles.vue", () => {
 
   it("updates openRemove when VrpCrudPageLayout emits update:open-remove", async () => {
     const openRemove = ref(false);
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,
@@ -933,7 +916,7 @@ describe("VrpVehicles.vue", () => {
 
   it("sets removeError to true when VrpCrudPageLayout emits fail-remove", async () => {
     const removeError = ref(false);
-    (useCrud as vi.Mock).mockReturnValue({
+    (useCrud as Mock).mockReturnValue({
       isFetching: false,
       page: { content: [], number: 0, size: 10, totalElements: 0, totalPages: 0 },
       error: null,

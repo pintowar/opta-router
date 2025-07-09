@@ -58,7 +58,17 @@ describe("VrpProblemEditor.vue", () => {
     };
 
     mockUseFetch.mockReturnValue(getMock);
-    mockUseRoute.mockReturnValue({ params: { id: "1" } });
+    mockUseRoute.mockReturnValue({
+      query: { page: "0", size: "10", q: "" },
+      matched: [],
+      name: undefined,
+      params: { id: "1" },
+      fullPath: "",
+      hash: "",
+      redirectedFrom: undefined,
+      meta: {},
+      path: ""
+    });
   });
 
   const renderComponent = (mode: "create" | "update" | "copy") => {

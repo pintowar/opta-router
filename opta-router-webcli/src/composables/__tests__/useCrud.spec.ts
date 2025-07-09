@@ -1,4 +1,5 @@
 import { useFetch } from "@vueuse/core";
+import type { Mock } from "vitest";
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { useCrud } from "../useCrud";
@@ -41,7 +42,7 @@ describe("useCrud", () => {
   beforeEach(() => {
     // Reset mocks before each test
     vi.clearAllMocks();
-    (useRoute as vi.Mock).mockReturnValue({
+    (useRoute as Mock).mockReturnValue({
       query: ref({ page: 0, size: 10, q: "" }),
     });
   });

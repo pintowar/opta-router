@@ -37,14 +37,14 @@ const route = useRoute();
           v-if="removeError || updateError || insertError"
           :message="`Could not save/update ${title}`"
           variant="error"
-          @close="emit('closeError')"
+          @close="emit('close-error')"
         />
 
         <alert-message
           v-if="successUpdate || successInsert"
           :message="`Succcessfully save/update ${title}`"
           variant="success"
-          @close="emit('closeSuccess')"
+          @close="emit('close-success')"
         />
 
         <delete-dialog
@@ -52,8 +52,8 @@ const route = useRoute();
           :open="openRemove"
           :message="`Are you sure you want to delete ${selected?.name} (id: ${selected?.id})?`"
           @success-remove="emit('fetch')"
-          @fail-remove="emit('failRemove')"
-          @update:open="emit('update:openRemove', $event)"
+          @fail-remove="emit('fail-remove')"
+          @update:open="emit('update:open-remove', $event)"
         />
 
         <h1 class="text-2xl">{{ title }}</h1>

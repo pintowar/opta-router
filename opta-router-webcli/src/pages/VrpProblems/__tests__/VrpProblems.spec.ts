@@ -73,6 +73,14 @@ describe("VrpProblems.vue", () => {
 
     mockUseRoute.mockReturnValue({
       query: { page: "0", size: "10", q: "" },
+      matched: [],
+      name: undefined,
+      params: {},
+      fullPath: "",
+      hash: "",
+      redirectedFrom: undefined,
+      meta: {},
+      path: ""
     });
 
     const getMock = {
@@ -144,13 +152,17 @@ describe("VrpProblems.vue", () => {
     const problem: VrpProblemSummary = {
       id: 1,
       name: "Problem 1",
-      nlocations: 5,
-      nvehicles: 2,
+      nLocations: 5,
+      nVehicles: 2,
       totalDemand: 100,
       totalCapacity: 200,
       numSolverRequests: 0,
       numEnqueuedRequests: 0,
       numRunningRequests: 0,
+      numTerminatedRequests: 0,
+      numNotSolvedRequests: 0,
+      nlocations: 0,
+      nvehicles: 0
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
@@ -176,13 +188,17 @@ describe("VrpProblems.vue", () => {
     const problem: VrpProblemSummary = {
       id: 2,
       name: "Problem 2",
-      nlocations: 5,
-      nvehicles: 2,
+      nLocations: 5,
+      nVehicles: 2,
       totalDemand: 100,
       totalCapacity: 200,
       numSolverRequests: 1,
       numEnqueuedRequests: 0,
       numRunningRequests: 0,
+      numTerminatedRequests: 0,
+      numNotSolvedRequests: 0,
+      nlocations: 0,
+      nvehicles: 0
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
@@ -216,6 +232,8 @@ describe("VrpProblems.vue", () => {
         numSolverRequests: 1,
         numEnqueuedRequests: 1,
         numRunningRequests: 0,
+        numTerminatedRequests: 0,
+        numNotSolvedRequests: 0
       }, // Enqueued
       {
         id: 2,
@@ -227,6 +245,8 @@ describe("VrpProblems.vue", () => {
         numSolverRequests: 1,
         numEnqueuedRequests: 0,
         numRunningRequests: 1,
+        numTerminatedRequests: 0,
+        numNotSolvedRequests: 0
       }, // Running
       {
         id: 3,
@@ -238,6 +258,8 @@ describe("VrpProblems.vue", () => {
         numSolverRequests: 0,
         numEnqueuedRequests: 0,
         numRunningRequests: 0,
+        numTerminatedRequests: 0,
+        numNotSolvedRequests: 0
       }, // Not Solving
     ];
     data.value = { content: problems };
@@ -270,6 +292,8 @@ describe("VrpProblems.vue", () => {
       numSolverRequests: 0,
       numEnqueuedRequests: 0,
       numRunningRequests: 0,
+      numTerminatedRequests: 0,
+      numNotSolvedRequests: 0
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
