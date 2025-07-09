@@ -67,7 +67,7 @@ describe("VrpProblemEditor.vue", () => {
       hash: "",
       redirectedFrom: undefined,
       meta: {},
-      path: ""
+      path: "",
     });
   });
 

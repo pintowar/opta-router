@@ -80,7 +80,7 @@ describe("VrpProblems.vue", () => {
       hash: "",
       redirectedFrom: undefined,
       meta: {},
-      path: ""
+      path: "",
     });
 
     const getMock = {
@@ -162,7 +162,7 @@ describe("VrpProblems.vue", () => {
       numTerminatedRequests: 0,
       numNotSolvedRequests: 0,
       nlocations: 0,
-      nvehicles: 0
+      nvehicles: 0,
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
@@ -198,7 +198,7 @@ describe("VrpProblems.vue", () => {
       numTerminatedRequests: 0,
       numNotSolvedRequests: 0,
       nlocations: 0,
-      nvehicles: 0
+      nvehicles: 0,
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
@@ -233,7 +233,7 @@ describe("VrpProblems.vue", () => {
         numEnqueuedRequests: 1,
         numRunningRequests: 0,
         numTerminatedRequests: 0,
-        numNotSolvedRequests: 0
+        numNotSolvedRequests: 0,
       }, // Enqueued
       {
         id: 2,
@@ -246,7 +246,7 @@ describe("VrpProblems.vue", () => {
         numEnqueuedRequests: 0,
         numRunningRequests: 1,
         numTerminatedRequests: 0,
-        numNotSolvedRequests: 0
+        numNotSolvedRequests: 0,
       }, // Running
       {
         id: 3,
@@ -259,7 +259,7 @@ describe("VrpProblems.vue", () => {
         numEnqueuedRequests: 0,
         numRunningRequests: 0,
         numTerminatedRequests: 0,
-        numNotSolvedRequests: 0
+        numNotSolvedRequests: 0,
       }, // Not Solving
     ];
     data.value = { content: problems };
@@ -293,7 +293,7 @@ describe("VrpProblems.vue", () => {
       numEnqueuedRequests: 0,
       numRunningRequests: 0,
       numTerminatedRequests: 0,
-      numNotSolvedRequests: 0
+      numNotSolvedRequests: 0,
     };
     data.value = { content: [problem] };
     const { container } = renderComponent();
