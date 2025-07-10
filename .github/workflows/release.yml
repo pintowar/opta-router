@@ -1,6 +1,5 @@
-name: OptaRouter Release CI
+name: OptaRouter Tag Release Workflow CI
 on:
-  workflow_dispatch:
   push:
     tags:
       - v*
@@ -17,8 +16,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: master
-          fetch-depth: 0
+          ref: ${{ github.ref }} # This checks out the specific tag that triggered the workflow
 
       - uses: n1hility/cancel-previous-runs@v3
         with:
@@ -37,8 +35,6 @@ jobs:
       - name: Running gradle task
         run: ./gradlew clean jreleaserRelease -PenvironmentName=single
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
