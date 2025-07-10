@@ -56,10 +56,6 @@ configure<ReleaseExtension> {
     }
 }
 
-tasks.afterReleaseBuild {
-    dependsOn(":opta-router-app:jib")
-}
-
 jreleaser {
     project {
         authors.set(listOf("Thiago Oliveira Pinheiro"))

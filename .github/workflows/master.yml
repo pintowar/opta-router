@@ -41,7 +41,4 @@ jobs:
         run: ./gradlew clean spotlessCheck sonar release -PenvironmentName=single -Prelease.useAutomaticVersion=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

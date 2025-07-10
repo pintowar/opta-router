@@ -1,23 +1,23 @@
-name: OptaRouter Develop CI
+name: OptaRouter Release CI
 on:
+  workflow_dispatch:
   push:
-    # Sequence of patterns matched against refs/heads
-    branches:
-      - 'develop'
+    tags:
+      - v*
 
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRO: 'temurin'
 
 jobs:
-  gradle_develop_build:
-    name: Gradle Develop Build
+  gradle_master_build:
+    name: Gradle Release Task
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: master
           fetch-depth: 0
 
       - uses: n1hility/cancel-previous-runs@v3
@@ -35,6 +35,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Running gradle task
-        run: ./gradlew clean spotlessCheck sonar -PenvironmentName=single
+        run: ./gradlew clean jreleaserRelease -PenvironmentName=single
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
