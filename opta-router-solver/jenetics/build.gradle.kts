@@ -8,4 +8,6 @@ dependencies {
     api(libs.jenetics)
 
     runtimeOnly(libs.slf4j)
+
+    testImplementation(testFixtures(project(":opta-router-core")))
 }

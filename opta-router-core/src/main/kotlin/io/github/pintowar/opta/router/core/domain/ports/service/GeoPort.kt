@@ -7,8 +7,10 @@ import io.github.pintowar.opta.router.core.domain.models.Route
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 
 interface GeoPort {
-
-    suspend fun simplePath(origin: Coordinate, target: Coordinate): Path
+    suspend fun simplePath(
+        origin: Coordinate,
+        target: Coordinate
+    ): Path
 
     suspend fun detailedPaths(routes: List<Route>): List<Route>
 

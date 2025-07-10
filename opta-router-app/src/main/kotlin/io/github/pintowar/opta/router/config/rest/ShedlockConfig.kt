@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @Profile(ConfigData.REST_PROFILE)
 class ShedlockConfig {
-
     @Bean
-    fun lockProvider(hazelcastInstance: HazelcastInstance): HazelcastLockProvider {
-        return HazelcastLockProvider(hazelcastInstance)
-    }
+    fun lockProvider(hazelcastInstance: HazelcastInstance): HazelcastLockProvider =
+        HazelcastLockProvider(hazelcastInstance)
 }

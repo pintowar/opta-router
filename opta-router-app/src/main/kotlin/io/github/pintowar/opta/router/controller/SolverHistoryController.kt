@@ -24,23 +24,20 @@ class SolverHistoryController(
     private val vrpSolverRequestPort: VrpSolverRequestPort,
     private val vrpSolverSolutionPort: VrpSolverSolutionPort
 ) {
-
     @GetMapping("/{problemId}/requests/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun requests(
         @PathVariable problemId: Long,
         @PathVariable solverName: String
-    ): ResponseEntity<Flow<VrpSolverRequest>> {
-        return vrpSolverRequestPort.requestsByProblemIdAndSolverName(problemId, solverName).let {
+    ): ResponseEntity<Flow<VrpSolverRequest>> =
+        vrpSolverRequestPort.requestsByProblemIdAndSolverName(problemId, solverName).let {
             ResponseEntity.ok(it)
         }
-    }
 
     @GetMapping("/{problemId}/solutions", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solutions(
         @PathVariable problemId: Long
-    ): ResponseEntity<Flow<VrpSolverObjective>> {
-        return vrpSolverSolutionPort.solutionHistory(problemId).let {
+    ): ResponseEntity<Flow<VrpSolverObjective>> =
+        vrpSolverSolutionPort.solutionHistory(problemId).let {
             ResponseEntity.ok(it)
         }
-    }
 }

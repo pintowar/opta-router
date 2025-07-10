@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, toRefs } from "vue";
-import { Depot, Vehicle } from "../../api";
+import type { Depot, Vehicle } from "../../api";
 
 const props = defineProps<{
   vehicle: Vehicle;

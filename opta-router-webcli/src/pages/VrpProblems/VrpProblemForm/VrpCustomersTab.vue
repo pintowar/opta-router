@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, toRefs } from "vue";
-import { Customer } from "../../../api";
 import { useFetch } from "@vueuse/core";
+import { ref, toRefs } from "vue";
+import type { Customer } from "../../../api";
 
 const props = defineProps<{
   customers: Customer[];
@@ -37,14 +37,14 @@ function handleChangeDemand(customer: Customer) {
   <div class="flex items-center space-x-2 h-8">
     <span>Total customers: {{ customers.length }}</span>
     <div class="flex flex-grow space-x-2 justify-end pr-2">
-      <button :disabled="isEditing" class="btn btn-sm btn-circle" @click="isEditing = true">
+      <button type="button" :disabled="isEditing" class="btn btn-sm btn-circle" @click="isEditing = true">
         <v-icon name="md-add" />
       </button>
       <select v-if="isEditing" v-model="selectedCustomer" class="select select-xs" @change="handleSelectCustomer">
         <option :value="null">None</option>
         <option v-for="cust in allCustomers" :key="cust.id" :value="cust">{{ cust.name }}</option>
       </select>
-      <button v-if="isEditing" class="btn btn-sm btn-circle" @click="isEditing = false">
+      <button v-if="isEditing" type="button" class="btn btn-sm btn-circle" @click="isEditing = false">
         <v-icon name="md-close" />
       </button>
     </div>
@@ -73,7 +73,7 @@ function handleChangeDemand(customer: Customer) {
         </td>
         <td>
           <div class="tooltip" data-tip="Remove">
-            <button class="btn btn-sm btn-circle" @click="emit('removeCustomer', customer)">
+            <button type="button" class="btn btn-sm btn-circle" @click="emit('removeCustomer', customer)">
               <v-icon name="md-deleteoutline" />
             </button>
           </div>

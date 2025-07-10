@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import type { AfterFetchContext } from "@vueuse/core";
+import { useFetch, useWebSocket, watchOnce } from "@vueuse/core";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { AfterFetchContext, useFetch, useWebSocket, watchOnce } from "@vueuse/core";
 
-import { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
+import type { PanelSolutionState, VrpProblem, VrpSolution } from "../../api";
 
 import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
 import SolverMap from "./SolverMap.vue";
@@ -91,7 +92,7 @@ async function cleanAction() {
 </script>
 
 <template>
-  <vrp-page-layout v-slot="{ mapFooterHeight }" :is-fetching="isFetching" :error="error">
+  <vrp-page-layout :is-fetching="isFetching" :error="error">
     <vrp-solver-panel-layout>
       <template #menu>
         <solver-panel
@@ -101,7 +102,6 @@ async function cleanAction() {
           :solvers="solvers || []"
           :solver-status="solverStatus"
           :ws-status="status"
-          :style="`height: calc(100vh - ${mapFooterHeight})`"
           @on-solve="solveAction"
           @on-terminate="terminateAction"
           @on-clear="cleanAction"

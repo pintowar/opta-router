@@ -1,4 +1,4 @@
-import { components } from "./generated/api";
+import type { components } from "./generated/api";
 type Customer = components["schemas"]["Customer"];
 type Depot = components["schemas"]["Depot"];
 type Route = components["schemas"]["Route"];
@@ -14,13 +14,6 @@ type SolverState = "ENQUEUED" | "NOT_SOLVED" | "RUNNING" | "TERMINATED";
 type VehicleRoute = {
   vehicle?: Vehicle;
   route: Route;
-};
-
-type EditableVrpProblem = {
-  id: number;
-  name: string;
-  vehicles: Vehicle[];
-  customers: Customer[];
 };
 
 type Page<T> = {
@@ -42,7 +35,6 @@ function isDepot(obj: unknown): obj is Depot {
 export type {
   Customer,
   Depot,
-  EditableVrpProblem,
   Page,
   PanelSolutionState,
   Route,
@@ -52,8 +44,8 @@ export type {
   VrpProblem,
   VrpProblemSummary,
   VrpSolution,
-  VrpSolverRequest,
   VrpSolverObjective,
+  VrpSolverRequest,
 };
 
 export { isDepot };

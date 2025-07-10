@@ -1,6 +1,7 @@
 plugins {
     id("opta-router.base")
     `java-library`
+    `java-test-fixtures`
 }
 
 dependencies {

@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @Profile(ConfigData.REST_PROFILE)
 class RepositoryConfig {
-
     @Bean
     fun vrpProblemRepository(
         serde: Serde,
@@ -30,14 +29,10 @@ class RepositoryConfig {
     ): VrpProblemPort = VrpProblemJooqAdapter(dslContext, geoPort, serde)
 
     @Bean
-    fun vrpLocationRepository(
-        dslContext: DSLContext
-    ): VrpLocationPort = VrpLocationJooqAdapter(dslContext)
+    fun vrpLocationRepository(dslContext: DSLContext): VrpLocationPort = VrpLocationJooqAdapter(dslContext)
 
     @Bean
-    fun vrpVehicleRepository(
-        dslContext: DSLContext
-    ): VrpVehiclePort = VrpVehicleJooqAdapter(dslContext)
+    fun vrpVehicleRepository(dslContext: DSLContext): VrpVehiclePort = VrpVehicleJooqAdapter(dslContext)
 
     @Bean
     fun vrpSolverSolutionRepository(
@@ -46,7 +41,6 @@ class RepositoryConfig {
     ): VrpSolverSolutionPort = VrpSolverSolutionJooqAdapter(serde, dslContext)
 
     @Bean
-    fun vrpSolverRequestRepository(
-        dslContext: DSLContext
-    ): VrpSolverRequestPort = VrpSolverRequestJooqAdapter(dslContext)
+    fun vrpSolverRequestRepository(dslContext: DSLContext): VrpSolverRequestPort =
+        VrpSolverRequestJooqAdapter(dslContext)
 }

@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.runBlocking
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.CancellationException
@@ -26,9 +27,12 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
-class VrpSolverManager(timeLimit: Duration) {
-
-    private class UserCancellationException(val clear: Boolean) : CancellationException("User cancellation command.")
+class VrpSolverManager(
+    timeLimit: Duration
+) {
+    private class UserCancellationException(
+        val clear: Boolean
+    ) : CancellationException("User cancellation command.")
 
     private val supervisorJob = SupervisorJob()
     private val managerScope = CoroutineScope(supervisorJob + Dispatchers.Default)
@@ -41,6 +45,7 @@ class VrpSolverManager(timeLimit: Duration) {
         detailedSolution: VrpDetailedSolution,
         solverName: String
     ): Flow<SolutionRequestCommand> {
+        if (supervisorJob.isCancelled) return emptyFlow()
         if (blackListedKeys.remove(solverKey)) {
             val cmd = wrapCommand(VrpSolutionRequest(detailedSolution.solution, SolverStatus.TERMINATED, solverKey))
             return flowOf(cmd)
@@ -50,27 +55,30 @@ class VrpSolverManager(timeLimit: Duration) {
         val channel = Channel<SolutionRequestCommand>()
         var bestSolution = detailedSolution.solution
 
-        solverKeys[solverKey] = Solver
-            .getSolverByName(solverName)
-            .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), solverConfig)
-            .onEach {
-                bestSolution = it
-                logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
-                channel.send(wrapCommand(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey)))
-            }
-            .onCompletion { ex ->
-                logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
-                val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
-                val shouldClear = ex is UserCancellationException && ex.clear
-                channel.send(wrapCommand(solRequest, shouldClear))
-                channel.close()
-            }
-            .launchIn(managerScope)
+        solverKeys[solverKey] =
+            Solver
+                .getSolverByName(solverName)
+                .solve(detailedSolution.solution, VrpCachedMatrix(detailedSolution.matrix), solverConfig)
+                .onEach {
+                    bestSolution = it
+                    logger.info { "onEach: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                    channel.send(wrapCommand(VrpSolutionRequest(it, SolverStatus.RUNNING, solverKey)))
+                }.onCompletion { ex ->
+                    logger.info { "onEnd: $solverKey | ${bestSolution.getTotalDistance()} ($solverName)" }
+                    val solRequest = VrpSolutionRequest(bestSolution, SolverStatus.TERMINATED, solverKey)
+                    val shouldClear = ex is UserCancellationException && ex.clear
+                    channel.send(wrapCommand(solRequest, shouldClear))
+                    channel.close()
+                }.launchIn(managerScope)
 
         return channel.receiveAsFlow()
     }
 
-    suspend fun cancelSolver(solverKey: UUID, currentStatus: SolverStatus, clear: Boolean) {
+    suspend fun cancelSolver(
+        solverKey: UUID,
+        currentStatus: SolverStatus,
+        clear: Boolean
+    ) {
         if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
         solverKeys.remove(solverKey)?.let {
             it.cancel(UserCancellationException(clear))
@@ -80,8 +88,11 @@ class VrpSolverManager(timeLimit: Duration) {
 
     fun destroy() {
         supervisorJob.cancel()
+        runBlocking { supervisorJob.join() }
     }
 
-    private fun wrapCommand(solutionRequest: VrpSolutionRequest, clear: Boolean = false) =
-        SolutionRequestCommand(solutionRequest, clear)
+    private fun wrapCommand(
+        solutionRequest: VrpSolutionRequest,
+        clear: Boolean = false
+    ) = SolutionRequestCommand(solutionRequest, clear)
 }

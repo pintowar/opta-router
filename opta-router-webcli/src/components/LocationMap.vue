@@ -1,13 +1,14 @@
 <script lang="ts" setup>
-import "leaflet/dist/leaflet.css";
+import { LMap, LMarker, LPolyline, LPopup, LTileLayer } from "@vue-leaflet/vue-leaflet";
 import * as L from "leaflet";
-import { LMap, LTileLayer, LMarker, LPopup, LPolyline } from "@vue-leaflet/vue-leaflet";
+import "leaflet/dist/leaflet.css";
 
-import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
-import { ref, toRefs, computed, watchEffect } from "vue";
+import { createRainbow } from "rainbow-color";
+import { computed, ref, toRefs, watchEffect } from "vue";
 
-import { Customer, Depot, VehicleRoute, isDepot } from "../api";
+import type { Customer, Depot, VehicleRoute } from "../api";
+import { isDepot } from "../api";
 
 const props = defineProps<{
   locations: (Depot | Customer)[];

@@ -82,7 +82,10 @@ class Customer(
         }
 }
 
-class Depot(val id: Long, val location: RoadLocation)
+class Depot(
+    val id: Long,
+    val location: RoadLocation
+)
 
 @PlanningEntity
 class Vehicle(

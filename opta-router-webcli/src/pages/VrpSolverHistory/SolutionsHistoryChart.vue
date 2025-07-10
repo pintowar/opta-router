@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { computed, toRefs } from "vue";
 import { useColorMode } from "@vueuse/core";
-import { createRainbow } from "rainbow-color";
 import { rgbaString } from "color-map";
+import { createRainbow } from "rainbow-color";
+import { computed, toRefs } from "vue";
 
-import { categories } from "../../themes.ts";
-import { VrpSolverRequest, VrpSolverObjective } from "../../api";
+import type { VrpSolverObjective, VrpSolverRequest } from "../../api";
+import { categories } from "../../helpers/themes.ts";
 
 const props = defineProps<{
   solutions: VrpSolverObjective[];

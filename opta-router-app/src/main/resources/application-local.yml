@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: local-app
   output:
     ansi:
       enabled: always

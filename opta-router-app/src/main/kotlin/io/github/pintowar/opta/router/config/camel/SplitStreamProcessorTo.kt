@@ -9,14 +9,28 @@ import org.apache.camel.Processor
 import org.apache.camel.component.reactive.streams.api.CamelReactiveStreams
 import org.reactivestreams.Publisher
 
-internal class SplitStreamProcessorTo(private val uri: String, context: CamelContext) : Processor {
-
+internal class SplitStreamProcessorTo(
+    context: CamelContext,
+    private val uri: String,
+    private val transform: (body: Any) -> Any = { it }
+) : Processor {
     private val camelReactive = CamelReactiveStreams.get(context)
+
     override fun process(exchange: Exchange) {
         val body = exchange.`in`.body
         if (body is Publisher<*>) {
             val subscriber = camelReactive.subscriber(uri)
-            body.asFlow().map { exchange.copy().apply { message.body = it } }.asPublisher().subscribe(subscriber)
+            body
+                .asFlow()
+                .map {
+                    exchange.copy().apply {
+                        message.body =
+                            transform(
+                                it
+                            )
+                    }
+                }.asPublisher()
+                .subscribe(subscriber)
         }
     }
 }

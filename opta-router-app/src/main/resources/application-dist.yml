@@ -2,9 +2,15 @@ spring:
   config:
     activate:
       on-profile: rest
+  application:
+    name: rest-app
   jooq:
     sql-dialect: POSTGRES
     bind-offset-date-time-type: false
+  r2dbc:
+    url: '@db.url@'
+    username: '@db.user@'
+    password: '@db.password@'
   sql:
     init:
       mode: always
@@ -28,3 +34,22 @@ management:
   health:
     r2dbc:
       enabled: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: geo-server
+  application:
+    name: geo-app
+  rsocket:
+    server:
+      port: 7000
+
+---
+spring:
+  config:
+    activate:
+      on-profile: solver
+  application:
+    name: geo-solver

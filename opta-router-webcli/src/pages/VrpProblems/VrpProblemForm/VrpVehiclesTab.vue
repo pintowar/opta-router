@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from "vue";
 import { useFetch } from "@vueuse/core";
 import { uniqBy } from "lodash";
-import { Depot, Vehicle } from "../../../api";
+import { computed, ref, toRefs } from "vue";
+import type { Depot, Vehicle } from "../../../api";
 
 const props = defineProps<{
   vehicles: Vehicle[];
@@ -66,7 +66,7 @@ async function handleSelectDepot() {
         <span>Depot: </span>
         <div v-if="!isChangingDepot" class="flex space-x-2">
           <span> {{ depot?.name || "None" }} ({{ depot?.lat }}, {{ depot?.lng }}) </span>
-          <button class="btn btn-circle btn-xs" @click="isChangingDepot = true">
+          <button type="button" class="btn btn-circle btn-xs" @click="isChangingDepot = true">
             <v-icon name="md-changecircle" />
           </button>
         </div>
@@ -103,7 +103,7 @@ async function handleSelectDepot() {
           </td>
           <td>
             <div class="tooltip" data-tip="Remove">
-              <button class="btn btn-sm btn-circle" @click="emit('removeVehicle', vehicle)">
+              <button type="button" class="btn btn-sm btn-circle" @click="emit('removeVehicle', vehicle)">
                 <v-icon name="md-deleteoutline" />
               </button>
             </div>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, toRefs } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps<{
   query: string;
@@ -44,7 +44,11 @@ function search(q: string) {
         placeholder="Search..."
         @keypress="handleKeypress"
       />
-      <div class="absolute inset-y-0 end-0 flex items-center pe-3 cursor-pointer" @click="clear">
+      <div
+        class="absolute inset-y-0 end-0 flex items-center pe-3 cursor-pointer"
+        data-testid="clear-button"
+        @click="clear"
+      >
         <v-icon name="md-close" />
       </div>
     </div>

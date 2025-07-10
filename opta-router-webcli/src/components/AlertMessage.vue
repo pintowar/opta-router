@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { TransitionPresets, useTransition, useTimeoutFn } from "@vueuse/core";
+import { TransitionPresets, useTimeoutFn, useTransition } from "@vueuse/core";
 import { ref, toRefs } from "vue";
 
 const props = withDefaults(

@@ -1,32 +1,37 @@
 [versions]
-kotlin = "1.9.22"
-kotlin-coroutines = "1.7.3"
-kotlin-logging = "6.0.1"
-spring-boot = "3.2.1"
-spring-dependency = "1.1.4"
-spotless = "6.18.0"
-springdoc = "2.3.0"
-jackson = "2.15.3"
-optaplanner = "9.44.0.Final"
-timefold = "1.5.0"
-jsprit = "1.9.0-beta.11"
-ortools = "9.8.3296"
-jenetics = "7.2.0"
-graphhopper = "8.0"
-flyway = "9.17.0"
-jooq = "3.19.1"
-hazelcast = "5.3.1"
-camel = "4.3.0"
-h2 = "2.2.224"
-postgres = "42.7.1"
-shedlock = "5.10.2"
-sfl4j = "2.0.7"
-gradle-jooq = "9.0"
-gradle-node = "7.0.1"
-gradle-jib = "3.4.0"
-gradle-git = "2.4.1"
-gradle-release = "3.0.2"
-gradle-properties = "1.5.2"
+kotlin = "2.2.0"
+kotlin-coroutines = "1.10.2"
+kotlin-logging = "7.0.7"
+spring-boot = "3.5.3"
+spring-dependency = "1.1.7"
+spotless = "7.0.4"
+springdoc = "2.8.9"
+jackson = "2.19.1"
+optaplanner = "10.0.0"
+timefold = "1.23.0"
+jsprit = "1.9.0-beta.12"
+ortools = "9.9.3963" # 9.10.* uses protobuf 4.*, it conflicts with graphhopper deps
+jenetics = "8.2.0"
+graphhopper = "10.2"
+flyway = "11.10.0"
+jooq = "3.20.5"
+hazelcast = "5.4.0"
+camel = "4.12.0"
+h2 = "2.3.232"
+postgres = "42.7.7"
+shedlock = "6.9.0"
+sfl4j = "2.1.0-alpha1"
+kotest = "6.0.0.M4"
+mockk = "1.14.4"
+gradle-jooq = "10.1"
+gradle-node = "7.1.0"
+gradle-jib = "3.4.5"
+gradle-git = "2.5.0"
+gradle-release = "3.1.0"
+gradle-properties = "1.6.0"
+gradle-versions = "0.52.0"
+gradle-sonarqube = "6.2.0.5505"
+gradle-jreleaser = "1.19.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -39,6 +44,9 @@ git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gr
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
 release = { id = "net.researchgate.release", version.ref = "gradle-release" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions" }
+sonarqube = { id = "org.sonarqube", version.ref = "gradle-sonarqube" }
+jreleaser = { id = "org.jreleaser", version.ref = "gradle-jreleaser" }
 
 [libraries]
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -52,15 +60,18 @@ kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-co
 kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "kotlin-coroutines" }
 
 spring-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "spring-boot" }
+spring-rsocket = { module = "org.springframework.boot:spring-boot-starter-rsocket", version.ref = "spring-boot" }
 spring-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq", version.ref = "spring-boot" }
 spring-r2dbc = { module = "org.springframework.boot:spring-boot-starter-data-r2dbc", version.ref = "spring-boot" }
+r2dbc-proxy = { module = "io.r2dbc:r2dbc-proxy", version = "1.1.6.RELEASE" }
 spring-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 
 springdoc-openapi = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "springdoc" }
 flyway = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 
 jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-cbor = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor", version.ref = "jackson" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
@@ -80,7 +91,7 @@ jooq-kotlin-coroutines = { module = "org.jooq:jooq-kotlin-coroutines", version.r
 h2-jdbc = { module = "com.h2database:h2", version.ref = "h2" }
 h2-r2dbc = { module = "io.r2dbc:r2dbc-h2", version = "1.0.0.RELEASE" }
 pg-jdbc = { module = "org.postgresql:postgresql", version.ref = "postgres" }
-pg-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version = "1.0.2.RELEASE" }
+pg-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version = "1.0.7.RELEASE" }
 shedlock = { module = "net.javacrumbs.shedlock:shedlock-spring", version.ref = "shedlock" }
 shedlock-hazelcast = { module = "net.javacrumbs.shedlock:shedlock-provider-hazelcast4", version.ref = "shedlock" }
 
@@ -91,12 +102,18 @@ camel-hazelcast = { module = "org.apache.camel.springboot:camel-hazelcast-starte
 
 slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
+kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertion = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
-spring = ["spring-webflux", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway"]
+spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
 jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
 optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
-jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin"]
+jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]
 camel = ["camel-boot", "camel-bean", "camel-stream", "camel-hazelcast"]
+kotest = ["kotest-runner", "kotest-assertion", "mockk"]

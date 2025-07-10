@@ -7,7 +7,7 @@ plugins {
 project.layout.buildDirectory.set(file("dist"))
 
 node {
-    version.set("18.18.2")
+    version.set("22.16.0")
     download.set(true)
 }
 
@@ -26,8 +26,18 @@ tasks {
         args.set(listOf("run", "build"))
     }
 
-    register<Task>("test") {
-        logger.quiet("sorry, no tests at all :(")
+    register<NpmTask>("test") {
+        dependsOn(npmInstall)
+        group = "test"
+        description = "Test client app"
+        args.set(listOf("run", "test"))
+    }
+
+    register<NpmTask>("coverage") {
+        dependsOn(npmInstall)
+        group = "test"
+        description = "Test client app"
+        args.set(listOf("run", "coverage"))
     }
 
     register<Delete>("clean") {

@@ -21,10 +21,9 @@ private val logger = KotlinLogging.logger {}
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "24h")
 class SolverRequestScheduler(
-    @Value("\${solver.termination.time-limit}") private val timeLimit: Duration,
+    @param:Value("\${solver.termination.time-limit}") private val timeLimit: Duration,
     private val vrpSolverRequestPort: VrpSolverRequestPort
 ) {
-
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.MINUTES)
     @SchedulerLock(name = "refreshAbandonedSolverRequests", lockAtLeastFor = "5m")
     fun refreshAbandonedSolverRequests() {

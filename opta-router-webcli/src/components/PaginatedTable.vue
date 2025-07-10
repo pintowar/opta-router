@@ -1,30 +1,27 @@
 <script lang="ts" generic="T extends { id: number }" setup>
-import { StyleValue, ref, toRefs, watch } from "vue";
-import { Page } from "../api";
-import { useRouter, useRoute } from "vue-router";
+import { ref, toRefs, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import type { Page } from "../api";
 
 const props = withDefaults(
   defineProps<{
     page: Page<T> | null;
     selected?: T | null;
-    style?: StyleValue;
     isEditing?: boolean;
   }>(),
   {
     selected: null,
     isEditing: false,
-    style: undefined,
   }
 );
 
-const { page, isEditing, selected, style } = toRefs(props);
+const { page, isEditing, selected } = toRefs(props);
 
 const router = useRouter();
 const route = useRoute();
 
 const pageSizes = [5, 10, 25];
 const pageSize = ref(route.query.size || 10);
-const hoveredLine = ref<number | null>(null);
 
 watch(pageSize, (size) => {
   router.push({
@@ -66,25 +63,18 @@ function last() {
 </script>
 
 <template>
-  <div class="flex-col space-y-2">
-    <div class="overflow-y-auto overflow-x-hidden" :style="style">
-      <table class="table table-sm table-zebra w-full">
+  <div data-testid="paginated-table" class="flex flex-col grow place-content-between overflow-y-hidden space-y-2">
+    <div class="overflow-auto">
+      <table class="table table-sm table-zebra w-full overflow-hidden">
         <thead>
           <tr>
             <slot name="head"></slot>
           </tr>
         </thead>
-        <tbody v-for="(row, idx) in page?.content || []" :key="idx">
-          <tr v-if="isSelectedRow(row)" class="bg-primary-content">
-            <slot name="edit" :item="selected"></slot>
-          </tr>
-          <tr
-            v-else
-            :class="`${idx === hoveredLine ? 'hover' : ''}`"
-            @mouseenter="() => (hoveredLine = idx)"
-            @mouseleave="() => (hoveredLine = null)"
-          >
-            <slot name="show" :idx="idx" :row="row"></slot>
+        <tbody>
+          <tr v-for="(row, idx) in page?.content || []" :key="idx" class="bg-primary-content hover:bg-base-300">
+            <slot v-if="isSelectedRow(row)" name="edit" :item="selected"></slot>
+            <slot v-else name="show" :idx="idx" :row="row" class="hover:bg-base-300"></slot>
           </tr>
         </tbody>
         <tfoot>
@@ -94,8 +84,8 @@ function last() {
     </div>
 
     <div class="flex justify-between">
-      <div class="flex">
-        <select v-model="pageSize" class="select select-sm select-bordered">
+      <div class="flex min-w-fit">
+        <select id="page-size" v-model="pageSize" class="select select-sm select-bordered">
           <option v-for="size in pageSizes" :key="size" :value="size">
             {{ size }}
           </option>

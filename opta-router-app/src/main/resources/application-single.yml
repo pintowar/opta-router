@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: single-app
   jooq:
     sql-dialect: H2
     bind-offset-date-time-type: true

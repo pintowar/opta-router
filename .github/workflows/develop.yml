@@ -1,0 +1,40 @@
+name: OptaRouter Develop CI
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:
+      - 'develop'
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRO: 'temurin'
+
+jobs:
+  gradle_develop_build:
+    name: Gradle Develop Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - uses: n1hility/cancel-previous-runs@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          cache: 'gradle'
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRO }}
+
+      - name: Running gradle task
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Running gradle task
+        run: ./gradlew clean spotlessCheck sonar -PenvironmentName=single
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

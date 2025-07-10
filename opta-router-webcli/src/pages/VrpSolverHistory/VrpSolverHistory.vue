@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref, watch, computed } from "vue";
 import { useFetch } from "@vueuse/core";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import { VrpSolverRequest, VrpSolverObjective } from "../../api";
+import type { VrpSolverObjective, VrpSolverRequest } from "../../api";
 
 import { VrpPageLayout, VrpSolverPanelLayout } from "../../layout";
 import SolutionsHistoryChart from "./SolutionsHistoryChart.vue";
@@ -53,7 +53,7 @@ function requestStatus(request: VrpSolverRequest | null): string {
   <vrp-page-layout :is-fetching="isFetching" :error="error">
     <vrp-solver-panel-layout>
       <template #menu>
-        <div class="space-y-2">
+        <div class="flex flex-col space-y-2 w-full">
           <div class="flex space-x-2">
             <div class="basis-1/2">
               <h1>Solver History</h1>

@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { StyleValue, computed, toRefs } from "vue";
 import { useFetch, useVModels } from "@vueuse/core";
-import { uniqBy, sortBy } from "lodash";
-import { Customer, EditableVrpProblem, Vehicle } from "../../../api";
+import { sortBy, uniqBy } from "lodash";
+import { computed, toRefs } from "vue";
+import type { Customer, Vehicle, VrpProblem } from "../../../api";
 import { AlertMessage, LocationMap } from "../../../components";
-import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
+import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 
 const props = defineProps<{
   persistUrl: string;
-  problem: EditableVrpProblem;
-  style?: StyleValue;
+  problem: VrpProblem;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:problem", val: EditableVrpProblem): void;
+  (e: "update:problem", val: VrpProblem): void;
 }>();
 
-const { persistUrl, style } = toRefs(props);
+const { persistUrl } = toRefs(props);
 
 const { problem } = useVModels(props, emit);
 
@@ -97,74 +96,101 @@ function successClose() {
 </script>
 
 <template>
-  <div class="flex my-2 mx-2 space-x-2 h-full">
-    <div class="flex-initial flex-col w-7/12">
-      <alert-message
-        v-if="persistError"
-        message="Could not save/update VrpProblem"
-        variant="error"
-        @close="errorClose"
-      />
-
-      <alert-message
-        v-if="successPersist"
-        message="Succcessfully save/update Location"
-        variant="success"
-        @close="successClose"
-      />
-
-      <div class="pb-2">
-        <table class="table table-sm table-zebra">
-          <thead>
-            <th>Name</th>
-            <th>Total Capacity</th>
-            <th>Total Demand</th>
-          </thead>
-          <tbody>
-            <td>
-              <input v-if="problem" v-model="problem.name" name="name" class="input input-bordered w-full input-xs" />
-            </td>
-            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
-            <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
-          </tbody>
-        </table>
+  <div class="w-full flex my-2 mx-2 space-x-2">
+    <div class="flex flex-col w-full space-y-2">
+      <h1 class="text-2xl">Routes</h1>
+      <div class="flex w-full justify-between">
+        <div></div>
+        <router-link to="/" class="btn btn-circle">
+          <v-icon name="md-close" />
+        </router-link>
       </div>
-
-      <div role="tablist" class="tabs tabs-bordered">
-        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Vehicles" checked />
-        <div role="tabpanel" class="tab-content pt-2 overflow-y-auto overflow-x-hidden" :style="style">
-          <vrp-vehicles-tab
-            v-if="problem"
-            :vehicles="problem.vehicles"
-            @select-value="handleSelectDepot"
-            @remove-vehicle="removeVehicle"
-            @change-capacity="changeCapacity"
+      <div class="flex w-full grow space-x-2 overflow-y-hidden">
+        <div class="flex flex-col w-7/12">
+          <alert-message
+            v-if="persistError"
+            message="Could not save/update VrpProblem"
+            variant="error"
+            @close="errorClose"
           />
-        </div>
 
-        <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
-        <div role="tabpanel" class="tab-content pt-2 overflow-y-auto overflow-x-hidden" :style="style">
-          <vrp-customers-tab
-            v-if="problem"
-            :customers="problem?.customers"
-            @remove-customer="removeCustomer"
-            @add-customer="addCustomer"
-            @change-demand="changeDemand"
+          <alert-message
+            v-if="successPersist"
+            message="Succcessfully save/update Location"
+            variant="success"
+            @close="successClose"
           />
+
+          <div class="pb-2">
+            <table class="table table-sm table-zebra">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Total Capacity</th>
+                  <th>Total Demand</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <input
+                      v-if="problem"
+                      v-model="problem.name"
+                      name="name"
+                      class="input input-bordered w-full input-xs"
+                    />
+                  </td>
+                  <td :class="isValidCapDem ? '' : 'text-error'">{{ totalCapacity }}</td>
+                  <td :class="isValidCapDem ? '' : 'text-error'">{{ totalDemand }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-col grow place-content-between overflow-hidden space-y-2">
+            <div role="tablist" class="tabs tabs-bordered overflow-hidden">
+              <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Vehicles" checked />
+              <div role="tabpanel" class="tab-content pt-2 overflow-x-hidden">
+                <vrp-vehicles-tab
+                  v-if="problem"
+                  :vehicles="problem.vehicles"
+                  @select-value="handleSelectDepot"
+                  @remove-vehicle="removeVehicle"
+                  @change-capacity="changeCapacity"
+                />
+              </div>
+
+              <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Customers" />
+              <div role="tabpanel" class="tab-content pt-2 overflow-x-hidden">
+                <vrp-customers-tab
+                  v-if="problem"
+                  :customers="problem?.customers"
+                  @remove-customer="removeCustomer"
+                  @add-customer="addCustomer"
+                  @change-demand="changeDemand"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-row-reverse pt-2">
+              <form class="space-x-2">
+                <router-link to="/" class="btn">Cancel</router-link>
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  :disabled="isUpdating || !isValidCapDem"
+                  @click="() => persist()"
+                >
+                  Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="flex-auto flex-shrink-0">
+          <location-map :locations="depots.concat(problem?.customers || [])" />
         </div>
       </div>
-
-      <div class="flex flex-row-reverse pt-2">
-        <form class="space-x-2">
-          <router-link to="/" class="btn">Cancel</router-link>
-          <button class="btn btn-success" :disabled="isUpdating || !isValidCapDem" @click="() => persist()">
-            Save<span v-if="isUpdating" class="loading loading-bars loading-xs"></span>
-          </button>
-        </form>
-      </div>
-    </div>
-    <div class="flex-auto">
-      <location-map :locations="depots.concat(problem?.customers || [])" />
     </div>
   </div>
 </template>
