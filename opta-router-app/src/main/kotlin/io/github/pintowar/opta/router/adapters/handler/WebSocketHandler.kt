@@ -29,7 +29,7 @@ class WebSocketHandler(
     private val uriTemplate = UriTemplate("/ws/solution-state/{instanceId}")
 
     override fun handle(session: WebSocketSession): Mono<Void> {
-        val webSessionId = session.attributes.getValue(ConfigData.WEBSESSION_ID) as String
+        val webSessionId = session.attributes[ConfigData.WEBSESSION_ID] as String? ?: return Mono.empty()
 
         val uriInstanceId = uriTemplate.match(session.handshakeInfo.uri.path)["instanceId"]
         val source = fromChannel(webSessionId, uriInstanceId)
