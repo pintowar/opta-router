@@ -71,21 +71,11 @@ jreleaser {
     }
     release {
         github {
-            enabled.set(true)
-            repoOwner.set("pintowar")
-            name.set("opta-router")
-            host.set("github.com")
+            enabled.set(!isSnapshotVersion)
 
             changelog {
                 enabled.set(false)
             }
-            releaseName.set("v$version")
-            tagName.set("v$version")
-//            draft.set(isSnapshotVersion)
-            prerelease.enabled.set(isSnapshotVersion)
-            skipTag.set(isSnapshotVersion)
-            overwrite.set(isSnapshotVersion)
-//            update { enabled.set(isSnapshotVersion) }
         }
     }
     distributions {
