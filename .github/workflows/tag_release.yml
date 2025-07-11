@@ -2,7 +2,7 @@ name: OptaRouter Tag Release Workflow CI
 on:
   push:
     tags:
-      - v*
+      - 'v*'
 
 env:
   JAVA_VERSION: '21'
