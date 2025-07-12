@@ -90,7 +90,7 @@ sonarqube {
     properties {
         val sonarToken = project.findProperty("sonar.token")?.toString() ?: System.getenv("SONAR_TOKEN")
         val jacocoReportPath = project.layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile.absolutePath
-        val lcovReportPath = project.layout.buildDirectory.dir("opta-router-webcli/coverage").get().asFile.absolutePath
+        val lcovReportPath = project.layout.buildDirectory.dir("reports/coverage").get().asFile.absolutePath
 
         property("sonar.sourceEncoding", "UTF-8")
         property("sonar.organization", "pintowar")
