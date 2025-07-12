@@ -33,7 +33,7 @@ vi.mock("./SolutionsHistoryChart.vue", () => ({
 
 describe("VrpSolverHistory", () => {
   beforeEach(() => {
-    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
+    (useFetch as Mock).mockImplementation(() => {
       const mockReturnValue = {
         get: vi.fn().mockReturnThis(),
         json: vi.fn().mockReturnValue({
@@ -43,9 +43,6 @@ describe("VrpSolverHistory", () => {
         }),
       };
 
-      if (url.value.includes("requests")) {
-        return mockReturnValue;
-      }
       return mockReturnValue;
     });
     vi.mocked(useRoute).mockReturnValue({
