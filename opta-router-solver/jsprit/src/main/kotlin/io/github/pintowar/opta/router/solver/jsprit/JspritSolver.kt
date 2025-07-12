@@ -46,7 +46,7 @@ class JspritSolver : Solver() {
 
             algorithm.addInitialSolution(initialSolution.toSolverSolution(vrp))
             algorithm.addListener(
-                IterationEndsListener { i, problem, solutions ->
+                IterationEndsListener { _, _, solutions ->
                     val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
                     trySendBlocking(actual)
                 }
