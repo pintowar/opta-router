@@ -7,7 +7,6 @@ spring-dependency = "1.1.7"
 spotless = "7.0.4"
 springdoc = "2.8.9"
 jackson = "2.19.1"
-optaplanner = "10.0.0"
 timefold = "1.23.0"
 jsprit = "1.9.0-beta.12"
 ortools = "9.9.3963" # 9.10.* uses protobuf 4.*, it conflicts with graphhopper deps
@@ -77,7 +76,6 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 timefold-core = { module = "ai.timefold.solver:timefold-solver-core", version.ref = "timefold" }
-optaplanner-core = { module = "org.optaplanner:optaplanner-core", version.ref = "optaplanner" }
 jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
 or-tools = { module = "com.google.ortools:ortools-java", version.ref = "ortools" }
 jenetics = { module = "io.jenetics:jenetics", version.ref = "jenetics" }
@@ -111,7 +109,6 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
 jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
-optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]

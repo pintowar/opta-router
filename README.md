@@ -9,7 +9,7 @@
 ![Docker release (latest)](https://img.shields.io/docker/v/pintowar/opta-router?sort=semver&logo=docker)
 ![GitHub license](https://img.shields.io/github/license/pintowar/opta-router)
 
-Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Hazelcast + RSocket + Websockets
+Sample CVRP Application using Kotlin + Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Hazelcast + RSocket + Websockets
 
 ## What is CVRP?
 
@@ -38,9 +38,8 @@ The `opta-router-solver` module contains several submodules that uses different 
 
 * jenetics: a Genetic Algorithm library, written in modern-day Java;
 * jsprit: lightweight, flexible toolkit for solving VRP, based on a single all-purpose meta-heuristic currently solving;
-* optaplanner: solves constraint satisfaction problems with construction heuristics and meta-heuristic algorithms;
-* or-tools: a for solving linear programming, mixed integer programming, constraint programming, vehicle routing, and related optimization problems;
-* timefold: is a fork of OptaPlanner.
+* timefold: solves constraint satisfaction problems with construction heuristics and meta-heuristic algorithms (a fork of OptaPlanner);
+* or-tools: a for solving linear programming, mixed integer programming, constraint programming, vehicle routing, and related optimization problems.
 
 ### Screenshots
 
