@@ -42,7 +42,7 @@ describe("themes", () => {
       "winter",
     ];
     const criteria = (a: string, b: string) => a.localeCompare(b);
-    expect(localThemes.sort(criteria)).toEqual(expectedThemes.sort(criteria));
+    expect(localThemes.toSorted(criteria)).toEqual(expectedThemes.toSorted(criteria));
   });
 
   it("should create a modes object where each theme maps to itself", () => {
