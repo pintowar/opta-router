@@ -89,8 +89,8 @@ jreleaser {
 sonarqube {
     properties {
         val sonarToken = project.findProperty("sonar.token")?.toString() ?: System.getenv("SONAR_TOKEN")
-        val jacocoReportPath = project.layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile.absolutePath
-        val lcovReportPath = project.layout.buildDirectory.dir("reports/coverage").get().asFile.absolutePath
+        val jacocoReportPath = layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile
+        val lcovReportPath = layout.buildDirectory.dir("reports/coverage").get().asFile
 
         property("sonar.sourceEncoding", "UTF-8")
         property("sonar.organization", "pintowar")
@@ -101,8 +101,8 @@ sonarqube {
         property("sonar.token", sonarToken)
         property("sonar.verbose", true)
         property("sonar.github.repository", "pintowar/opta-router")
-        property("sonar.coverage.jacoco.xmlReportPaths", "$jacocoReportPath/testCodeCoverageReport.xml")
-        property("sonar.javascript.lcov.reportPaths", "$lcovReportPath/lcov.info")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${jacocoReportPath.relativeTo(projectDir)}/testCodeCoverageReport.xml")
+        property("sonar.javascript.lcov.reportPaths", lcovReportPath.relativeTo(projectDir))
     }
 }
 
@@ -129,8 +129,8 @@ tasks.register("fullTestCoverageReport") {
     description = "Full Test Coverage Report"
     doLast {
         copy {
-            from(files(project(webCli).layout.projectDirectory.dir("coverage")))
-            into("$rootDir/build/reports/coverage")
+            from(project(webCli).layout.projectDirectory.dir("coverage"))
+            into(layout.buildDirectory.dir("reports/coverage"))
         }
     }
 }
