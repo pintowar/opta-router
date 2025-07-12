@@ -84,7 +84,6 @@ data class Route(
     val time: BigDecimal,
     val totalDemand: Int,
     val order: List<LatLng>,
-    // TODO rename to locationIds
     val customerIds: List<Long>
 ) {
     companion object {

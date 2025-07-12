@@ -20,7 +20,7 @@ class CamelSolverEvents(
         from("{{camel.route.consumer.request-solver}}")
             .routeId("request.solver.queue")
             .transform()
-            .body { it -> serde.fromCbor<RequestSolverCommand>(it as ByteArray) }
+            .body { serde.fromCbor<RequestSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "solve")
             .process(SplitStreamProcessorTo(context, "{{camel.route.producer.solution-request}}", serde::toCbor))
 
@@ -29,7 +29,7 @@ class CamelSolverEvents(
             .transform()
             .spel("#{body.messageObject}")
             .transform()
-            .body { it -> serde.fromCbor<CancelSolverCommand>(it as ByteArray) }
+            .body { serde.fromCbor<CancelSolverCommand>(it as ByteArray) }
             .bean(AsyncPipeSolver::class.java, "cancelSolver")
             .process(UnwrapStreamProcessor())
             .end()
