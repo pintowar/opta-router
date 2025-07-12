@@ -7,14 +7,12 @@ import { AlertMessage, LocationMap } from "../../../components";
 import VrpCustomersTab from "./VrpCustomersTab.vue";
 import VrpVehiclesTab from "./VrpVehiclesTab.vue";
 
-type EmitType = { (event: "update:problem", val: VrpProblem): void };
-
 const props = defineProps<{
   persistUrl: string;
   problem: VrpProblem;
 }>();
 
-const emit = defineEmits<EmitType>();
+const emit = defineEmits<(event: "update:problem", val: VrpProblem) => void>();
 
 const { persistUrl } = toRefs(props);
 

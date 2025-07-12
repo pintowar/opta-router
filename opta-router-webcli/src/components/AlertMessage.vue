@@ -3,7 +3,6 @@ import { TransitionPresets, useTimeoutFn, useTransition } from "@vueuse/core";
 import { ref, toRefs } from "vue";
 
 type AlertType = "info" | "success" | "warning" | "error";
-type EmitType = { (event: "close"): void };
 
 const props = withDefaults(
   defineProps<{
@@ -17,7 +16,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<EmitType>();
+const emit = defineEmits<(event: "close") => void>();
 
 const { message, variant } = toRefs(props);
 
