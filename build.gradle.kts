@@ -89,8 +89,8 @@ jreleaser {
 sonarqube {
     properties {
         val sonarToken = project.findProperty("sonar.token")?.toString() ?: System.getenv("SONAR_TOKEN")
-        val jacocoReportPath = layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile
-        val lcovReportPath = project(":opta-router-webcli").layout.projectDirectory.dir("coverage").asFile
+        val jacocoReportPath = project.layout.buildDirectory.dir("reports/jacoco/testCodeCoverageReport").get().asFile.absolutePath
+        val lcovReportPath = project.layout.buildDirectory.dir("opta-router-webcli/coverage").get().asFile.absolutePath
 
         property("sonar.sourceEncoding", "UTF-8")
         property("sonar.organization", "pintowar")
@@ -101,8 +101,8 @@ sonarqube {
         property("sonar.token", sonarToken)
         property("sonar.verbose", true)
         property("sonar.github.repository", "pintowar/opta-router")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${jacocoReportPath.relativeTo(projectDir)}/testCodeCoverageReport.xml")
-        property("sonar.javascript.lcov.reportPaths", lcovReportPath.relativeTo(projectDir))
+        property("sonar.coverage.jacoco.xmlReportPaths", "$jacocoReportPath/testCodeCoverageReport.xml")
+        property("sonar.javascript.lcov.reportPaths", "$lcovReportPath/lcov.info")
     }
 }
 
