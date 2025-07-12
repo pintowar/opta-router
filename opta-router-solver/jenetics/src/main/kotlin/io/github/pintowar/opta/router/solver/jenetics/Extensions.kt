@@ -128,28 +128,29 @@ private fun problemConstraint(
                     }
 
             val initial = MutableList<List<Customer>>(subRoutes.size) { emptyList() } to dropped
-            val (adjustedSubRoutes, _) =
-                subRoutes.foldIndexed(initial) { idx, (newSubRoutes, used), subRoute ->
-                    if (full[idx]) {
-                        newSubRoutes[idx] = subRoute.filter { c -> c !in dropped }
-                        newSubRoutes to used
-                    } else {
-                        val currentDemand = subRoute.sumOf { c -> c.demand }
-                        val validSubRoute =
-                            used
-                                .scan(Pair<Int, Customer?>(currentDemand, null)) { (acc, _), c ->
-                                    val accDemand = acc + c.demand
-                                    if (accDemand > problem.vehicles[idx].capacity) {
-                                        acc to null
-                                    } else {
-                                        accDemand to c
-                                    }
-                                }.drop(1)
-                                .mapNotNull { (_, c) -> c }
-                        newSubRoutes[idx] = subRoute + validSubRoute
-                        newSubRoutes to (used - validSubRoute.toSet())
-                    }
-                }
+            val adjustedSubRoutes =
+                subRoutes
+                    .foldIndexed(initial) { idx, (newSubRoutes, used), subRoute ->
+                        if (full[idx]) {
+                            newSubRoutes[idx] = subRoute.filter { c -> c !in dropped }
+                            newSubRoutes to used
+                        } else {
+                            val currentDemand = subRoute.sumOf { c -> c.demand }
+                            val validSubRoute =
+                                used
+                                    .scan(Pair<Int, Customer?>(currentDemand, null)) { (acc, _), c ->
+                                        val accDemand = acc + c.demand
+                                        if (accDemand > problem.vehicles[idx].capacity) {
+                                            acc to null
+                                        } else {
+                                            accDemand to c
+                                        }
+                                    }.drop(1)
+                                    .mapNotNull { (_, c) -> c }
+                            newSubRoutes[idx] = subRoute + validSubRoute
+                            newSubRoutes to (used - validSubRoute.toSet())
+                        }
+                    }.let { (newSubRoutes, _) -> newSubRoutes.toList() }
             val distance = fitnessFactory(problem, matrix)(adjustedSubRoutes)
             val chromosome = toChromosome(problem, adjustedSubRoutes)
             Genotype.of(chromosome).let { gt -> Phenotype.of(gt, gen, distance) }

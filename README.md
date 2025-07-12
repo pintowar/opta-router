@@ -1,8 +1,12 @@
-# Opta Router Boot
+# Opta Router
 
-![master status](https://github.com/pintowar/opta-router/actions/workflows/master.yml/badge.svg?branch=master)
+| Service       | Master                                                                                                                                                                      | Develop                                                                                                                                                                                             |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| CI Status     | ![master status](https://github.com/pintowar/opta-router/actions/workflows/master.yml/badge.svg?branch=master)                                                       | ![develop status](https://github.com/pintowar/opta-router/actions/workflows/develop.yml/badge.svg?branch=develop)                                                                               |
+| Test Coverage | [![Sonar Coverage](https://sonarcloud.io/api/project_badges/measure?project=pintowar_opta-router&metric=coverage)](https://sonarcloud.io/dashboard?id=pintowar_opta-router) | [![Sonar Coverage](https://sonarcloud.io/api/project_badges/measure?project=pintowar_opta-router&metric=coverage&branch=develop)](https://sonarcloud.io/dashboard?id=pintowar_opta-router&branch=develop) |
 
-![GitHub tag (latest)](https://img.shields.io/github/v/tag/pintowar/opta-router)
+![GitHub release (latest)](https://img.shields.io/github/v/release/pintowar/opta-router?logo=github)
+![Docker release (latest)](https://img.shields.io/docker/v/pintowar/opta-router?sort=semver&logo=docker)
 ![GitHub license](https://img.shields.io/github/license/pintowar/opta-router)
 
 Sample CVRP Application using Kotlin + Optaplanner/Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Jooq + Hazelcast + RSocket + Websockets

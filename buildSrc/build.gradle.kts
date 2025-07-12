@@ -16,5 +16,4 @@ dependencies {
     implementation(libs.gradleplugin.kotlin)
     implementation(libs.gradleplugin.spotless)
     implementation(libs.gradleplugin.properties)
-    implementation(libs.gradleplugin.versions)
 }

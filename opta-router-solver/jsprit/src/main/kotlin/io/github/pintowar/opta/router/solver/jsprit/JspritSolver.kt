@@ -4,8 +4,6 @@ import com.graphhopper.jsprit.core.algorithm.SearchStrategy
 import com.graphhopper.jsprit.core.algorithm.box.Jsprit
 import com.graphhopper.jsprit.core.algorithm.listener.IterationEndsListener
 import com.graphhopper.jsprit.core.algorithm.termination.PrematureAlgorithmTermination
-import com.graphhopper.jsprit.core.problem.VehicleRoutingProblem
-import com.graphhopper.jsprit.core.problem.solution.VehicleRoutingProblemSolution
 import com.graphhopper.jsprit.core.util.Solutions
 import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.matrix.Matrix
@@ -48,15 +46,9 @@ class JspritSolver : Solver() {
 
             algorithm.addInitialSolution(initialSolution.toSolverSolution(vrp))
             algorithm.addListener(
-                object : IterationEndsListener {
-                    override fun informIterationEnds(
-                        i: Int,
-                        problem: VehicleRoutingProblem,
-                        solutions: MutableCollection<VehicleRoutingProblemSolution>
-                    ) {
-                        val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
-                        trySendBlocking(actual)
-                    }
+                IterationEndsListener { _, _, solutions ->
+                    val actual = Solutions.bestOf(solutions).toDTO(initialProblem, matrix)
+                    trySendBlocking(actual)
                 }
             )
             algorithm.addTerminationCriterion(TimeTermination(config.timeLimit))

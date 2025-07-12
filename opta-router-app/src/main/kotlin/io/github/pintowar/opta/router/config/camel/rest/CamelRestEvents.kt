@@ -31,7 +31,7 @@ class CamelRestEvents(
         from("{{camel.route.consumer.solution-request}}")
             .routeId("solution.request.queue")
             .transform()
-            .body { it -> serde.fromCbor<SolutionRequestCommand>(it as ByteArray) }
+            .body { serde.fromCbor<SolutionRequestCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "update")
             .process(UnwrapStreamProcessor())
             .transform()
@@ -49,7 +49,7 @@ class CamelRestEvents(
             .transform()
             .spel("#{body.messageObject}")
             .transform()
-            .body { it -> serde.fromCbor<SolutionCommand>(it as ByteArray) }
+            .body { serde.fromCbor<SolutionCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "broadcast")
             .process(UnwrapStreamProcessor())
             .end()
