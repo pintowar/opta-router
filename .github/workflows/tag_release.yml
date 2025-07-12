@@ -1,10 +1,8 @@
 name: OptaRouter Tag Release CI
 on:
   push:
-    branches:
-      - '**'
     tags:
-      - 'v*'
+      - 'v**'
 
 env:
   JAVA_VERSION: '21'
