@@ -1,8 +1,8 @@
-name: OptaRouter Tag Release CI
+name: OptaRouter Tag Release Workflow CI
 on:
   push:
     tags:
-      - 'v**'
+      - 'v*'
 
 env:
   JAVA_VERSION: '21'
@@ -33,7 +33,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Running gradle task
-        run: ./gradlew clean jreleaserRelease -PenvironmentName=single
+        run: ./gradlew clean jreleaserRelease -PenvironmentName=single --stacktrace
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
