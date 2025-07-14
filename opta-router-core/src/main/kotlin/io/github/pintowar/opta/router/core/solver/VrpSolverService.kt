@@ -42,13 +42,10 @@ class VrpSolverService(
         solverName: String
     ): UUID? {
         val request = solverRepository.enqueue(problemId, solverName)
-        val detailedSolution = request?.let { solverRepository.currentDetailedSolution(problemId) }
-        return detailedSolution?.let {
-            solverEventsPort.enqueueRequestSolver(
-                RequestSolverCommand(it, request.requestKey, solverName)
-            )
-            request.requestKey
-        }
+        val detailedSolution = request?.let { solverRepository.currentDetailedSolution(problemId) } ?: return null
+        val cmd = RequestSolverCommand(detailedSolution, request.requestKey, solverName)
+        solverEventsPort.enqueueRequestSolver(cmd)
+        return request.requestKey
     }
 
     suspend fun terminate(solverKey: UUID) = terminateEarly(solverKey, false)
@@ -66,11 +63,8 @@ class VrpSolverService(
                 CancelSolverCommand(solverKey, solverRequest.status, clear)
             )
         } else if (solverRequest.status == SolverStatus.TERMINATED && clear) {
-            solverRepository.currentSolutionRequest(solverRequest.problemId)?.let { solutionRequest ->
-                solverEventsPort.enqueueSolutionRequest(
-                    SolutionRequestCommand(solutionRequest, true)
-                )
-            }
+            val solutionRequest = solverRepository.currentSolutionRequest(solverRequest.problemId) ?: return
+            solverEventsPort.enqueueSolutionRequest(SolutionRequestCommand(solutionRequest, true))
         }
     }
 }
