@@ -80,7 +80,7 @@ class OrToolsSolver : Solver() {
                     val sol = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix, solution)
                     send(sol)
                 } else {
-                    throw IllegalStateException("Couldn't find an optimal solution")
+                    error("Couldn't find an optimal solution")
                 }
                 close()
             } finally {

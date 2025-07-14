@@ -31,6 +31,8 @@ gradle-release = "3.1.0"
 gradle-properties = "1.6.0"
 gradle-versions = "0.52.0"
 gradle-dokka = "2.0.0"
+gradle-sonarqube = "6.2.0.5505"
+gradle-jreleaser = "1.19.0"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
@@ -44,6 +46,8 @@ node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
 jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
 release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions" }
+sonarqube = { id = "org.sonarqube", version.ref = "gradle-sonarqube" }
+jreleaser = { id = "org.jreleaser", version.ref = "gradle-jreleaser" }
 
 [libraries]
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

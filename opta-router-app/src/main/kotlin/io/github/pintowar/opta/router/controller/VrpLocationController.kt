@@ -65,7 +65,7 @@ class VrpLocationController(
      * @return A [Flow] of [Location] objects matching the specified kind.
      */
     @GetMapping("/{kind}")
-    suspend fun list(
+    fun list(
         @PathVariable kind: String
     ): Flow<Location> = repo.listAllByKind(kind)
 
@@ -78,7 +78,7 @@ class VrpLocationController(
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun insert(
         @RequestBody req: LocationRequest
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .create(req.toLocation())
             .let { ResponseEntity.ok().build() }
@@ -92,7 +92,7 @@ class VrpLocationController(
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(
         @PathVariable id: Long
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .deleteById(id)
             .let { ResponseEntity.ok().build() }
@@ -108,7 +108,7 @@ class VrpLocationController(
     suspend fun update(
         @PathVariable id: Long,
         @RequestBody req: LocationRequest
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .update(id, req.toLocation())
             .let { ResponseEntity.ok().build() }

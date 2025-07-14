@@ -27,10 +27,8 @@ class VrpProblemMatrix(
     private val n = locationIds.size
 
     init {
-        if (!(n * n == travelTimes.size && n * n == travelDistances.size)) {
-            throw IllegalArgumentException(
-                "Travel Times/Distances must have the squared number of elements on locations"
-            )
+        require((n * n == travelTimes.size && n * n == travelDistances.size)) {
+            "Travel Times/Distances must have the squared number of elements on locations"
         }
     }
 

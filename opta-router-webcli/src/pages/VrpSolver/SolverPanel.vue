@@ -94,10 +94,16 @@ async function wrapperClear() {
     </div>
     <div class="flex space-x-2">
       <div class="card-actions">
-        <button :disabled="!isWsConnected || isRunning" class="btn btn-sm btn-success" @click="$emit('onSolve')">
+        <button
+          type="button"
+          :disabled="!isWsConnected || isRunning"
+          class="btn btn-sm btn-success"
+          @click="$emit('onSolve')"
+        >
           Solve<span v-if="isRunning" class="loading loading-bars loading-xs"></span>
         </button>
         <button
+          type="button"
           :disabled="!isWsConnected || !isRunning || waitingTermination"
           class="btn btn-sm btn-warning"
           @click="wrapperTermination"
@@ -105,6 +111,7 @@ async function wrapperClear() {
           Terminate<span v-if="waitingTermination" class="loading loading-bars loading-xs"></span>
         </button>
         <button
+          type="button"
           :disabled="!isWsConnected || isRunning || waitingClear"
           class="btn btn-sm btn-error"
           @click="wrapperClear"

@@ -5,7 +5,7 @@ import io.github.pintowar.opta.router.core.domain.messages.SolutionCommand
 /**
  * The BroadcastPort is responsible for broadcasting solution updates to all interested parties.
  */
-interface BroadcastPort {
+fun interface BroadcastPort {
     /**
      * Broadcasts a solution command.
      *

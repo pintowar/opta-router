@@ -34,9 +34,9 @@ const categories: Record<string, "light" | "dark"> = [...themesCategory.keys()].
   {}
 );
 
-const localThemes = Object.keys(categories).sort();
+const localThemes = Object.keys(categories).toSorted((a, b) => a.localeCompare(b));
 
-const modes = localThemes.reduce(
+const modes: Record<string, string> = localThemes.reduce(
   (acc, mode) => ({
     ...acc,
     [mode]: mode,

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useColorMode } from "@vueuse/core";
-import { localThemes, modes } from "./themes";
+import { localThemes, modes } from "./helpers/themes";
 
 const mode = useColorMode({
   attribute: "data-theme",

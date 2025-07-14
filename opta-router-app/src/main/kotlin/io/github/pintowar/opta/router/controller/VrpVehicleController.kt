@@ -66,7 +66,7 @@ class VrpVehicleController(
     @PostMapping("/insert", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun insert(
         @RequestBody vehicle: Vehicle
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .create(vehicle)
             .let { ResponseEntity.ok().build() }
@@ -80,7 +80,7 @@ class VrpVehicleController(
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(
         @PathVariable id: Long
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .deleteById(id)
             .let { ResponseEntity.ok().build() }
@@ -96,7 +96,7 @@ class VrpVehicleController(
     suspend fun update(
         @PathVariable id: Long,
         @RequestBody vehicle: Vehicle
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .update(id, vehicle)
             .let { ResponseEntity.ok().build() }

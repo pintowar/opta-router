@@ -60,15 +60,15 @@ watch(removeError, (error) => {
   <dialog id="delete_modal" ref="modalRef" class="modal" @close="openedModal = false">
     <div class="modal-box">
       <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        <button type="button" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </form>
       <h3 class="font-bold text-lg text-warning">Warning!</h3>
       <p class="py-4">{{ message }}</p>
       <div class="modal-action space-x-2">
         <form method="dialog">
-          <button class="btn" @click="openedModal = false">Close</button>
+          <button type="button" class="btn" @click="openedModal = false">Close</button>
         </form>
-        <button :disabled="isRemoving" class="btn btn-error" @click="removeAction">
+        <button type="button" :disabled="isRemoving" class="btn btn-error" @click="removeAction">
           Delete <span v-if="isRemoving" class="loading loading-bars loading-xs"></span>
         </button>
       </div>
