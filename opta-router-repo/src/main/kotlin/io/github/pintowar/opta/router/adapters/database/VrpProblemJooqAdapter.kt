@@ -165,6 +165,12 @@ class VrpProblemJooqAdapter(
         }
     }
 
+    /**
+     * Converts a [VrpProblemRecord] database record to a [VrpProblem] domain object.
+     *
+     * @param problem The [VrpProblemRecord] to convert.
+     * @return The converted [VrpProblem] object.
+     */
     private fun toProblem(problem: VrpProblemRecord): VrpProblem =
         VrpProblem(
             problem.id!!,
