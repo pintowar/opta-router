@@ -7,6 +7,7 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
+    id("org.jetbrains.dokka")
     alias(libs.plugins.release)
     alias(libs.plugins.versions)
     alias(libs.plugins.sonarqube)
@@ -25,6 +26,7 @@ repositories {
 
 dependencies {
     allJacocoSubModules.forEach(::jacocoAggregation)
+    allJacocoSubModules.forEach(::dokka)
 }
 
 reporting {
@@ -72,6 +74,8 @@ jreleaser {
             changelog {
                 enabled.set(false)
             }
+            branchPush.set("master")
+            releaseName.set("v$version")
         }
     }
     distributions {
@@ -127,8 +131,8 @@ tasks.register("fullTestCoverageReport") {
     description = "Full Test Coverage Report"
     doLast {
         copy {
-            from(files(project(webCli).layout.projectDirectory.dir("coverage")))
-            into("$rootDir/build/reports/coverage")
+            from(project(webCli).layout.projectDirectory.dir("coverage"))
+            into(layout.buildDirectory.dir("reports/coverage"))
         }
     }
 }

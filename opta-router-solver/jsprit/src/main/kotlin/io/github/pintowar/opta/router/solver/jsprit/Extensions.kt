@@ -65,10 +65,13 @@ private fun toJsServices(
     }
 
 /**
- * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
+ * Converts a [VrpProblem] domain object into a jsprit [VehicleRoutingProblem] representation.
+ * This involves transforming locations, vehicles, and customers into jsprit-specific objects
+ * and building the routing cost matrix.
  *
- * @param dist distance calculator instance.
- * @return solution representation used by the solver.
+ * @receiver The [VrpProblem] to convert.
+ * @param dist The [Matrix] containing travel distances between locations.
+ * @return A jsprit [VehicleRoutingProblem] instance.
  */
 fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
     val jspritLocationsId = toJsLocations(locations()).associateBy { it.id }
@@ -91,6 +94,14 @@ fun VrpProblem.toProblem(dist: Matrix): VehicleRoutingProblem {
         .build()
 }
 
+/**
+ * Converts a [VrpSolution] domain object into a jsprit [VehicleRoutingProblemSolution] representation.
+ * This maps the routes from the domain solution to jsprit vehicle routes.
+ *
+ * @receiver The [VrpSolution] to convert.
+ * @param vrp The jsprit [VehicleRoutingProblem] instance, used to get vehicle and job activity factories.
+ * @return A jsprit [VehicleRoutingProblemSolution] instance.
+ */
 fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProblemSolution {
     val vehicles = vrp.vehicles.toList()
 
@@ -107,9 +118,13 @@ fun VrpSolution.toSolverSolution(vrp: VehicleRoutingProblem): VehicleRoutingProb
 }
 
 /**
- * Convert the solver VRP Solution representation into the DTO representation.
+ * Converts a jsprit [VehicleRoutingProblemSolution] into a [VrpSolution] domain object.
+ * This extracts the routes, calculates distances, times, and demands, and constructs the domain solution.
  *
- * @return the DTO solution representation.
+ * @receiver The jsprit [VehicleRoutingProblemSolution] to convert.
+ * @param problem The original [VrpProblem] associated with this solution.
+ * @param matrix The [Matrix] containing travel distances and times for calculating route metrics.
+ * @return A [VrpSolution] object representing the solution derived from the jsprit solution.
  */
 fun VehicleRoutingProblemSolution.toDTO(
     problem: VrpProblem,

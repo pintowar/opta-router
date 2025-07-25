@@ -11,6 +11,13 @@ import reactor.core.publisher.Mono
 @Component
 @Profile(ConfigData.REST_PROFILE)
 class WebSessionIdFilterConfig : WebFilter {
+    /**
+     * Filters the web exchange to add the web session ID to the attributes.
+     *
+     * @param exchange The server web exchange.
+     * @param chain The web filter chain.
+     * @return A `Mono<Void>` that completes when the filter is applied.
+     */
     override fun filter(
         exchange: ServerWebExchange,
         chain: WebFilterChain

@@ -12,9 +12,7 @@ const props = defineProps<{
   problem: VrpProblem;
 }>();
 
-const emit = defineEmits<{
-  (e: "update:problem", val: VrpProblem): void;
-}>();
+const emit = defineEmits<(event: "update:problem", val: VrpProblem) => void>();
 
 const { persistUrl } = toRefs(props);
 

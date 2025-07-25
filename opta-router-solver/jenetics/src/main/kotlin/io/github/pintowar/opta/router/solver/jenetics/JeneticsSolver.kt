@@ -21,6 +21,16 @@ import kotlinx.coroutines.isActive
 class JeneticsSolver : Solver() {
     override val name: String = "jenetics"
 
+    /**
+     * Builds and configures a Jenetics [Engine] for solving the VRP problem.
+     *
+     * The engine is configured with various genetic algorithm components such as selectors, alterers (crossover and mutators),
+     * population size, and phenotype age. It is set to minimize the fitness function (total distance).
+     *
+     * @param problem The [VrpProblem] to be solved.
+     * @param matrix The [Matrix] containing travel distances between locations.
+     * @return A configured Jenetics [Engine] instance.
+     */
     private fun buildEngine(
         problem: VrpProblem,
         matrix: Matrix
@@ -38,6 +48,17 @@ class JeneticsSolver : Solver() {
             ReverseMutator(0.05)
         ).build()
 
+    /**
+     * Solves the VRP problem using the Jenetics genetic algorithm and emits solutions as they are found.
+     *
+     * This function creates an evolutionary engine and streams the evolution results. It emits the best solution
+     * found at each step of the evolution until the time limit is reached or the coroutine is cancelled.
+     *
+     * @param initialSolution The initial [VrpSolution] to start the solver from. If empty, the solver starts from a random initial population.
+     * @param matrix The [Matrix] containing travel distances between locations.
+     * @param config The [SolverConfig] containing parameters like the time limit for the solver.
+     * @return A [Flow] of [VrpSolution] objects, representing the best solution found at different stages of the evolution.
+     */
     override fun solveFlow(
         initialSolution: VrpSolution,
         matrix: Matrix,

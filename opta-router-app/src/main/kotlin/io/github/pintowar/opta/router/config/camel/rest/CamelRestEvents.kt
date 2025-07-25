@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component
 class CamelRestEvents(
     private val serde: Serde
 ) : RouteBuilder() {
+    /**
+     * Configures the Camel routes for the REST events.
+     */
     override fun configure() {
         from("{{camel.route.consumer.enqueue-request-solver}}")
             .routeId("enqueue.request.solver")
@@ -31,7 +34,7 @@ class CamelRestEvents(
         from("{{camel.route.consumer.solution-request}}")
             .routeId("solution.request.queue")
             .transform()
-            .body { it -> serde.fromCbor<SolutionRequestCommand>(it as ByteArray) }
+            .body { serde.fromCbor<SolutionRequestCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "update")
             .process(UnwrapStreamProcessor())
             .transform()
@@ -49,7 +52,7 @@ class CamelRestEvents(
             .transform()
             .spel("#{body.messageObject}")
             .transform()
-            .body { it -> serde.fromCbor<SolutionCommand>(it as ByteArray) }
+            .body { serde.fromCbor<SolutionCommand>(it as ByteArray) }
             .bean(AsyncPipeRest::class.java, "broadcast")
             .process(UnwrapStreamProcessor())
             .end()
