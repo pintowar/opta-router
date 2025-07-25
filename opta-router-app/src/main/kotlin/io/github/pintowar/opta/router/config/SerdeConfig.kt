@@ -9,9 +9,18 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.lang.reflect.Type
 
+/**
+ * This class is responsible for configuring the serialization and deserialization.
+ */
 @Configuration
 class SerdeConfig {
     companion object {
+        /**
+         * Creates a CBOR mapper from an Object mapper.
+         *
+         * @param objectMapper The Object mapper.
+         * @return The CBOR mapper.
+         */
         fun cborMapperFromObjectMapper(objectMapper: ObjectMapper): ObjectMapper =
             CBORMapper().findAndRegisterModules().apply {
                 SerializationFeature.entries.forEach {
@@ -23,6 +32,12 @@ class SerdeConfig {
             }
     }
 
+    /**
+     * Creates a Serde bean.
+     *
+     * @param objectMapper The Object mapper.
+     * @return The Serde bean.
+     */
     @Bean
     fun serde(objectMapper: ObjectMapper) =
         object : Serde {

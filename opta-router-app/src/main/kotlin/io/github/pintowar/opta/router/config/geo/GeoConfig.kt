@@ -19,13 +19,23 @@ import org.springframework.messaging.rsocket.RSocketStrategies
 class GeoConfig {
     /**
      * The creation of the Graphhopper Wrapper.
+     *
+     * @param path The path to the OSM file.
+     * @param location The location of the graph.
+     * @return The `GeoPort` implementation.
      */
     @Bean
     fun graphHopper(
-        @Value("\${app.graph.osm.path}") path: String,
-        @Value("\${app.graph.osm.location}") location: String
+        @Value($$"${app.graph.osm.path}") path: String,
+        @Value($$"${app.graph.osm.location}") location: String
     ): GeoPort = GraphHopperGeoAdapter(path, location)
 
+    /**
+     * Creates the RSocket strategies.
+     *
+     * @param objectMapper The Jackson object mapper.
+     * @return The RSocket strategies.
+     */
     @Bean
     fun rsocketStrategies(objectMapper: ObjectMapper): RSocketStrategies {
         val cborMapper = SerdeConfig.cborMapperFromObjectMapper(objectMapper)

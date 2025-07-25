@@ -33,9 +33,21 @@ class SolverController(
         val solutionState: VrpSolutionRequest
     )
 
+    /**
+     * Returns a sorted list of available solver names.
+     *
+     * @return A list of solver names.
+     */
     @GetMapping("/solver-names", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun solverNames() = solverService.solverNames().sorted()
 
+    /**
+     * Solves the VRP problem with the given ID using the specified solver.
+     *
+     * @param id The ID of the VRP problem.
+     * @param solverName The name of the solver to use.
+     * @return A `ResponseEntity` with the current solver status.
+     */
     @PostMapping("/{id}/solve/{solverName}", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun solve(
         @PathVariable id: Long,
@@ -45,6 +57,12 @@ class SolverController(
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
+    /**
+     * Terminates the currently running solver for the VRP problem with the given ID.
+     *
+     * @param id The ID of the VRP problem.
+     * @return A `ResponseEntity` with the current solver status.
+     */
     @PostMapping("/{id}/terminate", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun terminate(
         @PathVariable id: Long
@@ -53,6 +71,12 @@ class SolverController(
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
+    /**
+     * Clears the solver state for the VRP problem with the given ID.
+     *
+     * @param id The ID of the VRP problem.
+     * @return A `ResponseEntity` with the current solver status.
+     */
     @PostMapping("/{id}/clean", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun clear(
         @PathVariable id: Long
@@ -61,6 +85,14 @@ class SolverController(
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
+    /**
+     * Sets whether to show the detailed path for the VRP problem with the given ID.
+     *
+     * @param id The ID of the VRP problem.
+     * @param isDetailed Whether to show the detailed path.
+     * @param session The current web session.
+     * @return A `ResponseEntity` with the current solver status.
+     */
     @PutMapping("/{id}/detailed-path/{isDetailed}", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun detailedPath(
         @PathVariable id: Long,
@@ -72,6 +104,13 @@ class SolverController(
         return ResponseEntity.ok(solverService.showStatus(id))
     }
 
+    /**
+     * Returns the solution state for the VRP problem with the given ID.
+     *
+     * @param id The ID of the VRP problem.
+     * @param session The current web session.
+     * @return A `ResponseEntity` with the panel solution state, or a 404 Not Found response if the solution is not found.
+     */
     @GetMapping("/{id}/solution-panel", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun solutionState(
         @PathVariable id: Long,

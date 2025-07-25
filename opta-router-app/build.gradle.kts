@@ -36,6 +36,15 @@ dependencies {
     testImplementation(libs.spring.test)
 }
 
+// fix to avoid jackson dependencies version conflict between dokka and spring-boot
+configurations.matching { it.name.startsWith("dokka") }.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group.startsWith("com.fasterxml.jackson")) {
+            useVersion("2.12.7")
+        }
+    }
+}
+
 tasks {
     bootJar {
         requiresUnpack("**/ortools-*.jar") // This is required, so the native libraries can be unpacked at runtime

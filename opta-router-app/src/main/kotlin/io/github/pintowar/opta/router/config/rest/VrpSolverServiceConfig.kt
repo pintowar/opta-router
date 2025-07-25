@@ -15,6 +15,14 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @Profile(ConfigData.REST_PROFILE)
 class VrpSolverServiceConfig {
+    /**
+     * Creates a solver repository.
+     *
+     * @param vrpProblemPort The VRP problem port.
+     * @param vrpSolverSolutionPort The VRP solver solution port.
+     * @param vrpSolverRequestPort The VRP solver request port.
+     * @return The solver repository.
+     */
     @Bean
     fun solverRepository(
         vrpProblemPort: VrpProblemPort,
@@ -22,6 +30,14 @@ class VrpSolverServiceConfig {
         vrpSolverRequestPort: VrpSolverRequestPort
     ) = SolverRepository(vrpProblemPort, vrpSolverSolutionPort, vrpSolverRequestPort)
 
+    /**
+     * Creates a VRP solver service.
+     *
+     * @param solverRepository The solver repository.
+     * @param solverEventsPort The solver events port.
+     * @param broadcastPort The broadcast port.
+     * @return The VRP solver service.
+     */
     @Bean
     fun vrpSolverService(
         solverRepository: SolverRepository,

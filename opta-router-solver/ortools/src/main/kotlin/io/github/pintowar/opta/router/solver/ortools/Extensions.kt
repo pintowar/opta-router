@@ -48,6 +48,17 @@ private class DemandEval(
     }
 }
 
+/**
+ * A data class that summarizes key problem details for OR-Tools, derived from a [VrpProblem].
+ *
+ * @property nVehicles The number of vehicles in the problem.
+ * @property vehiclesCapacities An array of capacities for each vehicle.
+ * @property idLocations A map from location ID to [Location] object.
+ * @property idxLocations A map from internal OR-Tools index to [Location] object.
+ * @property locationsIdx A map from [Location] object to internal OR-Tools index.
+ * @property nLocations The total number of locations (customers + depots).
+ * @property depots An array of internal OR-Tools indices representing the depot locations.
+ */
 class ProblemSummary(
     problem: VrpProblem
 ) {
@@ -59,9 +70,22 @@ class ProblemSummary(
     val nLocations = idxLocations.size
     val depots = problem.vehicles.mapNotNull { locationsIdx[it.depot] }.toIntArray()
 
+    /**
+     * Retrieves the internal OR-Tools index for a given customer ID.
+     *
+     * @param customerId The ID of the customer.
+     * @return The internal OR-Tools index corresponding to the customer's location.
+     */
     fun locationIdxFromCustomer(customerId: Long) = locationsIdx.getValue(idLocations.getValue(customerId)).toLong()
 }
 
+/**
+ * A data class that wraps the OR-Tools [RoutingModel], [RoutingIndexManager], and [ProblemSummary].
+ *
+ * @property model The OR-Tools [RoutingModel] instance.
+ * @property manager The OR-Tools [RoutingIndexManager] instance.
+ * @property summary The [ProblemSummary] containing high-level problem details.
+ */
 data class ProblemWrapper(
     val model: RoutingModel,
     val manager: RoutingIndexManager,
@@ -69,10 +93,12 @@ data class ProblemWrapper(
 )
 
 /**
- * Converts the DTO into the VRP Solution representation. (Used on the VRP Solver).
+ * Converts a [VrpProblem] domain object into an OR-Tools [ProblemWrapper] representation.
+ * This involves setting up the routing model, index manager, and registering callbacks for distances and demands.
  *
- * @param dist distance calculator instance.
- * @return solution representation used by the solver.
+ * @receiver The [VrpProblem] to convert.
+ * @param matrix The [Matrix] containing travel distances between locations.
+ * @return A [ProblemWrapper] containing the OR-Tools model, manager, and problem summary.
  */
 fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
     val summary = ProblemSummary(this)
@@ -102,9 +128,17 @@ fun VrpProblem.toProblem(matrix: Matrix): ProblemWrapper {
 }
 
 /**
- * Convert the solver VRP Solution representation into the DTO representation.
+ * Converts an OR-Tools [RoutingModel] solution into a [VrpSolution] domain object.
+ * This extracts the routes from the OR-Tools assignment, calculates their distances, times, and demands,
+ * and constructs the domain solution.
  *
- * @return the DTO solution representation.
+ * @receiver The OR-Tools [RoutingModel] that contains the solution.
+ * @param manager The OR-Tools [RoutingIndexManager] associated with the model.
+ * @param problem The original [VrpProblem] associated with this solution.
+ * @param idxLocations A map from internal OR-Tools index to [Location] object.
+ * @param matrix The [Matrix] containing travel distances and times for calculating route metrics.
+ * @param assignment The OR-Tools [Assignment] object representing the solved routes. If null, it tries to get the current solution from the model.
+ * @return A [VrpSolution] object representing the solution derived from the OR-Tools solution.
  */
 fun RoutingModel.toDTO(
     manager: RoutingIndexManager,
