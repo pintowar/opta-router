@@ -27,6 +27,14 @@ import org.springframework.web.bind.annotation.RestController
 class VrpProblemController(
     val repo: VrpProblemPort
 ) {
+    /**
+     * Retrieves a paginated list of VRP problem summaries.
+     *
+     * @param page The page number to retrieve (0-indexed).
+     * @param size The number of items per page.
+     * @param q A query string to filter problems by name.
+     * @return A [Page] of [VrpProblemSummary] objects.
+     */
     @GetMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun index(
         @RequestParam("page", defaultValue = "0") page: Int,
@@ -38,6 +46,12 @@ class VrpProblemController(
         return PageImpl(problems, PageRequest.of(page, size), count)
     }
 
+    /**
+     * Retrieves a VRP problem by its ID.
+     *
+     * @param id The ID of the VRP problem to retrieve.
+     * @return A [ResponseEntity] with the [VrpProblem] object if found, or a 404 Not Found response.
+     */
     @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun show(
         @PathVariable id: Long
@@ -46,36 +60,62 @@ class VrpProblemController(
             .getById(id)
             ?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
 
+    /**
+     * Creates a new VRP problem.
+     *
+     * @param problem The [VrpProblem] object to create.
+     * @return A [ResponseEntity] with a 200 OK status if the creation is successful.
+     */
     @PostMapping("", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun create(
         @RequestBody problem: VrpProblem
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .create(problem)
             .let { ResponseEntity.ok().build() }
 
+    /**
+     * Copies an existing VRP problem.
+     *
+     * @param id The ID of the VRP problem to copy (currently unused in the implementation).
+     * @param problem The [VrpProblem] object to create as a copy.
+     * @return A [ResponseEntity] with a 200 OK status if the copy is successful.
+     */
     @PostMapping("/{id}/copy", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun copy(
         @PathVariable id: Long,
         @RequestBody problem: VrpProblem
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .create(problem)
             .let { ResponseEntity.ok().build() }
 
+    /**
+     * Updates an existing VRP problem.
+     *
+     * @param id The ID of the VRP problem to update.
+     * @param problem The [VrpProblem] object containing the updated details.
+     * @return A [ResponseEntity] with a 200 OK status if the update is successful.
+     */
     @PutMapping("/{id}/update", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun update(
         @PathVariable id: Long,
         @RequestBody problem: VrpProblem
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .update(id, problem)
             .let { ResponseEntity.ok().build() }
 
+    /**
+     * Removes a VRP problem by its ID.
+     *
+     * @param id The ID of the VRP problem to remove.
+     * @return A [ResponseEntity] with a 200 OK status if the removal is successful.
+     */
     @DeleteMapping("/{id}/remove", produces = [MediaType.APPLICATION_JSON_VALUE])
     suspend fun remove(
         @PathVariable id: Long
-    ): ResponseEntity<Void> =
+    ): ResponseEntity<Unit> =
         repo
             .deleteById(id)
             .let { ResponseEntity.ok().build() }

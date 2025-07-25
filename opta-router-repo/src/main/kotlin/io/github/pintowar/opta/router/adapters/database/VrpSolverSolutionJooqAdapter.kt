@@ -133,6 +133,15 @@ class VrpSolverSolutionJooqAdapter(
                 )
             }
 
+    /**
+     * Constructs a JOOQ query to retrieve the current VRP solution request along with problem and solver request details.
+     *
+     * This is a private helper function used to build the common query for fetching solution request information.
+     *
+     * @param dsl The [DSLContext] for building the query.
+     * @param problemId The ID of the VRP problem.
+     * @return A [org.jooq.SelectLimitStep] representing the JOOQ query.
+     */
     private fun currentSolutionRequestQuery(
         dsl: DSLContext,
         problemId: Long
@@ -147,6 +156,14 @@ class VrpSolverSolutionJooqAdapter(
         .orderBy(VRP_SOLVER_REQUEST.UPDATED_AT.desc())
         .limit(1)
 
+    /**
+     * Converts a JOOQ [Record3] containing VRP problem, solution, and solver request records into a [VrpSolutionRequest] domain object.
+     *
+     * This private helper function deserializes JSON data from the database records to construct the domain objects.
+     *
+     * @param record The [Record3] containing [VrpProblemRecord], [VrpSolutionRecord], and [VrpSolverRequestRecord].
+     * @return The converted [VrpSolutionRequest] object.
+     */
     private fun convertRecordToSolutionRequest(
         record: Record3<VrpProblemRecord, VrpSolutionRecord, VrpSolverRequestRecord>
     ): VrpSolutionRequest {

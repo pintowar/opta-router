@@ -41,7 +41,8 @@ describe("themes", () => {
       "wireframe",
       "winter",
     ];
-    expect(localThemes.sort()).toEqual(expectedThemes.sort());
+    const criteria = (a: string, b: string) => a.localeCompare(b);
+    expect(localThemes.toSorted(criteria)).toEqual(expectedThemes.toSorted(criteria));
   });
 
   it("should create a modes object where each theme maps to itself", () => {

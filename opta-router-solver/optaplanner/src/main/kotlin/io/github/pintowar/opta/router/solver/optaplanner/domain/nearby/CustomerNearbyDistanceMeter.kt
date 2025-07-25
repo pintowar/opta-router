@@ -5,6 +5,16 @@ import io.github.pintowar.opta.router.solver.optaplanner.domain.LocationAware
 import org.optaplanner.core.impl.heuristic.selector.common.nearby.NearbyDistanceMeter
 
 class CustomerNearbyDistanceMeter : NearbyDistanceMeter<Customer, LocationAware> {
+    /**
+     * Calculates the distance between an origin [Customer] and a destination [LocationAware] object.
+     *
+     * This method is used by OptaPlanner's nearby selection to determine the proximity between planning entities.
+     * It returns the travel distance between the locations of the origin customer and the destination.
+     *
+     * @param origin The origin [Customer] for which to calculate the distance.
+     * @param destination The destination [LocationAware] object (e.g., another Customer or a Depot).
+     * @return The distance between the origin and destination locations as a [Double].
+     */
     override fun getNearbyDistance(
         origin: Customer,
         destination: LocationAware

@@ -2,10 +2,12 @@
 import { TransitionPresets, useTimeoutFn, useTransition } from "@vueuse/core";
 import { ref, toRefs } from "vue";
 
+type AlertType = "info" | "success" | "warning" | "error";
+
 const props = withDefaults(
   defineProps<{
     message: string;
-    variant?: "info" | "success" | "warning" | "error";
+    variant?: AlertType;
     closable?: boolean;
   }>(),
   {
@@ -14,9 +16,7 @@ const props = withDefaults(
   }
 );
 
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+const emit = defineEmits<(event: "close") => void>();
 
 const { message, variant } = toRefs(props);
 
@@ -33,13 +33,13 @@ const opacity = useTransition(source, {
 
 useTimeoutFn(() => (source.value = 0), 2000, { immediate: true });
 
-const icons = new Map<"info" | "success" | "warning" | "error", string>([
+const icons = new Map<AlertType, string>([
   ["info", "md-info-outlined"],
   ["success", "md-checkcircle-outlined"],
   ["warning", "md-warningamber-round"],
   ["error", "md-cancel-outlined"],
 ]);
-const alerts = new Map<"info" | "success" | "warning" | "error", string>([
+const alerts = new Map<AlertType, string>([
   ["info", "alert-info"],
   ["success", "alert-success"],
   ["warning", "alert-warning"],

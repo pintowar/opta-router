@@ -22,6 +22,19 @@ class OrToolsSolver : Solver() {
 
     override val name: String = "or-tools"
 
+    /**
+     * Solves the VRP problem using Google OR-Tools and emits solutions as they are found.
+     *
+     * This function configures an OR-Tools routing model, sets up search parameters (time limit, metaheuristic),
+     * and adds a callback to emit the best solutions found during the search. It can optionally start
+     * the solver with an initial solution. The solver runs until the time limit is reached or the coroutine is cancelled.
+     *
+     * @param initialSolution The initial [VrpSolution] to start the solver from. If empty, the solver starts from scratch.
+     * @param matrix The [Matrix] containing travel distances between locations.
+     * @param config The [SolverConfig] containing parameters like the time limit for the solver.
+     * @return A [Flow] of [VrpSolution] objects, representing the best solution found at different stages of the solving process.
+     * @throws IllegalStateException if the OR-Tools solver fails to find a solution.
+     */
     override fun solveFlow(
         initialSolution: VrpSolution,
         matrix: Matrix,
@@ -67,7 +80,7 @@ class OrToolsSolver : Solver() {
                     val sol = model.toDTO(manager, initialSolution.problem, summary.idxLocations, matrix, solution)
                     send(sol)
                 } else {
-                    throw IllegalStateException("Couldn't find an optimal solution")
+                    error("Couldn't find an optimal solution")
                 }
                 close()
             } finally {

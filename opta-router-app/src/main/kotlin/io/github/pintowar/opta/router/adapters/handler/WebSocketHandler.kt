@@ -28,6 +28,12 @@ class WebSocketHandler(
     private val sharedFlow = MutableSharedFlow<VrpSolutionRequest>()
     private val uriTemplate = UriTemplate("/ws/solution-state/{instanceId}")
 
+    /**
+     * Handles the WebSocket session.
+     *
+     * @param session The WebSocket session.
+     * @return A `Mono<Void>` that completes when the session is closed.
+     */
     override fun handle(session: WebSocketSession): Mono<Void> {
         val webSessionId = session.attributes[ConfigData.WEBSESSION_ID] as String? ?: return Mono.empty()
 
@@ -41,6 +47,13 @@ class WebSocketHandler(
             }
     }
 
+    /**
+     * Creates a flow of solution states for a given instance.
+     *
+     * @param webSessionId The web session ID.
+     * @param uriInstanceId The instance ID from the URI.
+     * @return A flow of solution states as JSON strings.
+     */
     fun fromChannel(
         webSessionId: String,
         uriInstanceId: String?
@@ -53,6 +66,11 @@ class WebSocketHandler(
                 serde.toJson(data.copy(solution = sol))
             }
 
+    /**
+     * Broadcasts a solution request to all connected clients.
+     *
+     * @param data The solution request to broadcast.
+     */
     suspend fun broadcast(data: VrpSolutionRequest) {
         sharedFlow.emit(data)
     }
