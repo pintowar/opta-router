@@ -74,7 +74,7 @@ jreleaser {
             changelog {
                 enabled.set(false)
             }
-            branchPush.set("master")
+            branch.set("master")
             releaseName.set("v$version")
         }
     }
