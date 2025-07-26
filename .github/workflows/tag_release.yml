@@ -33,9 +33,6 @@ jobs:
       - name: Running gradle task
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Check tag
-        run: git describe --exact-match --tags
-
       - name: Running gradle task
         run: ./gradlew clean jreleaserRelease -PenvironmentName=single --stacktrace
         env:
