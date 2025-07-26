@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }} # This checks out the specific tag that triggered the workflow
+          fetch-depth: 0
 
       - uses: n1hility/cancel-previous-runs@v3
         with:
@@ -33,7 +34,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Check env
-        run: echo ${JRELEASER_GITHUB_TOKEN:0:10}
+        run: echo "new check - ${JRELEASER_GITHUB_TOKEN:0:10}"
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
