@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.git.properties)
     alias(libs.plugins.jib)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
@@ -34,19 +35,18 @@ dependencies {
     runtimeOnly(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 
     testImplementation(libs.spring.test)
-}
 
-// fix to avoid jackson dependencies version conflict between dokka and spring-boot
-configurations.matching { it.name.startsWith("dokka") }.configureEach {
-    resolutionStrategy.eachDependency {
-        if (requested.group.startsWith("com.fasterxml.jackson")) {
-            useVersion("2.12.7")
+    // fix to avoid jackson dependencies version conflict between dokka, spring-boot and jib
+    dokkaPlugin(libs.bundles.jackson) {
+        version {
+            strictly("2.12.7")
         }
     }
 }
 
 tasks {
     bootJar {
+        layered.enabled.set(true)
         requiresUnpack("**/ortools-*.jar") // This is required, so the native libraries can be unpacked at runtime
     }
 
