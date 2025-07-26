@@ -48,12 +48,12 @@ release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions" }
 sonarqube = { id = "org.sonarqube", version.ref = "gradle-sonarqube" }
 jreleaser = { id = "org.jreleaser", version.ref = "gradle-jreleaser" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "gradle-dokka"}
 
 [libraries]
 gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 gradleplugin-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 gradleplugin-properties = { module = "net.saliman:gradle-properties-plugin", version.ref = "gradle-properties" }
-gradleplugin-dokka = { module = "org.jetbrains.dokka:org.jetbrains.dokka.gradle.plugin", version.ref = "gradle-dokka" }
 
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }

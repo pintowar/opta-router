@@ -7,7 +7,6 @@ plugins {
     jacoco
     id("com.diffplug.spotless")
     id("net.saliman.properties")
-    id("org.jetbrains.dokka")
 }
 
 repositories {

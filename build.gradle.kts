@@ -7,11 +7,11 @@ plugins {
     id("jacoco-report-aggregation")
     id("com.diffplug.spotless")
     id("net.saliman.properties")
-    id("org.jetbrains.dokka")
     alias(libs.plugins.release)
     alias(libs.plugins.versions)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jreleaser)
+    alias(libs.plugins.dokka)
 }
 
 allprojects {

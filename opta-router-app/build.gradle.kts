@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.git.properties)
     alias(libs.plugins.jib)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {

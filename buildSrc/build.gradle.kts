@@ -14,7 +14,6 @@ dependencies {
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 
     implementation(libs.gradleplugin.kotlin)
-    implementation(libs.gradleplugin.dokka)
     implementation(libs.gradleplugin.spotless)
     implementation(libs.gradleplugin.properties)
 }
