@@ -40,5 +40,5 @@ jobs:
       - name: Running gradle task
         run: ./gradlew clean spotlessCheck sonar release -PenvironmentName=single -Prelease.useAutomaticVersion=true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_FOR_WORKFLOW }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
