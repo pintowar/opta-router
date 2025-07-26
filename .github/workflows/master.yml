@@ -19,6 +19,7 @@ jobs:
         with:
           ref: master
           fetch-depth: 0
+          token: ${{ secrets.PAT_FOR_WORKFLOW }}
 
       - uses: n1hility/cancel-previous-runs@v3
         with:
