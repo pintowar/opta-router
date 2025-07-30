@@ -16,11 +16,23 @@ class AsyncPipeRest(
     private val solverService: VrpSolverService,
     private val webSocketHandler: WebSocketHandler
 ) {
+    /**
+     * Updates the solver with a new solution request.
+     *
+     * @param cmd The solution request command.
+     * @return A `Publisher` that emits a `SolutionCommand` with the updated solution.
+     */
     fun update(cmd: SolutionRequestCommand): Publisher<SolutionCommand> =
         publish {
             send(SolutionCommand(solverService.update(cmd.solutionRequest, cmd.clear)))
         }
 
+    /**
+     * Broadcasts the solution command to all connected clients.
+     *
+     * @param cmd The solution command to broadcast.
+     * @return A `Publisher` that completes when the broadcast is done.
+     */
     fun broadcast(cmd: SolutionCommand): Publisher<Unit> =
         publish {
             webSocketHandler.broadcast(cmd.solutionRequest)

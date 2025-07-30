@@ -16,6 +16,11 @@ internal class SplitStreamProcessorTo(
 ) : Processor {
     private val camelReactive = CamelReactiveStreams.get(context)
 
+    /**
+     * Processes the exchange by splitting the body if it is a `Publisher`.
+     *
+     * @param exchange The Camel exchange.
+     */
     override fun process(exchange: Exchange) {
         val body = exchange.`in`.body
         if (body is Publisher<*>) {

@@ -16,6 +16,9 @@ import org.springframework.stereotype.Component
 class CamelSolverEvents(
     private val serde: Serde
 ) : RouteBuilder() {
+    /**
+     * Configures the Camel routes for the solver events.
+     */
     override fun configure() {
         from("{{camel.route.consumer.request-solver}}")
             .routeId("request.solver.queue")

@@ -30,10 +30,16 @@ import org.springframework.transaction.PlatformTransactionManager
 @Profile(ConfigData.REST_PROFILE)
 @EnableConfigurationProperties(FlywayProperties::class)
 class DatabaseConfig(
-    @param:Value("\${spring.jooq.sql-dialect}") private val sqlDialect: SQLDialect,
-    @param:Value("\${spring.jooq.bind-offset-date-time-type}") private val bindOffsetDateTimeType: Boolean,
+    @param:Value($$"${spring.jooq.sql-dialect}") private val sqlDialect: SQLDialect,
+    @param:Value($$"${spring.jooq.bind-offset-date-time-type}") private val bindOffsetDateTimeType: Boolean,
     private val cfi: ConnectionFactory
 ) {
+    /**
+     * Creates a Spring-based transaction provider.
+     *
+     * @param txManager The platform transaction manager.
+     * @return The Spring transaction provider.
+     */
     @Bean
     @ConditionalOnBean(PlatformTransactionManager::class)
     @ConditionalOnMissingBean(
@@ -42,16 +48,33 @@ class DatabaseConfig(
     fun transactionProvider(txManager: PlatformTransactionManager): SpringTransactionProvider =
         SpringTransactionProvider(txManager)
 
+    /**
+     * Creates a JOOQ exception translator execute listener provider.
+     *
+     * @param exceptionTranslatorExecuteListener The exception translator execute listener.
+     * @return The default execute listener provider.
+     */
     @Bean
     @Order(0)
     fun jooqExceptionTranslatorExecuteListenerProvider(
         exceptionTranslatorExecuteListener: ExceptionTranslatorExecuteListener
     ): DefaultExecuteListenerProvider = DefaultExecuteListenerProvider(exceptionTranslatorExecuteListener)
 
+    /**
+     * Creates a JOOQ exception translator.
+     *
+     * @return The exception translator execute listener.
+     */
     @Bean
     @ConditionalOnMissingBean(ExceptionTranslatorExecuteListener::class)
     fun jooqExceptionTranslator(): ExceptionTranslatorExecuteListener = ExceptionTranslatorExecuteListener.DEFAULT
 
+    /**
+     * Creates a JOOQ DSL context.
+     *
+     * @param executeListenerProviders The execute listener providers.
+     * @return The JOOQ DSL context.
+     */
     @Bean
     fun jooqDslContext(executeListenerProviders: ObjectProvider<ExecuteListenerProvider>): DSLContext =
         DSL
@@ -62,6 +85,12 @@ class DatabaseConfig(
             .derive(Settings().withBindOffsetDateTimeType(bindOffsetDateTimeType))
             .dsl()
 
+    /**
+     * Creates a Flyway instance.
+     *
+     * @param flywayProperties The Flyway properties.
+     * @return The Flyway instance.
+     */
     @Bean(initMethod = "migrate")
     @ConditionalOnProperty(prefix = "spring.flyway", name = ["enabled"], havingValue = "true", matchIfMissing = false)
     fun flyway(flywayProperties: FlywayProperties): Flyway =

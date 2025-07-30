@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.versions)
     alias(libs.plugins.sonarqube)
     alias(libs.plugins.jreleaser)
+    alias(libs.plugins.dokka)
 }
 
 allprojects {
@@ -25,6 +26,7 @@ repositories {
 
 dependencies {
     allJacocoSubModules.forEach(::jacocoAggregation)
+    allJacocoSubModules.forEach(::dokka)
 }
 
 reporting {
@@ -72,7 +74,7 @@ jreleaser {
             changelog {
                 enabled.set(false)
             }
-            branchPush.set("master")
+            branch.set("master")
             releaseName.set("v$version")
         }
     }

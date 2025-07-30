@@ -2,6 +2,7 @@ import org.jooq.meta.jaxb.ForcedType
 
 plugins {
     id("opta-router.base")
+    alias(libs.plugins.dokka)
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
     `java-library`
