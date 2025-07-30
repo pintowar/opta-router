@@ -36,7 +36,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Running gradle task
-        run: ./gradlew clean jreleaserRelease -PenvironmentName=single --stacktrace
+        run: ./gradlew clean jreleaserRelease -PenvironmentName=single
         env:
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
