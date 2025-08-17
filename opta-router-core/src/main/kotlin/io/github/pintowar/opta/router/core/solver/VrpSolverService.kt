@@ -85,11 +85,16 @@ class VrpSolverService(
         problemId: Long,
         solverName: String
     ): UUID? {
-        val request = solverRepository.enqueue(problemId, solverName)
+        val request = solverRepository.createSolverRequest(problemId, solverName)
         val detailedSolution = request?.let { solverRepository.currentDetailedSolution(problemId) } ?: return null
-        val cmd = RequestSolverCommand(detailedSolution, request.requestKey, solverName)
-        solverEventsPort.enqueueRequestSolver(cmd)
-        return request.requestKey
+        try {
+            val cmd = RequestSolverCommand(detailedSolution, request.requestKey, solverName)
+            solverEventsPort.enqueueRequestSolver(cmd)
+            solverRepository.enqueue(request.requestKey)
+            return request.requestKey
+        } catch (_: Exception) {
+            return null
+        }
     }
 
     /**
@@ -118,7 +123,7 @@ class VrpSolverService(
     ) {
         val solverRequest = solverRepository.currentSolverRequest(solverKey) ?: return
 
-        if (solverRequest.status in listOf(SolverStatus.RUNNING, SolverStatus.ENQUEUED)) {
+        if (solverRequest.status in setOf(SolverStatus.CREATED, SolverStatus.ENQUEUED, SolverStatus.RUNNING)) {
             solverEventsPort.broadcastCancelSolver(
                 CancelSolverCommand(solverKey, solverRequest.status, clear)
             )

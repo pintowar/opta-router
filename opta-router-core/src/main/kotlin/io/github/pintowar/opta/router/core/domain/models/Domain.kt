@@ -165,6 +165,7 @@ data class VrpDetailedSolution(
 )
 
 enum class SolverStatus {
+    CREATED,
     ENQUEUED,
     NOT_SOLVED,
     RUNNING,

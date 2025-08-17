@@ -30,13 +30,20 @@ class SolverRepository(
      * @param solverName The name of the solver to use.
      * @return The created [VrpSolverRequest], or null if the creation failed.
      */
-    suspend fun enqueue(
+    suspend fun createSolverRequest(
         problemId: Long,
         solverName: String
     ): VrpSolverRequest? =
         vrpSolverRequestPort.createRequest(
-            VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.ENQUEUED)
+            VrpSolverRequest(UUID.randomUUID(), problemId, solverName, SolverStatus.CREATED)
         )
+
+    /**
+     * Update an existing VRP solver request status from CREATED to ENQUEUED of a provided solverKey.
+     *
+     * @param solverKey The unique [UUID] key of the solver request.
+     */
+    suspend fun enqueue(solverKey: UUID): Unit = vrpSolverRequestPort.enqueueRequest(solverKey)
 
     /**
      * Retrieves the current solver request for a given problem.

@@ -127,63 +127,95 @@ class VrpSolverServiceTest :
             }
         }
 
-        test(
-            """
-            enqueueSolverRequest should enqueue event and return request key when repository returns request and 
-            detailed solution
-            """.trimIndent()
-        ) {
-            val vrpRequest = runningSolverRequest.copy(status = SolverStatus.ENQUEUED)
-            val emptySolution = VrpSolution.emptyFromInstance(sampleProblem)
-            val detailedSolution = VrpDetailedSolution(emptySolution, mockk())
+        context("enqueue solver request") {
+            test(
+                """
+                enqueueSolverRequest should enqueue event and return request key when repository returns request and 
+                detailed solution
+                """.trimIndent()
+            ) {
+                val vrpRequest = runningSolverRequest.copy(status = SolverStatus.CREATED)
+                val emptySolution = VrpSolution.emptyFromInstance(sampleProblem)
+                val detailedSolution = VrpDetailedSolution(emptySolution, mockk())
 
-            coEvery { solverRepository.enqueue(problemId, solverName) } returns vrpRequest
-            coEvery { solverRepository.currentDetailedSolution(problemId) } returns detailedSolution
-            coEvery { solverEventsPort.enqueueRequestSolver(any()) } returns Unit
+                coEvery { solverRepository.createSolverRequest(problemId, solverName) } returns vrpRequest
+                coEvery { solverRepository.currentDetailedSolution(problemId) } returns detailedSolution
+                coEvery { solverEventsPort.enqueueRequestSolver(any()) } returns Unit
+                coEvery { solverRepository.enqueue(vrpRequest.requestKey) } returns Unit
 
-            val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
+                val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
 
-            result shouldBe requestKey
-            coVerify(exactly = 1) { solverRepository.enqueue(problemId, solverName) }
-            coVerify(exactly = 1) { solverRepository.currentDetailedSolution(problemId) }
-            coVerify(exactly = 1) {
-                solverEventsPort.enqueueRequestSolver(
-                    RequestSolverCommand(
-                        detailedSolution,
-                        requestKey,
-                        solverName
+                result shouldBe requestKey
+                coVerify(exactly = 1) { solverRepository.createSolverRequest(problemId, solverName) }
+                coVerify(exactly = 1) { solverRepository.currentDetailedSolution(problemId) }
+                coVerify(exactly = 1) {
+                    solverEventsPort.enqueueRequestSolver(
+                        RequestSolverCommand(
+                            detailedSolution,
+                            requestKey,
+                            solverName
+                        )
                     )
-                )
+                }
+                coVerify(exactly = 1) { solverRepository.enqueue(vrpRequest.requestKey) }
             }
-        }
 
-        test("enqueueSolverRequest should return null and not enqueue event when repository enqueue returns null") {
-            coEvery { solverRepository.enqueue(problemId, solverName) } returns null
+            test("enqueueSolverRequest should return null and not enqueue event when repository enqueue returns null") {
+                coEvery { solverRepository.createSolverRequest(problemId, solverName) } returns null
 
-            val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
+                val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
 
-            assertNull(result)
-            coVerify(exactly = 1) { solverRepository.enqueue(problemId, solverName) }
-            coVerify(exactly = 0) { solverRepository.currentDetailedSolution(problemId) }
-            coVerify(exactly = 0) { solverEventsPort.enqueueRequestSolver(any()) }
-        }
+                assertNull(result)
+                coVerify(exactly = 1) { solverRepository.createSolverRequest(problemId, solverName) }
+                coVerify(exactly = 0) { solverRepository.currentDetailedSolution(problemId) }
+                coVerify(exactly = 0) { solverEventsPort.enqueueRequestSolver(any()) }
+                coVerify(exactly = 0) { solverRepository.enqueue(requestKey) }
+            }
 
-        test(
-            """
-            enqueueSolverRequest should return null and not enqueue event when repository currentDetailedSolution 
-            returns null
-            """.trimIndent()
-        ) {
-            val vrpRequest = runningSolverRequest.copy(status = SolverStatus.ENQUEUED)
-            coEvery { solverRepository.enqueue(problemId, solverName) } returns vrpRequest
-            coEvery { solverRepository.currentDetailedSolution(problemId) } returns null
+            test(
+                """
+                enqueueSolverRequest should return null and not enqueue event when repository currentDetailedSolution 
+                returns null
+                """.trimIndent()
+            ) {
+                val vrpRequest = runningSolverRequest.copy(status = SolverStatus.CREATED)
+                coEvery { solverRepository.createSolverRequest(problemId, solverName) } returns vrpRequest
+                coEvery { solverRepository.currentDetailedSolution(problemId) } returns null
 
-            val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
+                val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
 
-            assertNull(result)
-            coVerify(exactly = 1) { solverRepository.enqueue(problemId, solverName) }
-            coVerify(exactly = 1) { solverRepository.currentDetailedSolution(problemId) }
-            coVerify(exactly = 0) { solverEventsPort.enqueueRequestSolver(any()) }
+                assertNull(result)
+                coVerify(exactly = 1) { solverRepository.createSolverRequest(problemId, solverName) }
+                coVerify(exactly = 1) { solverRepository.currentDetailedSolution(problemId) }
+                coVerify(exactly = 0) { solverEventsPort.enqueueRequestSolver(any()) }
+            }
+
+            test("enqueueSolverRequest should create event but not enqueue when solverEventsPort throws an exception") {
+                val vrpRequest = runningSolverRequest.copy(status = SolverStatus.CREATED)
+                val emptySolution = VrpSolution.emptyFromInstance(sampleProblem)
+                val detailedSolution = VrpDetailedSolution(emptySolution, mockk())
+
+                coEvery { solverRepository.createSolverRequest(problemId, solverName) } returns vrpRequest
+                coEvery { solverRepository.currentDetailedSolution(problemId) } returns detailedSolution
+                coEvery { solverEventsPort.enqueueRequestSolver(any()) } throws IllegalStateException("Broker down")
+                coEvery { solverRepository.enqueue(vrpRequest.requestKey) } returns Unit
+
+                val result = vrpSolverService.enqueueSolverRequest(problemId, solverName)
+
+                result shouldBe null
+                coVerify(exactly = 1) { solverRepository.createSolverRequest(problemId, solverName) }
+                coVerify(exactly = 1) { solverRepository.currentDetailedSolution(problemId) }
+                coVerify(exactly = 1) {
+                    solverEventsPort.enqueueRequestSolver(
+                        RequestSolverCommand(
+                            detailedSolution,
+                            requestKey,
+                            solverName
+                        )
+                    )
+                }
+                coVerify(exactly = 0) { solverRepository.enqueue(vrpRequest.requestKey) }
+            }
         }
 
         context("terminate and clear") {

@@ -10,6 +10,18 @@ import java.util.*
  */
 interface VrpSolverRequestPort {
     /**
+     * Refreshes the status of solver requests by setting "CREATED" requests that have exceeded a timeout to "TERMINATED".
+     *
+     * This function identifies solver requests that are currently in the "CREATED" state but have not been updated
+     * within the specified timeout duration. These requests are then marked as "TERMINATED", indicating that
+     * they are no longer actively being processed.
+     *
+     * @param timeout The [Duration] after which a "RUNNING" request is considered timed out and will be terminated.
+     * @return The number of solver requests that were updated to "TERMINATED".
+     */
+    suspend fun refreshCreatedSolverRequests(timeout: Duration): Int
+
+    /**
      * Refreshes the status of solver requests by setting "RUNNING" requests that have exceeded a timeout to "TERMINATED".
      *
      * This function identifies solver requests that are currently in the "RUNNING" state but have not been updated
@@ -19,7 +31,7 @@ interface VrpSolverRequestPort {
      * @param timeout The [Duration] after which a "RUNNING" request is considered timed out and will be terminated.
      * @return The number of solver requests that were updated to "TERMINATED".
      */
-    suspend fun refreshSolverRequests(timeout: Duration): Int
+    suspend fun refreshRunningSolverRequests(timeout: Duration): Int
 
     /**
      * Creates a new VRP solver request in the database.
@@ -32,6 +44,15 @@ interface VrpSolverRequestPort {
      * @return The created [VrpSolverRequest] object if successful, or `null` if an active request already exists for the problem.
      */
     suspend fun createRequest(request: VrpSolverRequest): VrpSolverRequest?
+
+    /**
+     * Update an existing VRP solver request status in the database.
+     *
+     * This function changes a solver request status from CREATED to ENQUEUED of a provided solverKey.
+     *
+     * @param solverKey The unique [UUID] key of the solver request.
+     */
+    suspend fun enqueueRequest(solverKey: UUID)
 
     /**
      * Retrieves the current (most recently updated) solver request for a given VRP problem ID.
