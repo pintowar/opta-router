@@ -181,7 +181,7 @@ class VehicleRoutingSolution(
     @PlanningEntityCollectionProperty
     val vehicleList: List<Vehicle> = emptyList(),
     @ValueRangeProvider
-    @ProblemFactCollectionProperty
+    @PlanningEntityCollectionProperty
     val customerList: List<Customer> = emptyList(),
     @PlanningScore
     val score: HardSoftLongScore? = null
