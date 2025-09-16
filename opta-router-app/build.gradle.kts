@@ -35,6 +35,9 @@ dependencies {
     runtimeOnly(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 
     testImplementation(libs.spring.test)
+    testImplementation(libs.spring.mockk)
+    testImplementation(libs.kotest.spring)
+    testImplementation(testFixtures(project(":opta-router-core")))
 
     // fix to avoid jackson dependencies version conflict between dokka, spring-boot and jib
     dokkaPlugin(libs.bundles.jackson) {

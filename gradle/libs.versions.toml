@@ -23,6 +23,7 @@ shedlock = "6.10.0"
 sfl4j = "2.1.0-alpha1"
 kotest = "6.0.0"
 mockk = "1.14.5"
+spring-mockk = "4.0.2"
 gradle-jooq = "10.1.1"
 gradle-node = "7.1.0"
 gradle-jib = "3.4.5"
@@ -106,8 +107,10 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertion = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-spring = { module = "io.kotest:kotest-extensions-spring", version.ref = "kotest" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+spring-mockk = { module = "com.ninja-squad:springmockk", version.ref = "spring-mockk" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]

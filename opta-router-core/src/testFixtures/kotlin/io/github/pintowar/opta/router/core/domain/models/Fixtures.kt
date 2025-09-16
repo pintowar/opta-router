@@ -456,9 +456,13 @@ object Fixtures {
 
     fun vehicle(vehicle: String) = vehicles.getValue(vehicle)
 
+    fun vehicles() = vehicles.values
+
     fun customer(sample: String) = customers.getValue(sample)
 
     fun problem(sample: String) = problems.getValue(sample)
+
+    fun problems() = problems.values
 
     fun solution(sample: String) = solutions.getValue(sample)
 
