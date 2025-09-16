@@ -8,20 +8,18 @@ import io.github.pintowar.opta.router.core.domain.models.Path
 import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
-import io.mockk.*
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
+import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
 
 @ActiveProfiles(ConfigData.GEO_SERVER_PROFILE)
 @WebFluxTest(GeoController::class)
 class GeoControllerTest : FunSpec() {
-
     @Autowired
     private lateinit var client: WebTestClient
 
@@ -37,19 +35,30 @@ class GeoControllerTest : FunSpec() {
 
         context("POST") {
             test("/api/geo/simple-path") {
-                val path = Fixtures.solution("sample-4").last().routes.first()
-                    .let { Path(it.distance.toDouble(), it.time.toLong(), it.order) }
+                val path =
+                    Fixtures
+                        .solution("sample-4")
+                        .last()
+                        .routes
+                        .first()
+                        .let { Path(it.distance.toDouble(), it.time.toLong(), it.order) }
                 val (origin, target) = path.coordinates.first() to path.coordinates.last()
                 coEvery { geo.simplePath(any(), any()) } returns path
 
-                client.post().uri("/api/geo/simple-path")
+                client
+                    .post()
+                    .uri("/api/geo/simple-path")
                     .bodyValue(GeoController.SimplePathRequest(origin as LatLng, target as LatLng))
                     .exchange()
-                    .expectStatus().isOk
-                    .expectHeader().contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .expectStatus()
+                    .isOk
+                    .expectHeader()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .expectBody()
-                    .jsonPath("$.distance").isEqualTo(path.distance)
-                    .jsonPath("$.time").isEqualTo(path.time)
+                    .jsonPath("$.distance")
+                    .isEqualTo(path.distance)
+                    .jsonPath("$.time")
+                    .isEqualTo(path.time)
 
                 coVerify(exactly = 1) { geo.simplePath(origin, target) }
             }
@@ -61,13 +70,16 @@ class GeoControllerTest : FunSpec() {
 
                 coEvery { geo.generateMatrix(any()) } returns matrix
 
-                client.post().uri("/api/geo/generate-matrix")
+                client
+                    .post()
+                    .uri("/api/geo/generate-matrix")
                     .bodyValue(GeoController.LocationsRequest(depots, customers))
                     .exchange()
-                    .expectStatus().isOk
-                    .expectHeader().contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .expectStatus()
+                    .isOk
+                    .expectHeader()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .expectBody()
-
 
                 coVerify(exactly = 1) { geo.generateMatrix((depots + customers).toSet()) }
             }
@@ -77,13 +89,16 @@ class GeoControllerTest : FunSpec() {
 
                 coEvery { geo.detailedPaths(any()) } returns routes
 
-                client.post().uri("/api/geo/detailed-paths")
+                client
+                    .post()
+                    .uri("/api/geo/detailed-paths")
                     .bodyValue(GeoController.DetailedPathRequest(routes))
                     .exchange()
-                    .expectStatus().isOk
-                    .expectHeader().contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .expectStatus()
+                    .isOk
+                    .expectHeader()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .expectBody()
-
 
                 coVerify(exactly = 1) { geo.detailedPaths(routes) }
             }
