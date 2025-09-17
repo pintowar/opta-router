@@ -1,8 +1,10 @@
 package io.github.pintowar.opta.router.controller
 
 import com.ninjasquad.springmockk.MockkBean
+import io.github.pintowar.opta.router.core.domain.models.Fixtures
 import io.github.pintowar.opta.router.core.domain.models.SolverPanel
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
+import io.github.pintowar.opta.router.core.domain.models.VrpSolution
 import io.github.pintowar.opta.router.core.domain.models.VrpSolutionRequest
 import io.github.pintowar.opta.router.core.solver.SolverPanelStorage
 import io.github.pintowar.opta.router.core.solver.VrpSolverService
