@@ -4,8 +4,6 @@ import io.github.pintowar.opta.router.adapters.database.util.TestUtils
 import io.github.pintowar.opta.router.core.domain.models.Fixtures
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.serialization.Serde
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitSingle
@@ -13,27 +11,11 @@ import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
 import java.time.Instant
 import java.util.*
 
-class VrpSolverSolutionJooqAdapterTest :
-    FunSpec({
+class VrpSolverSolutionJooqAdapterTest : BaseJooqTest() {
+    val serde: Serde = TestUtils.serde()
+    val adapter = VrpSolverSolutionJooqAdapter(serde, dsl)
 
-        coroutineTestScope = true
-
-        val serde: Serde = TestUtils.serde()
-
-        val dsl = TestUtils.initDB()
-        val adapter = VrpSolverSolutionJooqAdapter(serde, dsl)
-
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
-        beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
-        }
-
-        afterEach {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
+    init {
 
         suspend fun createProblemAndRequest(
             problemId: Long,
@@ -169,4 +151,5 @@ class VrpSolverSolutionJooqAdapterTest :
             history.first().solverKey shouldBe requestKey1
             history.last().solverKey shouldBe requestKey2
         }
-    })
+    }
+}

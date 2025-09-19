@@ -1,34 +1,16 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.adapters.database.util.TestUtils
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.github.pintowar.opta.router.core.domain.models.Vehicle
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitFirst
 import org.jooq.generated.tables.references.LOCATION
 
-class VrpVehicleJooqAdapterTest :
-    FunSpec({
+class VrpVehicleJooqAdapterTest : BaseJooqTest() {
+    val adapter = VrpVehicleJooqAdapter(dsl)
 
-        coroutineTestScope = true
-
-        val dsl = TestUtils.initDB()
-        val adapter = VrpVehicleJooqAdapter(dsl)
-
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
-        beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
-        }
-
-        afterEach {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
+    init {
 
         test("findAll should return vehicles based on query, offset, and limit") {
             val vehicles = adapter.findAll("Vehicle", 0, 50).toList()
@@ -90,4 +72,5 @@ class VrpVehicleJooqAdapterTest :
             vehicles.size shouldBe 10
             vehicles.first().name shouldBe "Vehicle 0"
         }
-    })
+    }
+}

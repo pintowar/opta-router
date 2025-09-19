@@ -18,11 +18,16 @@ object TestUtils {
      *
      * @return A [DSLContext] instance connected to the initialized H2 test database.
      */
-    fun initDB(): DSLContext {
+    fun initDB(
+        jdbcUrl: String = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+        r2dbcUrl: String = "r2dbc:h2:mem:///testdb",
+        username: String = "sa",
+        password: String = ""
+    ): DSLContext {
         val flyway =
             Flyway
                 .configure()
-                .dataSource("jdbc:h2:file:~/.opta.router/test.h2.db", "sa", "")
+                .dataSource(jdbcUrl, username, password)
                 .schemas("PUBLIC")
                 .locations("classpath:db/specific/h2")
                 .baselineOnMigrate(true)
@@ -31,9 +36,9 @@ object TestUtils {
 
         return DSL
             .using(
-                "r2dbc:h2:file:///~/.opta.router/test.h2.db",
-                "sa",
-                ""
+                r2dbcUrl,
+                username,
+                password
             )
     }
 
