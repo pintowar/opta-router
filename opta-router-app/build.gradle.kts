@@ -10,6 +10,37 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
+testing {
+    suites {
+        val integrationTest by registering(JvmTestSuite::class) {
+            sources {
+                kotlin.srcDir("src/integrationTest/kotlin")
+                resources.srcDir("src/integrationTest/resources")
+            }
+        }
+
+        withType<JvmTestSuite> {
+            dependencies {
+                implementation(project())
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        jvmArgs("-XX:+EnableDynamicAgentLoading")
+                        shouldRunAfter("test")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ensures integration test can use unit test dependencies
+val integrationTestImplementation by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
+}
+
 dependencies {
     implementation(project(":opta-router-core"))
     implementation(project(":opta-router-repo"))
@@ -38,6 +69,7 @@ dependencies {
     testImplementation(libs.spring.mockk)
     testImplementation(libs.kotest.spring)
     testImplementation(testFixtures(project(":opta-router-core")))
+    testImplementation(testFixtures(project(":opta-router-repo")))
 
     // fix to avoid jackson dependencies version conflict between dokka, spring-boot and jib
     dokkaPlugin(libs.bundles.jackson) {
@@ -83,6 +115,14 @@ tasks {
                 logger.quiet("Cli Resources: move from $webCliOrigin to $webCliDest")
             }
         }
+    }
+
+    check {
+        dependsOn("integrationTest")
+    }
+
+    named("processIntegrationTestResources", Copy::class) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 
