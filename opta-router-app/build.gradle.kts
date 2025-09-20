@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.spring.dependency)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.git.properties)
-    alias(libs.plugins.jib)
     alias(libs.plugins.dokka)
 }
 
@@ -130,25 +129,4 @@ configure<GitPropertiesPluginExtension> {
     dotGitDirectory.set(file("${project.rootDir}/.git"))
     dateFormat = "yyyy-MM-dd'T'HH:mmZ"
     dateFormatTimeZone = "GMT"
-}
-
-jib {
-    from {
-        image = "eclipse-temurin:21-jdk-jammy"
-    }
-    to {
-        val tagVer = if (project.isSnapshotVersion) "snapshot" else "latest"
-        image = "pintowar/${rootProject.name}:${project.buildEnv}-$tagVer"
-        tags = setOf("${project.buildEnv}-${project.version}")
-        auth {
-            username = project.findProperty("docker.user")?.toString() ?: System.getenv("DOCKER_USER")
-            password = project.findProperty("docker.pass")?.toString() ?: System.getenv("DOCKER_PASS")
-        }
-    }
-    container {
-        mainClass = "io.github.pintowar.opta.router.ApplicationKt"
-        jvmFlags = listOf("-Duser.timezone=UTC", "-Djava.security.egd=file:/dev/./urandom")
-        ports = listOf("8080")
-        creationTime.set("USE_CURRENT_TIMESTAMP")
-    }
 }

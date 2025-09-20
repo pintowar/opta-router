@@ -1,4 +1,5 @@
 import net.researchgate.release.ReleaseExtension
+import org.jreleaser.model.Active
 import java.time.LocalDate
 
 plugins {
@@ -16,7 +17,8 @@ plugins {
 
 allprojects {
     group = "io.github.pintowar"
-    description = "Sample CVRP Application using Kotlin + Jenetics/Jsprit/Optaplanner/Or-Tools/Timefold + Graphhopper + Spring Boot + Websockets"
+    description =
+        "Sample CVRP Application using Kotlin + Jenetics/Jsprit/Optaplanner/Or-Tools/Timefold + Graphhopper + Spring Boot + Websockets"
 }
 
 repositories {
@@ -67,6 +69,19 @@ jreleaser {
             homepage.set("https://github.com/pintowar/opta-router")
         }
     }
+    assemble {
+        javaArchive {
+            create("app") {
+                active.set(Active.ALWAYS)
+                java {
+                    mainClass.set("io.github.pintowar.opta.router.ApplicationKt")
+                    jvmOptions {
+                        universal("-Duser.timezone=UTC -Djava.security.egd=file:/dev/./urandom")
+                    }
+                }
+            }
+        }
+    }
     release {
         github {
             enabled.set(!isSnapshotVersion)
@@ -76,6 +91,25 @@ jreleaser {
             }
             branch.set("master")
             releaseName.set("v$version")
+        }
+    }
+    packagers {
+        docker {
+            active.assign(Active.ALWAYS)
+            baseImage.set("eclipse-temurin:21-jre-noble")
+
+            val tagVer = if (isSnapshotVersion) "snapshot" else "latest"
+            imageName("${rootProject.name}:${buildEnv}-$tagVer")
+            imageName("${rootProject.name}:${buildEnv}-$version")
+
+            registries {
+                create("docker.io") {
+                    externalLogin.set(true)
+
+                    username.set(findProperty("docker.user")?.toString() ?: System.getenv("DOCKER_USER"))
+                    password.set(findProperty("docker.pass")?.toString() ?: System.getenv("DOCKER_PASS"))
+                }
+            }
         }
     }
     distributions {
@@ -143,5 +177,8 @@ tasks.sonar {
 
 tasks.jreleaserRelease {
     dependsOn(":assembleApp")
-    dependsOn(":opta-router-app:jib")
+}
+
+tasks.jreleaserPackage {
+    dependsOn(":assembleApp")
 }
