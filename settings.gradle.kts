@@ -4,7 +4,6 @@ include("opta-router-core", "opta-router-geo", "opta-router-repo")
 include(
     "opta-router-solver:jenetics",
     "opta-router-solver:jsprit",
-    "opta-router-solver:optaplanner",
     "opta-router-solver:ortools",
     "opta-router-solver:timefold"
 )
