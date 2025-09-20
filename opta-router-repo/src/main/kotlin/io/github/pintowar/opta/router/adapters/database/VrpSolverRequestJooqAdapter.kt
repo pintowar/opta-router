@@ -17,13 +17,11 @@ import java.util.UUID
 class VrpSolverRequestJooqAdapter(
     private val dsl: DSLContext
 ) : VrpSolverRequestPort {
-    override suspend fun refreshSolverRequests(timeout: Duration): Int =
-        dsl
-            .update(VRP_SOLVER_REQUEST)
-            .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.TERMINATED.name)
-            .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.RUNNING.name))
-            .and(VRP_SOLVER_REQUEST.UPDATED_AT.lt(Instant.now() - timeout))
-            .awaitSingle()
+    override suspend fun refreshCreatedSolverRequests(timeout: Duration): Int =
+        terminateByStatusRequests(SolverStatus.CREATED, timeout)
+
+    override suspend fun refreshRunningSolverRequests(timeout: Duration): Int =
+        terminateByStatusRequests(SolverStatus.RUNNING, timeout)
 
     override suspend fun createRequest(request: VrpSolverRequest): VrpSolverRequest? {
         val (numEnqueued) =
@@ -31,8 +29,13 @@ class VrpSolverRequestJooqAdapter(
                 .selectCount()
                 .from(VRP_SOLVER_REQUEST)
                 .where(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID.eq(request.problemId))
-                .and(VRP_SOLVER_REQUEST.STATUS.`in`(SolverStatus.ENQUEUED.name, SolverStatus.RUNNING.name))
-                .awaitSingle()
+                .and(
+                    VRP_SOLVER_REQUEST.STATUS.`in`(
+                        SolverStatus.CREATED.name,
+                        SolverStatus.ENQUEUED.name,
+                        SolverStatus.RUNNING.name
+                    )
+                ).awaitSingle()
 
         if (numEnqueued > 0) return null
 
@@ -50,6 +53,15 @@ class VrpSolverRequestJooqAdapter(
                 .awaitFirstOrNull()
 
         return request.takeIf { result != null }
+    }
+
+    override suspend fun enqueueRequest(solverKey: UUID) {
+        dsl
+            .update(VRP_SOLVER_REQUEST)
+            .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.ENQUEUED.name)
+            .where(VRP_SOLVER_REQUEST.STATUS.eq(SolverStatus.CREATED.name))
+            .and(VRP_SOLVER_REQUEST.REQUEST_KEY.eq(solverKey))
+            .awaitSingle()
     }
 
     override suspend fun currentSolverRequest(problemId: Long): VrpSolverRequest? =
@@ -87,4 +99,15 @@ class VrpSolverRequestJooqAdapter(
             .map {
                 VrpSolverRequest(it.requestKey, it.vrpProblemId, it.solver, SolverStatus.valueOf(it.status))
             }
+
+    private suspend fun terminateByStatusRequests(
+        status: SolverStatus,
+        timeout: Duration
+    ): Int =
+        dsl
+            .update(VRP_SOLVER_REQUEST)
+            .set(VRP_SOLVER_REQUEST.STATUS, SolverStatus.TERMINATED.name)
+            .where(VRP_SOLVER_REQUEST.STATUS.eq(status.name))
+            .and(VRP_SOLVER_REQUEST.UPDATED_AT.lt(Instant.now() - timeout))
+            .awaitSingle()
 }

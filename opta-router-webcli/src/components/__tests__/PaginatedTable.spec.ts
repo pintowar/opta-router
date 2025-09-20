@@ -161,7 +161,9 @@ describe("PaginatedTable", () => {
       },
     });
 
-    await wrapper.findAll(".join-item.btn")[3].trigger("click"); // Next button
+    const nextButton = wrapper.findAll(".join-item.btn")[3];
+    expect(nextButton).toBeTruthy();
+    await nextButton!.trigger("click"); // Next button
 
     expect(pushSpy).toHaveBeenCalledWith({
       query: {
@@ -192,7 +194,9 @@ describe("PaginatedTable", () => {
       },
     });
 
-    await wrapper.findAll(".join-item.btn")[1].trigger("click"); // Previous button
+    const prevButton = wrapper.findAll(".join-item.btn")[1];
+    expect(prevButton).toBeTruthy();
+    await prevButton!.trigger("click"); // Previous button
 
     expect(pushSpy).toHaveBeenCalledWith({
       query: {
@@ -223,7 +227,9 @@ describe("PaginatedTable", () => {
       },
     });
 
-    await wrapper.findAll(".join-item.btn")[0].trigger("click"); // First button
+    const firstButton = wrapper.findAll(".join-item.btn")[0];
+    expect(firstButton).toBeTruthy();
+    await firstButton!.trigger("click"); // First button
 
     expect(pushSpy).toHaveBeenCalledWith({
       query: {
@@ -254,7 +260,9 @@ describe("PaginatedTable", () => {
       },
     });
 
-    await wrapper.findAll(".join-item.btn")[4].trigger("click"); // Last button
+    const lastButton = wrapper.findAll(".join-item.btn")[4];
+    expect(lastButton).toBeTruthy();
+    await lastButton!.trigger("click"); // Last button
 
     expect(pushSpy).toHaveBeenCalledWith({
       query: {

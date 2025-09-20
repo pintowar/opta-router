@@ -67,6 +67,8 @@ springdoc:
 solver:
   termination:
     time-limit: 5m
+  unqueue:
+    time-limit: 10s
 
 app:
   graph:

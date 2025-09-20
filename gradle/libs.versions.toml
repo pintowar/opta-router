@@ -1,32 +1,32 @@
 [versions]
-kotlin = "2.2.0"
+kotlin = "2.2.20"
 kotlin-coroutines = "1.10.2"
-kotlin-logging = "7.0.7"
-spring-boot = "3.5.3"
+kotlin-logging = "7.0.13"
+spring-boot = "3.5.6"
 spring-dependency = "1.1.7"
 spotless = "7.0.4"
-springdoc = "2.8.9"
+springdoc = "2.8.10"
 jackson = "2.19.1"
-optaplanner = "10.0.0"
-timefold = "1.23.0"
+timefold = "1.25.0"
 jsprit = "1.9.0-beta.12"
 ortools = "9.9.3963" # 9.10.* uses protobuf 4.*, it conflicts with graphhopper deps
 jenetics = "8.2.0"
 graphhopper = "10.2"
-flyway = "11.10.0"
-jooq = "3.20.5"
+flyway = "11.11.2"
+jooq = "3.20.6"
 hazelcast = "5.4.0"
-camel = "4.12.0"
+camel = "4.14.0"
 h2 = "2.3.232"
 postgres = "42.7.7"
-shedlock = "6.9.0"
+shedlock = "6.10.0"
 sfl4j = "2.1.0-alpha1"
-kotest = "6.0.0.M4"
-mockk = "1.14.4"
-gradle-jooq = "10.1"
+kotest = "6.0.0"
+mockk = "1.14.5"
+spring-mockk = "4.0.2"
+gradle-jooq = "10.1.1"
 gradle-node = "7.1.0"
 gradle-jib = "3.4.5"
-gradle-git = "2.5.0"
+gradle-git = "2.5.2"
 gradle-release = "3.1.0"
 gradle-properties = "1.6.0"
 gradle-versions = "0.52.0"
@@ -79,7 +79,6 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 timefold-core = { module = "ai.timefold.solver:timefold-solver-core", version.ref = "timefold" }
-optaplanner-core = { module = "org.optaplanner:optaplanner-core", version.ref = "optaplanner" }
 jsprit-core = { module = "com.graphhopper:jsprit-core", version.ref = "jsprit" }
 or-tools = { module = "com.google.ortools:ortools-java", version.ref = "ortools" }
 jenetics = { module = "io.jenetics:jenetics", version.ref = "jenetics" }
@@ -106,14 +105,15 @@ slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "sfl4j" }
 
 kotest-runner = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertion = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-spring = { module = "io.kotest:kotest-extensions-spring", version.ref = "kotest" }
 kotlin-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+spring-mockk = { module = "com.ninja-squad:springmockk", version.ref = "spring-mockk" }
 
 [bundles]
 kotlin = ["kotlin-stdlib", "kotlin-reflect", "kotlin-logging"]
 spring = ["spring-webflux", "spring-rsocket", "spring-actuator", "spring-jooq", "spring-r2dbc", "flyway", "r2dbc-proxy"]
 jooq = ["jooq-core", "jooq-kotlin", "jooq-kotlin-coroutines"]
-optaplanner = ["optaplanner-core"]
 timefold = ["timefold-core"]
 jackson = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-kotlin", "jackson-cbor"]
 shedlock = ["shedlock", "shedlock-hazelcast"]

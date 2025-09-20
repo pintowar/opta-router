@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.flyway)
     alias(libs.plugins.jooq)
     `java-library`
+    `java-test-fixtures`
 }
 
 val flywayMigration = configurations.create("flywayMigration")
@@ -19,9 +20,9 @@ dependencies {
     jooqGenerator(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
     flywayMigration(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 
-    testImplementation(libs.flyway)
-    testImplementation(libs.bundles.jackson)
-    testImplementation(testFixtures(project(":opta-router-core")))
+    testFixturesImplementation(libs.flyway)
+    testFixturesImplementation(libs.bundles.jackson)
+    testFixturesApi(testFixtures(project(":opta-router-core")))
 }
 
 tasks.flywayMigrate {

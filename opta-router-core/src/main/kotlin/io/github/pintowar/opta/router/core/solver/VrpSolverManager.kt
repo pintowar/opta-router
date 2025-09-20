@@ -105,7 +105,7 @@ class VrpSolverManager(
         currentStatus: SolverStatus,
         clear: Boolean
     ) {
-        if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
+        if (currentStatus in setOf(SolverStatus.CREATED, SolverStatus.ENQUEUED)) blackListedKeys.add(solverKey)
         solverKeys.remove(solverKey)?.let {
             it.cancel(UserCancellationException(clear))
             it.join()

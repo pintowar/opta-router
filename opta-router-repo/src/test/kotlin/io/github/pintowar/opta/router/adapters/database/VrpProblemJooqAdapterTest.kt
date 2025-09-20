@@ -8,31 +8,19 @@ import io.github.pintowar.opta.router.core.domain.models.VrpProblem
 import io.github.pintowar.opta.router.core.domain.models.matrix.VrpProblemMatrix
 import io.github.pintowar.opta.router.core.domain.ports.service.GeoPort
 import io.github.pintowar.opta.router.core.serialization.Serde
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
 
-class VrpProblemJooqAdapterTest :
-    FunSpec({
+class VrpProblemJooqAdapterTest : BaseJooqTest() {
+    val geoPort: GeoPort = mockk(relaxed = true)
+    val serde: Serde = TestUtils.serde()
+    val adapter = VrpProblemJooqAdapter(dsl, geoPort, serde)
 
-        coroutineTestScope = true
-
-        val geoPort: GeoPort = mockk(relaxed = true)
-        val serde: Serde = TestUtils.serde()
-
-        val dsl = TestUtils.initDB()
-        val adapter = VrpProblemJooqAdapter(dsl, geoPort, serde)
-
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
+    init {
         beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
 
             // Mock geoPort behavior
             coEvery { geoPort.generateMatrix(any()) } returns
@@ -45,7 +33,6 @@ class VrpProblemJooqAdapterTest :
 
         afterEach {
             clearMocks(geoPort)
-            runBlocking { TestUtils.cleanTables(dsl) }
         }
 
         test("findAll should return problem summaries") {
@@ -141,4 +128,5 @@ class VrpProblemJooqAdapterTest :
             matrix?.getTravelDistances() shouldBe arrayOf(0.0, 10.0, 10.0, 0.0)
             matrix?.getTravelTimes() shouldBe arrayOf(0L, 100L, 100L, 0L)
         }
-    })
+    }
+}

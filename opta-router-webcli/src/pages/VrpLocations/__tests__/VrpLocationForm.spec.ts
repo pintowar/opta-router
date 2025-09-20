@@ -64,7 +64,7 @@ describe("VrpLocationForm.vue", () => {
     await wrapper.vm.$emit("update:location", { ...mockCustomer, name: "New Name" });
 
     expect(wrapper.emitted("update:location")).toHaveLength(1);
-    const emittedLocation = wrapper.emitted("update:location")![0][0] as Customer;
+    const emittedLocation = wrapper.emitted("update:location")?.[0]?.[0] as Customer;
     expect(emittedLocation?.name || "").toBe("New Name");
   });
 

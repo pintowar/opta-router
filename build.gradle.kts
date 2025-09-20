@@ -16,7 +16,7 @@ plugins {
 
 allprojects {
     group = "io.github.pintowar"
-    description = "Sample CVRP Application using Kotlin + Jenetics/Jsprit/Optaplanner/Or-Tools/Timefold + Graphhopper + Spring Boot + Websockets"
+    description = "Sample CVRP Application using Kotlin + Timefold/Jsprit/Or-Tools/Jenetics + Graphhopper + Spring Boot + Apache Camel + Websockets"
 }
 
 repositories {

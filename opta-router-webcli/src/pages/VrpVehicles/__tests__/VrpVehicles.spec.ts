@@ -44,9 +44,9 @@ describe("VrpVehicles.vue", () => {
     { id: 2, name: "Depot B", lat: 0, lng: 0 },
   ];
 
-  const mockVehicles = [
-    { id: 1, name: "Vehicle A", capacity: 100, depot: mockDepots[0] },
-    { id: 2, name: "Vehicle B", capacity: 200, depot: mockDepots[1] },
+  const mockVehicles: Vehicle[] = [
+    { id: 1, name: "Vehicle A", capacity: 100, depot: mockDepots[0]! },
+    { id: 2, name: "Vehicle B", capacity: 200, depot: mockDepots[1]! },
   ];
 
   beforeEach(() => {
@@ -118,7 +118,7 @@ describe("VrpVehicles.vue", () => {
 
   it("shows the VrpVehicleForm when openInsert is true", async () => {
     mockCrud.openInsert.value = true;
-    mockCrud.selected.value = { id: -1, name: "", capacity: 0, depot: mockDepots[0] };
+    mockCrud.selected.value = { id: -1, name: "", capacity: 0, depot: mockDepots[0]! };
     mockCrud.page.value.content = [];
 
     const wrapper = mountComponent();
@@ -130,7 +130,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls toogleInsert when VrpVehicleForm emits close", async () => {
     mockCrud.openInsert.value = true;
-    mockCrud.selected.value = { id: -1, name: "", capacity: 0, depot: mockDepots[0] };
+    mockCrud.selected.value = { id: -1, name: "", capacity: 0, depot: mockDepots[0]! };
 
     const wrapper = mountComponent();
     await nextTick();
@@ -141,7 +141,7 @@ describe("VrpVehicles.vue", () => {
   });
 
   it("calls insertItem when VrpVehicleForm emits execute", async () => {
-    const newVehicle = { id: -1, name: "New Vehicle", capacity: 50, depot: mockDepots[0] };
+    const newVehicle = { id: -1, name: "New Vehicle", capacity: 50, depot: mockDepots[0]! };
     mockCrud.openInsert.value = true;
     mockCrud.selected.value = newVehicle;
 
@@ -170,7 +170,7 @@ describe("VrpVehicles.vue", () => {
   });
 
   it("calls updateItem when in edit mode and update is emitted", async () => {
-    const updatedVehicle = { ...mockVehicles[0], name: "Updated Vehicle" };
+    const updatedVehicle = { ...mockVehicles[0]!, name: "Updated Vehicle" };
     mockCrud.isEditing.value = true;
     mockCrud.selected.value = updatedVehicle;
 
@@ -184,7 +184,7 @@ describe("VrpVehicles.vue", () => {
 
   it("calls editItem with null when in edit mode and cancel is emitted", async () => {
     mockCrud.isEditing.value = true;
-    mockCrud.selected.value = mockCrud.page.value.content[0];
+    mockCrud.selected.value = mockCrud.page.value.content[0]!;
 
     const wrapper = mountComponent();
     await nextTick();

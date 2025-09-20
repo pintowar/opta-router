@@ -37,7 +37,8 @@ const series = computed(() => {
 });
 
 const durations = computed(() => {
-  const begin = solutions.value.length ? new Date(solutions.value[0].createdAt) : new Date();
+  const sol = solutions.value[0];
+  const begin = sol ? new Date(sol.createdAt) : new Date();
   return solutions.value.length
     ? solutions.value.map((it) => (new Date(it.createdAt).getTime() - begin.getTime()) / 1000)
     : [];

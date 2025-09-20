@@ -1,39 +1,41 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.adapters.database.util.TestUtils
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
-class VrpSolverRequestJooqAdapterTest :
-    FunSpec({
+class VrpSolverRequestJooqAdapterTest : BaseJooqTest() {
+    val adapter = VrpSolverRequestJooqAdapter(dsl)
 
-        coroutineTestScope = true
+    init {
 
-        val dsl = TestUtils.initDB()
-        val adapter = VrpSolverRequestJooqAdapter(dsl)
+        test("refreshCreatedSolverRequests should update status of old running requests to TERMINATED") {
+            val oldRequest = VrpSolverRequest(UUID.randomUUID(), 1L, "solver1", SolverStatus.CREATED)
+            val now = Instant.now()
+            dsl
+                .insertInto(VRP_SOLVER_REQUEST)
+                .set(VRP_SOLVER_REQUEST.REQUEST_KEY, oldRequest.requestKey)
+                .set(VRP_SOLVER_REQUEST.VRP_PROBLEM_ID, oldRequest.problemId)
+                .set(VRP_SOLVER_REQUEST.SOLVER, oldRequest.solver)
+                .set(VRP_SOLVER_REQUEST.STATUS, oldRequest.status.name)
+                .set(VRP_SOLVER_REQUEST.CREATED_AT, now.minus(Duration.ofMinutes(10)))
+                .set(VRP_SOLVER_REQUEST.UPDATED_AT, now.minus(Duration.ofMinutes(10)))
+                .awaitSingle()
 
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
+            val updatedCount = adapter.refreshCreatedSolverRequests(Duration.ofMinutes(5))
+            updatedCount shouldBe 1
+
+            val refreshedRequest = adapter.currentSolverRequest(oldRequest.requestKey)
+            refreshedRequest?.status shouldBe SolverStatus.TERMINATED
         }
 
-        beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
-        }
-
-        afterEach {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
-        test("refreshSolverRequests should update status of old running requests to TERMINATED") {
+        test("refreshRunningSolverRequests should update status of old running requests to TERMINATED") {
             val oldRequest = VrpSolverRequest(UUID.randomUUID(), 1L, "solver1", SolverStatus.RUNNING)
             val now = Instant.now()
             dsl
@@ -46,7 +48,7 @@ class VrpSolverRequestJooqAdapterTest :
                 .set(VRP_SOLVER_REQUEST.UPDATED_AT, now.minus(Duration.ofMinutes(10)))
                 .awaitSingle()
 
-            val updatedCount = adapter.refreshSolverRequests(Duration.ofMinutes(5))
+            val updatedCount = adapter.refreshRunningSolverRequests(Duration.ofMinutes(5))
             updatedCount shouldBe 1
 
             val refreshedRequest = adapter.currentSolverRequest(oldRequest.requestKey)
@@ -69,6 +71,15 @@ class VrpSolverRequestJooqAdapterTest :
             val newRequest = VrpSolverRequest(UUID.randomUUID(), 1L, "solver2", SolverStatus.ENQUEUED)
             val createdRequest = adapter.createRequest(newRequest)
             createdRequest shouldBe null
+        }
+
+        test("enqueueRequest should update status of an existing solver request to ENQUEUED") {
+            val existingRequest = VrpSolverRequest(UUID.randomUUID(), 1L, "solver1", SolverStatus.CREATED)
+            adapter.createRequest(existingRequest)
+
+            val createdRequest = adapter.enqueueRequest(existingRequest.requestKey)
+
+            adapter.currentSolverRequest(existingRequest.requestKey)?.status shouldBe SolverStatus.ENQUEUED
         }
 
         test("currentSolverRequest by problemId should return the latest request") {
@@ -116,4 +127,5 @@ class VrpSolverRequestJooqAdapterTest :
             requests.size shouldBe 1
             requests.map { it.requestKey } shouldBe listOf(request1.requestKey)
         }
-    })
+    }
+}
