@@ -7,6 +7,38 @@ plugins {
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.git.properties)
     alias(libs.plugins.jib)
+    alias(libs.plugins.dokka)
+}
+
+testing {
+    suites {
+        val integrationTest by registering(JvmTestSuite::class) {
+            sources {
+                kotlin.srcDir("src/integrationTest/kotlin")
+                resources.srcDir("src/integrationTest/resources")
+            }
+        }
+
+        withType<JvmTestSuite> {
+            dependencies {
+                implementation(project())
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        jvmArgs("-XX:+EnableDynamicAgentLoading")
+                        shouldRunAfter("test")
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ensures integration test can use unit test dependencies
+val integrationTestImplementation by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
 }
 
 dependencies {
@@ -33,10 +65,22 @@ dependencies {
     runtimeOnly(if (project.isDistProfile) libs.pg.jdbc else libs.h2.jdbc)
 
     testImplementation(libs.spring.test)
+    testImplementation(libs.spring.mockk)
+    testImplementation(libs.kotest.spring)
+    testImplementation(testFixtures(project(":opta-router-core")))
+    testImplementation(testFixtures(project(":opta-router-repo")))
+
+    // fix to avoid jackson dependencies version conflict between dokka, spring-boot and jib
+    dokkaPlugin(libs.bundles.jackson) {
+        version {
+            strictly("2.12.7")
+        }
+    }
 }
 
 tasks {
     bootJar {
+        layered.enabled.set(true)
         requiresUnpack("**/ortools-*.jar") // This is required, so the native libraries can be unpacked at runtime
     }
 
@@ -70,6 +114,14 @@ tasks {
                 logger.quiet("Cli Resources: move from $webCliOrigin to $webCliDest")
             }
         }
+    }
+
+    check {
+        dependsOn("integrationTest")
+    }
+
+    named("processIntegrationTestResources", Copy::class) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 

@@ -27,9 +27,20 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * The VrpSolverManager is responsible for managing the lifecycle of VRP solvers.
+ * It can solve VRP problems, cancel running solvers, and manage the overall state of the solver processes.
+ *
+ * @param timeLimit The time limit for each solver execution.
+ */
 class VrpSolverManager(
     timeLimit: Duration
 ) {
+    /**
+     * Custom exception to indicate that a solver was cancelled by the user.
+     *
+     * @param clear A boolean flag indicating whether to clear the solver's state after cancellation.
+     */
     private class UserCancellationException(
         val clear: Boolean
     ) : CancellationException("User cancellation command.")
@@ -40,6 +51,14 @@ class VrpSolverManager(
     private val blackListedKeys = ConcurrentHashMap.newKeySet<UUID>()
     private val solverConfig = SolverConfig(timeLimit)
 
+    /**
+     * Solves a VRP problem using the specified solver.
+     *
+     * @param solverKey A unique key for the solver process.
+     * @param detailedSolution The detailed solution to be solved.
+     * @param solverName The name of the solver to use.
+     * @return A [Flow] of [SolutionRequestCommand]s, which represent the solutions found by the solver.
+     */
     fun solve(
         solverKey: UUID,
         detailedSolution: VrpDetailedSolution,
@@ -74,23 +93,40 @@ class VrpSolverManager(
         return channel.receiveAsFlow()
     }
 
+    /**
+     * Cancels a running solver process.
+     *
+     * @param solverKey The key of the solver to cancel.
+     * @param currentStatus The current status of the solver.
+     * @param clear A boolean flag indicating whether to clear the solver's state after cancellation.
+     */
     suspend fun cancelSolver(
         solverKey: UUID,
         currentStatus: SolverStatus,
         clear: Boolean
     ) {
-        if (currentStatus == SolverStatus.ENQUEUED) blackListedKeys.add(solverKey)
+        if (currentStatus in setOf(SolverStatus.CREATED, SolverStatus.ENQUEUED)) blackListedKeys.add(solverKey)
         solverKeys.remove(solverKey)?.let {
             it.cancel(UserCancellationException(clear))
             it.join()
         }
     }
 
+    /**
+     * Destroys the solver manager, cancelling all running solvers and cleaning up resources.
+     */
     fun destroy() {
         supervisorJob.cancel()
         runBlocking { supervisorJob.join() }
     }
 
+    /**
+     * Wraps a [VrpSolutionRequest] in a [SolutionRequestCommand].
+     *
+     * @param solutionRequest The solution request to wrap.
+     * @param clear A boolean flag indicating whether to clear the solver's state.
+     * @return The wrapped [SolutionRequestCommand].
+     */
     private fun wrapCommand(
         solutionRequest: VrpSolutionRequest,
         clear: Boolean = false

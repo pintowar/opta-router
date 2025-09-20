@@ -42,13 +42,68 @@ data class VrpProblem(
     val vehicles: List<Vehicle>,
     val customers: List<Customer>
 ) {
+    /**
+     * Returns a distinct list of depots from the vehicles in the problem.
+     *
+     * @return A list of [Depot]s.
+     */
     fun depots(): List<Depot> = vehicles.map { it.depot }.distinct()
 
+    /**
+     * Returns a list of all locations in the problem, including depots and customers.
+     *
+     * @return A list of [Location]s.
+     */
     fun locations(): List<Location> = depots() + customers
 
+    /**
+     * Returns the total number of locations in the problem.
+     *
+     * @return The number of locations.
+     */
     fun numLocations(): Int = locations().size
 
+    /**
+     * Returns the total number of vehicles in the problem.
+     *
+     * @return The number of vehicles.
+     */
     fun numVehicles(): Int = vehicles.size
+
+    /**
+     * Converts the [VrpProblem] to a [VrpProblemSummary].
+     *
+     * @param numEnqueuedRequests The number of enqueued solver requests.
+     * @param numRunningRequests The number of running solver requests.
+     * @param numTerminatedRequests The number of terminated solver requests.
+     * @param numNotSolvedRequests The number of not solved solver requests.
+     * @param numSolverRequests The total number of solver requests.
+     * @return A [VrpProblemSummary] instance.
+     */
+    fun toSummary(
+        numEnqueuedRequests: Int = 0,
+        numRunningRequests: Int = 0,
+        numTerminatedRequests: Int = 0,
+        numNotSolvedRequests: Int = 0,
+        numSolverRequests: Int = 0
+    ): VrpProblemSummary {
+        val totalCapacity = vehicles.sumOf { v -> v.capacity }
+        val totalDemand = customers.sumOf { c -> c.demand }
+        val (nl, nv) = numLocations() to numVehicles()
+        return VrpProblemSummary(
+            id,
+            name,
+            nl,
+            nv,
+            totalCapacity,
+            totalDemand,
+            numEnqueuedRequests,
+            numRunningRequests,
+            numTerminatedRequests,
+            numNotSolvedRequests,
+            numSolverRequests
+        )
+    }
 }
 
 data class Customer(
@@ -96,18 +151,46 @@ data class VrpSolution(
     val routes: List<Route>
 ) {
     companion object {
+        /**
+         * Creates an empty VrpSolution from a VrpProblem instance.
+         *
+         * @param problem The VrpProblem instance.
+         * @return An empty VrpSolution.
+         */
         fun emptyFromInstance(problem: VrpProblem) = VrpSolution(problem, emptyList())
     }
 
+    /**
+     * Checks if the solution is feasible.
+     * A solution is feasible if the total demand of each route does not exceed the capacity of the vehicle assigned to it.
+     *
+     * @return `true` if the solution is feasible, `false` otherwise.
+     */
     fun isFeasible(): Boolean =
         problem.vehicles.zip(routes).all { (vehicle, route) ->
             vehicle.capacity >= route.totalDemand
         }
 
+    /**
+     * Checks if the solution is empty.
+     * A solution is empty if there are no routes or if all routes are empty.
+     *
+     * @return `true` if the solution is empty, `false` otherwise.
+     */
     fun isEmpty(): Boolean = routes.isEmpty() || routes.all { it.order.isEmpty() }
 
+    /**
+     * Calculates the total distance of all routes in the solution.
+     *
+     * @return The total distance as a BigDecimal.
+     */
     fun getTotalDistance() = routes.map { it.distance }.fold(BigDecimal(0)) { a, b -> a + b }
 
+    /**
+     * Calculates the total time of the solution, which is the time of the longest route.
+     *
+     * @return The total time as a BigDecimal.
+     */
     fun getTotalTime(): BigDecimal = routes.maxOfOrNull { it.time } ?: BigDecimal.ZERO
 }
 
@@ -117,6 +200,7 @@ data class VrpDetailedSolution(
 )
 
 enum class SolverStatus {
+    CREATED,
     ENQUEUED,
     NOT_SOLVED,
     RUNNING,

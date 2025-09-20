@@ -10,11 +10,24 @@ import org.jooq.impl.DSL
 import java.lang.reflect.Type
 
 object TestUtils {
-    fun initDB(): DSLContext {
+    /**
+     * Initializes and migrates the H2 database for testing purposes.
+     *
+     * This function configures Flyway to manage database migrations for an H2 file-based database.
+     * It then performs the migrations and returns a [DSLContext] for interacting with the initialized database.
+     *
+     * @return A [DSLContext] instance connected to the initialized H2 test database.
+     */
+    fun initDB(
+        jdbcUrl: String = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+        r2dbcUrl: String = "r2dbc:h2:mem:///testdb",
+        username: String = "sa",
+        password: String = ""
+    ): DSLContext {
         val flyway =
             Flyway
                 .configure()
-                .dataSource("jdbc:h2:file:~/.opta.router/test.h2.db", "sa", "")
+                .dataSource(jdbcUrl, username, password)
                 .schemas("PUBLIC")
                 .locations("classpath:db/specific/h2")
                 .baselineOnMigrate(true)
@@ -23,16 +36,31 @@ object TestUtils {
 
         return DSL
             .using(
-                "r2dbc:h2:file:///~/.opta.router/test.h2.db",
-                "sa",
-                ""
+                r2dbcUrl,
+                username,
+                password
             )
     }
 
+    /**
+     * Runs an initialization SQL script on the provided [DSLContext].
+     *
+     * This is typically used to populate the test database with initial data before tests.
+     *
+     * @param dsl The [DSLContext] to execute the script on.
+     */
     suspend fun runInitScript(dsl: DSLContext) {
         dsl.query("RUNSCRIPT FROM 'classpath:db/data-h2.sql'").awaitSingle()
     }
 
+    /**
+     * Cleans (deletes all data from) the relevant tables in the database.
+     *
+     * This function is used to ensure a clean state before each test run by deleting all records
+     * from the `VEHICLE`, `LOCATION`, `VRP_SOLVER_SOLUTION`, `VRP_SOLVER_REQUEST`, and `VRP_PROBLEM` tables.
+     *
+     * @param dsl The [DSLContext] to perform the table cleaning operations on.
+     */
     suspend fun cleanTables(dsl: DSLContext) {
         dsl.query("DELETE FROM \"PUBLIC\".\"VEHICLE\"").awaitSingle()
         dsl.query("DELETE FROM \"PUBLIC\".\"LOCATION\"").awaitSingle()
@@ -41,6 +69,13 @@ object TestUtils {
         dsl.query("DELETE FROM \"PUBLIC\".\"VRP_PROBLEM\"").awaitSingle()
     }
 
+    /**
+     * Provides a pre-configured [ObjectMapper] instance for JSON serialization/deserialization.
+     *
+     * The mapper is configured for pretty printing, and to disable writing dates and durations as timestamps.
+     *
+     * @return A configured [ObjectMapper] instance.
+     */
     fun mapper(): ObjectMapper =
         ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
@@ -48,6 +83,13 @@ object TestUtils {
             .disable(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
             .findAndRegisterModules()
 
+    /**
+     * Provides a [Serde] implementation for testing, using the configured [ObjectMapper].
+     *
+     * This implementation supports JSON serialization and deserialization. CBOR methods are not implemented.
+     *
+     * @return A [Serde] instance for testing.
+     */
     fun serde(): Serde =
         object : Serde {
             private val objectMapper = mapper()

@@ -19,15 +19,41 @@ import java.time.Duration
 class JspritSolver : Solver() {
     override val name: String = "jsprit"
 
+    /**
+     * A termination criterion for jsprit algorithms based on a time limit.
+     *
+     * This class implements [PrematureAlgorithmTermination] to stop the jsprit solver
+     * once a specified total time duration has elapsed since the algorithm's start.
+     *
+     * @property totalTimeMs The maximum [Duration] for which the algorithm is allowed to run.
+     */
     internal class TimeTermination(
         private val totalTimeMs: Duration
     ) : PrematureAlgorithmTermination {
         private val beginning = System.currentTimeMillis()
 
+        /**
+         * Checks if the algorithm should be prematurely terminated.
+         *
+         * @param discoveredSolution The currently discovered solution (not used in this time-based termination).
+         * @return `true` if the elapsed time exceeds `totalTimeMs`, `false` otherwise.
+         */
         override fun isPrematureBreak(discoveredSolution: SearchStrategy.DiscoveredSolution) =
             System.currentTimeMillis() - beginning >= totalTimeMs.toMillis()
     }
 
+    /**
+     * Solves the VRP problem using the jsprit library and emits solutions as they are found.
+     *
+     * This function sets up a jsprit algorithm, optionally initializes it with a given solution,
+     * and adds listeners to emit the best solution found at the end of each iteration.
+     * The solver runs until a specified time limit is reached or the coroutine is cancelled.
+     *
+     * @param initialSolution The initial [VrpSolution] to start the solver from.
+     * @param matrix The [Matrix] containing travel distances between locations.
+     * @param config The [SolverConfig] containing parameters like the time limit for the solver.
+     * @return A [Flow] of [VrpSolution] objects, representing the best solution found at different stages of the solving process.
+     */
     override fun solveFlow(
         initialSolution: VrpSolution,
         matrix: Matrix,

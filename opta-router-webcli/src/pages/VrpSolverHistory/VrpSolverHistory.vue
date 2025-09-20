@@ -30,7 +30,7 @@ const filteredSolutions = computed(() => {
 });
 
 watch(requests, () => {
-  selectedRequest.value = requests?.value?.length ? requests.value[0] : null;
+  selectedRequest.value = requests?.value?.[0] || null;
 });
 
 function requestStatus(request: VrpSolverRequest | null): string {

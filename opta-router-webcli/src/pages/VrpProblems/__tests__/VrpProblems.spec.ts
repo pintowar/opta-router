@@ -272,15 +272,15 @@ describe("VrpProblems.vue", () => {
     await screen.findByText("P1");
     const rows = screen.getAllByRole("row");
 
-    const row1 = within(rows[1]);
+    const row1 = within(rows[1]!);
     expect(row1.getByText("E")).toBeInTheDocument();
     expect(row1.getByText("E").getAttribute("data-tip")).toBe("Enqueued");
 
-    const row2 = within(rows[2]);
+    const row2 = within(rows[2]!);
     expect(row2.getByText("R")).toBeInTheDocument();
     expect(row2.getByText("R").getAttribute("data-tip")).toBe("Running");
 
-    const row3 = within(rows[3]);
+    const row3 = within(rows[3]!);
     expect(row3.getByText("N")).toBeInTheDocument();
     expect(row3.getByText("N").getAttribute("data-tip")).toBe("Not Solving");
   });

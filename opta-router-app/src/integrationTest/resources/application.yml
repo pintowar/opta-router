@@ -1,0 +1,82 @@
+spring:
+  profiles:
+    active: test
+    group:
+      test: local,rest,solver,geo-local
+  jackson:
+    serialization:
+      indent_output: true
+      write_dates_as_timestamps: false
+      write_durations_as_timestamps: false
+  data:
+    r2dbc:
+      repositories:
+        enabled: false
+  r2dbc:
+    url: r2dbc:h2:file:///~/.opta.router/test.h2.db
+    username: sa
+    password:
+  flyway:
+    enabled: true
+    url: jdbc:h2:file:~/.opta.router/test.h2.db
+    user: sa
+    password:
+    locations: classpath:db/migration,classpath:db/specific/h2
+
+camel:
+  springboot:
+    name: opta-router-routes
+  route:
+    producer:
+      enqueue-request-solver: direct://enqueue-request-solver
+      enqueue-solution-request: direct://enqueue-solution-request
+      broadcast-solution: direct://broadcast-solution
+      broadcast-cancel-solver: direct://broadcast-cancel-solver
+
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
+    consumer:
+      enqueue-request-solver: direct://enqueue-request-solver
+      enqueue-solution-request: direct://enqueue-solution-request
+      broadcast-solution: direct://broadcast-solution
+      broadcast-cancel-solver: direct://broadcast-cancel-solver
+
+      request-solver: hazelcast-queue://request-solver-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-request: hazelcast-queue://solution-request-queue?hazelcastInstanceName=opta_router&queueConsumerMode=poll
+      solution-topic: hazelcast-topic://solution-topic?hazelcastInstanceName=opta_router
+      cancel-solver-topic: hazelcast-topic://cancel-solver-topic?hazelcastInstanceName=opta_router&reliable=true
+
+endpoints:
+  health:
+    sensitive: false
+
+management:
+  security:
+    enabled: false
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,env,loggers,mappings,scheduledtasks,threaddump,heapdump,beans,sessions
+
+springdoc:
+  api-docs:
+    enabled: true
+
+solver:
+  termination:
+    time-limit: 5m
+  unqueue:
+    time-limit: 10s
+
+logging:
+  level:
+    io.github.pintowar.opta.router: INFO
+    ai.timefold.solver.core: ERROR
+    com.hazelcast.system: ERROR
+    com.graphhopper.jsprit.core: ERROR
+    org.jooq: ERROR

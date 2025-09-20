@@ -1,8 +1,10 @@
-name: OptaRouter Tag Release CI
+name: OptaRouter Tag Release Workflow CI
 on:
-  push:
-    tags:
-      - 'v**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'The tag to release'
+        required: true
 
 env:
   JAVA_VERSION: '21'
@@ -16,7 +18,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }} # This checks out the specific tag that triggered the workflow
+          ref: ${{ github.event.inputs.tag }} # This checks out the specific tag that triggered the workflow
+          fetch-depth: 0
 
       - uses: n1hility/cancel-previous-runs@v3
         with:

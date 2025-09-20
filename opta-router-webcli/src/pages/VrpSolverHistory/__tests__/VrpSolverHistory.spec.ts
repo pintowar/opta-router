@@ -33,7 +33,7 @@ vi.mock("./SolutionsHistoryChart.vue", () => ({
 
 describe("VrpSolverHistory", () => {
   beforeEach(() => {
-    (useFetch as Mock).mockImplementation((url: Ref<string>) => {
+    (useFetch as Mock).mockImplementation(() => {
       const mockReturnValue = {
         get: vi.fn().mockReturnThis(),
         json: vi.fn().mockReturnValue({
@@ -43,9 +43,6 @@ describe("VrpSolverHistory", () => {
         }),
       };
 
-      if (url.value.includes("requests")) {
-        return mockReturnValue;
-      }
       return mockReturnValue;
     });
     vi.mocked(useRoute).mockReturnValue({
@@ -99,10 +96,16 @@ describe("VrpSolverHistory", () => {
       },
     });
     await flushPromises();
-    const options = wrapper.findAll("select")[0].findAll("option");
+    const select = wrapper.findAll("select")[0];
+    expect(select).toBeTruthy();
+    const options = select!.findAll("option");
     expect(options.length).toBe(3); // all + 2 solvers
-    expect(options[1].text()).toBe("solver1");
-    expect(options[2].text()).toBe("solver2");
+    const option1 = options[1];
+    expect(option1).toBeTruthy();
+    expect(option1!.text()).toBe("solver1");
+    const option2 = options[2];
+    expect(option2).toBeTruthy();
+    expect(option2!.text()).toBe("solver2");
   });
 
   it("fetches and displays requests", async () => {
@@ -139,10 +142,16 @@ describe("VrpSolverHistory", () => {
       },
     });
     await flushPromises();
-    const options = wrapper.findAll("select")[1].findAll("option");
+    const select = wrapper.findAll("select")[1];
+    expect(select).toBeTruthy();
+    const options = select!.findAll("option");
     expect(options.length).toBe(2);
-    expect(options[0].text()).toBe("req1");
-    expect(options[1].text()).toBe("req2");
+    const option1 = options[0];
+    expect(option1).toBeTruthy();
+    expect(option1!.text()).toBe("req1");
+    const option2 = options[1];
+    expect(option2).toBeTruthy();
+    expect(option2!.text()).toBe("req2");
   });
 
   it("filters solutions based on selected solver", async () => {
@@ -180,7 +189,8 @@ describe("VrpSolverHistory", () => {
     });
     await flushPromises();
     const select = wrapper.findAll("select")[0];
-    await select.setValue("solver1");
+    expect(select).toBeTruthy();
+    await select!.setValue("solver1");
     await flushPromises();
     const chart = wrapper.findComponent({ name: "SolutionsHistoryChart" });
     expect(chart.props("solutions").length).toBe(1);
@@ -223,11 +233,21 @@ describe("VrpSolverHistory", () => {
       },
     });
     await flushPromises();
-    const options = wrapper.findAll("select")[1].findAll("option");
-    expect(options[0].classes()).toContain("text-info");
-    expect(options[1].classes()).toContain("text-success");
-    expect(options[2].classes()).toContain("text-warning");
-    expect(options[3].classes()).toContain("text-error");
+    const select = wrapper.findAll("select")[1];
+    expect(select).toBeTruthy();
+    const options = select!.findAll("option");
+    const option0 = options[0];
+    expect(option0).toBeTruthy();
+    expect(option0!.classes()).toContain("text-info");
+    const option1 = options[1];
+    expect(option1).toBeTruthy();
+    expect(option1!.classes()).toContain("text-success");
+    const option2 = options[2];
+    expect(option2).toBeTruthy();
+    expect(option2!.classes()).toContain("text-warning");
+    const option3 = options[3];
+    expect(option3).toBeTruthy();
+    expect(option3!.classes()).toContain("text-error");
   });
 
   it("navigates to solver page when link is clicked", async () => {

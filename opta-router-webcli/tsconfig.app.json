@@ -4,6 +4,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
+    "lib": ["ESNext.Array", "DOM", "ESNext"],
 
     /* Linting */
     "strict": true,

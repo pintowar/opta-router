@@ -44,3 +44,11 @@ tasks {
         delete(project.layout.buildDirectory.get())
     }
 }
+
+sonarqube {
+    properties {
+        property("sonar.sources", "src")
+        property("sonar.tests", "src")
+        property("sonar.test.inclusions", "**/*.(spec|test).ts")
+    }
+}

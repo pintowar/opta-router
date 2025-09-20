@@ -13,6 +13,10 @@ jobs:
   gradle_master_build:
     name: Gradle Master Build
     runs-on: ubuntu-latest
+    permissions:
+      # Grant write permissions to GITHUB_TOKEN for creating a release
+      contents: write
+      actions: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -37,8 +41,16 @@ jobs:
       - name: Running gradle task
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Running gradle task
-        run: ./gradlew clean spotlessCheck sonar release -PenvironmentName=single -Prelease.useAutomaticVersion=true
+      - name: Create and push release tag
+        id: release
+        run: |
+          ./gradlew clean spotlessCheck sonar release -PenvironmentName=single -Prelease.useAutomaticVersion=true
+          echo "tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Trigger Tag Release Workflow
+        run: gh workflow run tag_release.yml --ref ${{ steps.release.outputs.tag }} -f tag=${{ steps.release.outputs.tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

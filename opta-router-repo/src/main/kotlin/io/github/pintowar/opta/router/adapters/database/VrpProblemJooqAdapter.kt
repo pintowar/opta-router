@@ -55,12 +55,7 @@ class VrpProblemJooqAdapter(
             .limit(offset, limit)
             .asFlow()
             .map { (p, t, e, r, f, c) ->
-                toProblem(p).let {
-                    val totalCapacity = it.vehicles.sumOf { v -> v.capacity }
-                    val totalDemand = it.customers.sumOf { c -> c.demand }
-                    val (nl, nv) = it.numLocations() to it.numVehicles()
-                    VrpProblemSummary(it.id, it.name, nl, nv, totalCapacity, totalDemand, e, r, f, c, t)
-                }
+                toProblem(p).toSummary(e, r, f, c, t)
             }
     }
 
@@ -165,6 +160,12 @@ class VrpProblemJooqAdapter(
         }
     }
 
+    /**
+     * Converts a [VrpProblemRecord] database record to a [VrpProblem] domain object.
+     *
+     * @param problem The [VrpProblemRecord] to convert.
+     * @return The converted [VrpProblem] object.
+     */
     private fun toProblem(problem: VrpProblemRecord): VrpProblem =
         VrpProblem(
             problem.id!!,
