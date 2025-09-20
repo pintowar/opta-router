@@ -60,6 +60,10 @@ configure<ReleaseExtension> {
 }
 
 jreleaser {
+    val webServ = ":opta-router-app"
+    val jarName = "${project(webServ).name}-${version}.jar"
+    val genJar = project(webServ).layout.buildDirectory.dir("libs").get().file(jarName)
+
     project {
         authors.set(listOf("Thiago Oliveira Pinheiro"))
         license.set("Apache-2.0")
@@ -70,8 +74,11 @@ jreleaser {
     }
     assemble {
         javaArchive {
-            create("app") {
+            register("opta-router-app") {
                 active.set(Active.ALWAYS)
+                jars {
+                    pattern.set("$genJar")
+                }
                 java {
                     mainClass.set("io.github.pintowar.opta.router.ApplicationKt")
                     jvmOptions {
@@ -101,6 +108,8 @@ jreleaser {
             imageName("${rootProject.name}:${buildEnv}-$tagVer")
             imageName("${rootProject.name}:${buildEnv}-$version")
 
+            preCommand("RUN apt-get -qq update && apt-get install -y unzip && rm -r /var/lib/apt/lists/*")
+
             registries {
                 create("docker.io") {
                     externalLogin.set(true)
@@ -112,10 +121,10 @@ jreleaser {
         }
     }
     distributions {
-        create("opta-router") {
+        create("opta-router-app") {
             distributionType.set(org.jreleaser.model.Distribution.DistributionType.SINGLE_JAR)
             artifact {
-                path.set(file("$rootDir/build/app-${version}.jar"))
+                path.set(file(genJar))
             }
         }
     }
@@ -141,43 +150,32 @@ sonarqube {
     }
 }
 
-tasks.register("assembleApp") {
-    val webServ = ":opta-router-app"
-    dependsOn("${webServ}:build")
-    group = "build"
-    description = "Build web app"
-    doLast {
-        copy {
-            from(files(project(webServ).layout.buildDirectory.dir("libs").get())) {
-                include("opta-router-app-${version}.jar")
-            }
-            into("$rootDir/build/")
-            rename { "app-${version}.jar" }
-        }
-    }
-}
-
-tasks.register("fullTestCoverageReport") {
-    val webCli = ":opta-router-webcli"
-    dependsOn("testCodeCoverageReport", "${webCli}:coverage")
-    group = "verification"
-    description = "Full Test Coverage Report"
-    doLast {
-        copy {
-            from(project(webCli).layout.projectDirectory.dir("coverage"))
-            into(layout.buildDirectory.dir("reports/coverage"))
-        }
-    }
-}
-
 tasks.sonar {
     dependsOn(":fullTestCoverageReport")
 }
 
-tasks.jreleaserRelease {
-    dependsOn(":assembleApp")
-}
+tasks {
+    register("fullTestCoverageReport") {
+        val webCli = ":opta-router-webcli"
+        dependsOn("testCodeCoverageReport", "${webCli}:coverage")
+        group = "verification"
+        description = "Full Test Coverage Report"
+        doLast {
+            copy {
+                from(project(webCli).layout.projectDirectory.dir("coverage"))
+                into(layout.buildDirectory.dir("reports/coverage"))
+            }
+        }
+    }
 
-tasks.jreleaserPackage {
-    dependsOn(":assembleApp")
+    jreleaserAssemble {
+        val webServ = ":opta-router-app"
+        dependsOn("${webServ}:build")
+    }
+    jreleaserRelease {
+        dependsOn("jreleaserAssemble")
+    }
+    jreleaserPackage {
+        dependsOn("jreleaserAssemble")
+    }
 }
