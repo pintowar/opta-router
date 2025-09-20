@@ -69,6 +69,41 @@ data class VrpProblem(
      * @return The number of vehicles.
      */
     fun numVehicles(): Int = vehicles.size
+
+    /**
+     * Converts the [VrpProblem] to a [VrpProblemSummary].
+     *
+     * @param numEnqueuedRequests The number of enqueued solver requests.
+     * @param numRunningRequests The number of running solver requests.
+     * @param numTerminatedRequests The number of terminated solver requests.
+     * @param numNotSolvedRequests The number of not solved solver requests.
+     * @param numSolverRequests The total number of solver requests.
+     * @return A [VrpProblemSummary] instance.
+     */
+    fun toSummary(
+        numEnqueuedRequests: Int = 0,
+        numRunningRequests: Int = 0,
+        numTerminatedRequests: Int = 0,
+        numNotSolvedRequests: Int = 0,
+        numSolverRequests: Int = 0
+    ): VrpProblemSummary {
+        val totalCapacity = vehicles.sumOf { v -> v.capacity }
+        val totalDemand = customers.sumOf { c -> c.demand }
+        val (nl, nv) = numLocations() to numVehicles()
+        return VrpProblemSummary(
+            id,
+            name,
+            nl,
+            nv,
+            totalCapacity,
+            totalDemand,
+            numEnqueuedRequests,
+            numRunningRequests,
+            numTerminatedRequests,
+            numNotSolvedRequests,
+            numSolverRequests
+        )
+    }
 }
 
 data class Customer(

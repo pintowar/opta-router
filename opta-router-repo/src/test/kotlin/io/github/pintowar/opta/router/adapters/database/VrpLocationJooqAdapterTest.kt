@@ -1,37 +1,18 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.adapters.database.util.TestUtils
 import io.github.pintowar.opta.router.core.domain.models.Customer
 import io.github.pintowar.opta.router.core.domain.models.Depot
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import org.jooq.exception.IntegrityConstraintViolationException
 
-class VrpLocationJooqAdapterTest :
-    FunSpec({
+class VrpLocationJooqAdapterTest : BaseJooqTest() {
+    val adapter = VrpLocationJooqAdapter(dsl)
 
-        coroutineTestScope = true
-
-        val dsl = TestUtils.initDB()
-        val adapter = VrpLocationJooqAdapter(dsl)
-
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
-        beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
-        }
-
-        afterEach {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
+    init {
         test("findAll should return locations based on query, offset, and limit") {
             val locations = adapter.findAll("chie", 0, 10).toList()
             locations.size shouldBe 1
@@ -86,4 +67,5 @@ class VrpLocationJooqAdapterTest :
                 adapter.findAll("New Customer", 0, 1).count() shouldBe 0
             }
         }
-    })
+    }
+}

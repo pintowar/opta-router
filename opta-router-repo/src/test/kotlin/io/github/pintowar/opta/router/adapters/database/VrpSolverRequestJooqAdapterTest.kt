@@ -1,37 +1,19 @@
 package io.github.pintowar.opta.router.adapters.database
 
-import io.github.pintowar.opta.router.adapters.database.util.TestUtils
 import io.github.pintowar.opta.router.core.domain.models.SolverStatus
 import io.github.pintowar.opta.router.core.domain.models.VrpSolverRequest
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.engine.runBlocking
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.awaitSingle
 import org.jooq.generated.tables.references.VRP_SOLVER_REQUEST
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
-class VrpSolverRequestJooqAdapterTest :
-    FunSpec({
+class VrpSolverRequestJooqAdapterTest : BaseJooqTest() {
+    val adapter = VrpSolverRequestJooqAdapter(dsl)
 
-        coroutineTestScope = true
-
-        val dsl = TestUtils.initDB()
-        val adapter = VrpSolverRequestJooqAdapter(dsl)
-
-        beforeSpec {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
-
-        beforeEach {
-            runBlocking { TestUtils.runInitScript(dsl) }
-        }
-
-        afterEach {
-            runBlocking { TestUtils.cleanTables(dsl) }
-        }
+    init {
 
         test("refreshCreatedSolverRequests should update status of old running requests to TERMINATED") {
             val oldRequest = VrpSolverRequest(UUID.randomUUID(), 1L, "solver1", SolverStatus.CREATED)
@@ -145,4 +127,5 @@ class VrpSolverRequestJooqAdapterTest :
             requests.size shouldBe 1
             requests.map { it.requestKey } shouldBe listOf(request1.requestKey)
         }
-    })
+    }
+}
