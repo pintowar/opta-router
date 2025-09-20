@@ -16,7 +16,11 @@ const formatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const vehicles = computed(() => solution.value?.problem.vehicles || []);
 const routes = computed(() => solution.value?.routes || []);
 const capacities = computed(
-  () => solution.value?.routes.map((r, idx) => (100 * r.totalDemand) / vehicles.value[idx].capacity) || []
+  () =>
+    solution.value?.routes.map((r, idx) => {
+      const capacity = vehicles.value[idx]?.capacity;
+      return capacity ? (100 * r.totalDemand) / capacity : 0;
+    }) || []
 );
 
 const colors = computed(() => {
@@ -37,9 +41,9 @@ const colors = computed(() => {
       </thead>
       <tbody>
         <tr v-for="(capacity, idx) in capacities" :key="idx" class="hover:bg-base-300">
-          <td :style="{ color: colors[idx] }">{{ vehicles[idx].name }}</td>
-          <td>{{ routes[idx].distance }}</td>
-          <td>{{ routes[idx].time }}</td>
+          <td :style="{ color: colors[idx] }">{{ vehicles[idx]?.name }}</td>
+          <td>{{ routes[idx]?.distance }}</td>
+          <td>{{ routes[idx]?.time }}</td>
           <td>
             <div class="tooltip w-full" :data-tip="`${formatter.format(capacity)}%`">
               <progress class="progress progress-primary" :value="capacity" max="100"></progress>

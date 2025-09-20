@@ -35,7 +35,7 @@ const depots = computed<(Depot | null)[]>({
   },
 });
 
-const selectedDepot = ref<Depot | null>(depots.value.length > 0 ? depots.value[0] : null);
+const selectedDepot = ref<Depot | null>(depots.value?.[0] || null);
 
 const vehicleUrl = computed(() => `/api/vrp-vehicles/by-depots?ids=${selectedDepot.value?.id}`);
 const { data, execute: listVehicles } = useFetch(vehicleUrl, { immediate: false, initialData: [] })

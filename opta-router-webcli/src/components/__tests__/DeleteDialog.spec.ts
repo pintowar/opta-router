@@ -48,6 +48,8 @@ describe("DeleteDialog", () => {
     });
 
     await fireEvent.click(screen.getByText("Close"));
-    expect(emitted()["update:open"][0]).toEqual([false]);
+    const updateOpenEvents = emitted()["update:open"];
+    expect(updateOpenEvents).toBeDefined();
+    expect(updateOpenEvents?.[0]).toEqual([false]);
   });
 });

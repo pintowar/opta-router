@@ -45,14 +45,14 @@ describe("VrpVehicleForm.vue", () => {
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, name: "New Name" });
 
     expect(wrapper.emitted("update:vehicle")).toHaveLength(1);
-    const emittedVehicle = wrapper.emitted("update:vehicle")![0][0] as Vehicle;
-    expect(emittedVehicle.name).toBe("New Name");
+    const emittedVehicle = wrapper.emitted("update:vehicle")?.[0]?.[0] as Vehicle;
+    expect(emittedVehicle?.name).toBe("New Name");
 
     await wrapper.find('input[name="capacity"]').setValue(200);
     await wrapper.vm.$emit("update:vehicle", { ...mockVehicle, capacity: 200 });
     expect(wrapper.emitted("update:vehicle")).toHaveLength(2);
-    const emittedVehicle2 = wrapper.emitted("update:vehicle")![1][0] as Vehicle;
-    expect(emittedVehicle2.capacity).toBe(200);
+    const emittedVehicle2 = wrapper.emitted("update:vehicle")?.[1]?.[0] as Vehicle;
+    expect(emittedVehicle2?.capacity).toBe(200);
   });
 
   it('emits "close" when the close button is clicked', async () => {
