@@ -11,11 +11,17 @@ class DomainTest :
 
         test("VrpProblem getters") {
             val problem = Fixtures.problem("sample-4")
+            val summary = problem.toSummary()
 
             problem.depots() shouldContain Fixtures.depot()
             problem.depots() shouldHaveSize 1
             problem.numLocations() shouldBe 10
             problem.numVehicles() shouldBe 2
+
+            summary.nVehicles shouldBe 2
+            summary.nLocations shouldBe 10
+            summary.totalDemand shouldBe 31
+            summary.totalCapacity shouldBe 62
         }
 
         test("VrpSolution getters") {

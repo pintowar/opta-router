@@ -25,7 +25,6 @@ mockk = "1.14.5"
 spring-mockk = "4.0.2"
 gradle-jooq = "10.1.1"
 gradle-node = "7.1.0"
-gradle-jib = "3.4.5"
 gradle-git = "2.5.2"
 gradle-release = "3.1.0"
 gradle-properties = "1.6.0"
@@ -43,7 +42,6 @@ flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
 jooq = { id = "nu.studer.jooq", version.ref = "gradle-jooq" }
 git-properties = { id = "com.gorylenko.gradle-git-properties", version.ref = "gradle-git" }
 node = { id = "com.github.node-gradle.node", version.ref = "gradle-node" }
-jib = { id = "com.google.cloud.tools.jib", version.ref = "gradle-jib" }
 release = { id = "net.researchgate.release", version.ref = "gradle-release" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-versions" }
 sonarqube = { id = "org.sonarqube", version.ref = "gradle-sonarqube" }
