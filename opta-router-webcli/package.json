@@ -20,7 +20,7 @@
     "apexcharts": "^5.3.5",
     "daisyui": "^5.1.13",
     "leaflet": "^1.9.4",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "oh-vue-icons": "^1.0.0-rc3",
     "rainbow-color": "^2.0.0",
     "tailwindcss": "^4.1.11",
